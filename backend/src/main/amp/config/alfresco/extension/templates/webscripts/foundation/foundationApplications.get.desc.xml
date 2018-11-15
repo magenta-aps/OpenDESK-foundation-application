@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get OpenDesk Foundation Applications</shortname>
+    <description>Gets all applications in the system</description>
+    <url>/foundation/application</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

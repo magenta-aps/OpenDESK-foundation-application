@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="odf:openDeskFoundationModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+    <!-- Optional meta-data about the model -->
+    <description>Document Model for OpenDesk</description>
+    <author>Magenta ApS</author>
+    <version>1.0</version>
+
+    <imports>
+        <!-- Import Alfresco Dictionary Definitions -->
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+        <!-- Import Alfresco Content Domain Model Definitions -->
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+        <!-- Import Alfresco System Model Definitions -->
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
+        <!-- Import Alfresco Forum Model Definitions -->
+        <import uri="http://www.alfresco.org/model/forum/1.0" prefix="fm"/>
+    </imports>
+
+    <!-- Custom namespace for your domain -->
+    <namespaces>
+        <namespace uri="http://www.magenta-aps.dk/model/foundation/${project.version}" prefix="odf"/>
+    </namespaces>
+
+    <!-- ===============================================================================================================
+        Constraints, Types, and Aspects go here...
+        -->
+    <types>
+        <type name="odf:application">
+            <title>Application</title>
+            <parent>cm:folder</parent>
+            <properties>
+                <property name="odf:title">
+                    <type>d:text</type>
+                </property>
+<!--                <property name="od:read">
+                    <type>d:boolean</type>
+                    <default>false</default>
+                </property>
+                <property name="od:seen">
+                <type>d:boolean</type>
+                <default>false</default>
+               </property>
+                -->
+            </properties>
+        </type>
+
+    </types>
+
+    <aspects>
+<!--        <aspect name="od:notifications">
+            <title>Notifications related to a specific user</title>
+                <properties>
+                    <property name="od:test">
+                        <title>test</title>
+                        <type>d:text</type>
+                    </property>
+                </properties>
+
+        <associations>
+            <child-association name="od:ids">
+                <target>
+                    <class>od:notification</class>
+                    <many>true</many>
+                </target>
+            </child-association>
+        </associations>
+    </aspect>-->
+
+  
+</aspects>
+
+</model>
