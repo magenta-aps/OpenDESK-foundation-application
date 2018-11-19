@@ -2,7 +2,7 @@
 <model name="odf:openDeskFoundationModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
 
     <!-- Optional meta-data about the model -->
-    <description>Document Model for OpenDesk</description>
+    <description>Document Model for OpenDesk Foundation Extensions</description>
     <author>Magenta ApS</author>
     <version>1.0</version>
 
@@ -25,30 +25,225 @@
     <!-- ===============================================================================================================
         Constraints, Types, and Aspects go here...
         -->
+        
+    <constraints>
+        <!--        <constraint name='test:regex1' type='REGEX'>
+            <parameter name='expression'>
+                <value>[A-Z]*</value>
+            </parameter>
+            <parameter name='requiresMatch'>
+                <value>false</value>
+            </parameter>
+        </constraint>-->
+        <constraint name='odf:cvr' type='REGEX'>
+            <parameter name='expression'>
+                <value>[0-9]{8}</value>
+            </parameter>
+        </constraint>
+        <constraint name='odf:postalCode' type='REGEX'>
+            <parameter name='expression'>
+                <value>[0-9]{4}</value>
+            </parameter>
+        </constraint>
+        <constraint name='odf:shortDescription' type='LENGTH'>
+            <parameter name='minLength'>
+                <value>0</value>
+            </parameter>
+            <parameter name='maxLength'>
+                <value>1000</value>
+            </parameter>
+        </constraint>
+        <constraint name='odf:email' type="dk.opendesk.foundationapplication.constraints.UnicodeRegexConstraint">
+            <parameter name='expression'>
+                <value><![CDATA[^[\w0-9.!#$%&’*+\=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$]]></value>
+            </parameter>
+        </constraint>
+        <constraint name='odf:phoneNumber' type='REGEX'>
+            <parameter name='expression'>
+                <value>^\+(?:[0-9] ?){6,14}[0-9]$</value>
+            </parameter>
+        </constraint>
+        
+        <!--        <constraint name='test:numberValue' type='MINMAX'>
+            <parameter name='minValue'>
+                <value>8</value>
+            </parameter>
+            <parameter name='maxValue'>
+                <value>8</value>
+            </parameter>
+        </constraint>-->
+        <constraint name="odf:categories" type="dk.opendesk.foundationapplication.constraints.CategoryConstraint">
+            <parameter name="allowedValues">
+                <list></list>
+            </parameter>
+        </constraint>
+        <!--        <constraint name='odf:categories' type='LIST'>
+            <parameter name='allowedValues'>
+                <list>
+                    <value>CATEGORY1</value>
+                    <value>CATEGORY2</value>
+                </list>
+            </parameter>
+            <parameter name='caseSensitive'>
+                <value>true</value>
+            </parameter>
+        </constraint>-->
+    </constraints>        
+                    
     <types>
+        <type name="odf:applicationState">
+            <title>Application State</title>
+            <parent>cm:folder</parent>
+            <properties>
+                <property name="odf:stateTitle">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+            <associations>
+                <child-association name="odf:applications">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>odf:application</class>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </target>
+                    <duplicate>false</duplicate>
+                </child-association>
+                <association name="odf:applicationStates">
+                    <title>Workflow steps</title>
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>odf:application</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
+            </associations>
+            
+        </type>
+        
         <type name="odf:application">
             <title>Application</title>
             <parent>cm:folder</parent>
             <properties>
-                <property name="odf:title">
+                <property name="odf:applicationTitle">
                     <type>d:text</type>
+                    <mandatory>true</mandatory>
                 </property>
-<!--                <property name="od:read">
-                    <type>d:boolean</type>
-                    <default>false</default>
+                <property name="odf:applicationCategory">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref='odf:categories'/>
+                    </constraints>
                 </property>
-                <property name="od:seen">
-                <type>d:boolean</type>
-                <default>false</default>
-               </property>
-                -->
+                <property name="odf:applicationRecipient">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                
+                <property name="odf:applicationAddressRoad">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="odf:applicationAddressNumber">
+                    <type>d:int</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="odf:applicationAddressFloor">
+                    <type>d:int</type>
+                    <mandatory>false</mandatory>
+                </property>
+                <property name="odf:applicationAddressPostalCode">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref='odf:postalCode'/>
+                    </constraints>
+                </property>
+                
+                <property name="odf:AapplicationContactPersonName">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="odf:applicationContactPersonSurname">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="odf:applicationContactEmail">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref='odf:email'/>
+                    </constraints>
+                </property>
+                <property name="odf:applicationContactPhoneNumber">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref='odf:phoneNumber'/>
+                    </constraints>
+                </property>
+                <property name="odf:applicationShortDescription">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref='odf:shortDescription'/>
+                    </constraints>
+                </property>
+                
+                <property name="odf:applicationProjectStartDate">
+                    <type>d:datetime</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="odf:applicationProjectEndDate">
+                    <type>d:datetime</type>
+                    <mandatory>true</mandatory>
+                </property>
+                
+                <property name="odf:applicationAppliedAmount">
+                    <type>d:long</type>
+                    <mandatory>true</mandatory>
+                </property>
+                
+                <property name="odf:applicationAccountRegistration">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint type='REGEX'>
+                            <parameter name='expression'>
+                                <value>[0-9]{0,4}</value>
+                            </parameter>
+                        </constraint>
+                    </constraints>
+                    
+                </property>
+                <property name="odf:applicationAccountNumber">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint type='REGEX'>
+                            <parameter name='expression'>
+                                <value>[0-9]{0,8}</value>
+                            </parameter>
+                        </constraint>
+                    </constraints>
+                </property>
+
             </properties>
         </type>
 
     </types>
 
-    <aspects>
-<!--        <aspect name="od:notifications">
+<!--    <aspects>
+        <aspect name="od:notifications">
             <title>Notifications related to a specific user</title>
                 <properties>
                     <property name="od:test">
@@ -57,17 +252,19 @@
                     </property>
                 </properties>
 
-        <associations>
-            <child-association name="od:ids">
-                <target>
-                    <class>od:notification</class>
-                    <many>true</many>
-                </target>
-            </child-association>
-        </associations>
-    </aspect>-->
+            <associations>
+                <child-association name="od:ids">
+                    <target>
+                        <class>od:notification</class>
+                        <many>true</many>
+                    </target>
+                </child-association>
+            </associations>
+        </aspect>
 
   
-</aspects>
+        </aspects>-->
+
+    
 
 </model>
