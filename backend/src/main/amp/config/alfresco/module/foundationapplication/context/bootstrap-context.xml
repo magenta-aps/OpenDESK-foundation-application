@@ -16,8 +16,10 @@
     </bean>
     
     <bean id="alfresco.odf.dataBootstrap"
-          class="org.alfresco.repo.admin.patch.impl.GenericBootstrapPatch"
-          parent="basePatch" >
+          class="dk.opendesk.foundationapplication.patches.InitialStructure"
+          parent="basePatch"
+          depends-on="alfresco.odf.dictionaryBootstrap">
+        <property name="serviceRegistry" ref="ServiceRegistry"/>
         <property name="id">
             <value>alfresco.odf.dataBootstrap</value>
         </property>
@@ -33,18 +35,14 @@
         <property name="targetSchema">
             <value>99999</value>
         </property>
-        <property name="importerBootstrap">
-            <ref bean="spacesBootstrap" />
-        </property>
-        <property name="checkPath">
+<!--        <property name="dependsOn" >
+        <list>
+            <ref bean="alfresco.odf.dictionaryBootstrap" />
+        </list>
+    </property>-->
+<!--        <property name="checkPath">
             <value>/${spaces.company_home.childname}/${spaces.dictionary.childname}/odf:foundation_data</value>
-        </property>
-        <property name="bootstrapView">
-            <props>
-                <prop key="path">/${spaces.company_home.childname}/${spaces.dictionary.childname}</prop>
-                <prop key="location">alfresco/module/foundationapplication/bootstrap/standardContainers.xml</prop>
-            </props>
-        </property>
+        </property>-->
     </bean>
 
  

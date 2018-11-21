@@ -178,21 +178,9 @@
                      </target>
                      <duplicate>false</duplicate>
                  </child-association>
-                 <child-association name="odf:applications">
-                     <source>
-                         <mandatory>false</mandatory>
-                         <many>true</many>
-                     </source>
-                     <target>
-                         <class>odf:application</class>
-                         <mandatory>true</mandatory>
-                         <many>false</many>
-                     </target>
-                     <duplicate>true</duplicate>
-                 </child-association>
              </associations>
         </type> 
-         <type name="odf:applicationWorkflow">
+        <type name="odf:applicationWorkflow">
              <title>Application State</title>
              <parent>cm:cmobject</parent>
              <properties>
@@ -215,7 +203,7 @@
                      <duplicate>false</duplicate>
                  </child-association>
              </associations>       
-         </type>
+        </type>
         
         <type name="odf:applicationState">
             <title>Application State</title>
@@ -278,7 +266,19 @@
                     <mandatory>true</mandatory>
                 </property>
             </properties>
-            <associations> 
+            <associations>
+                <child-association name="odf:applications">
+                     <source>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
+                     </source>
+                     <target>
+                         <class>odf:application</class>
+                         <mandatory>true</mandatory>
+                         <many>false</many>
+                     </target>
+                     <duplicate>true</duplicate>
+                 </child-association>
                 <association name="odf:branchWorkflow">
                     <title>Branch Workflow</title>
                     <source>
