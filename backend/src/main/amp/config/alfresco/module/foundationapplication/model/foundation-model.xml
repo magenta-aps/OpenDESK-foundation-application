@@ -27,14 +27,6 @@
         -->
         
     <constraints>
-        <!--        <constraint name='test:regex1' type='REGEX'>
-            <parameter name='expression'>
-                <value>[A-Z]*</value>
-            </parameter>
-            <parameter name='requiresMatch'>
-                <value>false</value>
-            </parameter>
-        </constraint>-->
         <constraint name='odf:cvr' type='REGEX'>
             <parameter name='expression'>
                 <value>[0-9]{8}</value>
@@ -60,34 +52,14 @@
         </constraint>
         <constraint name='odf:phoneNumber' type='REGEX'>
             <parameter name='expression'>
-                <value>^\+(?:[0-9] ?){6,14}[0-9]$</value>
+                <value>^\+?(?:[0-9] ?){6,14}[0-9]$</value>
             </parameter>
         </constraint>
-        
-        <!--        <constraint name='test:numberValue' type='MINMAX'>
-            <parameter name='minValue'>
-                <value>8</value>
-            </parameter>
-            <parameter name='maxValue'>
-                <value>8</value>
-            </parameter>
-        </constraint>-->
         <constraint name="odf:categories" type="dk.opendesk.foundationapplication.constraints.CategoryConstraint">
             <parameter name="allowedValues">
                 <list></list>
             </parameter>
         </constraint>
-        <!--        <constraint name='odf:categories' type='LIST'>
-            <parameter name='allowedValues'>
-                <list>
-                    <value>CATEGORY1</value>
-                    <value>CATEGORY2</value>
-                </list>
-            </parameter>
-            <parameter name='caseSensitive'>
-                <value>true</value>
-            </parameter>
-        </constraint>-->
     </constraints>        
                     
     <types>
@@ -105,13 +77,13 @@
             <associations>
                 <child-association name="odf:useConditions">
                     <source>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
                     </source>
                     <target>
                         <class>odf:useCondition</class>
-                        <mandatory>true</mandatory>
-                        <many>false</many>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
                     </target>
                     <duplicate>false</duplicate>
                     <propagateTimestamps>true</propagateTimestamps>
@@ -144,37 +116,37 @@
             <associations>
                  <child-association name="odf:workflows">
                      <source>
-                         <mandatory>false</mandatory>
-                         <many>true</many>
+                         <mandatory>true</mandatory>
+                         <many>false</many>
                      </source>
                      <target>
                          <class>odf:applicationWorkflow</class>
-                         <mandatory>true</mandatory>
-                         <many>false</many>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
                      </target>
                      <duplicate>false</duplicate>
                  </child-association>
                  <child-association name="odf:branches">
                      <source>
-                         <mandatory>false</mandatory>
-                         <many>true</many>
+                         <mandatory>true</mandatory>
+                         <many>false</many>
                      </source>
                      <target>
                          <class>odf:applicationBranch</class>
-                         <mandatory>true</mandatory>
-                         <many>false</many>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
                      </target>
                      <duplicate>false</duplicate>
                  </child-association>
                  <child-association name="odf:budgets">
                      <source>
-                         <mandatory>false</mandatory>
-                         <many>true</many>
+                         <mandatory>true</mandatory>
+                         <many>false</many>
                      </source>
                      <target>
                          <class>odf:applicationBudget</class>
-                         <mandatory>true</mandatory>
-                         <many>false</many>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
                      </target>
                      <duplicate>false</duplicate>
                  </child-association>
@@ -192,13 +164,13 @@
              <associations>
                  <child-association name="odf:workflowStates">
                      <source>
-                         <mandatory>false</mandatory>
-                         <many>true</many>
+                         <mandatory>true</mandatory>
+                         <many>false</many>
                      </source>
                      <target>
                          <class>odf:applicationState</class>
-                         <mandatory>true</mandatory>
-                         <many>false</many>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
                      </target>
                      <duplicate>false</duplicate>
                  </child-association>
@@ -215,18 +187,6 @@
                 </property>
             </properties>
             <associations>
-<!--                <child-association name="odf:applications">
-                    <source>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
-                    </source>
-                    <target>
-                        <class>odf:application</class>
-                        <mandatory>true</mandatory>
-                        <many>false</many>
-                    </target>
-                    <duplicate>false</duplicate>
-                </child-association>-->
                 <association name="odf:workflowTransitions">
                     <title>Workflow steps</title>
                     <source>
@@ -269,13 +229,13 @@
             <associations>
                 <child-association name="odf:applications">
                      <source>
-                         <mandatory>false</mandatory>
-                         <many>true</many>
+                         <mandatory>true</mandatory>
+                         <many>false</many>
                      </source>
                      <target>
                          <class>odf:application</class>
-                         <mandatory>true</mandatory>
-                         <many>false</many>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
                      </target>
                      <duplicate>true</duplicate>
                  </child-association>
@@ -283,12 +243,12 @@
                     <title>Branch Workflow</title>
                     <source>
                         <mandatory>false</mandatory>
-                        <many>false</many>
+                        <many>true</many>
                     </source>
                     <target>
                         <class>odf:applicationWorkflow</class>
                         <mandatory>false</mandatory>
-                        <many>true</many>
+                        <many>false</many>
                     </target>
                 </association>
                 <association name="odf:branchBudgets">
@@ -346,7 +306,7 @@
                     </constraints>
                 </property>
                 
-                <property name="odf:AapplicationContactPersonName">
+                <property name="odf:applicationContactPersonFirstName">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                 </property>
@@ -419,37 +379,37 @@
                 <association name="odf:applicationBudget">
                     <title>Application Budget</title>
                     <source>
-                        <mandatory>true</mandatory>
-                        <many>false</many>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
                     </source>
                     <target>
                         <class>odf:applicationBudget</class>
                         <mandatory>false</mandatory>
-                        <many>true</many>
+                        <many>false</many>
                     </target>
                 </association>
-                <association name="odf:applicationBranch">
+<!--                <association name="odf:applicationBranch">
                     <title>Application Budget</title>
                     <source>
-                        <mandatory>true</mandatory>
-                        <many>false</many>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
                     </source>
                     <target>
                         <class>odf:applicationBranch</class>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
                     </target>
-                </association>
+                </association>-->
                 <association name="odf:applicationState">
                     <title>Application Budget</title>
                     <source>
-                        <mandatory>true</mandatory>
-                        <many>false</many>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
                     </source>
                     <target>
                         <class>odf:applicationState</class>
                         <mandatory>false</mandatory>
-                        <many>true</many>
+                        <many>false</many>
                     </target>
                 </association>
             </associations> 

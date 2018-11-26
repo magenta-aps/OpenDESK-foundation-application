@@ -20,6 +20,7 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.namespace.QName;
 import org.w3c.dom.Document;
 
 /**
@@ -53,6 +54,31 @@ public final class Utilities {
     public static final String BUDGET_PARAM_TITLE="budgetTitle";
     public static final String BUDGET_PARAM_AMOUNT="budgetAmountAvailable";
     
+    public static final String APPLICATION_TYPE_NAME="application";
+    public static final String APPLICATION_ASSOC_BUDGET = "applicationBudget";
+//    public static final String APPLICATION_ASSOC_BRANCH = "applicationBranch";
+    public static final String APPLICATION_ASSOC_STATE = "applicationState";
+    public static final String APPLICATION_PARAM_TITLE = "applicationTitle";
+    public static final String APPLICATION_PARAM_CATEGORY = "applicationCategory";
+    public static final String APPLICATION_PARAM_RECIPIENT = "applicationRecipient";
+    public static final String APPLICATION_PARAM_ADDR_ROAD = "applicationAddressRoad";
+    public static final String APPLICATION_PARAM_ADDR_NUMBER = "applicationAddressNumber";
+    public static final String APPLICATION_PARAM_ADDR_FLOOR = "applicationAddressFloor";
+    public static final String APPLICATION_PARAM_ARRD_POSTALCODE = "applicationAddressPostalCode";
+    public static final String APPLICATION_PARAM_PERSON_FIRSTNAME = "applicationContactPersonFirstName";
+    public static final String APPLICATION_PARAM_PERSON_SURNAME = "applicationContactPersonSurname";
+    public static final String APPLICATION_PARAM_PERSON_EMAIL = "applicationContactEmail";
+    public static final String APPLICATION_PARAM_PERSON_PHONE = "applicationContactPhoneNumber";
+    public static final String APPLICATION_PARAM_SHORT_DESCRIPTION = "applicationShortDescription";
+    public static final String APPLICATION_PARAM_START_DATE = "applicationProjectStartDate";
+    public static final String APPLICATION_PARAM_END_DATE = "applicationProjectEndDate";
+    public static final String APPLICATION_PARAM_APPLIED_AMOUNT = "applicationAppliedAmount";
+    public static final String APPLICATION_PARAM_ACCOUNT_REGISTRATION = "applicationAccountRegistration";
+    public static final String APPLICATION_PARAM_ACCOUNT_NUMBER = "applicationAccountNumber";
+    
+    
+    private static String foundationNameSpace = null;
+    
     
     
     
@@ -84,6 +110,13 @@ public final class Utilities {
         }
         
         return refs.get(0);
+    }
+    
+    public static synchronized QName getODFName(String name) throws Exception{
+        if(foundationNameSpace == null){
+            foundationNameSpace = getFoundationModelNameSpace();
+        }
+        return QName.createQName(foundationNameSpace, name);
     }
     
     

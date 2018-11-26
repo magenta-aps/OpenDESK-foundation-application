@@ -43,8 +43,6 @@ public class InitialStructure extends AbstractPatch {
     public void setServiceRegistry(ServiceRegistry serviceRegistry) {
         this.serviceRegistry = serviceRegistry;
     }
-    
-    
 
     @Override
     protected void checkProperties() {
@@ -54,53 +52,14 @@ public class InitialStructure extends AbstractPatch {
 
     @Override
     protected String applyInternal() throws Exception {
-        String foundationNamespace = getFoundationModelNameSpace();
         
-        QName dataTypeQname = QName.createQName(foundationNamespace, DATA_TYPE_NAME);
-        QName dataQname = QName.createQName(foundationNamespace, DATA_NAME);
-//        QName dataWorkflowsQname = QName.createQName(foundationNamespace, DATA_ASSOC_WORKFLOW);
-//        QName dataBudgetsQname = QName.createQName(foundationNamespace, DATA_ASSOC_BUDGETS);
-//        QName dataBranchesQname = QName.createQName(foundationNamespace, DATA_ASSOC_BRANCHES);
-//        
-//        QName workFlowTypeQname = QName.createQName(foundationNamespace, BRANCH_TYPE_NAME);
-//        QName workFlowQname = QName.createQName(foundationNamespace, WORKFLOW_NAME);
-//        QName workFlowStatesQname = QName.createQName(foundationNamespace, WORKFLOW_ASSOC_STATES);
-//        
-//        QName workFlowTypeQname = QName.createQName(foundationNamespace, WORKFLOW_TYPE_NAME);
-//        QName workFlowQname = QName.createQName(foundationNamespace, WORKFLOW_NAME);
-//        QName workFlowStatesQname = QName.createQName(foundationNamespace, WORKFLOW_ASSOC_STATES);
-//        
-//        QName stateTypeQname = QName.createQName(foundationNamespace, STATE_TYPE_NAME);
-//        QName stateRecievedQname = QName.createQName(foundationNamespace, STATE_RECIEVED_NAME);
-//        QName stateAssessQname = QName.createQName(foundationNamespace, STATE_ASSESS_NAME);
-//        QName stateDeniedQname = QName.createQName(foundationNamespace, STATE_DENIED_NAME);
-//        QName stateAcceptedQname = QName.createQName(foundationNamespace, STATE_ACCEPTED_NAME);
-//        QName stateTransitionsQname = QName.createQName(foundationNamespace, STATE_ASSOC_TRANSITIONS);
-        
-        
-        
-        
+        QName dataTypeQname = getODFName(DATA_TYPE_NAME);
+        QName dataQname = getODFName(DATA_NAME);
         
         NodeRef dictionaryRef = getDataDictionaryRef();
         NodeRef dataRef = serviceRegistry.getNodeService().createNode(dictionaryRef, ContentModel.ASSOC_CONTAINS, dataQname, dataTypeQname).getChildRef();    
         serviceRegistry.getPermissionService().setInheritParentPermissions(dataRef, false);
         
-        
-        
-//        NodeRef workFlowRef = serviceRegistry.getNodeService().createNode(dataRef, dataWorkflowsQname, workFlowQname, workFlowTypeQname).getChildRef();
-//        
-//        NodeRef stateRecievedRef = serviceRegistry.getNodeService().createNode(workFlowRef, workFlowStatesQname, stateRecievedQname, stateTypeQname).getChildRef();
-//        NodeRef stateAccessRef = serviceRegistry.getNodeService().createNode(workFlowRef, workFlowStatesQname, stateAssessQname, stateTypeQname).getChildRef();
-//        NodeRef stateDeniedRef = serviceRegistry.getNodeService().createNode(workFlowRef, workFlowStatesQname, stateDeniedQname, stateTypeQname).getChildRef();
-//        NodeRef stateAcceptedRef = serviceRegistry.getNodeService().createNode(workFlowRef, workFlowStatesQname, stateAcceptedQname, stateTypeQname).getChildRef();
-//        
-//        serviceRegistry.getNodeService().createAssociation(stateRecievedRef, stateAccessRef, stateTransitionsQname);
-//        serviceRegistry.getNodeService().createAssociation(stateRecievedRef, stateDeniedRef, stateTransitionsQname);
-//        
-//        serviceRegistry.getNodeService().createAssociation(stateAccessRef, stateAcceptedRef, stateTransitionsQname);
-//        serviceRegistry.getNodeService().createAssociation(stateAccessRef, stateDeniedRef, stateTransitionsQname);
-        
-
         return "Patch applied";
     }
     
