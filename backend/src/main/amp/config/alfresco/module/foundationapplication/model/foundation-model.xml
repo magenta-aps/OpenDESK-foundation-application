@@ -401,7 +401,7 @@
                     </target>
                 </association>-->
                 <association name="odf:applicationState">
-                    <title>Application Budget</title>
+                    <title>Application State</title>
                     <source>
                         <mandatory>false</mandatory>
                         <many>true</many>
