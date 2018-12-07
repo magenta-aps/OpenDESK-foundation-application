@@ -5,8 +5,9 @@
  */
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
+import dk.opendesk.foundationapplication.DAO.Branch;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import dk.opendesk.foundationapplication.webscripts.FoundationWebScript;
+import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
@@ -15,19 +16,23 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  *
  * @author martin
  */
-public class GetFoundationApplication extends FoundationWebScript{
-    
+public class UpdateBranch extends JacksonBackedWebscript {
+
     private FoundationBean foundationBean;
 
-    public void setFoundationBean (FoundationBean foundationBean) {
+    public void setFoundationBean(FoundationBean foundationBean) {
         this.foundationBean = foundationBean;
     }
 
     @Override
-    protected JSONObject doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        return null;
+    protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
+        String branchID = getUrlParams().get("branchID");
+        Branch branch = getRequestAs(Branch.class);
+
+        resolveNodeRef(branch, branchID);
+        
+        foundationBean.updateBranch(branch);
+        return new JSONObject().put("status", "OK");
     }
-    
-    
-    
+
 }

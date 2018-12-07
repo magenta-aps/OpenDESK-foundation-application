@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Create Budget</shortname>
+    <description>Create new Budget</description>
+    <url>/foundation/budget</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

@@ -5,6 +5,7 @@
  */
 package dk.opendesk.foundationapplication;
 
+import org.alfresco.util.ApplicationContextHelper;
 import dk.opendesk.foundationapplication.patches.InitialStructure;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
@@ -45,6 +46,7 @@ public final class Utilities {
     
     public static final String WORKFLOW_TYPE_NAME = "applicationWorkflow";
     public static final String WORKFLOW_ASSOC_STATES = "workflowStates";
+    public static final String WORKFLOW_ASSOC_ENTRY = "workflowEntry";
     public static final String WORKFLOW_PARAM_TITLE = "workflowTitle";
     
     public static final String STATE_TYPE_NAME = "applicationState";
@@ -118,6 +120,10 @@ public final class Utilities {
             foundationNameSpace = getFoundationModelNameSpace();
         }
         return QName.createQName(foundationNameSpace, name);
+    }
+    
+    public static boolean stringExists(String s){
+        return s != null && !s.isEmpty();
     }
     
     

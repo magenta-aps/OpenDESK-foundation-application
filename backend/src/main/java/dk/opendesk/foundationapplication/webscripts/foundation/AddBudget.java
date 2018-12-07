@@ -15,19 +15,20 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  *
  * @author martin
  */
-public class GetFoundationApplication extends FoundationWebScript{
-    
+public class AddBudget extends FoundationWebScript {
+ 
     private FoundationBean foundationBean;
 
-    public void setFoundationBean (FoundationBean foundationBean) {
+    public void setFoundationBean(FoundationBean foundationBean) {
         this.foundationBean = foundationBean;
     }
 
     @Override
     protected JSONObject doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        return null;
+        String budgetTitle = getContentString("title");
+        String budgetAmount = getContentString("amount");
+        return new JSONObject().put("reference", foundationBean.addNewBudget(budgetTitle, budgetTitle, Long.parseLong(budgetAmount)));
     }
-    
     
     
 }

@@ -18,9 +18,51 @@
 -->
 <beans>
     
-    <bean id="webscript.foundation.foundationApplications.get"
-          class="dk.opendesk.foundationapplication.webscripts.foundation.GetFoundationApplications"
+    <bean id="webscript.foundation.application.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetFoundationApplication"
           parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
+    
+    <bean id="webscript.foundation.branchApplications.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplicationsInBranch"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.branch.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetBranches"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.branch.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.AddBranch"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.budget.get"
+              class="dk.opendesk.foundationapplication.webscripts.foundation.GetBudgets"
+              parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.budget.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.AddBudget"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.budgetUpdate.post"
+              class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateBudget"
+              parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    <bean id="webscript.foundation.branchUpdate.post"
+              class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateBranch"
+              parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
 </beans>

@@ -5,9 +5,10 @@
  */
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
+import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import dk.opendesk.foundationapplication.webscripts.FoundationWebScript;
-import org.json.JSONObject;
+import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
+import java.util.List;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
@@ -15,17 +16,18 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  *
  * @author martin
  */
-public class GetFoundationApplication extends FoundationWebScript{
+public class GetBudgets extends JacksonBackedWebscript{
     
     private FoundationBean foundationBean;
 
-    public void setFoundationBean (FoundationBean foundationBean) {
+    public void setFoundationBean(FoundationBean foundationBean) {
         this.foundationBean = foundationBean;
     }
 
     @Override
-    protected JSONObject doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        return null;
+    protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
+        List<Budget> budgets = foundationBean.getBudgets();
+        return budgets;
     }
     
     

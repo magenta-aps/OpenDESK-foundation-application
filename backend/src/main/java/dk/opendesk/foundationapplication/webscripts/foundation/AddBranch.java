@@ -15,19 +15,18 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  *
  * @author martin
  */
-public class GetFoundationApplication extends FoundationWebScript{
+public class AddBranch extends FoundationWebScript {
     
     private FoundationBean foundationBean;
 
-    public void setFoundationBean (FoundationBean foundationBean) {
+    public void setFoundationBean(FoundationBean foundationBean) {
         this.foundationBean = foundationBean;
     }
-
+    
     @Override
     protected JSONObject doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        return null;
+        String branchTitle = getContentString("title");
+        return new JSONObject().put("reference", foundationBean.addNewBranch(branchTitle, branchTitle));
     }
-    
-    
     
 }

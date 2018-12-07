@@ -7,20 +7,12 @@ package dk.opendesk.foundationapplication;
 
 import static dk.opendesk.foundationapplication.Utilities.*;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import dk.opendesk.foundationapplication.patches.InitialStructure;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.ServiceRegistry;
-import org.alfresco.service.cmr.repository.AssociationRef;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.repository.StoreRef;
-import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.apache.log4j.Logger;
 
@@ -31,6 +23,7 @@ import org.apache.log4j.Logger;
 public final class TestUtils {
     private static final Logger LOGGER = Logger.getLogger(TestUtils.class);
     
+    public static final String ADMIN_USER = "admin";
     
     public static final String WORKFLOW_NAME = "defaultWorkFlow";
     
@@ -42,6 +35,8 @@ public final class TestUtils {
     public static final String STATE_ACCEPTED_NAME = "accepted";
     
     public static final String BUDGET_NAME = "defaultBudget";
+    
+    public static final Long BUDGET_AMOUNT = 1000000000000000l;
     
     private TestUtils(){};
     
@@ -57,7 +52,7 @@ public final class TestUtils {
             nodeService.removeChild(dataRef, workflow);
         }
         
-        for(NodeRef budget : foundationBean.getBudgets()){
+        for(NodeRef budget : foundationBean.getBudgetRefs()){
             nodeService.removeChild(dataRef, budget);
         }
         
@@ -85,9 +80,9 @@ public final class TestUtils {
         NodeRef stateAccessRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ASSESS_NAME, STATE_ASSESS_NAME+"(Title)");
         NodeRef stateDeniedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_DENIED_NAME, STATE_DENIED_NAME+"(Title)");
         NodeRef stateAcceptedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME+"(Title)");
-         
-        //Create associations
+        foundationBean.setWorkflowEntryPoint(workFlowRef, stateRecievedRef);
         
+        //Create associations
         foundationBean.createWorkflowTransition(stateRecievedRef, stateAccessRef);
         foundationBean.createWorkflowTransition(stateRecievedRef, stateDeniedRef);
         
@@ -95,19 +90,11 @@ public final class TestUtils {
         foundationBean.createWorkflowTransition(stateAccessRef, stateDeniedRef);
     
         //Create branch and associate it with the workflow
-        QName branchTitle = getODFName(BRANCH_PARAM_TITLE);
-        Map<QName, Serializable> branchParams = new HashMap<>();
-        branchParams.put(branchTitle, BRANCH_NAME+"(title)");
         NodeRef branchRef = foundationBean.addNewBranch(BRANCH_NAME, BRANCH_NAME+"(title)");
         foundationBean.setBranchWorkflow(branchRef, workFlowRef);
         
         //Create budget and associate it with a branch
-        QName budgetTitle = getODFName(BUDGET_PARAM_TITLE);
-        QName budgetamount = getODFName(BUDGET_PARAM_AMOUNT);
-        Map<QName, Serializable> budgetParams = new HashMap<>();
-        budgetParams.put(budgetTitle, BUDGET_NAME+"(title)");
-        budgetParams.put(budgetamount, 1000000000000000l);
-        NodeRef budgetRef = foundationBean.addNewBudget(BUDGET_NAME, BUDGET_NAME+"(title)", 1000000000000000l);
+        NodeRef budgetRef = foundationBean.addNewBudget(BUDGET_NAME, BUDGET_NAME+"(title)", BUDGET_AMOUNT);
         foundationBean.setBranchBudget(branchRef, budgetRef);
         
     }

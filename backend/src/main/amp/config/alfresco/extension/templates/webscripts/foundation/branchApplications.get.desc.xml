@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get Branch Applications</shortname>
+    <description>Gets application in branch</description>
+    <url>/foundation/branch/{branchID}/applications</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

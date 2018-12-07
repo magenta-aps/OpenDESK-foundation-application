@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get current budgets</shortname>
+    <description>Get all budgets</description>
+    <url>/foundation/budget</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

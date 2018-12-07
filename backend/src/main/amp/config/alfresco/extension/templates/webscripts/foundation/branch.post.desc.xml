@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Create Branch</shortname>
+    <description>Adds new branch with the specified title</description>
+    <url>/foundation/branch</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>
