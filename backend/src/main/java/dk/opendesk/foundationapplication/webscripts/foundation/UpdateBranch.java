@@ -28,7 +28,6 @@ public class UpdateBranch extends JacksonBackedWebscript {
     protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         String branchID = getUrlParams().get("branchID");
         Branch branch = getRequestAs(Branch.class);
-
         resolveNodeRef(branch, branchID);
         
         foundationBean.updateBranch(branch);
