@@ -37,7 +37,7 @@ import org.springframework.extensions.webscripts.TestWebScriptServer;
  *
  * @author martin
  */
-public class WorkflowTest extends BaseWebScriptTest {
+public class WorkflowBeanTest extends BaseWebScriptTest {
 
     private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
     private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
