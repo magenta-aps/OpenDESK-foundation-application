@@ -6,15 +6,11 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Budget;
-import dk.opendesk.foundationapplication.Utilities;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import dk.opendesk.foundationapplication.webscripts.FoundationWebScript;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
-import org.alfresco.error.AlfrescoRuntimeException;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
-import static dk.opendesk.foundationapplication.Utilities.stringExists;
 
 /**
  *

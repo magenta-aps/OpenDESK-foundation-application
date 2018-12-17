@@ -13,10 +13,10 @@ import org.alfresco.service.cmr.repository.NodeRef;
  * @author martin
  */
 public class Reference {
-    public static final String DEFAULT_STORE = "workspace://SpacesStore/";
+    public static final String DEFAULT_STORE = "workspace://SpacesStore";
     
     private String nodeID;
-    private String storeID;
+    private String storeID = null;
 
     public Reference() {
     }
@@ -38,16 +38,17 @@ public class Reference {
     }
 
     public String getNodeRef() {
-        return storeID+nodeID;
+        String actualStoreID = (storeID != null ? storeID : DEFAULT_STORE);
+        return actualStoreID+"/"+nodeID;
     }
 
     public void setNodeRef(String nodeRef) {
         int lastDash = nodeRef.lastIndexOf("/");
-        storeID = nodeRef.substring(0, lastDash+1);
+        storeID = nodeRef.substring(0, lastDash);
         nodeID = nodeRef.substring(lastDash+1);
     }
     
-    public void fromRef(NodeRef ref){
+    public void parseRef(NodeRef ref){
         storeID = ref.getStoreRef().toString();
         nodeID = ref.getId();
     }
@@ -57,8 +58,14 @@ public class Reference {
         this.nodeID = nodeID;
     }
     
-    public NodeRef asRef(){
+    public NodeRef asNodeRef(){
         return new NodeRef(getNodeRef());
+    }
+    
+    public static final Reference from(NodeRef ref){
+        Reference reference = new Reference();
+        reference.parseRef(ref);
+        return reference;
     }
 
     @Override

@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public class Workflow extends WorkflowReference{
     private StateReference entry;
-    private List<State> states;
+    private List<StateSummary> states;
 
     public Workflow() {
         states = new ArrayList<>();
@@ -29,11 +29,11 @@ public class Workflow extends WorkflowReference{
         this.entry = entry;
     }
 
-    public List<State> getStates() {
+    public List<StateSummary> getStates() {
         return states;
     }
 
-    public void setStates(List<State> states) {
+    public void setStates(List<StateSummary> states) {
         this.states = states;
     }
 
@@ -73,4 +73,10 @@ public class Workflow extends WorkflowReference{
         }
         return true;
     }
+    
+     @Override
+    public String toString() {
+        return "WorkflowSummary{" + "title=" + getTitle() + "entry=" + entry + ", states=" + states + "\nentry: " + entry + "\nstates: " + states + "}";
+    }
+    
 }

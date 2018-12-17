@@ -7,14 +7,21 @@ package dk.opendesk.foundationapplication;
 
 import static dk.opendesk.foundationapplication.Utilities.*;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import junit.framework.Assert;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.TestWebScriptServer;
 
 /**
  *
@@ -35,8 +42,9 @@ public final class TestUtils {
     public static final String STATE_ACCEPTED_NAME = "accepted";
     
     public static final String BUDGET_NAME = "defaultBudget";
-    
     public static final Long BUDGET_AMOUNT = 1000000000000000l;
+    
+    public static final String TITLE_POSTFIX = "(Title)";
     
     private TestUtils(){};
     
@@ -72,14 +80,14 @@ public final class TestUtils {
         //Create workflow
         QName workflowTitle = getODFName(WORKFLOW_PARAM_TITLE);
         Map<QName, Serializable> workflowParams = new HashMap<>();
-        workflowParams.put(workflowTitle, WORKFLOW_NAME+"(title)");
-        NodeRef workFlowRef = foundationBean.addNewWorkflow(WORKFLOW_NAME, WORKFLOW_NAME+"(title)");
+        workflowParams.put(workflowTitle, WORKFLOW_NAME+TITLE_POSTFIX);
+        NodeRef workFlowRef = foundationBean.addNewWorkflow(WORKFLOW_NAME, WORKFLOW_NAME+TITLE_POSTFIX);
         
         //Create workflow states
-        NodeRef stateRecievedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME+"(Title)");
-        NodeRef stateAccessRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ASSESS_NAME, STATE_ASSESS_NAME+"(Title)");
-        NodeRef stateDeniedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_DENIED_NAME, STATE_DENIED_NAME+"(Title)");
-        NodeRef stateAcceptedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME+"(Title)");
+        NodeRef stateRecievedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME+TITLE_POSTFIX);
+        NodeRef stateAccessRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ASSESS_NAME, STATE_ASSESS_NAME+TITLE_POSTFIX);
+        NodeRef stateDeniedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_DENIED_NAME, STATE_DENIED_NAME+TITLE_POSTFIX);
+        NodeRef stateAcceptedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME+TITLE_POSTFIX);
         foundationBean.setWorkflowEntryPoint(workFlowRef, stateRecievedRef);
         
         //Create associations
@@ -90,13 +98,18 @@ public final class TestUtils {
         foundationBean.createWorkflowTransition(stateAccessRef, stateDeniedRef);
     
         //Create branch and associate it with the workflow
-        NodeRef branchRef = foundationBean.addNewBranch(BRANCH_NAME, BRANCH_NAME+"(title)");
+        NodeRef branchRef = foundationBean.addNewBranch(BRANCH_NAME, BRANCH_NAME+TITLE_POSTFIX);
         foundationBean.setBranchWorkflow(branchRef, workFlowRef);
         
         //Create budget and associate it with a branch
-        NodeRef budgetRef = foundationBean.addNewBudget(BUDGET_NAME, BUDGET_NAME+"(title)", BUDGET_AMOUNT);
+        NodeRef budgetRef = foundationBean.addNewBudget(BUDGET_NAME, BUDGET_NAME+TITLE_POSTFIX, BUDGET_AMOUNT);
         foundationBean.setBranchBudget(branchRef, budgetRef);
         
     }
+    
+    
+    
+    
+
     
 }

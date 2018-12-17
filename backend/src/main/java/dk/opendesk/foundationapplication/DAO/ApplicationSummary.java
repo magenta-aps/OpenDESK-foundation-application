@@ -24,8 +24,7 @@ public class ApplicationSummary extends ApplicationReference{
     private String budgetTitle;
     private NodeRef stateRef;
     private String stateTitle;
-    private StateReference state;
-    private BudgetReference budget;
+    
 
     public ApplicationSummary() {
     }
@@ -110,29 +109,13 @@ public class ApplicationSummary extends ApplicationReference{
         this.stateTitle = stateTitle;
     }
 
-    public StateReference getState() {
-        return state;
-    }
-
-    public void setState(StateReference state) {
-        this.state = state;
-    }
-
-    public BudgetReference getBudget() {
-        return budget;
-    }
-
-    public void setBudget(BudgetReference budget) {
-        this.budget = budget;
-    }
+   
     
     @Override
     public int hashCode() {
         int hash = 3;
         hash = 23 * hash + Objects.hashCode(this.getTitle());
         hash = 23 * hash + Objects.hashCode(this.getNodeRef());
-        hash = 23 * hash + Objects.hashCode(this.state);
-        hash = 23 * hash + Objects.hashCode(this.budget);
         hash = 23 * hash + Objects.hashCode(this.category);
         hash = 23 * hash + Objects.hashCode(this.recipient);
         hash = 23 * hash + Objects.hashCode(this.shortDescription);
@@ -162,12 +145,6 @@ public class ApplicationSummary extends ApplicationReference{
             return false;
         }
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {
-            return false;
-        }
-        if (!Objects.equals(this.state, other.state)) {
-            return false;
-        }
-        if (!Objects.equals(this.budget, other.budget)) {
             return false;
         }
         if (!Objects.equals(this.category, other.category)) {

@@ -5,7 +5,6 @@
  */
 package dk.opendesk.foundationapplication.DAO;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,20 +12,19 @@ import java.util.Objects;
  *
  * @author martin
  */
-public class State extends StateReference {
-
-    private List<StateReference> references = new ArrayList<>();
+public class State extends StateSummary {
+    List<ApplicationReference> applications;
 
     public State() {
-        references = new ArrayList<>();
+        
     }
 
-    public List<StateReference> getReferences() {
-        return references;
+    public List<ApplicationReference> getApplications() {
+        return applications;
     }
 
-    public void setReferences(List<StateReference> references) {
-        this.references = references;
+    public void setApplications(List<ApplicationReference> applications) {
+        this.applications = applications;
     }
 
     @Override
@@ -34,7 +32,8 @@ public class State extends StateReference {
         int hash = 7;
         hash = 53 * hash + Objects.hashCode(this.getTitle());
         hash = 53 * hash + Objects.hashCode(this.getNodeRef());
-        hash = 53 * hash + Objects.hashCode(this.references);
+        hash = 53 * hash + Objects.hashCode(this.getReferences());
+        hash = 53 * hash + Objects.hashCode(applications);
         return hash;
     }
 
@@ -56,7 +55,10 @@ public class State extends StateReference {
         if (!Objects.equals(this.getTitle(), other.getTitle())) {
             return false;
         }
-        if (!Objects.equals(this.references, other.references)) {
+        if (!Objects.equals(this.getReferences(), other.getReferences())) {
+            return false;
+        }
+        if (!Objects.equals(applications, other.applications)) {
             return false;
         }
 

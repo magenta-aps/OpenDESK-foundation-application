@@ -19,7 +19,7 @@
 <beans>
     
     <bean id="webscript.foundation.application.get"
-          class="dk.opendesk.foundationapplication.webscripts.foundation.GetFoundationApplication"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplication"
           parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
@@ -30,8 +30,14 @@
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
     
-    <bean id="webscript.foundation.branch.get"
+    <bean id="webscript.foundation.branches.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetBranches"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.branch.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetBranch"
           parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
@@ -61,6 +67,17 @@
     </bean>
     <bean id="webscript.foundation.branchUpdate.post"
               class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateBranch"
+              parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.workflows.get"
+              class="dk.opendesk.foundationapplication.webscripts.foundation.GetWorkflows"
+              parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    <bean id="webscript.foundation.workflow.get"
+              class="dk.opendesk.foundationapplication.webscripts.foundation.GetWorkflow"
               parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>

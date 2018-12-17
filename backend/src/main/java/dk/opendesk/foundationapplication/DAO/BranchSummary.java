@@ -12,34 +12,20 @@ import java.util.Objects;
  * @author martin
  */
 public class BranchSummary extends BranchReference{
-    
-
-    private String workflowTitle;
-    private String workflowRef;
+    private WorkflowReference workflowRef;
 
     public BranchSummary() {
     }
     
-    public BranchSummary(String title, String uuid, String workflowTitle, String workflowUUID) {
-        this.workflowTitle = workflowTitle;
-        this.workflowRef = workflowUUID;
+    public BranchSummary(String title, String uuid, WorkflowReference workflowRef) {
+        this.workflowRef = workflowRef;
     }
 
-   
-
-    public String getWorkflowTitle() {
-        return workflowTitle;
-    }
-
-    public void setWorkflowTitle(String workflowTitle) {
-        this.workflowTitle = workflowTitle;
-    }
-
-    public String getWorkflowRef() {
+    public WorkflowReference getWorkflowRef() {
         return workflowRef;
     }
 
-    public void setWorkflowRef(String workflowRef) {
+    public void setWorkflowRef(WorkflowReference workflowRef) {
         this.workflowRef = workflowRef;
     }
 
@@ -48,7 +34,6 @@ public class BranchSummary extends BranchReference{
         int hash = 7;
         hash = 53 * hash + Objects.hashCode(this.getTitle());
         hash = 53 * hash + Objects.hashCode(this.getNodeRef());
-        hash = 53 * hash + Objects.hashCode(this.workflowTitle);
         hash = 53 * hash + Objects.hashCode(this.workflowRef);
         return hash;
     }
@@ -69,9 +54,6 @@ public class BranchSummary extends BranchReference{
             return false;
         }
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {
-            return false;
-        }
-        if (!Objects.equals(this.workflowTitle, other.workflowTitle)) {
             return false;
         }
         if (!Objects.equals(this.workflowRef, other.workflowRef)) {

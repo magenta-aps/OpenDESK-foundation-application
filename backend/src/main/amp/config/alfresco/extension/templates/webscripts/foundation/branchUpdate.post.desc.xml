@@ -1,7 +1,7 @@
 <webscript>
     <shortname>Create Branch</shortname>
     <description>Create new Branch</description>
-    <url>/foundation/branch/{budgetID}</url>
+    <url>/foundation/branch/{branchID}</url>
     <authentication>user</authentication>
     <transaction>none</transaction>
 </webscript>

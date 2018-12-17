@@ -25,7 +25,7 @@ public class GetBudgets extends JacksonBackedWebscript{
     }
 
     @Override
-    protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
+    protected List<Budget> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         List<Budget> budgets = foundationBean.getBudgets();
         return budgets;
     }

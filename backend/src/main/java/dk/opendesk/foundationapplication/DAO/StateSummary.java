@@ -5,44 +5,36 @@
  */
 package dk.opendesk.foundationapplication.DAO;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
  *
  * @author martin
  */
-public class Budget extends BudgetReference {
-
-    private Long amount;
-    private Long remaining;
-
-    public Budget() {
-    }
-
-    public Long getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Long amount) {
-        this.amount = amount;
-    }
-
-    public Long getRemaining() {
-        return remaining;
-    }
-
-    public void setRemaining(Long remaining) {
-        this.remaining = remaining;
-    }
+public class StateSummary extends StateReference{
     
+    private List<StateReference> references = new ArrayList<>();
+
+    public StateSummary() {
+        references = new ArrayList<>();
+    }
+
+    public List<StateReference> getReferences() {
+        return references;
+    }
+
+    public void setReferences(List<StateReference> references) {
+        this.references = references;
+    }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 17 * hash + Objects.hashCode(this.getNodeRef());
-        hash = 17 * hash + Objects.hashCode(this.getTitle());
-        hash = 17 * hash + Objects.hashCode(this.amount);
-        hash = 17 * hash + Objects.hashCode(this.remaining);
+        int hash = 7;
+        hash = 53 * hash + Objects.hashCode(this.getTitle());
+        hash = 53 * hash + Objects.hashCode(this.getNodeRef());
+        hash = 53 * hash + Objects.hashCode(this.references);
         return hash;
     }
 
@@ -57,20 +49,18 @@ public class Budget extends BudgetReference {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Budget other = (Budget) obj;
+        final StateSummary other = (StateSummary) obj;
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {
             return false;
         }
         if (!Objects.equals(this.getTitle(), other.getTitle())) {
             return false;
         }
-        if (!Objects.equals(this.amount, other.amount)) {
+        if (!Objects.equals(this.references, other.references)) {
             return false;
         }
-        if (!Objects.equals(this.remaining, other.remaining)) {
-            return false;
-        }
+
         return true;
     }
-
+    
 }

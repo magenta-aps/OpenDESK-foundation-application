@@ -1,7 +1,7 @@
 <webscript>
-    <shortname>Get Branches</shortname>
-    <description>Gets all branches</description>
-    <url>/foundation/branch</url>
+    <shortname>Get Branch</shortname>
+    <description>Gets branche</description>
+    <url>/foundation/branch/{branchID}</url>
     <authentication>user</authentication>
     <transaction>none</transaction>
 </webscript>

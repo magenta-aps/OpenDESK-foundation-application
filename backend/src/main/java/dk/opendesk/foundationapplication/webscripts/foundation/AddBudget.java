@@ -5,8 +5,10 @@
  */
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
+import dk.opendesk.foundationapplication.DAO.Budget;
+import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import dk.opendesk.foundationapplication.webscripts.FoundationWebScript;
+import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
@@ -15,7 +17,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  *
  * @author martin
  */
-public class AddBudget extends FoundationWebScript {
+public class AddBudget extends JacksonBackedWebscript {
  
     private FoundationBean foundationBean;
 
@@ -24,10 +26,9 @@ public class AddBudget extends FoundationWebScript {
     }
 
     @Override
-    protected JSONObject doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        String budgetTitle = getContentString("title");
-        String budgetAmount = getContentString("amount");
-        return new JSONObject().put("reference", foundationBean.addNewBudget(budgetTitle, budgetTitle, Long.parseLong(budgetAmount)));
+    protected Reference doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
+        Budget budget = getRequestAs(Budget.class);
+        return Reference.from(foundationBean.addNewBudget(budget.getTitle(), budget.getTitle(), budget.getAmount()));
     }
     
     

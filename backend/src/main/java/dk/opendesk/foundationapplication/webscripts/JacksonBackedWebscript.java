@@ -5,6 +5,7 @@
  */
 package dk.opendesk.foundationapplication.webscripts;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.opendesk.foundationapplication.DAO.Reference;
 import static dk.opendesk.foundationapplication.Utilities.stringExists;
@@ -55,7 +56,7 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
                 } else if (returnData instanceof JSONArray) {
                     ((JSONArray) returnData).writeJSONString(res.getWriter());
                 } else {
-                    mapper.writeValue(res.getWriter(), returnData);
+                    mapper.writerWithDefaultPrettyPrinter().writeValue(res.getWriter(), returnData);
                 }
             }
         } catch (Exception e) {
@@ -76,6 +77,10 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
         } else {
             return mapper.readValue(req.getContent().getContent(), clazz);
         }
+    }
+    
+    protected <T> T getRequestListAs(Class<T> clazz) throws IOException{
+        return mapper.readValue(req.getContent().getContent(), mapper.getTypeFactory().constructCollectionType(List.class, clazz));
     }
 
     public Map<String, String> getUrlParams() {

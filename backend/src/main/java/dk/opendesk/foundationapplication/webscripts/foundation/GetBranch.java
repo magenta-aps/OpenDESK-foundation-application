@@ -6,10 +6,11 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Branch;
+import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
-import org.json.JSONObject;
+import java.util.List;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
@@ -17,18 +18,20 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  *
  * @author martin
  */
-public class AddBranch extends JacksonBackedWebscript {
+public class GetBranch extends JacksonBackedWebscript{
     
     private FoundationBean foundationBean;
 
     public void setFoundationBean(FoundationBean foundationBean) {
         this.foundationBean = foundationBean;
     }
-    
+
     @Override
-    protected Reference doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        Branch branch = getRequestAs(Branch.class);    
-        return Reference.from(foundationBean.addNewBranch(branch.getTitle(), branch.getTitle()));
+    protected Branch doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
+        String branchID = getUrlParams().get("branchID");
+        Reference ref = new Reference();
+        ref.setNodeID(branchID);
+        return foundationBean.getBranch(ref.asNodeRef());
     }
     
 }

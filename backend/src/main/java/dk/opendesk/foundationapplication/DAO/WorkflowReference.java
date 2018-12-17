@@ -55,6 +55,11 @@ public class WorkflowReference extends Reference{
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "WorkflowReference{" + "title=" + title + "}";
+    }
+
     
     
     

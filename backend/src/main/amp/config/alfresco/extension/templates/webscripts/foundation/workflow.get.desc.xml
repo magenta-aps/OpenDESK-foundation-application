@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get workflow</shortname>
+    <description>Get full workflow</description>
+    <url>/foundation/workflow/{workflowID}</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

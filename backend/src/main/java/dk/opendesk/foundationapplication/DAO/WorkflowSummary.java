@@ -74,7 +74,11 @@ public class WorkflowSummary extends WorkflowReference{
         }
         return true;
     }
-    
+
+    @Override
+    public String toString() {
+        return "WorkflowSummary{" + "title=" + getTitle() + "entry=" + entry + ", states=" + states + "}";
+    }
     
     
     
