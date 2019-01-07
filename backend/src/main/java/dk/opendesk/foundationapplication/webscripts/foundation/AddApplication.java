@@ -6,7 +6,7 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.Reference;
+import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -16,20 +16,18 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  *
  * @author martin
  */
-public class GetApplication extends JacksonBackedWebscript{
+public class AddApplication extends JacksonBackedWebscript{
     
     private FoundationBean foundationBean;
 
-    public void setFoundationBean (FoundationBean foundationBean) {
+    public void setFoundationBean(FoundationBean foundationBean) {
         this.foundationBean = foundationBean;
     }
 
     @Override
-    protected Application doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        String applicationID = getUrlParams().get("applicationID");
-        Reference ref = new Reference();
-        ref.setNodeID(applicationID);
-        return foundationBean.getApplication(ref.asNodeRef());
+    protected ApplicationReference doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
+        Application application = getRequestAs(Application.class);
+        return foundationBean.addNewApplication(application);
     }
     
     

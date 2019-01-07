@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get branch workflows</shortname>
+    <description>Get a summary of all workflows currently assigned to a branch</description>
+    <url>/foundation/activeworkflow</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

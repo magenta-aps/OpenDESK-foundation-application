@@ -5,6 +5,13 @@
  */
 package dk.opendesk.foundationapplication;
 
+import dk.opendesk.foundationapplication.DAO.StateSummary;
+import dk.opendesk.foundationapplication.DAO.Workflow;
+import static dk.opendesk.foundationapplication.TestUtils.STATE_ACCEPTED_NAME;
+import static dk.opendesk.foundationapplication.TestUtils.STATE_ASSESS_NAME;
+import static dk.opendesk.foundationapplication.TestUtils.STATE_DENIED_NAME;
+import static dk.opendesk.foundationapplication.TestUtils.STATE_RECIEVED_NAME;
+import static dk.opendesk.foundationapplication.TestUtils.TITLE_POSTFIX;
 import dk.opendesk.foundationapplication.patches.InitialStructure;
 import static dk.opendesk.foundationapplication.Utilities.*;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
@@ -16,8 +23,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.web.scripts.BaseWebScriptTest;
@@ -63,17 +72,35 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         List<NodeRef> branchRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BRANCH_NAME, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, branchRefs.size());
 
-        //Exactly one branch has been created
+        //Exactly one budget has been created
         List<NodeRef> budgetRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BUDGET_NAME, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, budgetRefs.size());
 
-        //Exactly one branch has been created
+        //Exactly one workflow has been created
         List<NodeRef> workflowRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.WORKFLOW_NAME, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, workflowRefs.size());
 
-        //Exactly 3 branches items has been created in total
+        List<ChildAssociationRef> applicationsRefs = serviceRegistry.getNodeService().getChildAssocs(getDataDictionaryRef(), getODFName(DATA_ASSOC_APPLICATIONS), null);
+        assertEquals(3, applicationsRefs.size());
+        
+        //Exactly 5 dataitems has been created in total
         List<ChildAssociationRef> childrenRefs = serviceRegistry.getNodeService().getChildAssocs(dataNode);
-        assertEquals(3, childrenRefs.size());
+        assertEquals(6, childrenRefs.size());
+        
+        
+        //Workflow has the expected states
+        Set<String> stateNames = new HashSet<>();
+        stateNames.add(STATE_RECIEVED_NAME+TITLE_POSTFIX);
+        stateNames.add(STATE_ASSESS_NAME+TITLE_POSTFIX);
+        stateNames.add(STATE_DENIED_NAME+TITLE_POSTFIX);
+        stateNames.add(STATE_ACCEPTED_NAME+TITLE_POSTFIX);
+        
+        Workflow workflow = foundationBean.getWorkflow(workflowRefs.get(0));
+        for(StateSummary state : workflow.getStates()){
+            stateNames.remove(state.getTitle());
+        }
+        assertEquals("States should have been empty: "+stateNames, 0, stateNames.size());
+        
     }
 
     public void testCreateApplication() throws Exception {
@@ -85,26 +112,30 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         List<AssociationRef> branchBudgets = serviceRegistry.getNodeService().getTargetAssocs(getBranchRef(), getODFName(BRANCH_ASSOC_BUDGETS));
 
         NodeRef budgetRef = branchBudgets.get(0).getTargetRef();
-
-        assertEquals(TestUtils.BUDGET_AMOUNT, foundationBean.getBudgetRemainingFunding(budgetRef));
+        Long expectedAmount = TestUtils.BUDGET_AMOUNT-TestUtils.APPLICATION1_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
+        assertEquals(expectedAmount, foundationBean.getBudgetRemainingFunding(budgetRef));
 
         Long budgetAllocatedFunding = foundationBean.getBudgetAllocatedFunding(dataNode);
         Long budgetRemaningFunding = foundationBean.getBudgetRemainingFunding(budgetRef);
         Long budgetTotalFunding = foundationBean.getBudgetTotalFunding(budgetRef);
 
         assertEquals(Long.valueOf(0), budgetAllocatedFunding);
-        assertEquals(budgetTotalFunding, budgetRemaningFunding);
+        Long expectedTotalFunding = budgetRemaningFunding + TestUtils.APPLICATION1_AMOUNT + TestUtils.APPLICATION2_AMOUNT;
+        assertEquals(expectedTotalFunding, budgetTotalFunding);
 
         Long appliedAmount = 10000000l;
 
         foundationBean.addNewApplication(getBranchRef(), budgetRef, APPLICATION_NAME, "NewApplication", "Category1", "Dansk Dræbersnegls Bevaringsforbund", "Sneglesporet", 3, "2", "1445", "Svend", "Svendsen", "ikkedraebesneglen@gmail.com", "12345678",
                 "Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr.", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(2))), appliedAmount, "1234", "00123456");
 
-        Long newBalance = TestUtils.BUDGET_AMOUNT - appliedAmount;
+        Long newBalance = expectedAmount - appliedAmount;
         assertEquals(newBalance, foundationBean.getBudgetRemainingFunding(budgetRef));
-        assertEquals(appliedAmount, foundationBean.getBudgetAllocatedFunding(budgetRef));
+        
+        Long expectedAppliedAmount = appliedAmount+TestUtils.APPLICATION1_AMOUNT + TestUtils.APPLICATION2_AMOUNT;
+        
+        assertEquals(expectedAppliedAmount, foundationBean.getBudgetAllocatedFunding(budgetRef));
         //Did we create an application with the expected name in the branch?
-        List<NodeRef> applications = serviceRegistry.getSearchService().selectNodes(getBranchRef(), "./odf:" + APPLICATION_NAME, null, serviceRegistry.getNamespaceService(), false);
+        List<NodeRef> applications = serviceRegistry.getSearchService().selectNodes(getDataDictionaryRef(), "./odf:" + APPLICATION_NAME, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, applications.size());
 
     }

@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Add new test application</shortname>
+    <description>Adds a new application</description>
+    <url>/foundation/applicationtest/</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

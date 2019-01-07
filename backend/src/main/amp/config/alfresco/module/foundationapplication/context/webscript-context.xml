@@ -18,6 +18,31 @@
 -->
 <beans>
     
+    <bean id="webscript.foundation.demodata.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+        <property name="serviceRegistry" ref="ServiceRegistry"/>
+    </bean>
+    
+    <bean id="webscript.foundation.newapplications.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetNewApplications"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.application.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.AddApplication"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.applicationtemplate.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.AddApplicationTemplate"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
     <bean id="webscript.foundation.application.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplication"
           parent="webscript">
@@ -78,6 +103,17 @@
     </bean>
     <bean id="webscript.foundation.workflow.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetWorkflow"
+              parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    <bean id="webscript.foundation.workflowsactive.get"
+              class="dk.opendesk.foundationapplication.webscripts.foundation.GetWorkflowsActive"
+              parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.state.get"
+              class="dk.opendesk.foundationapplication.webscripts.foundation.GetState"
               parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>

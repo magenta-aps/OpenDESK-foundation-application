@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Add new Application</shortname>
+    <description>Adds a new application</description>
+    <url>/foundation/application</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

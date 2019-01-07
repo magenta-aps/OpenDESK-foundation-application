@@ -5,23 +5,15 @@
  */
 package dk.opendesk.foundationapplication;
 
-import static dk.opendesk.foundationapplication.Utilities.*;
+import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import junit.framework.Assert;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.namespace.QName;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.extensions.webscripts.Status;
-import org.springframework.extensions.webscripts.TestWebScriptServer;
 
 /**
  *
@@ -35,6 +27,13 @@ public final class TestUtils {
     public static final String WORKFLOW_NAME = "defaultWorkFlow";
     
     public static final String BRANCH_NAME = "defaultBranch";
+    
+    public static final String APPLICATION1_NAME = "defaultApplication1";
+    public static final Long APPLICATION1_AMOUNT = 100000l;
+    public static final String APPLICATION2_NAME = "defaultApplication2";
+    public static final Long APPLICATION2_AMOUNT = 200000l;
+    public static final String APPLICATION3_NAME = "defaultNewApplication";
+    public static final Long APPLICATION3_AMOUNT = 5l;
     
     public static final String STATE_RECIEVED_NAME = "recieved";
     public static final String STATE_ASSESS_NAME = "assesment";
@@ -68,6 +67,10 @@ public final class TestUtils {
             nodeService.removeChild(dataRef, branch);
         }
         
+        for(ApplicationSummary application : foundationBean.getApplicationSummaries()){
+            nodeService.removeChild(dataRef, application.asNodeRef());
+        }
+        
         
         
     }
@@ -78,9 +81,6 @@ public final class TestUtils {
         
         
         //Create workflow
-        QName workflowTitle = getODFName(WORKFLOW_PARAM_TITLE);
-        Map<QName, Serializable> workflowParams = new HashMap<>();
-        workflowParams.put(workflowTitle, WORKFLOW_NAME+TITLE_POSTFIX);
         NodeRef workFlowRef = foundationBean.addNewWorkflow(WORKFLOW_NAME, WORKFLOW_NAME+TITLE_POSTFIX);
         
         //Create workflow states
@@ -104,6 +104,10 @@ public final class TestUtils {
         //Create budget and associate it with a branch
         NodeRef budgetRef = foundationBean.addNewBudget(BUDGET_NAME, BUDGET_NAME+TITLE_POSTFIX, BUDGET_AMOUNT);
         foundationBean.setBranchBudget(branchRef, budgetRef);
+        
+        NodeRef application1 = foundationBean.addNewApplication(branchRef, budgetRef, APPLICATION1_NAME, APPLICATION1_NAME+TITLE_POSTFIX, "Category1", "Lars Larsen INC", "Tværstrede", 9, "2", "1234", "Lars", "Larsen", "lars@larsen.org", "004512345678", "Give me money", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(2))), APPLICATION1_AMOUNT, "4321", "00035254");
+        NodeRef application2 = foundationBean.addNewApplication(branchRef, budgetRef, APPLICATION2_NAME, APPLICATION2_NAME+TITLE_POSTFIX, "Category2", "Lars Larsen INC", "Tværstrede", 9, "2", "1234", "Lars", "Larsen", "lars@larsen.org", "004512345678", "Give me more money", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(4))), APPLICATION2_AMOUNT, "4321", "00035254");
+        NodeRef application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME+TITLE_POSTFIX, "Category3", "Lars Larsen INC", "Tværstrede", 9, "2", "1234", "Lars", "Larsen", "lars@larsen.org", "004512345678", "Give me more money", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(4))), APPLICATION3_AMOUNT, "4321", "00035254");
         
     }
     

@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get new Applications</shortname>
+    <description>Gets new applications without state</description>
+    <url>/foundation/incomming</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

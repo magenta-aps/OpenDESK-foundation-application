@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
@@ -97,7 +98,14 @@ public class Reference {
         return true;
     }
     
+    public ToStringBuilder toStringBuilder(){
+        return new ToStringBuilder(this).append("StoreID", this.getStoreID()).append("NodeID", this.getNodeID()); 
+    }
     
+    @Override
+    public String toString(){
+        return toStringBuilder().build();
+    }
     
     
 }

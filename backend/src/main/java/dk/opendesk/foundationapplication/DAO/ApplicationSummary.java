@@ -7,26 +7,31 @@ package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Date;
 import java.util.Objects;
-import org.alfresco.service.cmr.repository.NodeRef;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
- * 
+ *
  * @author martin
  */
-public class ApplicationSummary extends ApplicationReference{
+public class ApplicationSummary extends ApplicationReference {
+
+    private BranchReference branchRef;
     private String category;
     private String recipient;
     private String shortDescription;
     private Date startDate;
     private Date endDate;
     private Long amountApplied;
-    private NodeRef budgetRef;
-    private String budgetTitle;
-    private NodeRef stateRef;
-    private String stateTitle;
-    
 
     public ApplicationSummary() {
+    }
+
+    public BranchReference getBranchRef() {
+        return branchRef;
+    }
+
+    public void setBranchRef(BranchReference branchRef) {
+        this.branchRef = branchRef;
     }
 
     public String getCategory() {
@@ -77,40 +82,6 @@ public class ApplicationSummary extends ApplicationReference{
         this.amountApplied = amountApplied;
     }
 
-    public NodeRef getBudgetRef() {
-        return budgetRef;
-    }
-
-    public void setBudgetRef(NodeRef budgetRef) {
-        this.budgetRef = budgetRef;
-    }
-
-    public String getBudgetTitle() {
-        return budgetTitle;
-    }
-
-    public void setBudgetTitle(String budgetTitle) {
-        this.budgetTitle = budgetTitle;
-    }
-
-    public NodeRef getStateRef() {
-        return stateRef;
-    }
-
-    public void setStateRef(NodeRef stateRef) {
-        this.stateRef = stateRef;
-    }
-
-    public String getStateTitle() {
-        return stateTitle;
-    }
-
-    public void setStateTitle(String stateTitle) {
-        this.stateTitle = stateTitle;
-    }
-
-   
-    
     @Override
     public int hashCode() {
         int hash = 3;
@@ -122,10 +93,7 @@ public class ApplicationSummary extends ApplicationReference{
         hash = 23 * hash + Objects.hashCode(this.startDate);
         hash = 23 * hash + Objects.hashCode(this.endDate);
         hash = 23 * hash + Objects.hashCode(this.amountApplied);
-        hash = 23 * hash + Objects.hashCode(this.budgetRef);
-        hash = 23 * hash + Objects.hashCode(this.budgetTitle);
-        hash = 23 * hash + Objects.hashCode(this.stateRef);
-        hash = 23 * hash + Objects.hashCode(this.stateTitle);
+        hash = 23 * hash + Objects.hashCode(this.branchRef);
         return hash;
     }
 
@@ -156,12 +124,6 @@ public class ApplicationSummary extends ApplicationReference{
         if (!Objects.equals(this.shortDescription, other.shortDescription)) {
             return false;
         }
-        if (!Objects.equals(this.budgetTitle, other.budgetTitle)) {
-            return false;
-        }
-        if (!Objects.equals(this.stateTitle, other.stateTitle)) {
-            return false;
-        }
         if (!Objects.equals(this.startDate, other.startDate)) {
             return false;
         }
@@ -171,15 +133,20 @@ public class ApplicationSummary extends ApplicationReference{
         if (!Objects.equals(this.amountApplied, other.amountApplied)) {
             return false;
         }
-        if (!Objects.equals(this.budgetRef, other.budgetRef)) {
-            return false;
-        }
-        if (!Objects.equals(this.stateRef, other.stateRef)) {
+        if (!Objects.equals(this.branchRef, other.branchRef)) {
             return false;
         }
         return true;
     }
-    
-    
-    
+
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("branchRef", this.getBranchRef()).append("category", this.getCategory()).append("amountApplied", this.getAmountApplied()).append("startDate", this.getStartDate()).append("endDate", this.getEndDate()).append("recipient", this.getRecipient()).append("shortDescription", this.getShortDescription());
+    }
+
+    @Override
+    public String toString() {
+        return toStringBuilder().build();
+    }
+
 }

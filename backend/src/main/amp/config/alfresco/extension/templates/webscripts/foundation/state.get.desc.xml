@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get state</shortname>
+    <description>Get state by NodeID</description>
+    <url>/foundation/state/{stateID}</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

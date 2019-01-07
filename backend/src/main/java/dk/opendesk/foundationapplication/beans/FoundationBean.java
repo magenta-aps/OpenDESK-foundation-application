@@ -5,9 +5,11 @@
  */
 package dk.opendesk.foundationapplication.beans;
 
+import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.Branch;
+import dk.opendesk.foundationapplication.DAO.BranchReference;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
@@ -20,6 +22,8 @@ import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.*;
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -52,6 +56,17 @@ public class FoundationBean {
         return Utilities.getDataNode(serviceRegistry);
     }
 
+    public ApplicationReference addNewApplication(Application app) throws Exception {
+        NodeRef branchRef = app.getBranchRef() != null ? app.getBranchRef().asNodeRef() : null;
+        NodeRef budgetRef = app.getBudget() != null ? app.getBudget().asNodeRef() : null;
+        String localName = "Application-" + DateTimeFormatter.ISO_INSTANT.format(Instant.now());
+        NodeRef newApplication = addNewApplication(branchRef, budgetRef, localName, app.getTitle(), app.getCategory(), app.getRecipient(), app.getAddressRoad(), app.getAddressNumber(), app.getAddressFloor(),
+                app.getAddressPostalCode(), app.getContactFirstName(), app.getContactLastName(), app.getContactEmail(), app.getContactPhone(), app.getShortDescription(),
+                app.getStartDate(), app.getEndDate(), app.getAmountApplied(), app.getAccountRegistration(), app.getAccountNumber());
+        ApplicationReference reference = getApplicationReference(newApplication);
+        return reference;
+    }
+
     public NodeRef addNewApplication(NodeRef branchRef, NodeRef budgetRef, String localName, String title, String category, String recipient, String addressRoad, Integer addressNumber, String addressFloor,
             String addressPostalCode, String contactFirstName, String contactLastName, String contactEmail, String contactPhone, String shortDescription,
             Date startDate, Date endDate, Long appliedAmount, String accountRegistration, String accountNumber) throws Exception {
@@ -76,26 +91,36 @@ public class FoundationBean {
 
         QName applicationTypeQname = getODFName(APPLICATION_TYPE_NAME);
         QName applicationQname = getODFName(localName);
-        QName branchAssocApplication = getODFName(BRANCH_ASSOC_APPLICATIONS);
+        QName dataAssocApplication = getODFName(DATA_ASSOC_APPLICATIONS);
 
-        NodeRef applicationRef = serviceRegistry.getNodeService().createNode(branchRef, branchAssocApplication, applicationQname, applicationTypeQname, properties).getChildRef();
-        serviceRegistry.getNodeService().createAssociation(applicationRef, budgetRef, getODFName(APPLICATION_ASSOC_BUDGET));
-
-        NodeRef workFlowRef = serviceRegistry.getNodeService().getTargetAssocs(branchRef, getODFName(BRANCH_ASSOC_WORKFLOW)).get(0).getTargetRef();
-        List<AssociationRef> workflowEntryRefs = serviceRegistry.getNodeService().getTargetAssocs(workFlowRef, getODFName(WORKFLOW_ASSOC_ENTRY));
-        if (workflowEntryRefs.size() != 1) {
-            throw new AlfrescoRuntimeException("Cannot create new application. The workflow on this branch does not have an entry point set");
+        NodeRef applicationRef = serviceRegistry.getNodeService().createNode(getDataHome(), dataAssocApplication, applicationQname, applicationTypeQname, properties).getChildRef();
+        if (budgetRef != null) {
+            serviceRegistry.getNodeService().createAssociation(applicationRef, budgetRef, getODFName(APPLICATION_ASSOC_BUDGET));
+        }
+        if (branchRef != null) {
+            NodeRef workFlowRef = serviceRegistry.getNodeService().getTargetAssocs(branchRef, getODFName(BRANCH_ASSOC_WORKFLOW)).get(0).getTargetRef();
+            List<AssociationRef> workflowEntryRefs = serviceRegistry.getNodeService().getTargetAssocs(workFlowRef, getODFName(WORKFLOW_ASSOC_ENTRY));
+            if (workflowEntryRefs.size() != 1) {
+                throw new AlfrescoRuntimeException("Cannot create new application. The workflow on this branch does not have an entry point set");
+            }
+            serviceRegistry.getNodeService().createAssociation(applicationRef, branchRef, getODFName(APPLICATION_ASSOC_BRANCH));
+            serviceRegistry.getNodeService().createAssociation(applicationRef, workflowEntryRefs.get(0).getTargetRef(), getODFName(APPLICATION_ASSOC_STATE));
+        } else {
+            serviceRegistry.getNodeService().createAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
         }
 
-        serviceRegistry.getNodeService().createAssociation(applicationRef, workflowEntryRefs.get(0).getTargetRef(), getODFName(APPLICATION_ASSOC_STATE));
-
         return applicationRef;
+    }
+
+    public void setApplicationState(NodeRef applicationRef, NodeRef stateRef) throws Exception {
+        serviceRegistry.getNodeService().removeAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
+        serviceRegistry.getNodeService().setAssociations(applicationRef, getODFName(APPLICATION_ASSOC_STATE), Collections.singletonList(stateRef));
     }
 
     public NodeRef getApplicationBudget(NodeRef applicationRef) throws Exception {
         return serviceRegistry.getNodeService().getTargetAssocs(applicationRef, getODFName(APPLICATION_ASSOC_BUDGET)).get(0).getTargetRef();
     }
-
+    
     public NodeRef getApplicationState(NodeRef applicationRef) throws Exception {
         QName applicationStateName = getODFName(APPLICATION_ASSOC_STATE);
         List<AssociationRef> states = serviceRegistry.getNodeService().getTargetAssocs(applicationRef, applicationStateName);
@@ -127,7 +152,7 @@ public class FoundationBean {
         long totalAllocatedFunding = 0;
         for (AssociationRef ref : refs) {
             Long amount = (Long) serviceRegistry.getNodeService().getProperty(ref.getSourceRef(), getODFName(APPLICATION_PARAM_APPLIED_AMOUNT));
-            totalAllocatedFunding = +amount;
+            totalAllocatedFunding = totalAllocatedFunding + amount;
         }
         return totalAllocatedFunding;
     }
@@ -141,6 +166,50 @@ public class FoundationBean {
         Long totalAmount = getBudgetTotalFunding(budgetRef);
         Long usedAmount = getBudgetAllocatedFunding(budgetRef);
         return totalAmount - usedAmount;
+    }
+    
+    public Application getApplication(NodeRef applicationRef) throws Exception{
+        Application application = new Application();
+        application.parseRef(applicationRef);
+        application.setTitle(getProperty(applicationRef, APPLICATION_PARAM_TITLE, String.class));
+        application.setAccountRegistration(getProperty(applicationRef, APPLICATION_PARAM_ACCOUNT_REGISTRATION, String.class));
+        application.setAccountNumber(getProperty(applicationRef, APPLICATION_PARAM_ACCOUNT_NUMBER, String.class));
+        application.setAddressRoad(getProperty(applicationRef, APPLICATION_PARAM_ADDR_ROAD, String.class));
+        application.setAddressNumber(getProperty(applicationRef, APPLICATION_PARAM_ADDR_NUMBER, Integer.class));
+        application.setAddressFloor(getProperty(applicationRef, APPLICATION_PARAM_ADDR_FLOOR, String.class));
+        application.setAddressPostalCode(getProperty(applicationRef, APPLICATION_PARAM_ARRD_POSTALCODE, String.class));
+        application.setContactFirstName(getProperty(applicationRef, APPLICATION_PARAM_PERSON_FIRSTNAME, String.class));
+        application.setContactFirstName(getProperty(applicationRef, APPLICATION_PARAM_PERSON_SURNAME, String.class));
+        application.setContactEmail(getProperty(applicationRef, APPLICATION_PARAM_PERSON_EMAIL, String.class));
+        application.setContactPhone(getProperty(applicationRef, APPLICATION_PARAM_PERSON_PHONE, String.class));
+        application.setAmountApplied(getProperty(applicationRef, APPLICATION_PARAM_APPLIED_AMOUNT, Long.class));
+        application.setCategory(getProperty(applicationRef, APPLICATION_PARAM_CATEGORY, String.class));
+        application.setStartDate(getProperty(applicationRef, APPLICATION_PARAM_START_DATE, Date.class));
+        application.setEndDate(getProperty(applicationRef, APPLICATION_PARAM_END_DATE, Date.class));
+        application.setRecipient(getProperty(applicationRef, APPLICATION_PARAM_RECIPIENT, String.class));
+        application.setShortDescription(getProperty(applicationRef, APPLICATION_PARAM_SHORT_DESCRIPTION, String.class));
+        
+        NodeRef branchRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BRANCH);
+        NodeRef budgetRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET);
+        NodeRef stateRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_STATE);
+        if(branchRef != null){
+            BranchReference branch = new BranchReference();
+            branch.parseRef(branchRef);
+            application.setBranchRef(branch);
+        }
+        if(budgetRef != null){
+            BudgetReference budget = new BudgetReference();
+            budget.parseRef(budgetRef);
+            application.setBudget(budget);
+        }
+        if(stateRef != null){
+            StateReference state = new StateReference();
+            state.parseRef(stateRef);
+            application.setState(state);
+        }
+        
+        return application;
+        
     }
 
     public BudgetReference getBudgetReference(NodeRef budgetRef) throws Exception {
@@ -287,6 +356,13 @@ public class FoundationBean {
         return branches;
     }
 
+    public BranchReference getBranchReference(NodeRef branchRef) throws Exception {
+        BranchReference branchReference = new BranchReference();
+        branchReference.parseRef(branchRef);
+        branchReference.setTitle(getProperty(branchRef, BRANCH_PARAM_TITLE, String.class));
+        return branchReference;
+    }
+
     public Branch getBranch(NodeRef branchRef) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
         Branch branch = new Branch();
@@ -310,7 +386,7 @@ public class FoundationBean {
 
     public List<ApplicationSummary> getBranchApplications(NodeRef branchRef) throws Exception {
 
-        List<AssociationRef> applicationRefs = serviceRegistry.getNodeService().getTargetAssocs(branchRef, getODFName(BRANCH_ASSOC_APPLICATIONS));
+        List<AssociationRef> applicationRefs = serviceRegistry.getNodeService().getSourceAssocs(branchRef, getODFName(APPLICATION_ASSOC_BRANCH));
         List<ApplicationSummary> applications = new ArrayList<>();
         for (AssociationRef ref : applicationRefs) {
             NodeRef appRef = ref.getTargetRef();
@@ -328,22 +404,41 @@ public class FoundationBean {
         return reference;
     }
 
+    public List<ApplicationSummary> getApplicationSummaries() throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+        List<ApplicationSummary> toReturn = new ArrayList<>();
+        for (ChildAssociationRef applicationRef : ns.getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_APPLICATIONS), null)) {
+            toReturn.add(getApplicationSummary(applicationRef.getChildRef()));
+        }
+        return toReturn;
+    }
+    
+    public List<ApplicationSummary> getNewApplicationSummaries() throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+        List<ApplicationSummary> toReturn = new ArrayList<>();
+        for(AssociationRef applicationRef : ns.getTargetAssocs(getDataHome(), getODFName(DATA_ASSOC_NEW_APPLICATIONS))){
+            toReturn.add(getApplicationSummary(applicationRef.getTargetRef()));
+        }
+        return toReturn;
+    }
+    
+
     public ApplicationSummary getApplicationSummary(NodeRef applicationSummary) throws Exception {
         ApplicationSummary app = new ApplicationSummary();
         app.parseRef(applicationSummary);
+
+        NodeRef branchRef = getSingleTargetAssoc(applicationSummary, APPLICATION_ASSOC_BRANCH);
+
+        BranchReference branchReference = getBranchReference(applicationSummary);
+        app.setBranchRef(branchReference);
         app.setTitle(getProperty(applicationSummary, APPLICATION_PARAM_TITLE, String.class));
         app.setAmountApplied(getProperty(applicationSummary, APPLICATION_PARAM_APPLIED_AMOUNT, Long.class));
-        NodeRef budgetRef = getApplicationBudget(applicationSummary);
-        app.setBudgetRef(budgetRef);
-        app.setBudgetTitle(getProperty(applicationSummary, BUDGET_PARAM_TITLE, String.class));
         app.setCategory(getProperty(applicationSummary, APPLICATION_PARAM_CATEGORY, String.class));
         app.setStartDate(getProperty(applicationSummary, APPLICATION_PARAM_START_DATE, Date.class));
         app.setEndDate(getProperty(applicationSummary, APPLICATION_PARAM_END_DATE, Date.class));
         app.setRecipient(getProperty(applicationSummary, APPLICATION_PARAM_RECIPIENT, String.class));
         app.setShortDescription(getProperty(applicationSummary, APPLICATION_PARAM_SHORT_DESCRIPTION, String.class));
-        NodeRef stateRef = getApplicationState(applicationSummary);
-        app.setStateRef(stateRef);
-        app.setStateTitle(getProperty(stateRef, STATE_PARAM_TITLE, String.class));
+
         return app;
     }
 
@@ -379,10 +474,14 @@ public class FoundationBean {
         WorkflowSummary summary = new WorkflowSummary();
         summary.parseRef(workflowRef);
         summary.setTitle(getProperty(workflowRef, WORKFLOW_PARAM_TITLE, String.class));
-        summary.setEntry(getStateReference(getSingleTargetAssoc(workflowRef, WORKFLOW_ASSOC_ENTRY)));
+        NodeRef stateRef = getSingleTargetAssoc(workflowRef, WORKFLOW_ASSOC_ENTRY);
+        if (stateRef != null) {
+            summary.setEntry(getStateReference(stateRef));
+        }
+        
         List<StateReference> stateReferences = new ArrayList<>();
-        for (AssociationRef state : ns.getTargetAssocs(workflowRef, getODFName(WORKFLOW_ASSOC_STATES))) {
-            stateReferences.add(getStateReference(state.getTargetRef()));
+        for (ChildAssociationRef state : ns.getChildAssocs(workflowRef, getODFName(WORKFLOW_ASSOC_STATES), null)) {
+            stateReferences.add(getStateReference(state.getChildRef()));
         }
         summary.setStates(stateReferences);
         return summary;
@@ -395,11 +494,11 @@ public class FoundationBean {
         workflow.setTitle(getProperty(workflowRef, WORKFLOW_PARAM_TITLE, String.class));
 
         NodeRef entryRef = getSingleTargetAssoc(workflowRef, WORKFLOW_ASSOC_ENTRY);
-        workflow.setEntry(getStateSummary(entryRef));
+        workflow.setEntry(getStateReference(entryRef));
 
         List<StateSummary> states = new ArrayList<>();
-        for (AssociationRef stateRef : ns.getTargetAssocs(workflowRef, getODFName(WORKFLOW_ASSOC_STATES))) {
-            states.add(getState(stateRef.getTargetRef()));
+        for (ChildAssociationRef stateRef : ns.getChildAssocs(workflowRef, getODFName(WORKFLOW_ASSOC_STATES), null)) {
+            states.add(getStateSummary(stateRef.getChildRef()));
         }
         workflow.setStates(states);
 
@@ -419,7 +518,7 @@ public class FoundationBean {
         state.setReferences(transitions);
         List<ApplicationReference> applications = new ArrayList<>();
         for (AssociationRef applicationRef : ns.getSourceAssocs(stateRef, getODFName(APPLICATION_ASSOC_STATE))) {
-            applications.add(getApplicationReference(applicationRef.getTargetRef()));
+            applications.add(getApplicationReference(applicationRef.getSourceRef()));
         }
         state.setApplications(applications);
         return state;
@@ -429,7 +528,7 @@ public class FoundationBean {
         NodeService ns = serviceRegistry.getNodeService();
         StateSummary summary = new StateSummary();
         summary.parseRef(stateRef);
-        summary.setTitle(STATE_PARAM_TITLE);
+        summary.setTitle(getProperty(stateRef, STATE_PARAM_TITLE, String.class));
         List<StateReference> transitions = new ArrayList<>();
         for (AssociationRef transitionRef : ns.getTargetAssocs(stateRef, getODFName(STATE_ASSOC_TRANSITIONS))) {
             transitions.add(getStateReference(transitionRef.getTargetRef()));

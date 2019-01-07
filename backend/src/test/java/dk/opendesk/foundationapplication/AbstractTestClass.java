@@ -12,7 +12,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import junit.framework.Assert;
 import org.alfresco.repo.web.scripts.BaseWebScriptTest;
@@ -127,7 +126,7 @@ public class AbstractTestClass extends BaseWebScriptTest {
             T object = c1.iterator().next();
             c1.remove(object);
             c2.remove(object);
-            Assert.assertEquals("Collections did not contain the same elements", c1.size(), c2.size());
+            Assert.assertEquals("Collections did not contain the same elements. Could not find "+object, c1.size(), c2.size());
         }
 
         Assert.assertEquals("Collections did not contain the same elements", 0, c1.size() + c2.size());

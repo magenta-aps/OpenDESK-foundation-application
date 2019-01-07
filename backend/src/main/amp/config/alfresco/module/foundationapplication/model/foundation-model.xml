@@ -149,11 +149,35 @@
                          <many>true</many>
                      </target>
                      <duplicate>false</duplicate>
-                 </child-association>
+                </child-association>
+                <child-association name="odf:applications">
+                     <source>
+                         <mandatory>true</mandatory>
+                         <many>false</many>
+                     </source>
+                     <target>
+                         <class>odf:application</class>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
+                     </target>
+                     <duplicate>true</duplicate>
+                </child-association>
+                <association name="odf:newApplications">
+                     <source>
+                         <mandatory>true</mandatory>
+                         <many>false</many>
+                     </source>
+                     <target>
+                         <class>odf:application</class>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
+                     </target>
+                </association>
+
              </associations>
         </type> 
         <type name="odf:applicationWorkflow">
-             <title>Application State</title>
+             <title>Application Workflow</title>
              <parent>cm:cmobject</parent>
              <properties>
                  <property name="odf:workflowTitle">
@@ -239,18 +263,6 @@
                 </property>
             </properties>
             <associations>
-                <child-association name="odf:applications">
-                     <source>
-                         <mandatory>true</mandatory>
-                         <many>false</many>
-                     </source>
-                     <target>
-                         <class>odf:application</class>
-                         <mandatory>false</mandatory>
-                         <many>true</many>
-                     </target>
-                     <duplicate>true</duplicate>
-                 </child-association>
                 <association name="odf:branchWorkflow">
                     <title>Branch Workflow</title>
                     <source>
@@ -307,7 +319,7 @@
                     <mandatory>true</mandatory>
                 </property>
                 <property name="odf:applicationAddressFloor">
-                    <type>d:int</type>
+                    <type>d:text</type>
                     <mandatory>false</mandatory>
                 </property>
                 <property name="odf:applicationAddressPostalCode">
@@ -400,7 +412,7 @@
                         <many>false</many>
                     </target>
                 </association>
-<!--                <association name="odf:applicationBranch">
+                <association name="odf:applicationBranch">
                     <title>Application Budget</title>
                     <source>
                         <mandatory>false</mandatory>
@@ -408,10 +420,10 @@
                     </source>
                     <target>
                         <class>odf:applicationBranch</class>
-                        <mandatory>true</mandatory>
+                        <mandatory>false</mandatory>
                         <many>false</many>
                     </target>
-                </association>-->
+                </association>
                 <association name="odf:applicationState">
                     <title>Application State</title>
                     <source>

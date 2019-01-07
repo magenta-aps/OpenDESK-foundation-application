@@ -37,9 +37,10 @@ public final class Utilities {
     public static final String DATA_ASSOC_WORKFLOW = "workflows";
     public static final String DATA_ASSOC_BRANCHES = "branches";
     public static final String DATA_ASSOC_BUDGETS = "budgets";
+    public static final String DATA_ASSOC_APPLICATIONS = "applications";
+    public static final String DATA_ASSOC_NEW_APPLICATIONS = "newApplications";
     
-    public static final String BRANCH_TYPE_NAME = "applicationBranch";
-    public static final String BRANCH_ASSOC_APPLICATIONS = "applications"; 
+    public static final String BRANCH_TYPE_NAME = "applicationBranch"; 
     public static final String BRANCH_ASSOC_WORKFLOW = "branchWorkflow";
     public static final String BRANCH_ASSOC_BUDGETS = "branchBudgets";
     public static final String BRANCH_PARAM_TITLE = "branchTitle";
@@ -59,7 +60,7 @@ public final class Utilities {
     
     public static final String APPLICATION_TYPE_NAME="application";
     public static final String APPLICATION_ASSOC_BUDGET = "applicationBudget";
-//    public static final String APPLICATION_ASSOC_BRANCH = "applicationBranch";
+    public static final String APPLICATION_ASSOC_BRANCH = "applicationBranch";
     public static final String APPLICATION_ASSOC_STATE = "applicationState";
     public static final String APPLICATION_PARAM_TITLE = "applicationTitle";
     public static final String APPLICATION_PARAM_CATEGORY = "applicationCategory";
