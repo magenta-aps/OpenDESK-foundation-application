@@ -1,11 +1,10 @@
 #!/bin/bash
-# Downloads the spring-loaded lib if not existing and      
-# runs the Repo AMP applied to Alfresco WAR.           
-# Note. the Share WAR is not deployed.              
-springloadedfile=~/.m2/repository/org/springframework/springloaded/1.2.3.RELEASE/springloaded-1.2.3.RELEASE.jar
+#if [[ -z ${MAVEN_OPTS} ]]; then
+#    echo "The environment variable 'MAVEN_OPTS' is not set, setting it for you";
+#    MAVEN_OPTS="-Xms256m -Xmx1524m -XX:PermSize=300m"
+#fi
+#echo "MAVEN_OPTS is set to '$MAVEN_OPTS'";
+#mvn clean install -Pamp-to-war
+#springloadedfile=~/downloads/springloaded-1.2.5.RELEASE.jar
 
-if [ ! -f $springloadedfile ]; then
-mvn validate -Psetup
-fi
-
-MAVEN_OPTS="-javaagent:$springloadedfile -noverify -Xms256m -Xmx2G" mvn integration-test -Pamp-to-war
+MAVEN_OPTS="-noverify -Xms256m -Xmx4G -XX:PermSize=1024m" mvn clean integration-test -Pamp-to-war -Punpack-deps -Palfresco_maven -DskipTests
