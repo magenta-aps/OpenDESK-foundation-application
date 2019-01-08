@@ -7,24 +7,29 @@ package dk.opendesk.foundationapplication.DAO;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
  * @author martin
  */
 public class State extends StateSummary {
-    List<ApplicationReference> applications;
+    Optional<List<ApplicationReference>> applications;
 
     public State() {
         
     }
 
     public List<ApplicationReference> getApplications() {
-        return applications;
+        return get(applications);
+    }
+    
+    public boolean wasApplicationsSet(){
+        return wasSet(applications);
     }
 
     public void setApplications(List<ApplicationReference> applications) {
-        this.applications = applications;
+        this.applications = optional(applications);
     }
 
     @Override
@@ -33,7 +38,7 @@ public class State extends StateSummary {
         hash = 53 * hash + Objects.hashCode(this.getTitle());
         hash = 53 * hash + Objects.hashCode(this.getNodeRef());
         hash = 53 * hash + Objects.hashCode(this.getReferences());
-        hash = 53 * hash + Objects.hashCode(applications);
+        hash = 53 * hash + Objects.hashCode(this.getApplications());
         return hash;
     }
 
@@ -58,7 +63,7 @@ public class State extends StateSummary {
         if (!Objects.equals(this.getReferences(), other.getReferences())) {
             return false;
         }
-        if (!Objects.equals(applications, other.applications)) {
+        if (!Objects.equals(this.getApplications(), other.getApplications())) {
             return false;
         }
 

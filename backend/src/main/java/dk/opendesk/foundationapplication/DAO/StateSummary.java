@@ -5,9 +5,9 @@
  */
 package dk.opendesk.foundationapplication.DAO;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -15,18 +15,22 @@ import java.util.Objects;
  */
 public class StateSummary extends StateReference{
     
-    private List<StateReference> references = new ArrayList<>();
+    private Optional<List<StateReference>> references = null;
 
     public StateSummary() {
-        references = new ArrayList<>();
+        
     }
 
     public List<StateReference> getReferences() {
-        return references;
+        return get(references);
+    }
+    
+    public boolean wasReferencesSet(){
+        return wasSet(references);
     }
 
     public void setReferences(List<StateReference> references) {
-        this.references = references;
+        this.references = optional(references);
     }
 
     @Override
@@ -34,7 +38,7 @@ public class StateSummary extends StateReference{
         int hash = 7;
         hash = 53 * hash + Objects.hashCode(this.getTitle());
         hash = 53 * hash + Objects.hashCode(this.getNodeRef());
-        hash = 53 * hash + Objects.hashCode(this.references);
+        hash = 53 * hash + Objects.hashCode(this.getReferences());
         return hash;
     }
 
@@ -56,7 +60,7 @@ public class StateSummary extends StateReference{
         if (!Objects.equals(this.getTitle(), other.getTitle())) {
             return false;
         }
-        if (!Objects.equals(this.references, other.references)) {
+        if (!Objects.equals(this.getReferences(), other.getReferences())) {
             return false;
         }
 

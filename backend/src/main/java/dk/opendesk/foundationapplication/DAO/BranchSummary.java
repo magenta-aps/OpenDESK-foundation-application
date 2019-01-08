@@ -6,27 +6,29 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
  * @author martin
  */
 public class BranchSummary extends BranchReference{
-    private WorkflowReference workflowRef;
+    private Optional<WorkflowReference> workflowRef;
 
     public BranchSummary() {
     }
     
-    public BranchSummary(String title, String uuid, WorkflowReference workflowRef) {
-        this.workflowRef = workflowRef;
-    }
 
     public WorkflowReference getWorkflowRef() {
-        return workflowRef;
+        return get(workflowRef);
+    }
+    
+    public boolean wasWorkflowRefSet(){
+        return wasSet(workflowRef);
     }
 
     public void setWorkflowRef(WorkflowReference workflowRef) {
-        this.workflowRef = workflowRef;
+        this.workflowRef = optional(workflowRef);
     }
 
     @Override
@@ -34,7 +36,7 @@ public class BranchSummary extends BranchReference{
         int hash = 7;
         hash = 53 * hash + Objects.hashCode(this.getTitle());
         hash = 53 * hash + Objects.hashCode(this.getNodeRef());
-        hash = 53 * hash + Objects.hashCode(this.workflowRef);
+        hash = 53 * hash + Objects.hashCode(this.getWorkflowRef());
         return hash;
     }
 
@@ -56,7 +58,7 @@ public class BranchSummary extends BranchReference{
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {
             return false;
         }
-        if (!Objects.equals(this.workflowRef, other.workflowRef)) {
+        if (!Objects.equals(this.getWorkflowRef(), other.getWorkflowRef())) {
             return false;
         }
         return true;

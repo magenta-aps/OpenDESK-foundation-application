@@ -6,6 +6,7 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -13,113 +14,165 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @author martin
  */
 public class Application extends ApplicationSummary{
-    private StateReference state;
-    private BudgetReference budget;
-    private String addressRoad;
-    private Integer addressNumber;
-    private String addressFloor;
-    private String addressPostalCode;
-    private String contactFirstName;
-    private String contactLastName;
-    private String contactEmail;
-    private String contactPhone;
-    private String accountRegistration;
-    private String accountNumber;
+    private Optional<StateReference> state;
+    private Optional<BudgetReference> budget;
+    private Optional<String> addressRoad;
+    private Optional<Integer> addressNumber;
+    private Optional<String> addressFloor;
+    private Optional<String> addressPostalCode;
+    private Optional<String> contactFirstName;
+    private Optional<String> contactLastName;
+    private Optional<String> contactEmail;
+    private Optional<String> contactPhone;
+    private Optional<String> accountRegistration;
+    private Optional<String> accountNumber;
     
     public StateReference getState() {
-        return state;
+        return get(state);
+    }
+    
+    public boolean wasStateReferenceSet(){
+        return wasSet(state);
     }
 
     public void setState(StateReference state) {
-        this.state = state;
+        this.state = optional(state);
     }
 
     public BudgetReference getBudget() {
-        return budget;
+        return get(budget);
+    }
+    
+    public boolean wasBudgetSet(){
+        return wasSet(budget);
     }
 
     public void setBudget(BudgetReference budget) {
-        this.budget = budget;
+        this.budget = optional(budget);
     }
 
     public String getAddressRoad() {
-        return addressRoad;
+        return get(addressRoad);
+    }
+    
+    public boolean wasAddressRoadSet() {
+        return wasSet(addressRoad);
     }
 
     public void setAddressRoad(String addressRoad) {
-        this.addressRoad = addressRoad;
+        this.addressRoad = optional(addressRoad);
     }
 
     public Integer getAddressNumber() {
-        return addressNumber;
+        return get(addressNumber);
+    }
+    
+    public boolean wasAddressNumberSet() {
+        return wasSet(addressNumber);
     }
 
     public void setAddressNumber(Integer addressNumber) {
-        this.addressNumber = addressNumber;
+        this.addressNumber = optional(addressNumber);
     }
 
     public String getAddressFloor() {
-        return addressFloor;
+        return get(addressFloor);
+    }
+    
+    public boolean wasAddressFloorSet(){
+        return wasSet(addressFloor);
     }
 
     public void setAddressFloor(String addressFloor) {
-        this.addressFloor = addressFloor;
+        this.addressFloor = optional(addressFloor);
     }
 
     public String getAddressPostalCode() {
-        return addressPostalCode;
+        return get(addressPostalCode);
+    }
+    
+    public boolean wasAddressPostalCodeSet(){
+        return wasSet(addressPostalCode);
     }
 
     public void setAddressPostalCode(String addressPostalCode) {
-        this.addressPostalCode = addressPostalCode;
+        this.addressPostalCode = optional(addressPostalCode);
     }
 
     public String getContactFirstName() {
-        return contactFirstName;
+        return get(contactFirstName);
+    }
+    
+    public boolean wasContactFirstNameSet() {
+        return wasSet(contactFirstName);
     }
 
     public void setContactFirstName(String contactFirstName) {
-        this.contactFirstName = contactFirstName;
+        this.contactFirstName = optional(contactFirstName);
     }
 
     public String getContactLastName() {
-        return contactLastName;
+        return get(contactLastName);
+    }
+    
+    public boolean wasContactLastNameSet() {
+        return wasSet(contactLastName);
+    }
+    
+    public boolean wastContactLastNameSet() {
+        return wasSet(contactLastName);
     }
 
     public void setContactLastName(String contactLastName) {
-        this.contactLastName = contactLastName;
+        this.contactLastName = optional(contactLastName);
     }
 
     public String getContactEmail() {
-        return contactEmail;
+        return get(contactEmail);
+    }
+    
+    public boolean wasContactEmailSet() {
+        return wasSet(contactEmail);
     }
 
     public void setContactEmail(String contactEmail) {
-        this.contactEmail = contactEmail;
+        this.contactEmail = optional(contactEmail);
     }
 
     public String getContactPhone() {
-        return contactPhone;
+        return get(contactPhone);
+    }
+    
+    public boolean wasContactPhoneSet() {
+        return wasSet(contactPhone);
     }
 
     public void setContactPhone(String contactPhone) {
-        this.contactPhone = contactPhone;
+        this.contactPhone = optional(contactPhone);
     }
 
     public String getAccountRegistration() {
-        return accountRegistration;
+        return get(accountRegistration);
+    }
+    
+    public boolean wasAccountRegistrationSet() {
+        return wasSet(accountRegistration);
     }
 
     public void setAccountRegistration(String accountRegistration) {
-        this.accountRegistration = accountRegistration;
+        this.accountRegistration = optional(accountRegistration);
     }
 
     public String getAccountNumber() {
-        return accountNumber;
+        return get(accountNumber);
+    }
+    
+    public boolean wasAccountNumberSet() {
+        return wasSet(accountNumber);
     }
 
     public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
+        this.accountNumber = optional(accountNumber);
     }
     
     
@@ -130,8 +183,8 @@ public class Application extends ApplicationSummary{
     public int hashCode() {
         int hash = 3;
         hash = 79 * hash + super.hashCode();
-        hash = 79 * hash + Objects.hashCode(this.state);
-        hash = 79 * hash + Objects.hashCode(this.budget);
+        hash = 79 * hash + Objects.hashCode(this.getState());
+        hash = 79 * hash + Objects.hashCode(this.getBudget());
         return hash;
     }
 
@@ -174,10 +227,10 @@ public class Application extends ApplicationSummary{
         if (!Objects.equals(this.getBranchRef(), other.getBranchRef())) {
             return false;
         }
-        if (!Objects.equals(this.state, other.state)) {
+        if (!Objects.equals(this.getState(), other.getState())) {
             return false;
         }
-        if (!Objects.equals(this.budget, other.budget)) {
+        if (!Objects.equals(this.getBudget(), other.getBudget())) {
             return false;
         }
         return true;

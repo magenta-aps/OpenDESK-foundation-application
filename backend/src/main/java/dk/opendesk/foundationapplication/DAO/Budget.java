@@ -6,6 +6,7 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -13,26 +14,34 @@ import java.util.Objects;
  */
 public class Budget extends BudgetReference {
 
-    private Long amount;
-    private Long remaining;
+    private Optional<Long> amount;
+    private Optional<Long> remaining;
 
     public Budget() {
     }
 
     public Long getAmount() {
-        return amount;
+        return get(amount);
+    }
+    
+    public boolean wasAmountSet() {
+        return wasSet(amount);
     }
 
     public void setAmount(Long amount) {
-        this.amount = amount;
+        this.amount = optional(amount);
     }
-
+    
     public Long getRemaining() {
-        return remaining;
+        return get(remaining);
+    }
+    
+    public boolean WasRemainingSet(){
+        return wasSet(remaining);
     }
 
     public void setRemaining(Long remaining) {
-        this.remaining = remaining;
+        this.remaining = optional(remaining);
     }
     
 
@@ -41,8 +50,8 @@ public class Budget extends BudgetReference {
         int hash = 5;
         hash = 17 * hash + Objects.hashCode(this.getNodeRef());
         hash = 17 * hash + Objects.hashCode(this.getTitle());
-        hash = 17 * hash + Objects.hashCode(this.amount);
-        hash = 17 * hash + Objects.hashCode(this.remaining);
+        hash = 17 * hash + Objects.hashCode(this.getAmount());
+        hash = 17 * hash + Objects.hashCode(this.getRemaining());
         return hash;
     }
 
@@ -64,10 +73,10 @@ public class Budget extends BudgetReference {
         if (!Objects.equals(this.getTitle(), other.getTitle())) {
             return false;
         }
-        if (!Objects.equals(this.amount, other.amount)) {
+        if (!Objects.equals(this.getAmount(), other.getAmount())) {
             return false;
         }
-        if (!Objects.equals(this.remaining, other.remaining)) {
+        if (!Objects.equals(this.getRemaining(), other.getRemaining())) {
             return false;
         }
         return true;

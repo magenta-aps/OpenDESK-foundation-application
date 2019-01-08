@@ -49,6 +49,12 @@
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
     
+    <bean id="webscript.foundation.applicationUpdate.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateApplication"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
     <bean id="webscript.foundation.branchApplications.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplicationsInBranch"
           parent="webscript">

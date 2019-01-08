@@ -5,37 +5,45 @@
  */
 package dk.opendesk.foundationapplication.DAO;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
  * @author martin
  */
 public class WorkflowSummary extends WorkflowReference{
-    private StateReference entry;
-    private List<StateReference> states;
+    private Optional<StateReference> entry;
+    private Optional<List<StateReference>> states;
 
     public WorkflowSummary() {
-        states = new ArrayList<>();
+        
     }
 
 
     public StateReference getEntry() {
-        return entry;
+        return get(entry);
+    }
+    
+    public boolean wasEntrySet(){
+        return wasSet(entry);
     }
 
     public void setEntry(StateReference entry) {
-        this.entry = entry;
+        this.entry = optional(entry);
     }
 
     public List<StateReference> getStates() {
-        return states;
+        return get(states);
+    }
+    
+    public boolean wasStatesSet(){
+        return wasSet(states);
     }
 
     public void setStates(List<StateReference> states) {
-        this.states = states;
+        this.states = optional(states);
     }
 
     @Override
@@ -43,8 +51,8 @@ public class WorkflowSummary extends WorkflowReference{
         int hash = 5;
         hash = 83 * hash + Objects.hashCode(this.getNodeRef());
         hash = 83 * hash + Objects.hashCode(this.getTitle());
-        hash = 83 * hash + Objects.hashCode(this.entry);
-        hash = 83 * hash + Objects.hashCode(this.states);
+        hash = 83 * hash + Objects.hashCode(this.getEntry());
+        hash = 83 * hash + Objects.hashCode(this.getStates());
         return hash;
     }
 
@@ -66,10 +74,10 @@ public class WorkflowSummary extends WorkflowReference{
         if (!Objects.equals(this.getTitle(), other.getTitle())) {
             return false;
         }
-        if (!Objects.equals(this.entry, other.entry)) {
+        if (!Objects.equals(this.getEntry(), other.getEntry())) {
             return false;
         }
-        if (!Objects.equals(this.states, other.states)) {
+        if (!Objects.equals(this.getStates(), other.getStates())) {
             return false;
         }
         return true;

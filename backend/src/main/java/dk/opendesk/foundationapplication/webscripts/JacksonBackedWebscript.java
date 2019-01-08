@@ -5,6 +5,7 @@
  */
 package dk.opendesk.foundationapplication.webscripts;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.opendesk.foundationapplication.DAO.Reference;
@@ -44,6 +45,7 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         this.req = req;
         this.res = res;
         urlParams = req.getServiceMatch().getTemplateVars();

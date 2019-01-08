@@ -87,15 +87,15 @@ public class ResetDemoData extends JacksonBackedWebscript {
         NodeRef budgetSharedTotal = createBudget("Lokalprojekter", 100000l);
         NodeRef budgetSharedJutland = createBudget("Lokalprojekter Jylland", 50000l);
         
-        foundationBean.setBranchBudget(central, budgetCentral);
-        foundationBean.setBranchBudget(local1, budgetLocal1);
-        foundationBean.setBranchBudget(local2, budgetLocal2);
-        foundationBean.setBranchBudget(local3, budgetLocal3);
-        foundationBean.setBranchBudget(local2, budgetSharedJutland);
-        foundationBean.setBranchBudget(local3, budgetSharedJutland);
-        foundationBean.setBranchBudget(local1, budgetSharedTotal);
-        foundationBean.setBranchBudget(local2, budgetSharedTotal);
-        foundationBean.setBranchBudget(local3, budgetSharedTotal); 
+        foundationBean.addBranchBudget(central, budgetCentral);
+        foundationBean.addBranchBudget(local1, budgetLocal1);
+        foundationBean.addBranchBudget(local2, budgetLocal2);
+        foundationBean.addBranchBudget(local3, budgetLocal3);
+        foundationBean.addBranchBudget(local2, budgetSharedJutland);
+        foundationBean.addBranchBudget(local3, budgetSharedJutland);
+        foundationBean.addBranchBudget(local1, budgetSharedTotal);
+        foundationBean.addBranchBudget(local2, budgetSharedTotal);
+        foundationBean.addBranchBudget(local3, budgetSharedTotal); 
         
         //Create Workflows
         NodeRef centralWorkflow = createWorkflow("Central");
@@ -126,10 +126,10 @@ public class ResetDemoData extends JacksonBackedWebscript {
         createWorkflowStateTransitions(lCSReview, lPayout);
         createWorkflowStateTransitions(lPayout, lClosed);
         
-        foundationBean.setBranchWorkflow(central, centralWorkflow);
-        foundationBean.setBranchWorkflow(local1, localWorkflow);
-        foundationBean.setBranchWorkflow(local2, localWorkflow);
-        foundationBean.setBranchWorkflow(local3, localWorkflow);
+        foundationBean.addBranchWorkflow(central, centralWorkflow);
+        foundationBean.addBranchWorkflow(local1, localWorkflow);
+        foundationBean.addBranchWorkflow(local2, localWorkflow);
+        foundationBean.addBranchWorkflow(local3, localWorkflow);
         
         //Create Applications
         NodeRef appc1 = createApplication(cHandleApplication, budgetCentral, central, "Ansøgning central 1", 60000);

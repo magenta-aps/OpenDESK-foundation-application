@@ -6,27 +6,32 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
  * @author martin
  */
 public class BranchReference extends Reference{
-    private String title;
+    private Optional<String> title;
     
     public String getTitle() {
-        return title;
+        return get(title);
+    }    
+    
+    public boolean wasTitleSet(){
+        return wasSet(title);
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title = optional(title);
     }
 
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.title);
+        hash = 97 * hash + Objects.hashCode(this.getTitle());
         hash = 97 * hash + Objects.hashCode(this.getNodeRef());
         return hash;
     }
@@ -43,7 +48,7 @@ public class BranchReference extends Reference{
             return false;
         }
         final BranchReference other = (BranchReference) obj;
-        if (!Objects.equals(this.title, other.title)) {
+        if (!Objects.equals(this.getTitle(), other.getTitle())) {
             return false;
         }
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {

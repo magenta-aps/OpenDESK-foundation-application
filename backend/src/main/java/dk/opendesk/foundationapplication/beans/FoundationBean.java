@@ -45,6 +45,9 @@ import org.alfresco.service.namespace.QName;
 public class FoundationBean {
 
     public final String ONLY_ONE_REFERENCE = "odf.one.ref.requred";
+    public final String INVALID_STATE = "odf.bad.state";
+    public final String MUST_SPECIFY_STATE = "odf.specify.state";
+    public final String INVALID_BRANCH = "odf.bad.branch";
 
     private ServiceRegistry serviceRegistry;
 
@@ -112,15 +115,179 @@ public class FoundationBean {
         return applicationRef;
     }
 
+    public void updateApplication(Application app) throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+        Map<QName, Serializable> properties = new HashMap<>();
+        if (app.wasTitleSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_TITLE), app.getTitle());
+        }
+        if (app.wasCategorySet()) {
+            properties.put(getODFName(APPLICATION_PARAM_CATEGORY), app.getCategory());
+        }
+        if (app.wasRecipientSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_RECIPIENT), app.getRecipient());
+        }
+        if (app.wasAddressRoadSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_ADDR_ROAD), app.getAddressRoad());
+        }
+        if (app.wasAddressNumberSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_ADDR_NUMBER), app.getAddressNumber());
+        }
+        if (app.wasAddressFloorSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_ADDR_FLOOR), app.getAddressFloor());
+        }
+        if (app.wasAddressPostalCodeSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_ARRD_POSTALCODE), app.getAddressPostalCode());
+        }
+        if (app.wasContactFirstNameSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_PERSON_FIRSTNAME), app.getContactFirstName());
+        }
+        if (app.wasContactLastNameSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_PERSON_SURNAME), app.getContactLastName());
+        }
+        if (app.wasContactEmailSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_PERSON_EMAIL), app.getContactEmail());
+        }
+        if (app.wasContactPhoneSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_PERSON_PHONE), app.getContactPhone());
+        }
+        if (app.wasShortDescriptionSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_SHORT_DESCRIPTION), app.getShortDescription());
+        }
+        if (app.wasStartDateSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_START_DATE), app.getStartDate());
+        }
+        if (app.wasEndDateSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_END_DATE), app.getEndDate());
+        }
+        if (app.wasAmountAppliedSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_APPLIED_AMOUNT), app.getAmountApplied());
+        }
+        if (app.wasAccountRegistrationSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_ACCOUNT_REGISTRATION), app.getAccountRegistration());
+        }
+        if (app.wasAccountNumberSet()) {
+            properties.put(getODFName(APPLICATION_PARAM_ACCOUNT_NUMBER), app.getAccountNumber());
+        }
+
+        boolean changedWorkflow = false;
+        if (app.wasBranchRefSet()) {
+            NodeRef newBranchRef = app.getBranchRef().asNodeRef();
+            NodeRef currentBranchRef = getSingleTargetAssoc(app.asNodeRef(), APPLICATION_ASSOC_BRANCH);
+
+            NodeRef newBranchWorkflow = getSingleTargetAssoc(newBranchRef, BRANCH_ASSOC_WORKFLOW);
+            NodeRef currentBranchWorkflow = getSingleTargetAssoc(currentBranchRef, BRANCH_ASSOC_WORKFLOW);
+
+            changedWorkflow = !newBranchWorkflow.equals(currentBranchWorkflow);
+
+            if (changedWorkflow && app.getState() == null) {
+                throw new AlfrescoRuntimeException(MUST_SPECIFY_STATE);
+            }
+
+            ns.setAssociations(app.asNodeRef(), getODFName(APPLICATION_ASSOC_BRANCH), Collections.singletonList(newBranchRef));
+
+//            if(app.wasStateReferenceSet()){
+//                if(app.getState() == null){
+//                    clearApplicationState(app.asNodeRef());
+//                }else{
+//                    
+//                }
+//            }
+        }
+
+        if (app.wasStateReferenceSet()) {
+            if (app.getState() == null) {
+                clearApplicationState(app.asNodeRef());
+            } else {
+                if (changedWorkflow) {
+                    setStateDifferentWorkflow(app);
+                } else {
+                    setStateSameWorkflow(app);
+                }
+            }
+        }
+
+        if (app.wasBudgetSet()) {
+            NodeRef currentBranch = getSingleTargetAssoc(app.asNodeRef(), APPLICATION_ASSOC_BRANCH);
+            List<AssociationRef> branchBudgets = ns.getTargetAssocs(currentBranch, getODFName(BRANCH_ASSOC_BUDGETS));
+            if (app.getBudget() == null) {
+                NodeRef currentBudget = getSingleTargetAssoc(app.asNodeRef(), APPLICATION_ASSOC_BUDGET);
+                ns.removeAssociation(app.asNodeRef(), currentBudget, getODFName(APPLICATION_ASSOC_BUDGET));
+            } else {
+                NodeRef newBudget = app.getBudget().asNodeRef();
+                boolean found = false;
+                for (AssociationRef branchBudget : branchBudgets) {
+                    if (newBudget.equals(branchBudget.getTargetRef())) {
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    throw new AlfrescoRuntimeException(INVALID_BRANCH);
+                }
+                ns.setAssociations(app.asNodeRef(), getODFName(APPLICATION_ASSOC_BUDGET), Collections.singletonList(newBudget));
+            }
+        }
+
+        ns.addProperties(app.asNodeRef(), properties);
+    }
+
+    private void setStateDifferentWorkflow(Application app) throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+        NodeRef newState = app.getState().asNodeRef();
+        NodeRef newBranchRef = app.getBranchRef().asNodeRef();
+        NodeRef newBranchWorkflow = getSingleTargetAssoc(newBranchRef, BRANCH_ASSOC_WORKFLOW);
+        List<AssociationRef> newWorkflowStates = ns.getTargetAssocs(newBranchWorkflow, getODFName(WORKFLOW_ASSOC_STATES));
+        boolean found = false;
+        for (AssociationRef workflowState : newWorkflowStates) {
+            if (newState.equals(workflowState.getTargetRef())) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            throw new AlfrescoRuntimeException(INVALID_STATE);
+        }
+        setApplicationState(app.asNodeRef(), newState);
+    }
+
+    private void setStateSameWorkflow(Application app) throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+        NodeRef currentState = getSingleTargetAssoc(app.asNodeRef(), APPLICATION_ASSOC_STATE);
+        StateReference newState = app.getState();
+
+        NodeRef newStateRef = newState.asNodeRef();
+
+        List<AssociationRef> stateTransitions = ns.getTargetAssocs(currentState, getODFName(STATE_ASSOC_TRANSITIONS));
+        boolean found = false;
+        for (AssociationRef transition : stateTransitions) {
+            if (transition.getTargetRef().equals(newStateRef)) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            setApplicationState(app.asNodeRef(), newStateRef);
+        } else {
+            throw new AlfrescoRuntimeException(INVALID_STATE);
+        }
+
+    }
+
     public void setApplicationState(NodeRef applicationRef, NodeRef stateRef) throws Exception {
         serviceRegistry.getNodeService().removeAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
         serviceRegistry.getNodeService().setAssociations(applicationRef, getODFName(APPLICATION_ASSOC_STATE), Collections.singletonList(stateRef));
     }
 
+    public void clearApplicationState(NodeRef applicationRef) throws Exception {
+        serviceRegistry.getNodeService().removeAssociation(getDataHome(), applicationRef, getODFName(APPLICATION_ASSOC_STATE));
+        serviceRegistry.getNodeService().setAssociations(getDataHome(), getODFName(DATA_ASSOC_NEW_APPLICATIONS), Collections.singletonList(applicationRef));
+    }
+
     public NodeRef getApplicationBudget(NodeRef applicationRef) throws Exception {
         return serviceRegistry.getNodeService().getTargetAssocs(applicationRef, getODFName(APPLICATION_ASSOC_BUDGET)).get(0).getTargetRef();
     }
-    
+
     public NodeRef getApplicationState(NodeRef applicationRef) throws Exception {
         QName applicationStateName = getODFName(APPLICATION_ASSOC_STATE);
         List<AssociationRef> states = serviceRegistry.getNodeService().getTargetAssocs(applicationRef, applicationStateName);
@@ -167,8 +334,8 @@ public class FoundationBean {
         Long usedAmount = getBudgetAllocatedFunding(budgetRef);
         return totalAmount - usedAmount;
     }
-    
-    public Application getApplication(NodeRef applicationRef) throws Exception{
+
+    public Application getApplication(NodeRef applicationRef) throws Exception {
         Application application = new Application();
         application.parseRef(applicationRef);
         application.setTitle(getProperty(applicationRef, APPLICATION_PARAM_TITLE, String.class));
@@ -188,28 +355,28 @@ public class FoundationBean {
         application.setEndDate(getProperty(applicationRef, APPLICATION_PARAM_END_DATE, Date.class));
         application.setRecipient(getProperty(applicationRef, APPLICATION_PARAM_RECIPIENT, String.class));
         application.setShortDescription(getProperty(applicationRef, APPLICATION_PARAM_SHORT_DESCRIPTION, String.class));
-        
+
         NodeRef branchRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BRANCH);
         NodeRef budgetRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET);
         NodeRef stateRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_STATE);
-        if(branchRef != null){
+        if (branchRef != null) {
             BranchReference branch = new BranchReference();
             branch.parseRef(branchRef);
             application.setBranchRef(branch);
         }
-        if(budgetRef != null){
+        if (budgetRef != null) {
             BudgetReference budget = new BudgetReference();
             budget.parseRef(budgetRef);
             application.setBudget(budget);
         }
-        if(stateRef != null){
+        if (stateRef != null) {
             StateReference state = new StateReference();
             state.parseRef(stateRef);
             application.setState(state);
         }
-        
+
         return application;
-        
+
     }
 
     public BudgetReference getBudgetReference(NodeRef budgetRef) throws Exception {
@@ -271,12 +438,12 @@ public class FoundationBean {
         return serviceRegistry.getNodeService().createAssociation(stateFrom, stateTo, stateTransitionsQname);
     }
 
-    public AssociationRef setBranchWorkflow(NodeRef branchRef, NodeRef workflowRef) throws Exception {
+    public AssociationRef addBranchWorkflow(NodeRef branchRef, NodeRef workflowRef) throws Exception {
         QName branchWorkflowQname = getODFName(BRANCH_ASSOC_WORKFLOW);
         return serviceRegistry.getNodeService().createAssociation(branchRef, workflowRef, branchWorkflowQname);
     }
 
-    public AssociationRef setBranchBudget(NodeRef branchRef, NodeRef budgetRef) throws Exception {
+    public AssociationRef addBranchBudget(NodeRef branchRef, NodeRef budgetRef) throws Exception {
         QName branchBudgetsQname = getODFName(BRANCH_ASSOC_BUDGETS);
         return serviceRegistry.getNodeService().createAssociation(branchRef, budgetRef, branchBudgetsQname);
     }
@@ -412,16 +579,15 @@ public class FoundationBean {
         }
         return toReturn;
     }
-    
+
     public List<ApplicationSummary> getNewApplicationSummaries() throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
         List<ApplicationSummary> toReturn = new ArrayList<>();
-        for(AssociationRef applicationRef : ns.getTargetAssocs(getDataHome(), getODFName(DATA_ASSOC_NEW_APPLICATIONS))){
+        for (AssociationRef applicationRef : ns.getTargetAssocs(getDataHome(), getODFName(DATA_ASSOC_NEW_APPLICATIONS))) {
             toReturn.add(getApplicationSummary(applicationRef.getTargetRef()));
         }
         return toReturn;
     }
-    
 
     public ApplicationSummary getApplicationSummary(NodeRef applicationSummary) throws Exception {
         ApplicationSummary app = new ApplicationSummary();
@@ -445,15 +611,21 @@ public class FoundationBean {
     public void updateBudget(Budget budget) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
         Map<QName, Serializable> properties = new HashMap<>();
-        properties.put(getODFName(BUDGET_PARAM_TITLE), budget.getTitle());
-        properties.put(getODFName(BUDGET_PARAM_AMOUNT), budget.getAmount());
+        if (budget.wasTitleSet()) {
+            properties.put(getODFName(BUDGET_PARAM_TITLE), budget.getTitle());
+        }
+        if (budget.wasAmountSet()) {
+            properties.put(getODFName(BUDGET_PARAM_AMOUNT), budget.getAmount());
+        }
         ns.addProperties(budget.asNodeRef(), properties);
     }
 
-    public void updateBranch(BranchSummary branch) throws Exception {//BranchSummary is intentional. We don't want to update applications to the branch in this method.
+    public void updateBranch(BranchSummary branch) throws Exception {//BranchSummary is intentional. We don't want to update applications on the branch in this method, because applications doesn't actually belong to branches.
         NodeService ns = serviceRegistry.getNodeService();
         Map<QName, Serializable> properties = new HashMap<>();
-        properties.put(getODFName(BRANCH_PARAM_TITLE), branch.getTitle());
+        if (branch.wasTitleSet()) {
+            properties.put(getODFName(BRANCH_PARAM_TITLE), branch.getTitle());
+        }
         ns.addProperties(branch.asNodeRef(), properties);
         if (branch.getWorkflowRef() != null) {
             ns.setAssociations(branch.asNodeRef(), getODFName(BRANCH_ASSOC_WORKFLOW), Collections.singletonList(branch.getWorkflowRef().asNodeRef()));
@@ -478,7 +650,7 @@ public class FoundationBean {
         if (stateRef != null) {
             summary.setEntry(getStateReference(stateRef));
         }
-        
+
         List<StateReference> stateReferences = new ArrayList<>();
         for (ChildAssociationRef state : ns.getChildAssocs(workflowRef, getODFName(WORKFLOW_ASSOC_STATES), null)) {
             stateReferences.add(getStateReference(state.getChildRef()));

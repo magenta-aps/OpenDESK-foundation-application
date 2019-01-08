@@ -5,47 +5,51 @@
  */
 package dk.opendesk.foundationapplication.DAO;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
  * @author martin
  */
 public class Branch extends BranchSummary{
-    private List<BudgetReference> budgets = new ArrayList<>();
-    private List<ApplicationSummary> summaries = new ArrayList<>();
+    private Optional<List<BudgetReference>> budgets = null;
+    private Optional<List<ApplicationSummary>> summaries = null;
 
     public Branch() {
     }
 
-    public Branch(String title, String uuid, WorkflowReference workflowRef) {
-        super(title, uuid, workflowRef);
-    }
-
     public List<BudgetReference> getBudgets() {
-        return budgets;
+        return get(budgets);
+    }
+    
+    public boolean wasBudgetsSet(){
+        return wasSet(budgets);
     }
 
     public void setBudgets(List<BudgetReference> budgets) {
-        this.budgets = budgets;
+        this.budgets = optional(budgets);
     }
 
     public List<ApplicationSummary> getSummaries() {
-        return summaries;
+        return get(summaries);
+    }
+    
+    public boolean wasSummariesSet(){
+        return wasSet(summaries);
     }
 
     public void setSummaries(List<ApplicationSummary> summaries) {
-        this.summaries = summaries;
+        this.summaries = optional(summaries);
     }
 
     @Override
     public int hashCode() {
         int hash = 3;
         hash = 79 * hash + super.hashCode();
-        hash = 79 * hash + Objects.hashCode(this.budgets);
-        hash = 79 * hash + Objects.hashCode(this.summaries);
+        hash = 79 * hash + Objects.hashCode(this.getBudgets());
+        hash = 79 * hash + Objects.hashCode(this.getSummaries());
         return hash;
     }
 
@@ -70,10 +74,10 @@ public class Branch extends BranchSummary{
         if (!Objects.equals(this.getWorkflowRef(), other.getWorkflowRef())) {
             return false;
         }
-        if (!Objects.equals(this.budgets, other.budgets)) {
+        if (!Objects.equals(this.getBudgets(), other.getBudgets())) {
             return false;
         }
-        if (!Objects.equals(this.summaries, other.summaries)) {
+        if (!Objects.equals(this.getSummaries(), other.getSummaries())) {
             return false;
         }
         return true;

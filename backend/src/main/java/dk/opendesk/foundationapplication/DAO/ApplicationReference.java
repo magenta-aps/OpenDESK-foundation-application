@@ -6,6 +6,7 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
+import java.util.Optional;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -14,25 +15,29 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @author martin
  */
 public class ApplicationReference extends Reference{
-    private String title;
+    private Optional<String> title;
 
     public ApplicationReference() {
     }
     
 
     public String getTitle() {
-        return title;
+        return get(title);
+    }
+    
+    public boolean wasTitleSet(){
+        return wasSet(title);
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title = optional(title);
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
         hash = 37 * hash + Objects.hashCode(this.getNodeRef());
-        hash = 37 * hash + Objects.hashCode(this.title);
+        hash = 37 * hash + Objects.hashCode(this.getTitle());
         return hash;
     }
 
@@ -48,7 +53,7 @@ public class ApplicationReference extends Reference{
             return false;
         }
         final ApplicationReference other = (ApplicationReference) obj;
-        if (!Objects.equals(this.title, other.title)) {
+        if (!Objects.equals(this.getTitle(), other.getTitle())) {
             return false;
         }
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {

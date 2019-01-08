@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -15,71 +16,99 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 public class ApplicationSummary extends ApplicationReference {
 
-    private BranchReference branchRef;
-    private String category;
-    private String recipient;
-    private String shortDescription;
-    private Date startDate;
-    private Date endDate;
-    private Long amountApplied;
+    private Optional<BranchReference> branchRef;
+    private Optional<String> category;
+    private Optional<String> recipient;
+    private Optional<String> shortDescription;
+    private Optional<Date> startDate;
+    private Optional<Date> endDate;
+    private Optional<Long> amountApplied;
 
     public ApplicationSummary() {
     }
 
     public BranchReference getBranchRef() {
-        return branchRef;
+        return get(branchRef);
+    }
+    
+    public boolean wasBranchRefSet(){
+        return wasSet(branchRef);
     }
 
     public void setBranchRef(BranchReference branchRef) {
-        this.branchRef = branchRef;
+        this.branchRef = optional(branchRef);
     }
 
     public String getCategory() {
-        return category;
+        return get(category);
+    }
+    
+    public boolean wasCategorySet(){
+        return wasSet(category);
     }
 
     public void setCategory(String category) {
-        this.category = category;
+        this.category = optional(category);
     }
 
     public String getRecipient() {
-        return recipient;
+        return get(recipient);
+    }
+    
+    public boolean wasRecipientSet() {
+        return wasSet(recipient);
     }
 
     public void setRecipient(String recipient) {
-        this.recipient = recipient;
+        this.recipient = optional(recipient);
     }
 
     public String getShortDescription() {
-        return shortDescription;
+        return get(shortDescription);
+    }
+    
+    public boolean wasShortDescriptionSet(){
+        return wasSet(shortDescription);
     }
 
     public void setShortDescription(String shortDescription) {
-        this.shortDescription = shortDescription;
+        this.shortDescription = optional(shortDescription);
     }
 
     public Date getStartDate() {
-        return startDate;
+        return get(startDate);
+    }
+    
+    public boolean wasStartDateSet(){
+        return wasSet(startDate);
     }
 
     public void setStartDate(Date startDate) {
-        this.startDate = startDate;
+        this.startDate = optional(startDate);
     }
 
     public Date getEndDate() {
-        return endDate;
+        return get(endDate);
+    }
+    
+    public boolean wasEndDateSet(){
+        return wasSet(endDate);
     }
 
     public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+        this.endDate = optional(endDate);
     }
 
     public Long getAmountApplied() {
-        return amountApplied;
+        return get(amountApplied);
+    }
+    
+    public boolean wasAmountAppliedSet(){
+        return wasSet(amountApplied);
     }
 
     public void setAmountApplied(Long amountApplied) {
-        this.amountApplied = amountApplied;
+        this.amountApplied = optional(amountApplied);
     }
 
     @Override
@@ -87,13 +116,13 @@ public class ApplicationSummary extends ApplicationReference {
         int hash = 3;
         hash = 23 * hash + Objects.hashCode(this.getTitle());
         hash = 23 * hash + Objects.hashCode(this.getNodeRef());
-        hash = 23 * hash + Objects.hashCode(this.category);
-        hash = 23 * hash + Objects.hashCode(this.recipient);
-        hash = 23 * hash + Objects.hashCode(this.shortDescription);
-        hash = 23 * hash + Objects.hashCode(this.startDate);
-        hash = 23 * hash + Objects.hashCode(this.endDate);
-        hash = 23 * hash + Objects.hashCode(this.amountApplied);
-        hash = 23 * hash + Objects.hashCode(this.branchRef);
+        hash = 23 * hash + Objects.hashCode(this.getCategory());
+        hash = 23 * hash + Objects.hashCode(this.getRecipient());
+        hash = 23 * hash + Objects.hashCode(this.getShortDescription());
+        hash = 23 * hash + Objects.hashCode(this.getStartDate());
+        hash = 23 * hash + Objects.hashCode(this.getEndDate());
+        hash = 23 * hash + Objects.hashCode(this.getAmountApplied());
+        hash = 23 * hash + Objects.hashCode(this.getBranchRef());
         return hash;
     }
 
@@ -115,25 +144,25 @@ public class ApplicationSummary extends ApplicationReference {
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {
             return false;
         }
-        if (!Objects.equals(this.category, other.category)) {
+        if (!Objects.equals(this.getCategory(), other.getCategory())) {
             return false;
         }
-        if (!Objects.equals(this.recipient, other.recipient)) {
+        if (!Objects.equals(this.getRecipient(), other.getRecipient())) {
             return false;
         }
-        if (!Objects.equals(this.shortDescription, other.shortDescription)) {
+        if (!Objects.equals(this.getShortDescription(), other.getShortDescription())) {
             return false;
         }
-        if (!Objects.equals(this.startDate, other.startDate)) {
+        if (!Objects.equals(this.getStartDate(), other.getStartDate())) {
             return false;
         }
-        if (!Objects.equals(this.endDate, other.endDate)) {
+        if (!Objects.equals(this.getEndDate(), other.getEndDate())) {
             return false;
         }
-        if (!Objects.equals(this.amountApplied, other.amountApplied)) {
+        if (!Objects.equals(this.getAmountApplied(), other.getAmountApplied())) {
             return false;
         }
-        if (!Objects.equals(this.branchRef, other.branchRef)) {
+        if (!Objects.equals(this.getBranchRef(), other.getBranchRef())) {
             return false;
         }
         return true;

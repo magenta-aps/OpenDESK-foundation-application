@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Update Application</shortname>
+    <description>Update Application</description>
+    <url>/foundation/application/{applicationID}</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

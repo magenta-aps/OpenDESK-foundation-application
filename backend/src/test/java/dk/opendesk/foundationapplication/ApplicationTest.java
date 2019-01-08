@@ -8,12 +8,16 @@ package dk.opendesk.foundationapplication;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
+import dk.opendesk.foundationapplication.DAO.BranchReference;
+import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.NodeRef;
 
 /**
  *
@@ -88,6 +92,72 @@ public class ApplicationTest extends AbstractTestClass{
             Application application = get(Application.class, summary.getNodeID());
             assertEquals(summary.getTitle(), application.getTitle());
         }
+    }
+    
+    public void testUpdateBudget() throws Exception{
+        NodeRef currentBudget = TestUtils.budgetRef1;
+        NodeRef newBudget = TestUtils.budgetRef2;
+        NodeRef appRef = TestUtils.application2;
+        
+        Long expectedAmount = TestUtils.BUDGET1_AMOUNT-TestUtils.APPLICATION1_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
+        assertEquals(expectedAmount, foundationBean.getBudgetRemainingFunding(currentBudget));
+        assertEquals(TestUtils.BUDGET2_AMOUNT, foundationBean.getBudgetRemainingFunding(newBudget));
+        
+        Application app = get(Application.class, appRef.getId());
+        assertEquals(currentBudget, app.getBudget().asNodeRef());
+        
+        Application change = new Application();
+        change.parseRef(appRef);
+        BudgetReference newBudgetReference = new BudgetReference();
+        newBudgetReference.parseRef(newBudget);
+        change.setBudget(newBudgetReference);
+        
+        post(change, appRef.getId());
+        
+        app = get(Application.class, appRef.getId());
+        assertEquals(newBudget, app.getBudget().asNodeRef());
+        
+        expectedAmount = TestUtils.BUDGET1_AMOUNT-TestUtils.APPLICATION1_AMOUNT;
+        assertEquals(expectedAmount, foundationBean.getBudgetRemainingFunding(currentBudget));
+        expectedAmount = TestUtils.BUDGET2_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
+        assertEquals(expectedAmount, foundationBean.getBudgetRemainingFunding(newBudget));
+
+    }
+    
+    public void updateBranchFromNone() throws Exception {
+        NodeRef appRef = TestUtils.application3;
+        Application app = get(Application.class, appRef.getId());
+
+        assertNull(app.getBranchRef().asNodeRef());
+        assertNull(app.getState().asNodeRef());
+
+        Application change = new Application();
+        change.parseRef(appRef);
+        BranchReference ref = new BranchReference();
+        ref.parseRef(TestUtils.branchRef);
+        change.setBranchRef(ref);
+        post(change, app.getNodeID());
+        
+        app = get(Application.class, appRef.getId());
+        assertEquals(TestUtils.branchRef, app.getBranchRef().asNodeRef());
+        assertEquals(TestUtils.stateRecievedRef, app.getState().asNodeRef());
+    }
+    
+    public void testChangeState() throws Exception {
+        NodeRef appRef = TestUtils.application2;
+        Application app = get(Application.class, appRef.getId());
+
+        assertEquals(TestUtils.stateRecievedRef, app.getState().asNodeRef());
+
+        Application change = new Application();
+        change.parseRef(appRef);
+        StateReference ref = new StateReference();
+        ref.parseRef(TestUtils.stateAccessRef);
+        change.setState(ref);
+        post(change, app.getNodeID());
+        
+        app = get(Application.class, appRef.getId());
+        assertEquals(TestUtils.stateAccessRef, app.getState().asNodeRef());
     }
     
     

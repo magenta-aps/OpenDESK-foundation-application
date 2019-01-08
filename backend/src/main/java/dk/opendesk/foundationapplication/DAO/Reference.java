@@ -6,6 +6,7 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
+import java.util.Optional;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -16,47 +17,55 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class Reference {
     public static final String DEFAULT_STORE = "workspace://SpacesStore";
     
-    private String nodeID;
-    private String storeID = null;
+    private Optional<String> nodeID = null;
+    private Optional<String> storeID = null;
 
     public Reference() {
     }
 
     public String getNodeID() {
-        return nodeID;
+        return get(nodeID);
+    }
+    
+    public boolean wasNodeIDSet() {
+        return wasSet(nodeID);
     }
 
     public void setNodeID(String nodeID) {
-        this.nodeID = nodeID;
+        this.nodeID = optional(nodeID);
     }
 
     public String getStoreID() {
-        return storeID;
+        return get(storeID);
+    }
+    
+    public boolean wasStoreIDSet(){
+        return wasSet(storeID);
     }
 
     public void setStoreID(String storeID) {
-        this.storeID = storeID;
+        this.storeID = optional(storeID);
     }
 
     public String getNodeRef() {
-        String actualStoreID = (storeID != null ? storeID : DEFAULT_STORE);
-        return actualStoreID+"/"+nodeID;
+        String actualStoreID = (getStoreID() != null ? getStoreID() : DEFAULT_STORE);
+        return actualStoreID+"/"+getNodeID();
     }
 
     public void setNodeRef(String nodeRef) {
         int lastDash = nodeRef.lastIndexOf("/");
-        storeID = nodeRef.substring(0, lastDash);
-        nodeID = nodeRef.substring(lastDash+1);
+        setStoreID(nodeRef.substring(0, lastDash));
+        setNodeID(nodeRef.substring(lastDash+1));
     }
     
     public void parseRef(NodeRef ref){
-        storeID = ref.getStoreRef().toString();
-        nodeID = ref.getId();
+        setStoreID(ref.getStoreRef().toString());
+        setNodeID(ref.getId());
     }
     
     public void fromNodeID(String nodeID){
-        storeID = DEFAULT_STORE;
-        this.nodeID = nodeID;
+        setStoreID(DEFAULT_STORE);
+        setNodeID(nodeID);
     }
     
     public NodeRef asNodeRef(){
@@ -72,8 +81,8 @@ public class Reference {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 11 * hash + Objects.hashCode(this.nodeID);
-        hash = 11 * hash + Objects.hashCode(this.storeID);
+        hash = 11 * hash + Objects.hashCode(this.getNodeID());
+        hash = 11 * hash + Objects.hashCode(this.getStoreID());
         return hash;
     }
 
@@ -89,10 +98,10 @@ public class Reference {
             return false;
         }
         final Reference other = (Reference) obj;
-        if (!Objects.equals(this.nodeID, other.nodeID)) {
+        if (!Objects.equals(this.getNodeID(), other.getNodeID())) {
             return false;
         }
-        if (!Objects.equals(this.storeID, other.storeID)) {
+        if (!Objects.equals(this.getStoreID(), other.getStoreID())) {
             return false;
         }
         return true;
@@ -105,6 +114,26 @@ public class Reference {
     @Override
     public String toString(){
         return toStringBuilder().build();
+    }
+    
+    protected <T> Optional<T> optional(T value){
+        if(value != null){
+            return Optional.of(value);
+        }else{
+            return Optional.empty();
+        }
+    }
+    
+    protected <T> T get(Optional<T> value){
+        if(value != null && value.isPresent()){
+            return value.get();
+        }else{
+            return null;
+        }
+    }
+    
+    protected boolean wasSet(Optional value){
+        return value != null;
     }
     
     

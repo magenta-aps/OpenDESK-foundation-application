@@ -72,9 +72,11 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         List<NodeRef> branchRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BRANCH_NAME, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, branchRefs.size());
 
-        //Exactly one budget has been created
-        List<NodeRef> budgetRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BUDGET_NAME, null, serviceRegistry.getNamespaceService(), false);
-        assertEquals(1, budgetRefs.size());
+        //Exactly two budgets has been created
+        List<NodeRef> budget1Refs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BUDGET1_NAME, null, serviceRegistry.getNamespaceService(), false);
+        assertEquals(1, budget1Refs.size());
+        List<NodeRef> budget2Refs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BUDGET2_NAME, null, serviceRegistry.getNamespaceService(), false);
+        assertEquals(1, budget2Refs.size());
 
         //Exactly one workflow has been created
         List<NodeRef> workflowRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.WORKFLOW_NAME, null, serviceRegistry.getNamespaceService(), false);
@@ -85,7 +87,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         
         //Exactly 5 dataitems has been created in total
         List<ChildAssociationRef> childrenRefs = serviceRegistry.getNodeService().getChildAssocs(dataNode);
-        assertEquals(6, childrenRefs.size());
+        assertEquals(7, childrenRefs.size());
         
         
         //Workflow has the expected states
@@ -112,7 +114,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         List<AssociationRef> branchBudgets = serviceRegistry.getNodeService().getTargetAssocs(getBranchRef(), getODFName(BRANCH_ASSOC_BUDGETS));
 
         NodeRef budgetRef = branchBudgets.get(0).getTargetRef();
-        Long expectedAmount = TestUtils.BUDGET_AMOUNT-TestUtils.APPLICATION1_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
+        Long expectedAmount = TestUtils.BUDGET1_AMOUNT-TestUtils.APPLICATION1_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
         assertEquals(expectedAmount, foundationBean.getBudgetRemainingFunding(budgetRef));
 
         Long budgetAllocatedFunding = foundationBean.getBudgetAllocatedFunding(dataNode);
