@@ -5,9 +5,11 @@
  */
 package dk.opendesk.foundationapplication;
 
+import dk.opendesk.foundationapplication.DAO.Reference;
 import org.alfresco.util.ApplicationContextHelper;
 import dk.opendesk.foundationapplication.patches.InitialStructure;
 import java.util.List;
+import java.util.Optional;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -36,7 +38,7 @@ public final class Utilities {
     public static final String DATA_TYPE_NAME = "data";
     public static final String DATA_ASSOC_WORKFLOW = "workflows";
     public static final String DATA_ASSOC_BRANCHES = "branches";
-    public static final String DATA_ASSOC_BUDGETS = "budgets";
+    public static final String DATA_ASSOC_BUDGETYEARS = "budgetYears";
     public static final String DATA_ASSOC_APPLICATIONS = "applications";
     public static final String DATA_ASSOC_NEW_APPLICATIONS = "newApplications";
     
@@ -58,10 +60,22 @@ public final class Utilities {
     public static final String BUDGET_PARAM_TITLE="budgetTitle";
     public static final String BUDGET_PARAM_AMOUNT="budgetAmountAvailable";
     
+    public static final String BUDGETYEAR_TYPE_NAME = "applicationBudgetYear";
+    public static final String BUDGETYEAR_ASSOC_BUDGETS = "budgets";
+    public static final String BUDGETYEAR_PARAM_TITLE="odf:budgetYearTitle";
+    public static final String BUDGETYEAR_PARAM_STARTDATE="odf:budgetYearStartDate";
+    public static final String BUDGETYEAR_PARAM_ENDDATE="odf:odf:budgetYearEndDate";
+    
     public static final String APPLICATION_TYPE_NAME="application";
     public static final String APPLICATION_ASSOC_BUDGET = "applicationBudget";
     public static final String APPLICATION_ASSOC_BRANCH = "applicationBranch";
-    public static final String APPLICATION_ASSOC_STATE = "applicationState";
+    public static final String APPLICATION_ASSOC_STATE = "applicationState";   
+    public static final String APPLICATION_ASSOC_PROJECT_DESCRIPTION_DOC = "projectDescriptionDoc";
+    public static final String APPLICATION_ASSOC_BUDGET_DOC = "budgetDoc";
+    public static final String APPLICATION_ASSOC_BOARD_MEMBERS_DOC = "boardMembersDoc";
+    public static final String APPLICATION_ASSOC_ARTICLES_OF_ASSOCIATION_DOC = "articlesOfAssociationDoc";
+    public static final String APPLICATION_ASSOC_FINANCIAL_ACCOUTING_DOC = "financialAccountingDoc";
+    
     public static final String APPLICATION_PARAM_TITLE = "applicationTitle";
     public static final String APPLICATION_PARAM_CATEGORY = "applicationCategory";
     public static final String APPLICATION_PARAM_RECIPIENT = "applicationRecipient";
@@ -79,6 +93,7 @@ public final class Utilities {
     public static final String APPLICATION_PARAM_APPLIED_AMOUNT = "applicationAppliedAmount";
     public static final String APPLICATION_PARAM_ACCOUNT_REGISTRATION = "applicationAccountRegistration";
     public static final String APPLICATION_PARAM_ACCOUNT_NUMBER = "applicationAccountNumber";
+    public static final String APPLICATION_PARAM_CVR = "cvr";
     
     
     private static String foundationNameSpace = null;

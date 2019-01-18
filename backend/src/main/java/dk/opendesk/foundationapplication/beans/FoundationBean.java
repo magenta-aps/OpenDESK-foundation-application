@@ -13,6 +13,10 @@ import dk.opendesk.foundationapplication.DAO.BranchReference;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.BudgetYear;
+import dk.opendesk.foundationapplication.DAO.BudgetYearReference;
+import dk.opendesk.foundationapplication.DAO.BudgetYearSummary;
+import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.DAO.State;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.DAO.StateSummary;
@@ -30,6 +34,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.AssociationRef;
@@ -228,8 +234,34 @@ public class FoundationBean {
                 ns.setAssociations(app.asNodeRef(), getODFName(APPLICATION_ASSOC_BUDGET), Collections.singletonList(newBudget));
             }
         }
-
+        
+        if(app.wasProjectDescriptionDocSet()){
+            updateContent(app.getProjectDescriptionDoc(), app, APPLICATION_ASSOC_PROJECT_DESCRIPTION_DOC);
+        }
+        if(app.wasBudgetDocSet()){
+            updateContent(app.getBudgetDoc(), app, APPLICATION_ASSOC_BUDGET_DOC);
+        }
+        if(app.wasBoardMembersDocSet()){
+            updateContent(app.getBoardMembersDoc(), app, APPLICATION_ASSOC_BOARD_MEMBERS_DOC);
+        }
+        if(app.wasArticlesOfAssociationDocSet()){
+            updateContent(app.getArticlesOfAssociationDoc(), app, APPLICATION_ASSOC_ARTICLES_OF_ASSOCIATION_DOC);
+        }
+        if(app.wasFinancialAccountingDocSet()){
+            updateContent(app.getFinancialAccountingDoc(), app, APPLICATION_ASSOC_FINANCIAL_ACCOUTING_DOC);
+        }
+        
         ns.addProperties(app.asNodeRef(), properties);
+    }
+    
+    private void updateContent(Reference toUpdate, Reference parent, String assoc) throws Exception{
+        NodeService ns = serviceRegistry.getNodeService();
+        if(toUpdate == null){
+            NodeRef currentProject = getSingleTargetAssoc(parent.asNodeRef(), assoc);
+            ns.removeAssociation(parent.asNodeRef(), currentProject, getODFName(assoc));
+        }else{
+            ns.setAssociations(parent.asNodeRef(), getODFName(assoc), Collections.singletonList(toUpdate.asNodeRef()));
+        }
     }
 
     private void setStateDifferentWorkflow(Application app) throws Exception {
@@ -294,6 +326,34 @@ public class FoundationBean {
         //The association is singular, it is never a list
         return states != null && !states.isEmpty() ? states.get(0).getTargetRef() : null;
     }
+    
+    public List<BudgetYear> getCurrentBudgetYears() throws Exception{
+        Instant now = Instant.now();
+        List<BudgetYearSummary> budgetYears = getBudgetYearSummaries();
+        List<BudgetYear> currentBudgets = new ArrayList<>();
+        for(BudgetYearSummary budgetYear : budgetYears){
+            Instant budgetStartDate = budgetYear.getStartDate().toInstant();
+            Instant budgetEndDate = budgetYear.getEndDate().toInstant();
+            if(now.isAfter(budgetStartDate) && now.isBefore(budgetEndDate)){
+                currentBudgets.add(getBudgetYear(budgetYear.asNodeRef()));
+            }
+        }
+        return currentBudgets;
+    }
+    
+    public NodeRef addNewBudgetYear(String localName, String title, Date startDate, Date endDate) throws Exception{
+        QName budgetYearsQname = getODFName(DATA_ASSOC_BUDGETYEARS);
+        QName budgetYearTypeQname = getODFName(BUDGETYEAR_TYPE_NAME);
+        QName budgetYearQname = getODFName(localName);
+        
+        Map<QName, Serializable> budgetParams = new HashMap<>();
+        budgetParams.put(getODFName(BUDGETYEAR_PARAM_TITLE), title);
+        budgetParams.put(getODFName(BUDGETYEAR_PARAM_STARTDATE), startDate);
+        budgetParams.put(getODFName(BUDGETYEAR_PARAM_STARTDATE), endDate);
+
+        return serviceRegistry.getNodeService().createNode(getDataHome(), budgetYearsQname, budgetYearQname, budgetYearTypeQname, budgetParams).getChildRef();
+        
+    }
 
 //    public NodeRef getApplicationBudget(NodeRef applicationRef) throws Exception{
 //        QName applicationBudgetName = getODFName(APPLICATION_ASSOC_BUDGET);
@@ -301,17 +361,17 @@ public class FoundationBean {
 //        //The association is singular, it is never a list
 //        return budgets != null && !budgets.isEmpty() ? budgets.get(0).getTargetRef() : null;
 //    }
-    public NodeRef addNewBudget(String localName, String title, Long amount) throws Exception {
-        QName dataBudgetsQname = getODFName(DATA_ASSOC_BUDGETS);
+    public NodeRef addNewBudget(NodeRef budgetYear, String localName, String title, Long amount) throws Exception {
+        QName budgetYearBudgetsQname = getODFName(BUDGETYEAR_ASSOC_BUDGETS);
         QName budgetTypeQname = getODFName(BUDGET_TYPE_NAME);
         QName budgetQname = getODFName(localName);
-        NodeRef dataHome = getDataHome();
 
         Map<QName, Serializable> budgetParams = new HashMap<>();
         budgetParams.put(getODFName(BUDGET_PARAM_TITLE), title);
         budgetParams.put(getODFName(BUDGET_PARAM_AMOUNT), amount);
 
-        return serviceRegistry.getNodeService().createNode(dataHome, dataBudgetsQname, budgetQname, budgetTypeQname, budgetParams).getChildRef();
+        return serviceRegistry.getNodeService().createNode(budgetYear, budgetYearBudgetsQname, budgetQname, budgetTypeQname, budgetParams).getChildRef();
+        
     }
 
     public Long getBudgetAllocatedFunding(NodeRef budgetRef) throws Exception {
@@ -355,6 +415,7 @@ public class FoundationBean {
         application.setEndDate(getProperty(applicationRef, APPLICATION_PARAM_END_DATE, Date.class));
         application.setRecipient(getProperty(applicationRef, APPLICATION_PARAM_RECIPIENT, String.class));
         application.setShortDescription(getProperty(applicationRef, APPLICATION_PARAM_SHORT_DESCRIPTION, String.class));
+        application.setCvr(getProperty(applicationRef, APPLICATION_PARAM_CVR, String.class));
 
         NodeRef branchRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BRANCH);
         NodeRef budgetRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET);
@@ -373,6 +434,28 @@ public class FoundationBean {
             StateReference state = new StateReference();
             state.parseRef(stateRef);
             application.setState(state);
+        }
+        
+        NodeRef projectDesc = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_PROJECT_DESCRIPTION_DOC);
+        NodeRef budgetDoc = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET_DOC);
+        NodeRef boardMembers = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BOARD_MEMBERS_DOC);
+        NodeRef articlesOfAssociation = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_ARTICLES_OF_ASSOCIATION_DOC);
+        NodeRef financialAccouting = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_FINANCIAL_ACCOUTING_DOC);
+        
+        if(projectDesc != null){
+            application.setProjectDescriptionDoc(Reference.from(projectDesc));
+        }
+        if(budgetDoc != null){
+            application.setBudgetDoc(Reference.from(budgetDoc));
+        }
+        if(boardMembers != null){
+            application.setBoardMembersDoc(Reference.from(boardMembers));
+        }
+        if(articlesOfAssociation != null){
+            application.setArticlesOfAssociationDoc(Reference.from(articlesOfAssociation));
+        }
+        if(financialAccouting != null){
+            application.setFinancialAccountingDoc(Reference.from(financialAccouting));
         }
 
         return application;
@@ -465,11 +548,20 @@ public class FoundationBean {
         }
         return workflows;
     }
+    
+    public List<NodeRef> getBudgetYearRefs() throws Exception {
+        QName budgetYearsQName = getODFName(DATA_ASSOC_BUDGETYEARS);
+        List<ChildAssociationRef> budgetAssocs = serviceRegistry.getNodeService().getChildAssocs(getDataHome(), budgetYearsQName, null);
+        List<NodeRef> budgetYears = new ArrayList<>(budgetAssocs.size());
+        for (ChildAssociationRef ref : budgetAssocs) {
+            budgetYears.add(ref.getChildRef());
+        }
+        return budgetYears;
+    }
 
-    public List<NodeRef> getBudgetRefs() throws Exception {
-        QName dataBudgetsQname = getODFName(DATA_ASSOC_BUDGETS);
-        NodeRef dataHome = getDataHome();
-        List<ChildAssociationRef> budgetAssocs = serviceRegistry.getNodeService().getChildAssocs(dataHome, dataBudgetsQname, null);
+    public List<NodeRef> getBudgetRefs(NodeRef budgetYear) throws Exception {
+        QName budgetYearBudgets = getODFName(BUDGETYEAR_ASSOC_BUDGETS);
+        List<ChildAssociationRef> budgetAssocs = serviceRegistry.getNodeService().getChildAssocs(budgetYear, budgetYearBudgets, null);
         List<NodeRef> budgets = new ArrayList<>(budgetAssocs.size());
         for (ChildAssociationRef ref : budgetAssocs) {
             budgets.add(ref.getChildRef());
@@ -477,14 +569,66 @@ public class FoundationBean {
         return budgets;
     }
 
-    public List<Budget> getBudgets() throws Exception {
+    public List<BudgetYearSummary> getBudgetYearSummaries() throws Exception {
+        List<BudgetYearSummary> summaries = new ArrayList<>();
+        NodeService ns = serviceRegistry.getNodeService();
+        for(ChildAssociationRef budgetYear : ns.getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_BUDGETYEARS), null)){
+            summaries.add(getBudgetYearSummary(budgetYear.getChildRef()));
+        }
+        return summaries;
+    }
+    
+    public BudgetYearReference getBudgetYearReference(NodeRef budgetYearRef) throws Exception {
+        BudgetYearReference reference = new BudgetYearReference();
+        reference.parseRef(budgetYearRef);
+        reference.setTitle(getProperty(budgetYearRef, BUDGETYEAR_PARAM_TITLE, String.class));
+        return reference;
+    }
+    
+    public BudgetYearSummary getBudgetYearSummary(NodeRef budgetYearRef) throws Exception {
+        BudgetYearSummary summary = new BudgetYearSummary();
+        summary.parseRef(budgetYearRef);
+        summary.setTitle(getProperty(budgetYearRef, BUDGETYEAR_PARAM_TITLE, String.class));
+        summary.setStartDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_STARTDATE, Date.class));
+        summary.setEndDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_ENDDATE, Date.class));
+        return summary;
+    }
+    
+    public BudgetYear getBudgetYear(NodeRef budgetYearRef) throws Exception{
+        BudgetYear budgetYear = new BudgetYear();
+        budgetYear.parseRef(budgetYearRef);
+        budgetYear.setTitle(getProperty(budgetYearRef, BUDGETYEAR_PARAM_TITLE, String.class));
+        budgetYear.setStartDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_STARTDATE, Date.class));
+        budgetYear.setEndDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_ENDDATE, Date.class));
+        
+        List<Budget> budgets = getBudgets(budgetYear);
+        Long amountTotal = 0l;
+        Long amountAccepted= 0l;
+        Long amountNominated= 0l;
+        Long amountAvailable= 0l;
+        for(Budget budget : budgets){
+            amountTotal =+ budget.getAmountTotal();
+            amountAccepted =+ budget.getAmountAccepted();
+            amountNominated =+ budget.getAmountNominated();
+            amountAvailable =+ budget.getAmountAvailable();
+        }
+        
+        budgetYear.setAmountTotal(amountTotal);
+        budgetYear.setAmountAccepted(amountAccepted);
+        budgetYear.setAmountNominated(amountNominated);
+        budgetYear.setAmountAvailable(amountAvailable);
+        
+        return budgetYear;
+    }
+    
+    public List<Budget> getBudgets(BudgetYearReference budgetYear) throws Exception {
         List<Budget> budgets = new ArrayList<>();
         NodeService ns = serviceRegistry.getNodeService();
-        for (NodeRef budgetRef : getBudgetRefs()) {
+        for (NodeRef budgetRef : getBudgetRefs(budgetYear.asNodeRef())) {
             Budget budget = new Budget();
             budget.parseRef(budgetRef);
             budget.setTitle((String) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_TITLE)));
-            budget.setAmount((Long) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_AMOUNT)));
+            budget.setAmountTotal((Long) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_AMOUNT)));
             budgets.add(budget);
         }
         return budgets;
@@ -558,7 +702,6 @@ public class FoundationBean {
         for (AssociationRef ref : applicationRefs) {
             NodeRef appRef = ref.getTargetRef();
             applications.add(getApplicationSummary(appRef));
-
         }
         return applications;
 
@@ -593,8 +736,6 @@ public class FoundationBean {
         ApplicationSummary app = new ApplicationSummary();
         app.parseRef(applicationSummary);
 
-        NodeRef branchRef = getSingleTargetAssoc(applicationSummary, APPLICATION_ASSOC_BRANCH);
-
         BranchReference branchReference = getBranchReference(applicationSummary);
         app.setBranchRef(branchReference);
         app.setTitle(getProperty(applicationSummary, APPLICATION_PARAM_TITLE, String.class));
@@ -604,6 +745,8 @@ public class FoundationBean {
         app.setEndDate(getProperty(applicationSummary, APPLICATION_PARAM_END_DATE, Date.class));
         app.setRecipient(getProperty(applicationSummary, APPLICATION_PARAM_RECIPIENT, String.class));
         app.setShortDescription(getProperty(applicationSummary, APPLICATION_PARAM_SHORT_DESCRIPTION, String.class));
+        app.setCvr(getProperty(applicationSummary, APPLICATION_PARAM_CVR, String.class));
+
 
         return app;
     }
@@ -614,8 +757,8 @@ public class FoundationBean {
         if (budget.wasTitleSet()) {
             properties.put(getODFName(BUDGET_PARAM_TITLE), budget.getTitle());
         }
-        if (budget.wasAmountSet()) {
-            properties.put(getODFName(BUDGET_PARAM_AMOUNT), budget.getAmount());
+        if (budget.wasAmountTotalSet()) {
+            properties.put(getODFName(BUDGET_PARAM_AMOUNT), budget.getAmountTotal());
         }
         ns.addProperties(budget.asNodeRef(), properties);
     }

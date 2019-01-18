@@ -72,10 +72,15 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         List<NodeRef> branchRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BRANCH_NAME, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, branchRefs.size());
 
+        //Exactly one budget years has been created
+        List<NodeRef> budgetYear1Refs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BUDGETYEAR1_NAME, null, serviceRegistry.getNamespaceService(), false);
+        assertEquals(1, budgetYear1Refs.size());
+        
+        
         //Exactly two budgets has been created
-        List<NodeRef> budget1Refs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BUDGET1_NAME, null, serviceRegistry.getNamespaceService(), false);
+        List<NodeRef> budget1Refs = serviceRegistry.getSearchService().selectNodes(budgetYear1Refs.get(0), "./odf:" + TestUtils.BUDGET1_NAME, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, budget1Refs.size());
-        List<NodeRef> budget2Refs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BUDGET2_NAME, null, serviceRegistry.getNamespaceService(), false);
+        List<NodeRef> budget2Refs = serviceRegistry.getSearchService().selectNodes(budgetYear1Refs.get(0), "./odf:" + TestUtils.BUDGET2_NAME, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, budget2Refs.size());
 
         //Exactly one workflow has been created
@@ -117,7 +122,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         Long expectedAmount = TestUtils.BUDGET1_AMOUNT-TestUtils.APPLICATION1_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
         assertEquals(expectedAmount, foundationBean.getBudgetRemainingFunding(budgetRef));
 
-        Long budgetAllocatedFunding = foundationBean.getBudgetAllocatedFunding(dataNode);
+        Long budgetAllocatedFunding = foundationBean.getBudgetAllocatedFunding(budgetRef);
         Long budgetRemaningFunding = foundationBean.getBudgetRemainingFunding(budgetRef);
         Long budgetTotalFunding = foundationBean.getBudgetTotalFunding(budgetRef);
 

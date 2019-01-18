@@ -9,6 +9,8 @@ import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.Year;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -41,6 +43,7 @@ public final class TestUtils {
     public static final String STATE_DENIED_NAME = "denied";
     public static final String STATE_ACCEPTED_NAME = "accepted";
 
+    public static final String BUDGETYEAR1_NAME = "CurrentYear";
     public static final String BUDGET1_NAME = "defaultBudget";
     public static final Long BUDGET1_AMOUNT = 1000000000000000l;
     public static final String BUDGET2_NAME = "unusedBudget";
@@ -57,6 +60,7 @@ public final class TestUtils {
 
     public static NodeRef branchRef;
 
+    public static NodeRef budgetYearRef1;
     public static NodeRef budgetRef1;
     public static NodeRef budgetRef2;
 
@@ -82,8 +86,8 @@ public final class TestUtils {
             nodeService.removeChild(dataRef, workflow);
         }
 
-        for (NodeRef budget : foundationBean.getBudgetRefs()) {
-            nodeService.removeChild(dataRef, budget);
+        for (NodeRef budgetYear : foundationBean.getBudgetYearRefs()) {
+            nodeService.removeChild(dataRef, budgetYear);
         }
 
         for (NodeRef branch : foundationBean.getBranches()) {
@@ -127,9 +131,14 @@ public final class TestUtils {
         branchRef = foundationBean.addNewBranch(BRANCH_NAME, BRANCH_NAME + TITLE_POSTFIX);
         foundationBean.addBranchWorkflow(branchRef, workFlowRef);
 
-        //Create budget and associate it with a branch
-        budgetRef1 = foundationBean.addNewBudget(BUDGET1_NAME, BUDGET1_NAME + TITLE_POSTFIX, BUDGET1_AMOUNT);
-        budgetRef2 = foundationBean.addNewBudget(BUDGET2_NAME, BUDGET2_NAME + TITLE_POSTFIX, BUDGET2_AMOUNT);
+        //Create budgets and associate it with a branch
+        Date startDate = Date.from(Instant.now().minus(Duration.ofDays(1)));
+        Date endDate = Date.from(Instant.now().plus(1, ChronoUnit.YEARS));
+        
+        budgetYearRef1 = foundationBean.addNewBudgetYear(BUDGETYEAR1_NAME, BUDGETYEAR1_NAME+TITLE_POSTFIX, startDate, endDate);
+        
+        budgetRef1 = foundationBean.addNewBudget(budgetYearRef1, BUDGET1_NAME, BUDGET1_NAME + TITLE_POSTFIX, BUDGET1_AMOUNT);
+        budgetRef2 = foundationBean.addNewBudget(budgetYearRef1, BUDGET2_NAME, BUDGET2_NAME + TITLE_POSTFIX, BUDGET2_AMOUNT);
         foundationBean.addBranchBudget(branchRef, budgetRef1);
         foundationBean.addBranchBudget(branchRef, budgetRef2);
 

@@ -26,6 +26,11 @@ public class Application extends ApplicationSummary{
     private Optional<String> contactPhone;
     private Optional<String> accountRegistration;
     private Optional<String> accountNumber;
+    private Optional<Reference> projectDescriptionDoc;
+    private Optional<Reference> budgetDoc;
+    private Optional<Reference> boardMembersDoc;
+    private Optional<Reference> articlesOfAssociationDoc;
+    private Optional<Reference> financialAccountingDoc;
     
     public StateReference getState() {
         return get(state);
@@ -174,9 +179,66 @@ public class Application extends ApplicationSummary{
     public void setAccountNumber(String accountNumber) {
         this.accountNumber = optional(accountNumber);
     }
-    
-    
 
+    public Reference getProjectDescriptionDoc() {
+        return get(projectDescriptionDoc);
+    }
+    
+    public boolean wasProjectDescriptionDocSet() {
+        return wasSet(projectDescriptionDoc);
+    }
+
+    public void setProjectDescriptionDoc(Reference projectDescriptionDoc) {
+        this.projectDescriptionDoc = optional(projectDescriptionDoc);
+    }
+
+    public Reference getBudgetDoc() {
+        return get(budgetDoc);
+    }
+    
+    public boolean wasBudgetDocSet() {
+        return wasSet(budgetDoc);
+    }
+
+    public void setBudgetDoc(Reference budgetDoc) {
+        this.budgetDoc = optional(budgetDoc);
+    }
+
+    public Reference getBoardMembersDoc() {
+        return get(boardMembersDoc);
+    }
+    
+    public boolean wasBoardMembersDocSet() {
+        return wasSet(boardMembersDoc);
+    }
+
+    public void setBoardMembersDoc(Reference boardMembersDoc) {
+        this.boardMembersDoc = optional(boardMembersDoc);
+    }
+
+    public Reference getArticlesOfAssociationDoc() {
+        return get(articlesOfAssociationDoc);
+    }
+    
+    public boolean wasArticlesOfAssociationDocSet() {
+        return wasSet(articlesOfAssociationDoc);
+    }
+
+    public void setArticlesOfAssociationDoc(Reference articlesOfAssociationDoc) {
+        this.articlesOfAssociationDoc = optional(articlesOfAssociationDoc);
+    }
+
+    public Reference getFinancialAccountingDoc() {
+        return get(financialAccountingDoc);
+    }
+    
+    public boolean wasFinancialAccountingDocSet() {
+        return wasSet(financialAccountingDoc);
+    }
+
+    public void setFinancialAccountingDoc(Reference financialAccountingDoc) {
+        this.financialAccountingDoc = optional(financialAccountingDoc);
+    }
     
 
     @Override
@@ -221,6 +283,9 @@ public class Application extends ApplicationSummary{
         if (!Objects.equals(this.getEndDate(), other.getEndDate())) {
             return false;
         }
+        if (!Objects.equals(this.getCvr(), other.getCvr())) {
+            return false;
+        }
         if (!Objects.equals(this.getAmountApplied(), other.getAmountApplied())) {
             return false;
         }
@@ -233,9 +298,24 @@ public class Application extends ApplicationSummary{
         if (!Objects.equals(this.getBudget(), other.getBudget())) {
             return false;
         }
+        if (!Objects.equals(this.getProjectDescriptionDoc(), other.getProjectDescriptionDoc())) {
+            return false;
+        }
+        if (!Objects.equals(this.getBudgetDoc(), other.getBudgetDoc())) {
+            return false;
+        }
+        if (!Objects.equals(this.getBoardMembersDoc(), other.getBoardMembersDoc())) {
+            return false;
+        }
+        if (!Objects.equals(this.getArticlesOfAssociationDoc(), other.getArticlesOfAssociationDoc())) {
+            return false;
+        }
+        if (!Objects.equals(this.getFinancialAccountingDoc(), other.getFinancialAccountingDoc())) {
+            return false;
+        }
         return true;
     }
-
+    
     @Override
     public ToStringBuilder toStringBuilder() {
         return super.toStringBuilder().append("budget", this.getBudget()).append("state", this.getState());

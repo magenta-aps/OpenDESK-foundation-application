@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get Current Budget Year</shortname>
+    <description>Get the current Budget Year if one exists</description>
+    <url>/foundation/budgetYear/current</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

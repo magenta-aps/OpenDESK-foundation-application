@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Create Budget Year</shortname>
+    <description>Create new Budget Year</description>
+    <url>/foundation/budgetYear</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

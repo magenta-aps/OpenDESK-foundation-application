@@ -44,6 +44,16 @@
             <value>/${spaces.company_home.childname}/${spaces.dictionary.childname}/odf:foundation_data</value>
         </property>-->
     </bean>
+    
+    <bean id="stateListener" class="dk.opendesk.foundationapplication.behavior.ApplicationStateChange"
+          init-method="registerEventHandlers">
+        <property name="policyComponent">
+            <ref bean="policyComponent"/>
+        </property>
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry" />
+        </property>
+    </bean>
 
  
     

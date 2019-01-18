@@ -12,8 +12,8 @@ import java.util.Optional;
  *
  * @author martin
  */
-public class Budget extends BudgetReference {
-
+public class BudgetYear extends BudgetYearSummary{
+    
     private Optional<Long> amountTotal;
     private Optional<Long> amountAccepted;
     private Optional<Long> amountNominated;
@@ -67,16 +67,17 @@ public class Budget extends BudgetReference {
         this.amountAvailable = optional(amountAvailable);
     }
     
-
-    @Override
+        @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 17 * hash + Objects.hashCode(this.getNodeRef());
-        hash = 17 * hash + Objects.hashCode(this.getTitle());
-        hash = 17 * hash + Objects.hashCode(this.getAmountTotal());
-        hash = 17 * hash + Objects.hashCode(this.getAmountAccepted());
-        hash = 17 * hash + Objects.hashCode(this.getAmountNominated());
-        hash = 17 * hash + Objects.hashCode(this.getAmountAvailable());
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.getNodeRef());
+        hash = 97 * hash + Objects.hashCode(this.getTitle());
+        hash = 97 * hash + Objects.hashCode(this.getStartDate());
+        hash = 97 * hash + Objects.hashCode(this.getEndDate());
+        hash = 97 * hash + Objects.hashCode(this.getAmountTotal());
+        hash = 97 * hash + Objects.hashCode(this.getAmountAccepted());
+        hash = 97 * hash + Objects.hashCode(this.getAmountNominated());
+        hash = 97 * hash + Objects.hashCode(this.getAmountAvailable());
         return hash;
     }
 
@@ -91,11 +92,17 @@ public class Budget extends BudgetReference {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Budget other = (Budget) obj;
+        final BudgetYear other = (BudgetYear) obj;
+        if (!Objects.equals(this.getTitle(), other.getTitle())) {
+            return false;
+        }
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {
             return false;
         }
-        if (!Objects.equals(this.getTitle(), other.getTitle())) {
+        if (!Objects.equals(this.getStartDate(), other.getStartDate())) {
+            return false;
+        }
+        if (!Objects.equals(this.getEndDate(), other.getEndDate())) {
             return false;
         }
         if (!Objects.equals(this.getAmountTotal(), other.getAmountTotal())) {
@@ -112,5 +119,5 @@ public class Budget extends BudgetReference {
         }
         return true;
     }
-
+    
 }

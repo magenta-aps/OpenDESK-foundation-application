@@ -96,6 +96,25 @@
               parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
+    
+    <bean id="webscript.foundation.budgetYear.get"
+              class="dk.opendesk.foundationapplication.webscripts.foundation.GetBudgetYears"
+              parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.budgetYear.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.AddBudgetYear"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.budgetYearCurrent.get"
+              class="dk.opendesk.foundationapplication.webscripts.foundation.GetCurrentBudgetYears"
+              parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
     <bean id="webscript.foundation.branchUpdate.post"
               class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateBranch"
               parent="webscript">

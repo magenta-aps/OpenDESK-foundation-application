@@ -14,7 +14,9 @@ import java.util.Optional;
  * @author martin
  */
 public class StateSummary extends StateReference{
-    
+    private Optional<Boolean> accepted = null;
+    private Optional<Boolean> closed = null;
+    private Optional<Boolean> rejected = null;
     private Optional<List<StateReference>> references = null;
 
     public StateSummary() {

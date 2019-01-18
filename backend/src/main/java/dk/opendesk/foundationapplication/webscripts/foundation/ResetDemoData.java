@@ -5,29 +5,20 @@
  */
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
-import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
-import dk.opendesk.foundationapplication.DAO.BranchReference;
-import dk.opendesk.foundationapplication.DAO.BudgetReference;
-import dk.opendesk.foundationapplication.DAO.StateReference;
-import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_PARAM_TITLE;
-import static dk.opendesk.foundationapplication.Utilities.getODFName;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.namespace.QName;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
@@ -37,6 +28,8 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  * @author martin
  */
 public class ResetDemoData extends JacksonBackedWebscript {
+    public static final String BUDGETYEAR1_TITLE = "BudgetYearCurrent";
+    public static final String BUDGETYEAR2_TITLE = "BudgetYearNext";
     private final List<String> companyNames = Arrays.asList(new String[]{"Fuglevennerne", "Fluefiskerforeningen", "Natteravnene", "Lones Kattehjem", "Fies Kattehjem", "Peters Kattehjem"});
     private final List<String> firstNames = Arrays.asList(new String[]{"Anders", "Anne", "Bjarne", "Børge", "Belinda", "Charlotte", "Casper", "Dorthe", "Mikkel", "Martin", "Mads", "Maja"});
     private final List<String> lastNames = Arrays.asList(new String[]{"Andersen", "Brandshøj", "Carlsen", "Svendsen", "Pedersen", "Sørensen", "Nielsen", "Fisker", "Smed"});
@@ -79,13 +72,23 @@ public class ResetDemoData extends JacksonBackedWebscript {
         NodeRef local2 = createBranch("Randers");
         NodeRef local3 = createBranch("Aarhus");
         
+        //Create budgetYears
+        Instant date1 = Instant.now().minus(Duration.ofDays(1));
+        Instant date2 = date1.plus(1, ChronoUnit.YEARS);
+        Instant date3 = date2.plus(2, ChronoUnit.YEARS);
+        NodeRef budgetYearCurrent1 = createBudgetYear(BUDGETYEAR1_TITLE, Date.from(date1), Date.from(date2));
+        NodeRef budgetYearCurrent2 = createBudgetYear(BUDGETYEAR2_TITLE, Date.from(date2), Date.from(date3));
+        
         //Create budgets
-        NodeRef budgetCentral = createBudget("Central", 5000000l);
-        NodeRef budgetLocal1 = createBudget("København", 70000l);
-        NodeRef budgetLocal2 = createBudget("Randers", 30000l);
-        NodeRef budgetLocal3 = createBudget("Aarhus", 50000l);
-        NodeRef budgetSharedTotal = createBudget("Lokalprojekter", 100000l);
-        NodeRef budgetSharedJutland = createBudget("Lokalprojekter Jylland", 50000l);
+        NodeRef budgetCentral = createBudget(budgetYearCurrent1, "Central", 5000000l);
+        NodeRef budgetLocal1 = createBudget(budgetYearCurrent1, "København", 70000l);
+        NodeRef budgetLocal2 = createBudget(budgetYearCurrent1, "Randers", 30000l);
+        NodeRef budgetLocal3 = createBudget(budgetYearCurrent1, "Aarhus", 50000l);
+        NodeRef budgetSharedTotal = createBudget(budgetYearCurrent1, "Lokalprojekter", 100000l);
+        NodeRef budgetSharedJutland = createBudget(budgetYearCurrent1, "Lokalprojekter Jylland", 50000l);
+        
+        
+        NodeRef budgetNextYear = createBudget(budgetYearCurrent2, "Central", 5500000l);
         
         foundationBean.addBranchBudget(central, budgetCentral);
         foundationBean.addBranchBudget(local1, budgetLocal1);
@@ -175,8 +178,12 @@ public class ResetDemoData extends JacksonBackedWebscript {
         return foundationBean.addNewBranch("TestBranch-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name);
     }
     
-    public NodeRef createBudget(String name, Long amount) throws Exception{
-        return foundationBean.addNewBudget("TestBudget-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, amount);
+    public NodeRef createBudgetYear(String name, Date startDate, Date endDate) throws Exception{
+        return foundationBean.addNewBudgetYear(name, "TestBudgetYear"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), startDate, endDate);
+    }
+    
+    public NodeRef createBudget(NodeRef budgetYear, String name, Long amount) throws Exception{
+        return foundationBean.addNewBudget(budgetYear, "TestBudget-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, amount);
     }
     
     public NodeRef createWorkflow(String name) throws Exception{
@@ -210,7 +217,7 @@ public class ResetDemoData extends JacksonBackedWebscript {
             nodeService.removeChild(dataRef, workflow);
         }
 
-        for (NodeRef budget : foundationBean.getBudgetRefs()) {
+        for (NodeRef budget : foundationBean.getBudgetYearRefs()) {
             nodeService.removeChild(dataRef, budget);
         }
 

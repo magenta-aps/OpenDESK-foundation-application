@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get all Budget Years</shortname>
+    <description>Get all Budget years</description>
+    <url>/foundation/budgetYear</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

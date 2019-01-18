@@ -5,7 +5,9 @@
  */
 package dk.opendesk.foundationapplication;
 
+import dk.opendesk.foundationapplication.DAO.BudgetYearSummary;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
 import org.json.JSONObject;
@@ -42,7 +44,17 @@ public class TestDemoData extends AbstractTestClass{
         post(new JSONObject().append("doesnt", "matter"));
         
         assertEquals(4, foundationBean.getBranchSummaries().size());
-        assertEquals(6, foundationBean.getBudgets().size());
+        assertEquals(2, foundationBean.getBudgetYearSummaries().size());
+        for(BudgetYearSummary budgetYear : foundationBean.getBudgetYearSummaries()){
+            if(budgetYear.getTitle().equals(ResetDemoData.BUDGETYEAR1_TITLE)){
+                assertEquals(6, foundationBean.getBudgets(budgetYear));
+            }else if (budgetYear.getTitle().equals(ResetDemoData.BUDGETYEAR2_TITLE)){
+                assertEquals(0, foundationBean.getBudgets(budgetYear));
+            }else{
+                fail("Found an unexpected budgetYear: "+budgetYear);
+            }
+        }
+        
         assertEquals(3, foundationBean.getWorkflowSummaries().size());
         assertEquals(16, foundationBean.getApplicationSummaries().size());
     }

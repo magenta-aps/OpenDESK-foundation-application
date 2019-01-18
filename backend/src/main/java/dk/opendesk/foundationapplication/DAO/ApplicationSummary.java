@@ -23,6 +23,7 @@ public class ApplicationSummary extends ApplicationReference {
     private Optional<Date> startDate;
     private Optional<Date> endDate;
     private Optional<Long> amountApplied;
+    private Optional<String> cvr;
 
     public ApplicationSummary() {
     }
@@ -111,6 +112,18 @@ public class ApplicationSummary extends ApplicationReference {
         this.amountApplied = optional(amountApplied);
     }
 
+    public String getCvr() {
+        return get(cvr);
+    }
+    
+    public boolean wasCvrSet(){
+        return wasSet(cvr);
+    }
+
+    public void setCvr(String cvr) {
+        this.cvr = optional(cvr);
+    }
+
     @Override
     public int hashCode() {
         int hash = 3;
@@ -163,6 +176,9 @@ public class ApplicationSummary extends ApplicationReference {
             return false;
         }
         if (!Objects.equals(this.getBranchRef(), other.getBranchRef())) {
+            return false;
+        }
+        if (!Objects.equals(this.getCvr(), other.getCvr())) {
             return false;
         }
         return true;
