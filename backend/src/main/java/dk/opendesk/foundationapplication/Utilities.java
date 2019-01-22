@@ -5,11 +5,8 @@
  */
 package dk.opendesk.foundationapplication;
 
-import dk.opendesk.foundationapplication.DAO.Reference;
-import org.alfresco.util.ApplicationContextHelper;
 import dk.opendesk.foundationapplication.patches.InitialStructure;
 import java.util.List;
-import java.util.Optional;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;

@@ -11,7 +11,6 @@ import dk.opendesk.foundationapplication.beans.FoundationBean;
 import java.util.List;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
-import sun.security.acl.WorldGroupImpl;
 
 /**
  *

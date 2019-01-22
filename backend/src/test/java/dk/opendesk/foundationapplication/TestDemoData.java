@@ -50,8 +50,6 @@ public class TestDemoData extends AbstractTestClass{
                 assertEquals(6, foundationBean.getBudgets(budgetYear));
             }else if (budgetYear.getTitle().equals(ResetDemoData.BUDGETYEAR2_TITLE)){
                 assertEquals(0, foundationBean.getBudgets(budgetYear));
-            }else{
-                fail("Found an unexpected budgetYear: "+budgetYear);
             }
         }
         

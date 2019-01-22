@@ -133,7 +133,7 @@ public final class TestUtils {
 
         //Create budgets and associate it with a branch
         Date startDate = Date.from(Instant.now().minus(Duration.ofDays(1)));
-        Date endDate = Date.from(Instant.now().plus(1, ChronoUnit.YEARS));
+        Date endDate = Date.from(Instant.now().plus(300, ChronoUnit.DAYS));
         
         budgetYearRef1 = foundationBean.addNewBudgetYear(BUDGETYEAR1_NAME, BUDGETYEAR1_NAME+TITLE_POSTFIX, startDate, endDate);
         

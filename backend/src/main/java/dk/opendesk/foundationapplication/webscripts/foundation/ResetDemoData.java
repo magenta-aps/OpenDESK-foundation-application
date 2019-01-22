@@ -74,8 +74,8 @@ public class ResetDemoData extends JacksonBackedWebscript {
         
         //Create budgetYears
         Instant date1 = Instant.now().minus(Duration.ofDays(1));
-        Instant date2 = date1.plus(1, ChronoUnit.YEARS);
-        Instant date3 = date2.plus(2, ChronoUnit.YEARS);
+        Instant date2 = date1.plus(300, ChronoUnit.DAYS);
+        Instant date3 = date2.plus(600, ChronoUnit.DAYS);
         NodeRef budgetYearCurrent1 = createBudgetYear(BUDGETYEAR1_TITLE, Date.from(date1), Date.from(date2));
         NodeRef budgetYearCurrent2 = createBudgetYear(BUDGETYEAR2_TITLE, Date.from(date2), Date.from(date3));
         

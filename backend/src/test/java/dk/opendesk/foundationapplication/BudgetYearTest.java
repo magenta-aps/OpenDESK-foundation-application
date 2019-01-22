@@ -40,18 +40,18 @@ public class BudgetYearTest extends AbstractTestClass{
         TestUtils.wipeData(serviceRegistry);
     }
     
-    protected void testGetBudgetYears() throws Exception{
+    public void testGetBudgetYears() throws Exception{
         List<BudgetYearSummary> summariesRest = get(List.class, BudgetYearSummary.class);
         List<BudgetYearSummary> summaries = foundationBean.getBudgetYearSummaries();
 
         containsSameElements(summaries, summariesRest);
-        assertEquals(1, summariesRest);
+        assertEquals(1, summariesRest.size());
         assertEquals(TestUtils.BUDGETYEAR1_NAME+TestUtils.TITLE_POSTFIX, summariesRest.get(0));
     }
     
-    protected void testAddBudgetYear() throws Exception{
+    public void testAddBudgetYear() throws Exception{
         Instant now = Instant.now();
-        Instant later = now.plus(1, ChronoUnit.WEEKS);
+        Instant later = now.plus(7, ChronoUnit.DAYS);
         BudgetYearSummary newBudgetYear = new BudgetYearSummary();
         newBudgetYear.setTitle("newBudgetOfDoom");
         newBudgetYear.setStartDate(Date.from(now));
@@ -59,7 +59,7 @@ public class BudgetYearTest extends AbstractTestClass{
         post(newBudgetYear);
         
         List<BudgetYearSummary> summaries = get(List.class, BudgetYearSummary.class);
-        assertEquals(2, summaries);
+        assertEquals(2, summaries.size());
         
         for(BudgetYearSummary summary : summaries){
             if(summary.getTitle().equals(newBudgetYear.getTitle()) && 
