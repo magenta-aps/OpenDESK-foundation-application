@@ -60,7 +60,9 @@
                 <list></list>
             </parameter>
         </constraint>
-    </constraints>        
+        <constraint name="odf:stateCategories" type="dk.opendesk.foundationapplication.constraints.StateCategoryConstrant">
+        </constraint>
+    </constraints>
                     
     <types>
         
@@ -220,6 +222,13 @@
                 <property name="odf:stateTitle">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
+                </property>
+                <property name="odf:stateCategory">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref='odf:stateCategories'/>
+                    </constraints>
                 </property>
             </properties>
             <associations>

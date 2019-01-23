@@ -52,6 +52,7 @@ public final class Utilities {
     public static final String STATE_TYPE_NAME = "applicationState";
     public static final String STATE_ASSOC_TRANSITIONS = "workflowTransitions";
     public static final String STATE_PARAM_TITLE = "stateTitle";
+    public static final String STATE_PARAM_CATEGORY = "stateCategory";
     
     public static final String BUDGET_TYPE_NAME = "applicationBudget";
     public static final String BUDGET_PARAM_TITLE="budgetTitle";

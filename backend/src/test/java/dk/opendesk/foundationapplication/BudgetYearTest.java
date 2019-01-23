@@ -46,7 +46,7 @@ public class BudgetYearTest extends AbstractTestClass{
 
         containsSameElements(summaries, summariesRest);
         assertEquals(1, summariesRest.size());
-        assertEquals(TestUtils.BUDGETYEAR1_NAME+TestUtils.TITLE_POSTFIX, summariesRest.get(0));
+        assertEquals(TestUtils.BUDGETYEAR1_NAME+TestUtils.TITLE_POSTFIX, summariesRest.get(0).getTitle());
     }
     
     public void testAddBudgetYear() throws Exception{

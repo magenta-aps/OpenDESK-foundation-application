@@ -5,6 +5,7 @@
  */
 package dk.opendesk.foundationapplication.DAO;
 
+import dk.opendesk.foundationapplication.enums.StateCategory;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,13 +15,23 @@ import java.util.Optional;
  * @author martin
  */
 public class StateSummary extends StateReference{
-    private Optional<Boolean> accepted = null;
-    private Optional<Boolean> closed = null;
-    private Optional<Boolean> rejected = null;
+    private Optional<StateCategory> category = null;
     private Optional<List<StateReference>> references = null;
 
     public StateSummary() {
         
+    }
+
+    public StateCategory getCategory() {
+        return get(category);
+    }
+    
+    public boolean wasCategorySet(){
+        return wasSet(category);
+    }
+
+    public void setCategory(StateCategory category) {
+        this.category = optional(category);
     }
 
     public List<StateReference> getReferences() {

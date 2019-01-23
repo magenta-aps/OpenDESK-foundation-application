@@ -13,6 +13,7 @@ import dk.opendesk.foundationapplication.DAO.BranchReference;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.BudgetSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetYear;
 import dk.opendesk.foundationapplication.DAO.BudgetYearReference;
 import dk.opendesk.foundationapplication.DAO.BudgetYearSummary;
@@ -25,6 +26,7 @@ import dk.opendesk.foundationapplication.DAO.WorkflowReference;
 import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.*;
+import dk.opendesk.foundationapplication.enums.StateCategory;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -349,7 +351,7 @@ public class FoundationBean {
         Map<QName, Serializable> budgetParams = new HashMap<>();
         budgetParams.put(getODFName(BUDGETYEAR_PARAM_TITLE), title);
         budgetParams.put(getODFName(BUDGETYEAR_PARAM_STARTDATE), startDate);
-        budgetParams.put(getODFName(BUDGETYEAR_PARAM_STARTDATE), endDate);
+        budgetParams.put(getODFName(BUDGETYEAR_PARAM_ENDDATE), endDate);
 
         return serviceRegistry.getNodeService().createNode(getDataHome(), budgetYearsQname, budgetYearQname, budgetYearTypeQname, budgetParams).getChildRef();
         
@@ -505,13 +507,15 @@ public class FoundationBean {
         serviceRegistry.getNodeService().setAssociations(workFlowRef, getODFName(WORKFLOW_ASSOC_ENTRY), Collections.singletonList(workflowStateRef));
     }
 
-    public NodeRef addNewWorkflowState(NodeRef workFlowRef, String localName, String title) throws Exception {
+    public NodeRef addNewWorkflowState(NodeRef workFlowRef, String localName, String title, StateCategory category) throws Exception {
         QName workFlowStatesQname = getODFName(WORKFLOW_ASSOC_STATES);
         QName stateTypeQname = getODFName(STATE_TYPE_NAME);
         QName stateQName = getODFName(localName);
         QName stateTitle = getODFName(STATE_PARAM_TITLE);
+        QName stateCategory = getODFName(STATE_PARAM_CATEGORY);
         Map<QName, Serializable> stateParams = new HashMap<>();
         stateParams.put(stateTitle, title);
+        stateParams.put(stateCategory, category.getCategoryName());
 
         return serviceRegistry.getNodeService().createNode(workFlowRef, workFlowStatesQname, stateQName, stateTypeQname, stateParams).getChildRef();
     }
@@ -626,6 +630,26 @@ public class FoundationBean {
         NodeService ns = serviceRegistry.getNodeService();
         for (NodeRef budgetRef : getBudgetRefs(budgetYear.asNodeRef())) {
             Budget budget = new Budget();
+            budget.parseRef(budgetRef);
+            budget.setTitle((String) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_TITLE)));
+            budget.setAmountTotal((Long) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_AMOUNT)));
+            
+            List<ApplicationReference> applications = new ArrayList<>();
+            for (AssociationRef applicationRef : ns.getSourceAssocs(budgetRef, getODFName(APPLICATION_ASSOC_BRANCH))) {
+                applications.add(getApplicationReference(applicationRef.getSourceRef()));
+                State state = getState(getApplicationState(applicationRef.getSourceRef()));
+            }
+            
+            budgets.add(budget);
+        }
+        return budgets;
+    }
+    
+    public List<BudgetSummary> getBudgetSummaries(BudgetYearReference budgetYear) throws Exception {
+        List<BudgetSummary> budgets = new ArrayList<>();
+        NodeService ns = serviceRegistry.getNodeService();
+        for (NodeRef budgetRef : getBudgetRefs(budgetYear.asNodeRef())) {
+            BudgetSummary budget = new BudgetSummary();
             budget.parseRef(budgetRef);
             budget.setTitle((String) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_TITLE)));
             budget.setAmountTotal((Long) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_AMOUNT)));
@@ -838,7 +862,8 @@ public class FoundationBean {
         state.setApplications(applications);
         return state;
     }
-
+   
+    
     public StateSummary getStateSummary(NodeRef stateRef) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
         StateSummary summary = new StateSummary();

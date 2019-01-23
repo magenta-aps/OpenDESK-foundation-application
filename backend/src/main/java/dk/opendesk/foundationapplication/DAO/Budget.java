@@ -5,6 +5,7 @@
  */
 package dk.opendesk.foundationapplication.DAO;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -12,25 +13,13 @@ import java.util.Optional;
  *
  * @author martin
  */
-public class Budget extends BudgetReference {
-
-    private Optional<Long> amountTotal;
+public class Budget extends BudgetSummary {
     private Optional<Long> amountAccepted;
     private Optional<Long> amountNominated;
     private Optional<Long> amountAvailable;
-
-    public Long getAmountTotal() {
-        return get(amountTotal);
-    }    
+    private Optional<List<ApplicationReference>> applications;
     
-    public boolean wasAmountTotalSet(){
-        return wasSet(amountTotal);
-    }
 
-    public void setAmountTotal(Long amountTotal) {
-        this.amountTotal = optional(amountTotal);
-    }
-    
     public Long getAmountAccepted() {
         return get(amountAccepted);
     }    
@@ -67,7 +56,19 @@ public class Budget extends BudgetReference {
         this.amountAvailable = optional(amountAvailable);
     }
     
+    public List<ApplicationReference> getApplications() {
+        return get(applications);
+    }    
+    
+    public boolean wasApplicationsSet(){
+        return wasSet(applications);
+    }
 
+    public void setApplications(List<ApplicationReference> applications) {
+        this.applications = optional(applications);
+    }
+
+    
     @Override
     public int hashCode() {
         int hash = 5;
@@ -77,6 +78,7 @@ public class Budget extends BudgetReference {
         hash = 17 * hash + Objects.hashCode(this.getAmountAccepted());
         hash = 17 * hash + Objects.hashCode(this.getAmountNominated());
         hash = 17 * hash + Objects.hashCode(this.getAmountAvailable());
+        hash = 17 * hash + Objects.hashCode(this.getApplications());
         return hash;
     }
 
@@ -108,6 +110,9 @@ public class Budget extends BudgetReference {
             return false;
         }
         if (!Objects.equals(this.getAmountAvailable(), other.getAmountAvailable())) {
+            return false;
+        }
+        if (!Objects.equals(this.getApplications(), other.getApplications())) {
             return false;
         }
         return true;

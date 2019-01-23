@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.enums.StateCategory;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Year;
@@ -114,10 +115,10 @@ public final class TestUtils {
         workFlowRef = foundationBean.addNewWorkflow(WORKFLOW_NAME, WORKFLOW_NAME + TITLE_POSTFIX);
 
         //Create workflow states
-        stateRecievedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX);
-        stateAccessRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX);
-        stateDeniedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_DENIED_NAME, STATE_DENIED_NAME + TITLE_POSTFIX);
-        stateAcceptedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX);
+        stateRecievedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
+        stateAccessRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, StateCategory.ACCEPTED);
+        stateDeniedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_DENIED_NAME, STATE_DENIED_NAME + TITLE_POSTFIX, StateCategory.REJECTED);
+        stateAcceptedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
         foundationBean.setWorkflowEntryPoint(workFlowRef, stateRecievedRef);
 
         //Create associations

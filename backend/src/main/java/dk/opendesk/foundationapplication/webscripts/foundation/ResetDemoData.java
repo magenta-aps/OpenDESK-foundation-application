@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.enums.StateCategory;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import java.time.Duration;
 import java.time.Instant;
@@ -105,24 +106,24 @@ public class ResetDemoData extends JacksonBackedWebscript {
         NodeRef localWorkflow = createWorkflow("Lokal");
         NodeRef unusedWorkflow = createWorkflow("Unused");
         
-        NodeRef cHandleApplication = createWorkflowState("Gennemgå Ansøgning", centralWorkflow, true);
-        NodeRef cMeeting = createWorkflowState("Bestyrelsesmøde", centralWorkflow, false);
-        NodeRef cContactApplicant = createWorkflowState("Ansøgerkontakt", centralWorkflow, false);
-        NodeRef cProjectRoom = createWorkflowState("Projektafvikling", centralWorkflow, false);
-        NodeRef cProjectClosed = createWorkflowState("Projekt lukket", centralWorkflow, false);        
-        NodeRef cProjectRejected = createWorkflowState("Afvist", centralWorkflow, false);
+        NodeRef cHandleApplication = createWorkflowState("Gennemgå Ansøgning", centralWorkflow, true, null);
+        NodeRef cMeeting = createWorkflowState("Bestyrelsesmøde", centralWorkflow, false, null);
+        NodeRef cContactApplicant = createWorkflowState("Ansøgerkontakt", centralWorkflow, false, StateCategory.NOMINATED);
+        NodeRef cProjectRoom = createWorkflowState("Projektafvikling", centralWorkflow, false, StateCategory.ACCEPTED);
+        NodeRef cProjectClosed = createWorkflowState("Projekt lukket", centralWorkflow, false, StateCategory.CLOSED);        
+        NodeRef cProjectRejected = createWorkflowState("Afvist", centralWorkflow, false, StateCategory.REJECTED);
         
         createWorkflowStateTransitions(cHandleApplication, cMeeting, cProjectRejected);
         createWorkflowStateTransitions(cMeeting, cContactApplicant, cProjectRejected);
         createWorkflowStateTransitions(cContactApplicant, cProjectRoom);
         createWorkflowStateTransitions(cProjectRoom, cProjectClosed);
         
-        NodeRef lReview = createWorkflowState("Sekretær/Direktør gennemgang", localWorkflow, true);
-        NodeRef lMeeting = createWorkflowState("Møde Bankråd", localWorkflow, false);
-        NodeRef lCSReview = createWorkflowState("Gennemgå ansøgning", localWorkflow, false);
-        NodeRef lPayout = createWorkflowState("Udbetaling", localWorkflow, false);
-        NodeRef lClosed = createWorkflowState("Afsluttet", localWorkflow, false);
-        NodeRef lRejected = createWorkflowState("Afvist", localWorkflow, false);
+        NodeRef lReview = createWorkflowState("Sekretær/Direktør gennemgang", localWorkflow, true, null);
+        NodeRef lMeeting = createWorkflowState("Møde Bankråd", localWorkflow, false, null);
+        NodeRef lCSReview = createWorkflowState("Gennemgå ansøgning", localWorkflow, false, StateCategory.NOMINATED);
+        NodeRef lPayout = createWorkflowState("Udbetaling", localWorkflow, false, StateCategory.ACCEPTED);
+        NodeRef lClosed = createWorkflowState("Afsluttet", localWorkflow, false, StateCategory.CLOSED);
+        NodeRef lRejected = createWorkflowState("Afvist", localWorkflow, false, StateCategory.REJECTED);
         
         createWorkflowStateTransitions(lReview, lMeeting, lRejected);
         createWorkflowStateTransitions(lMeeting, lCSReview, lRejected);
@@ -190,8 +191,8 @@ public class ResetDemoData extends JacksonBackedWebscript {
         return foundationBean.addNewWorkflow("TestWorkflow-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name);
     }
     
-    public NodeRef createWorkflowState(String name, NodeRef workflowRef, boolean isEntry) throws Exception{
-        NodeRef stateRef = foundationBean.addNewWorkflowState(workflowRef, "TestState-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name);
+    public NodeRef createWorkflowState(String name, NodeRef workflowRef, boolean isEntry, StateCategory category) throws Exception{
+        NodeRef stateRef = foundationBean.addNewWorkflowState(workflowRef, "TestState-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, category);
         if(isEntry){
             foundationBean.setWorkflowEntryPoint(workflowRef, stateRef);
         }
