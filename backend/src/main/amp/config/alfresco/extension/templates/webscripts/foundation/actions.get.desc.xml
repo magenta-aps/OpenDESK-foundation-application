@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>List Actions</shortname>
+    <description>Gets a list of available actions</description>
+    <url>/foundation/actions</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

@@ -142,5 +142,23 @@
               parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
-    
+
+    <bean id="webscript.foundation.actions.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetActions"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+
+    <bean id="webscript.foundation.actionparameters.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetActionParameters"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+
+    <bean id="webscript.foundation.actions.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.SaveAction"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+
 </beans>

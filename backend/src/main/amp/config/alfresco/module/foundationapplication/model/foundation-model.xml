@@ -116,6 +116,17 @@
             <title>Foundation Application Data</title>
             <parent>cm:cmobject</parent>
             <associations>
+                <association name="odf:newApplications">
+                    <source>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>odf:application</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
                  <child-association name="odf:workflows">
                      <source>
                          <mandatory>true</mandatory>
@@ -164,17 +175,7 @@
                      </target>
                      <duplicate>true</duplicate>
                 </child-association>
-                <association name="odf:newApplications">
-                     <source>
-                         <mandatory>true</mandatory>
-                         <many>false</many>
-                     </source>
-                     <target>
-                         <class>odf:application</class>
-                         <mandatory>false</mandatory>
-                         <many>true</many>
-                     </target>
-                </association>
+
 
              </associations>
         </type> 
@@ -244,6 +245,18 @@
                         <many>true</many>
                     </target>
                 </association>
+                <child-association name="odf:stateActions">
+                     <source>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
+                     </source>
+                     <target>
+                         <class>cm:cmobject</class>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
+                     </target>
+                     <duplicate>false</duplicate>
+                 </child-association>
             </associations>           
         </type>
         
@@ -560,7 +573,8 @@
 
     </types>
 
-<!--    <aspects>
+    <aspects>
+        <!--
         <aspect name="od:notifications">
             <title>Notifications related to a specific user</title>
                 <properties>
@@ -579,9 +593,17 @@
                 </child-association>
             </associations>
         </aspect>
+        -->
 
-  
-    </aspects>-->
+        <aspect name="odf:onCreate">
+            <title>Event on creation of a state</title>
+        </aspect>
+
+        <aspect name="odf:beforeDelete">
+            <title>Event on deletion of a state</title>
+        </aspect>
+
+    </aspects>
 
     
 

@@ -39,7 +39,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.repo.action.executer.MailActionExecuter;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.action.Action;
+import org.alfresco.service.cmr.action.ActionDefinition;
+import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -519,6 +523,15 @@ public class FoundationBean {
         stateParams.put(stateCategory, category.getCategoryName());
 
         return serviceRegistry.getNodeService().createNode(workFlowRef, workFlowStatesQname, stateQName, stateTypeQname, stateParams).getChildRef();
+
+        /*
+        NodeRef newWorkflowState = serviceRegistry.getNodeService().createNode(workFlowRef, workFlowStatesQname, stateQName, stateTypeQname, stateParams).getChildRef();
+
+        ChildAssociationRef createStateActionsNode = serviceRegistry.getNodeService().createNode(newWorkflowState, getODFName(STATE_ASSOC_ACTIONS), QName.createQName(CONTENT_NAME_SPACE,"createStateActionsNode"), QName.createQName(CONTENT_NAME_SPACE,"cmobject"));
+        ChildAssociationRef deleteStateActionsNode = serviceRegistry.getNodeService().createNode(newWorkflowState, getODFName(STATE_ASSOC_ACTIONS), QName.createQName(CONTENT_NAME_SPACE,"deleteStateActionsNode"), QName.createQName(CONTENT_NAME_SPACE,"cmobject"));
+
+        return newWorkflowState;
+        */
     }
 
     public AssociationRef createWorkflowTransition(NodeRef stateFrom, NodeRef stateTo) throws Exception {
@@ -903,4 +916,18 @@ public class FoundationBean {
         }
     }
 
+    public List<ParameterDefinition> getActionParameters(String actionName) {
+        ActionDefinition actionDefinition = serviceRegistry.getActionService().getActionDefinition(actionName);
+        return actionDefinition.getParameterDefinitions();
+    }
+
+    public ActionDefinition getAction(String actionName) {
+        return serviceRegistry.getActionService().getActionDefinition(actionName);
+    }
+
+    public void saveAction(String actionName, NodeRef stateRef, QName aspect, Map<String, Serializable> params) {
+        Action action = serviceRegistry.getActionService().createAction(actionName, params);
+        serviceRegistry.getActionService().saveAction(stateRef,action);
+        serviceRegistry.getNodeService().addAspect(action.getNodeRef(), aspect, null);
+    }
 }
