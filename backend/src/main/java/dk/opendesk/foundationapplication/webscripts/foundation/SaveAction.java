@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import static dk.opendesk.foundationapplication.Utilities.ASPECT_BEFORE_DELETE;
+import static dk.opendesk.foundationapplication.Utilities.ASPECT_ON_CREATE;
+
 public class SaveAction extends JacksonBackedWebscript {
     FoundationBean foundationBean;
 
@@ -39,20 +42,22 @@ public class SaveAction extends JacksonBackedWebscript {
                 stateRef = new NodeRef((String) body.get(param));
             }
             else if (param.equals("aspect")) {
-                aspect = Utilities.getODFName((String) body.get(param));
+                if (body.get(param).equals(ASPECT_ON_CREATE) || body.get(param).equals(ASPECT_BEFORE_DELETE)) {
+                    aspect = Utilities.getODFName((String) body.get(param));
+                } else {
+                    throw new Exception("aspect has to be set to either " + ASPECT_ON_CREATE + " or " + ASPECT_BEFORE_DELETE);
+                }
             }
             else {
                 params.put(param,(String) body.get(param));
             }
         }
 
-        if (stateRef == null) {
-            throw new Exception("stateRef has to be set");
-        } else if (!aspect.equals("onCreate") && !aspect.equals("beforeDelete")) {
-            throw new Exception("aspect has to be set to either onCreate or beforeDelete");
+        if (stateRef == null || aspect == null) {
+            throw new Exception("'stateRef' and 'aspect' has to be set");
         } else {
             foundationBean.saveAction(actionName, stateRef, aspect, params);
-            return new JSONObject().put("status", "ok");
+            return new JSONObject().put("status", "OK");
         }
 
     }

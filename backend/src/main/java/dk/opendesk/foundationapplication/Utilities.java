@@ -51,6 +51,7 @@ public final class Utilities {
     
     public static final String STATE_TYPE_NAME = "applicationState";
     public static final String STATE_ASSOC_TRANSITIONS = "workflowTransitions";
+    public static final String STATE_ASSOC_ACTIONS = "stateActions";
     public static final String STATE_PARAM_TITLE = "stateTitle";
     public static final String STATE_PARAM_CATEGORY = "stateCategory";
     
@@ -92,7 +93,11 @@ public final class Utilities {
     public static final String APPLICATION_PARAM_ACCOUNT_REGISTRATION = "applicationAccountRegistration";
     public static final String APPLICATION_PARAM_ACCOUNT_NUMBER = "applicationAccountNumber";
     public static final String APPLICATION_PARAM_CVR = "cvr";
-    
+
+    public static final String ASPECT_ON_CREATE = "onCreate";
+    public static final String ASPECT_BEFORE_DELETE = "beforeDelete";
+
+    public static final String CONTENT_NAME_SPACE = "http://www.alfresco.org/model/content/1.0";
     
     private static String foundationNameSpace = null;
     

@@ -10,10 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
+
+import com.fasterxml.jackson.databind.type.MapType;
 import junit.framework.Assert;
 import org.alfresco.repo.web.scripts.BaseWebScriptTest;
 import org.json.JSONArray;
@@ -62,7 +61,18 @@ public class AbstractTestClass extends BaseWebScriptTest {
         TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, TestUtils.ADMIN_USER);
         return mapper.readValue(response.getContentAsString(), type);
     }
-    
+
+    protected <K, V, M extends Map<K, V>> M get(Class<M> mapType, Class<K> keyType, Class<V> valueType, String path) throws IOException{
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        MapType type = mapper.getTypeFactory().constructMapType(mapType,keyType,valueType);
+        TestWebScriptServer.GetRequest request = new TestWebScriptServer.GetRequest(getPath(path));
+        request.setHeaders(Collections.singletonMap("Accept", "application/json"));
+        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, TestUtils.ADMIN_USER);
+        return mapper.readValue(response.getContentAsString(), type);
+    }
+
+
     protected <S, R, C extends Collection<R>> C post(S toSend, Class<C> collection, Class<R> recieve) throws IOException{
         return post(toSend, collection, recieve, null);
     }
@@ -87,25 +97,33 @@ public class AbstractTestClass extends BaseWebScriptTest {
     protected <S> void post(S toSend, String path) throws IOException, JSONException {
         post(toSend, null, path);
     }
-    
+
+    protected <S> void post(S toSend, String path, int statusCode) throws IOException, JSONException {
+        post(toSend, null, path, statusCode);
+    }
+
     protected <S, R> R post(S toSend, Class<R> recieve) throws IOException {
         return post(toSend, recieve, null);
     }
     
     protected <S, R> R post(S toSend, Class<R> recieve, String path) throws IOException {
+        return post(toSend, recieve, path, Status.STATUS_OK);
+    }
+
+    protected <S, R> R post(S toSend, Class<R> recieve, String path, int statusCode) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String data = getContent(toSend, mapper);
 
         TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest(getPath(path), data, "application/json");
-        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, TestUtils.ADMIN_USER);
+        TestWebScriptServer.Response response = sendRequest(request, statusCode, TestUtils.ADMIN_USER);
         if(recieve != null){
             return mapper.readValue(response.getContentAsString(), recieve);
         }
         return null;
-        
+
     }
-    
+
     protected <S> String getContent(S toSend, ObjectMapper mapper) throws IOException{
         String data;
         Objects.requireNonNull(toSend);

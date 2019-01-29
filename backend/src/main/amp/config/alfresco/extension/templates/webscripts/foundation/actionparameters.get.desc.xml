@@ -1,7 +1,7 @@
 <webscript>
     <shortname>List Action Parameters</shortname>
     <description>Gets a list of parameters for the given action</description>
-    <url>/foundation/actionparameters/{action}</url>
+    <url>/foundation/actions/{action}/parameters</url>
     <authentication>user</authentication>
     <transaction>none</transaction>
 </webscript>
