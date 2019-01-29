@@ -930,4 +930,8 @@ public class FoundationBean {
         serviceRegistry.getActionService().saveAction(stateRef,action);
         serviceRegistry.getNodeService().addAspect(action.getNodeRef(), aspect, null);
     }
+
+    public List<Action> getActions(NodeRef stateRef) {
+        return serviceRegistry.getActionService().getActions(stateRef);
+    }
 }
