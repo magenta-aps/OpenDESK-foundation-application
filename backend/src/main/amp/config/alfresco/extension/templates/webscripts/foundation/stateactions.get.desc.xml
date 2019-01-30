@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>List State Actions</shortname>
+    <description>Gets a list of actions for the given state</description>
+    <url>/foundation/state/{stateId}/actions</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

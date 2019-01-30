@@ -143,6 +143,12 @@
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
 
+    <bean id="webscript.foundation.stateactions.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetStateActions"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+
     <bean id="webscript.foundation.actions.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetActions"
           parent="webscript">
