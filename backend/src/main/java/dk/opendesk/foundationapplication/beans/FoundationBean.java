@@ -5,25 +5,7 @@
  */
 package dk.opendesk.foundationapplication.beans;
 
-import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationReference;
-import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
-import dk.opendesk.foundationapplication.DAO.Branch;
-import dk.opendesk.foundationapplication.DAO.BranchReference;
-import dk.opendesk.foundationapplication.DAO.BranchSummary;
-import dk.opendesk.foundationapplication.DAO.Budget;
-import dk.opendesk.foundationapplication.DAO.BudgetReference;
-import dk.opendesk.foundationapplication.DAO.BudgetSummary;
-import dk.opendesk.foundationapplication.DAO.BudgetYear;
-import dk.opendesk.foundationapplication.DAO.BudgetYearReference;
-import dk.opendesk.foundationapplication.DAO.BudgetYearSummary;
-import dk.opendesk.foundationapplication.DAO.Reference;
-import dk.opendesk.foundationapplication.DAO.State;
-import dk.opendesk.foundationapplication.DAO.StateReference;
-import dk.opendesk.foundationapplication.DAO.StateSummary;
-import dk.opendesk.foundationapplication.DAO.Workflow;
-import dk.opendesk.foundationapplication.DAO.WorkflowReference;
-import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
+import dk.opendesk.foundationapplication.DAO.*;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.*;
 import dk.opendesk.foundationapplication.enums.StateCategory;
@@ -931,7 +913,12 @@ public class FoundationBean {
         serviceRegistry.getNodeService().addAspect(action.getNodeRef(), aspect, null);
     }
 
-    public List<Action> getActions(NodeRef stateRef) {
-        return serviceRegistry.getActionService().getActions(stateRef);
+    public List<JSONAction> getActions(NodeRef stateRef) {
+        List<Action> actions = serviceRegistry.getActionService().getActions(stateRef);
+        List<JSONAction> jsonActions = new ArrayList<>();
+        for (Action action : actions) {
+            jsonActions.add(new JSONAction(action));
+        }
+        return jsonActions;
     }
 }

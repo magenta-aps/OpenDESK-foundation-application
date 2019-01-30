@@ -1,5 +1,7 @@
 package dk.opendesk.foundationapplication.DAO;
 
+import org.alfresco.service.cmr.action.Action;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
@@ -12,6 +14,12 @@ public class JSONAction extends Reference {
     private Optional<Map<String, Serializable>> parameters;
 
     public JSONAction() {
+    }
+
+    public JSONAction(Action action) {
+        this.setId(action.getId());
+        this.setName(action.getActionDefinitionName());
+        this.setParameters(action.getParameterValues());
     }
 
     public String getId() {

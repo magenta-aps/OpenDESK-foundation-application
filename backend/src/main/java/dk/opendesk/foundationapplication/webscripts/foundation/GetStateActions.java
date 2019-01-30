@@ -21,20 +21,7 @@ public class GetStateActions extends JacksonBackedWebscript {
 
     @Override
     protected List<JSONAction> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-
-        List<JSONAction> jsonActions = new ArrayList<>();
-
         NodeRef stateRef = new NodeRef(getUrlParams().get("stateId"));
-        List<Action> actions = foundationBean.getActions(stateRef);
-
-        for (Action a : actions) {
-            JSONAction jsonAction = new JSONAction();
-            jsonAction.setId(a.getId());
-            jsonAction.setName(a.getActionDefinitionName());
-            jsonAction.setParameters(a.getParameterValues());
-            jsonActions.add(jsonAction);
-        }
-
-        return jsonActions;
+        return foundationBean.getActions(stateRef);
     }
 }
