@@ -25,4 +25,13 @@ public enum StateCategory {
         return categoryName;
     }
     
+    public static StateCategory getFromName(String name){
+        for(StateCategory category : values()){
+            if(category.getCategoryName().equals(name)){
+                return category;
+            }
+        }
+        return null;
+    }
+    
 }

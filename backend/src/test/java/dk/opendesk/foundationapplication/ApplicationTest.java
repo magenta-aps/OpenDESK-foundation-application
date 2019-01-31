@@ -9,8 +9,10 @@ import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchReference;
+import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
+import static dk.opendesk.foundationapplication.TestUtils.stateAccessRef;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import java.time.Duration;
 import java.time.Instant;
@@ -95,32 +97,54 @@ public class ApplicationTest extends AbstractTestClass{
     }
     
     public void testUpdateBudget() throws Exception{
-        NodeRef currentBudget = TestUtils.budgetRef1;
-        NodeRef newBudget = TestUtils.budgetRef2;
-        NodeRef appRef = TestUtils.application2;
+        NodeRef currentBudgetRef = TestUtils.budgetRef1;
+        NodeRef newBudgetRef = TestUtils.budgetRef2;
+        NodeRef app2Ref = TestUtils.application2;
         
-        Long expectedAmount = TestUtils.BUDGET1_AMOUNT-TestUtils.APPLICATION1_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
-        assertEquals(expectedAmount, foundationBean.getBudgetRemainingFunding(currentBudget));
-        assertEquals(TestUtils.BUDGET2_AMOUNT, foundationBean.getBudgetRemainingFunding(newBudget));
+        Budget currentBudget = foundationBean.getBudget(currentBudgetRef);
+        Budget newBudget = foundationBean.getBudget(newBudgetRef);
         
-        Application app = get(Application.class, appRef.getId());
-        assertEquals(currentBudget, app.getBudget().asNodeRef());
+        Long expectedAmount = TestUtils.APPLICATION1_AMOUNT+TestUtils.APPLICATION2_AMOUNT;
+        assertEquals(TestUtils.BUDGET1_AMOUNT, currentBudget.getAmountAvailable());
+        assertEquals(TestUtils.BUDGET2_AMOUNT, newBudget.getAmountAvailable());
+        assertEquals(expectedAmount, currentBudget.getAmountNominated());
+        assertEquals(Long.valueOf(0), newBudget.getAmountNominated());
+        
         
         Application change = new Application();
-        change.parseRef(appRef);
+        change.parseRef(app2Ref);
+        StateReference newStateRef = new StateReference();
+        newStateRef.parseRef(stateAccessRef);
+        change.setState(newStateRef);
+        post(change, app2Ref.getId());
+        
+        Application app = get(Application.class, app2Ref.getId());
+        assertEquals(currentBudgetRef, app.getBudget().asNodeRef());
+        assertEquals(stateAccessRef, app.getState().asNodeRef());
+        currentBudget = foundationBean.getBudget(currentBudgetRef);
+        newBudget = foundationBean.getBudget(newBudgetRef);
+        
+        expectedAmount = TestUtils.BUDGET1_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
+        assertEquals(expectedAmount, currentBudget.getAmountAvailable());
+        assertEquals(TestUtils.BUDGET2_AMOUNT, newBudget.getAmountAvailable());
+        assertEquals(TestUtils.APPLICATION2_AMOUNT, currentBudget.getAmountAccepted());
+        assertEquals(TestUtils.APPLICATION1_AMOUNT, currentBudget.getAmountNominated());
+        
+        change = new Application();
+        change.parseRef(app2Ref);
         BudgetReference newBudgetReference = new BudgetReference();
-        newBudgetReference.parseRef(newBudget);
+        newBudgetReference.parseRef(newBudgetRef);
         change.setBudget(newBudgetReference);
+        post(change, app2Ref.getId());
+
+        app = get(Application.class, app2Ref.getId());
+        assertEquals(newBudgetRef, app.getBudget().asNodeRef());
+        currentBudget = foundationBean.getBudget(currentBudgetRef);
+        newBudget = foundationBean.getBudget(newBudgetRef);
         
-        post(change, appRef.getId());
-        
-        app = get(Application.class, appRef.getId());
-        assertEquals(newBudget, app.getBudget().asNodeRef());
-        
-        expectedAmount = TestUtils.BUDGET1_AMOUNT-TestUtils.APPLICATION1_AMOUNT;
-        assertEquals(expectedAmount, foundationBean.getBudgetRemainingFunding(currentBudget));
+        assertEquals(TestUtils.BUDGET1_AMOUNT, currentBudget.getAmountAvailable());
         expectedAmount = TestUtils.BUDGET2_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
-        assertEquals(expectedAmount, foundationBean.getBudgetRemainingFunding(newBudget));
+        assertEquals(expectedAmount, newBudget.getAmountAvailable());
 
     }
     

@@ -1,7 +1,7 @@
 <webscript>
-    <shortname>Get all Budget Years</shortname>
-    <description>Get all Budget years</description>
-    <url>/foundation/budgetYear</url>
+    <shortname>Get Budget Year</shortname>
+    <description>Get Budget year</description>
+    <url>/foundation/budgetYear/{budgetYearID}</url>
     <authentication>user</authentication>
     <transaction>none</transaction>
 </webscript>

@@ -77,6 +77,16 @@ public class Reference {
         reference.parseRef(ref);
         return reference;
     }
+    
+    public static final Reference fromID(String nodeID){
+        Reference reference = new Reference();
+        reference.setNodeID(nodeID);
+        return reference;
+    }
+    
+    public static final NodeRef refFromID(String nodeID){
+        return fromID(nodeID).asNodeRef();
+    }
 
     @Override
     public int hashCode() {

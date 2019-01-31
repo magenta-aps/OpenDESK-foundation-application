@@ -1,7 +1,7 @@
 <webscript>
-    <shortname>Get current budgets</shortname>
-    <description>Get all budgets in the specified year</description>
-    <url>/foundation/budgetYear/{budgetYearID}/budget</url>
+    <shortname>Get budget</shortname>
+    <description>Gets specific budget in the specified year</description>
+    <url>/foundation/budget/{budgetID}</url>
     <authentication>user</authentication>
     <transaction>none</transaction>
 </webscript>

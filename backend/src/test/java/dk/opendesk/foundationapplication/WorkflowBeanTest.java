@@ -5,6 +5,7 @@
  */
 package dk.opendesk.foundationapplication;
 
+import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.StateSummary;
 import dk.opendesk.foundationapplication.DAO.Workflow;
 import static dk.opendesk.foundationapplication.TestUtils.STATE_ACCEPTED_NAME;
@@ -90,14 +91,9 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         List<ChildAssociationRef> applicationsRefs = serviceRegistry.getNodeService().getChildAssocs(getDataDictionaryRef(), getODFName(DATA_ASSOC_APPLICATIONS), null);
         assertEquals(3, applicationsRefs.size());
         
-        //Exactly 5 dataitems has been created in total
+        //Exactly 6 dataitems has been created in total
         List<ChildAssociationRef> childrenRefs = serviceRegistry.getNodeService().getChildAssocs(dataNode);
-        System.out.println("\n\n\ntest\n\n\n");
-        for(ChildAssociationRef ref : childrenRefs){
-            System.out.println(serviceRegistry.getNodeService().getType(ref.getChildRef()));
-            System.out.println(serviceRegistry.getNodeService().getProperties(ref.getChildRef()));
-        }
-        assertEquals(8, childrenRefs.size());
+        assertEquals(6, childrenRefs.size());
         
         
         //Workflow has the expected states
@@ -124,28 +120,24 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         List<AssociationRef> branchBudgets = serviceRegistry.getNodeService().getTargetAssocs(getBranchRef(), getODFName(BRANCH_ASSOC_BUDGETS));
 
         NodeRef budgetRef = branchBudgets.get(0).getTargetRef();
-        Long expectedAmount = TestUtils.BUDGET1_AMOUNT-TestUtils.APPLICATION1_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
-        assertEquals(expectedAmount, foundationBean.getBudgetRemainingFunding(budgetRef));
-
-        Long budgetAllocatedFunding = foundationBean.getBudgetAllocatedFunding(budgetRef);
-        Long budgetRemaningFunding = foundationBean.getBudgetRemainingFunding(budgetRef);
-        Long budgetTotalFunding = foundationBean.getBudgetTotalFunding(budgetRef);
-
-        assertEquals(Long.valueOf(0), budgetAllocatedFunding);
-        Long expectedTotalFunding = budgetRemaningFunding + TestUtils.APPLICATION1_AMOUNT + TestUtils.APPLICATION2_AMOUNT;
-        assertEquals(expectedTotalFunding, budgetTotalFunding);
+        Budget budget = foundationBean.getBudget(budgetRef);
+        Long expectedAmount = TestUtils.APPLICATION1_AMOUNT+TestUtils.APPLICATION2_AMOUNT;
+        assertEquals(expectedAmount, budget.getAmountNominated());
+        assertEquals(TestUtils.BUDGET1_AMOUNT, budget.getAmountAvailable());
+        assertEquals(Long.valueOf(0), budget.getAmountAccepted());
+        assertEquals(Long.valueOf(0), budget.getAmountApplied());
+        assertEquals(TestUtils.BUDGET1_AMOUNT, budget.getAmountTotal());
 
         Long appliedAmount = 10000000l;
 
         foundationBean.addNewApplication(getBranchRef(), budgetRef, APPLICATION_NAME, "NewApplication", "Category1", "Dansk Dræbersnegls Bevaringsforbund", "Sneglesporet", 3, "2", "1445", "Svend", "Svendsen", "ikkedraebesneglen@gmail.com", "12345678",
                 "Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr.", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(2))), appliedAmount, "1234", "00123456");
 
-        Long newBalance = expectedAmount - appliedAmount;
-        assertEquals(newBalance, foundationBean.getBudgetRemainingFunding(budgetRef));
+        budget = foundationBean.getBudget(budgetRef);
         
-        Long expectedAppliedAmount = appliedAmount+TestUtils.APPLICATION1_AMOUNT + TestUtils.APPLICATION2_AMOUNT;
-        
-        assertEquals(expectedAppliedAmount, foundationBean.getBudgetAllocatedFunding(budgetRef));
+        expectedAmount += appliedAmount;
+        assertEquals(expectedAmount, budget.getAmountNominated());
+
         //Did we create an application with the expected name in the branch?
         List<NodeRef> applications = serviceRegistry.getSearchService().selectNodes(getDataDictionaryRef(), "./odf:" + APPLICATION_NAME, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, applications.size());

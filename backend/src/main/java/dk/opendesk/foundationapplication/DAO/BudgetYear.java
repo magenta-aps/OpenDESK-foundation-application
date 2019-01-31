@@ -14,22 +14,13 @@ import java.util.Optional;
  */
 public class BudgetYear extends BudgetYearSummary{
     
-    private Optional<Long> amountTotal;
     private Optional<Long> amountAccepted;
     private Optional<Long> amountNominated;
     private Optional<Long> amountAvailable;
+    private Optional<Long> amountClosed;
+    private Optional<Long> amountApplied;
 
-    public Long getAmountTotal() {
-        return get(amountTotal);
-    }    
     
-    public boolean wasAmountTotalSet(){
-        return wasSet(amountTotal);
-    }
-
-    public void setAmountTotal(Long amountTotal) {
-        this.amountTotal = optional(amountTotal);
-    }
     
     public Long getAmountAccepted() {
         return get(amountAccepted);

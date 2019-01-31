@@ -5,11 +5,10 @@
  */
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
-import dk.opendesk.foundationapplication.DAO.BudgetSummary;
-import dk.opendesk.foundationapplication.DAO.BudgetYearReference;
+import dk.opendesk.foundationapplication.DAO.Budget;
+import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
-import java.util.List;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
@@ -17,7 +16,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  *
  * @author martin
  */
-public class GetBudgets extends JacksonBackedWebscript{
+public class GetBudget extends JacksonBackedWebscript{
     
     private FoundationBean foundationBean;
 
@@ -26,12 +25,10 @@ public class GetBudgets extends JacksonBackedWebscript{
     }
 
     @Override
-    protected List<BudgetSummary> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        String budgetYearID = getUrlParams().get("budgetYearID");
-        BudgetYearReference budgetYear = new BudgetYearReference();
-        budgetYear.setNodeID(budgetYearID);
-        List<BudgetSummary> budgets = foundationBean.getBudgetSummaries(budgetYear);
-        return budgets;
+    protected Budget doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
+        String budgetID = getUrlParams().get("budgetID");
+        Budget budget = foundationBean.getBudget(Reference.refFromID(budgetID));
+        return budget;
     }
     
     

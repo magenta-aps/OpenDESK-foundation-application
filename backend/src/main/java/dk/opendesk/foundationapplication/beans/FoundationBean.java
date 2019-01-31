@@ -376,26 +376,26 @@ public class FoundationBean {
         
     }
 
-    public Long getBudgetAllocatedFunding(NodeRef budgetRef) throws Exception {
-        List<AssociationRef> refs = serviceRegistry.getNodeService().getSourceAssocs(budgetRef, getODFName(APPLICATION_ASSOC_BUDGET));
-        long totalAllocatedFunding = 0;
-        for (AssociationRef ref : refs) {
-            Long amount = (Long) serviceRegistry.getNodeService().getProperty(ref.getSourceRef(), getODFName(APPLICATION_PARAM_APPLIED_AMOUNT));
-            totalAllocatedFunding = totalAllocatedFunding + amount;
-        }
-        return totalAllocatedFunding;
-    }
-
-    public Long getBudgetTotalFunding(NodeRef budgetRef) throws Exception {
-        Long totalAmount = (Long) serviceRegistry.getNodeService().getProperty(budgetRef, getODFName(BUDGET_PARAM_AMOUNT));
-        return totalAmount;
-    }
-
-    public Long getBudgetRemainingFunding(NodeRef budgetRef) throws Exception {
-        Long totalAmount = getBudgetTotalFunding(budgetRef);
-        Long usedAmount = getBudgetAllocatedFunding(budgetRef);
-        return totalAmount - usedAmount;
-    }
+//    public Long getBudgetAllocatedFunding(NodeRef budgetRef) throws Exception {
+//        List<AssociationRef> refs = serviceRegistry.getNodeService().getSourceAssocs(budgetRef, getODFName(APPLICATION_ASSOC_BUDGET));
+//        long totalAllocatedFunding = 0;
+//        for (AssociationRef ref : refs) {
+//            Long amount = (Long) serviceRegistry.getNodeService().getProperty(ref.getSourceRef(), getODFName(APPLICATION_PARAM_APPLIED_AMOUNT));
+//            totalAllocatedFunding = totalAllocatedFunding + amount;
+//        }
+//        return totalAllocatedFunding;
+//    }
+//
+//    public Long getBudgetTotalFunding(NodeRef budgetRef) throws Exception {
+//        Long totalAmount = (Long) serviceRegistry.getNodeService().getProperty(budgetRef, getODFName(BUDGET_PARAM_AMOUNT));
+//        return totalAmount;
+//    }
+//
+//    public Long getBudgetRemainingFunding(NodeRef budgetRef) throws Exception {
+//        Long totalAmount = getBudgetTotalFunding(budgetRef);
+//        Long usedAmount = getBudgetAllocatedFunding(budgetRef);
+//        return totalAmount - usedAmount;
+//    }
 
     public Application getApplication(NodeRef applicationRef) throws Exception {
         Application application = new Application();
@@ -515,8 +515,9 @@ public class FoundationBean {
         QName stateCategory = getODFName(STATE_PARAM_CATEGORY);
         Map<QName, Serializable> stateParams = new HashMap<>();
         stateParams.put(stateTitle, title);
-        stateParams.put(stateCategory, category.getCategoryName());
-
+        if(category != null){
+            stateParams.put(stateCategory, category.getCategoryName());
+        }
         return serviceRegistry.getNodeService().createNode(workFlowRef, workFlowStatesQname, stateQName, stateTypeQname, stateParams).getChildRef();
     }
 
@@ -599,13 +600,20 @@ public class FoundationBean {
     }
     
     public BudgetYear getBudgetYear(NodeRef budgetYearRef) throws Exception{
+        NodeService ns = serviceRegistry.getNodeService();
+        
         BudgetYear budgetYear = new BudgetYear();
         budgetYear.parseRef(budgetYearRef);
         budgetYear.setTitle(getProperty(budgetYearRef, BUDGETYEAR_PARAM_TITLE, String.class));
         budgetYear.setStartDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_STARTDATE, Date.class));
         budgetYear.setEndDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_ENDDATE, Date.class));
         
-        List<Budget> budgets = getBudgets(budgetYear);
+        List<Budget> budgets = new ArrayList<>();
+        
+        for(ChildAssociationRef budgetRef : ns.getChildAssocs(budgetYearRef, getODFName(BUDGETYEAR_ASSOC_BUDGETS), null)){
+            budgets.add(getBudget(budgetRef.getChildRef()));
+        }
+        
         Long amountTotal = 0l;
         Long amountAccepted= 0l;
         Long amountNominated= 0l;
@@ -625,37 +633,65 @@ public class FoundationBean {
         return budgetYear;
     }
     
-    public List<Budget> getBudgets(BudgetYearReference budgetYear) throws Exception {
-        List<Budget> budgets = new ArrayList<>();
+    public Budget getBudget(NodeRef budgetRef) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
-        for (NodeRef budgetRef : getBudgetRefs(budgetYear.asNodeRef())) {
-            Budget budget = new Budget();
-            budget.parseRef(budgetRef);
-            budget.setTitle((String) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_TITLE)));
-            budget.setAmountTotal((Long) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_AMOUNT)));
-            
-            List<ApplicationReference> applications = new ArrayList<>();
-            for (AssociationRef applicationRef : ns.getSourceAssocs(budgetRef, getODFName(APPLICATION_ASSOC_BRANCH))) {
-                applications.add(getApplicationReference(applicationRef.getSourceRef()));
-                State state = getState(getApplicationState(applicationRef.getSourceRef()));
+        Budget budget = new Budget();
+        budget.parseRef(budgetRef);
+        budget.setTitle((String) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_TITLE)));
+        budget.setAmountTotal((Long) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_AMOUNT)));
+
+        Long amountAccepted = 0l;
+        Long amountNominated = 0l;
+        Long amountClosed = 0l;
+        Long ammountApplied = 0l;
+        List<ApplicationReference> applications = new ArrayList<>();
+        List<AssociationRef> applicationRefs = ns.getSourceAssocs(budgetRef, getODFName(APPLICATION_ASSOC_BUDGET));
+        for (AssociationRef applicationRef : applicationRefs) {
+            applications.add(getApplicationReference(applicationRef.getSourceRef()));
+            Long applicationAmount = getProperty(applicationRef.getSourceRef(), APPLICATION_PARAM_APPLIED_AMOUNT, Long.class);
+            State state = getState(getApplicationState(applicationRef.getSourceRef()));
+            StateCategory category = state.getCategory();
+            if (category == null) {
+                ammountApplied += applicationAmount;
+            } else {
+                switch (category) {
+                    case ACCEPTED:
+                        amountAccepted += applicationAmount;
+                        break;
+                    case NOMINATED:
+                        amountNominated += applicationAmount;
+                        break;
+                    case CLOSED:
+                        amountClosed += applicationAmount;
+                        break;
+                }
             }
-            
-            budgets.add(budget);
+
         }
-        return budgets;
+        Long amountAvailable = budget.getAmountTotal() - amountAccepted - amountClosed;
+
+        budget.setAmountAccepted(amountAccepted);
+        budget.setAmountNominated(amountNominated);
+        budget.setAmountClosed(amountClosed);
+        budget.setAmountApplied(ammountApplied);
+        budget.setAmountAvailable(amountAvailable);
+
+        budget.setApplications(applications);
+
+        return budget;
     }
     
     public List<BudgetSummary> getBudgetSummaries(BudgetYearReference budgetYear) throws Exception {
-        List<BudgetSummary> budgets = new ArrayList<>();
+        List<BudgetSummary> summaries = new ArrayList<>();
         NodeService ns = serviceRegistry.getNodeService();
         for (NodeRef budgetRef : getBudgetRefs(budgetYear.asNodeRef())) {
             BudgetSummary budget = new BudgetSummary();
             budget.parseRef(budgetRef);
             budget.setTitle((String) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_TITLE)));
             budget.setAmountTotal((Long) ns.getProperty(budgetRef, getODFName(BUDGET_PARAM_AMOUNT)));
-            budgets.add(budget);
+            summaries.add(budget);
         }
-        return budgets;
+        return summaries;
     }
 
     public List<NodeRef> getBranches() throws Exception {
@@ -860,6 +896,7 @@ public class FoundationBean {
             applications.add(getApplicationReference(applicationRef.getSourceRef()));
         }
         state.setApplications(applications);
+        state.setCategory(StateCategory.getFromName(getProperty(stateRef, STATE_PARAM_CATEGORY, String.class)));
         return state;
     }
    
@@ -874,6 +911,7 @@ public class FoundationBean {
             transitions.add(getStateReference(transitionRef.getTargetRef()));
         }
         summary.setReferences(transitions);
+        summary.setCategory(StateCategory.getFromName(getProperty(stateRef, STATE_PARAM_CATEGORY, String.class)));
         return summary;
     }
 

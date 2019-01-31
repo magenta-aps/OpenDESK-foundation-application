@@ -80,6 +80,12 @@
     </bean>
     
     <bean id="webscript.foundation.budget.get"
+              class="dk.opendesk.foundationapplication.webscripts.foundation.GetBudget"
+              parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.budgets.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetBudgets"
               parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>
@@ -98,6 +104,12 @@
     </bean>
     
     <bean id="webscript.foundation.budgetYear.get"
+              class="dk.opendesk.foundationapplication.webscripts.foundation.GetBudgetYear"
+              parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+    
+    <bean id="webscript.foundation.budgetYears.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetBudgetYears"
               parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>

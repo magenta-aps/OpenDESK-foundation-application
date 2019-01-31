@@ -17,6 +17,7 @@ public class BudgetYearSummary extends BudgetYearReference {
     //Consider making these into strings
     private Optional<Date> startDate;
     private Optional<Date> endDate;
+    private Optional<Long> amountTotal;
 
     public Date getStartDate() {
         return get(startDate);
@@ -40,6 +41,18 @@ public class BudgetYearSummary extends BudgetYearReference {
 
     public void setEndDate(Date endDate) {
         this.endDate = optional(endDate);
+    }
+    
+    public Long getAmountTotal() {
+        return get(amountTotal);
+    }    
+    
+    public boolean wasAmountTotalSet(){
+        return wasSet(amountTotal);
+    }
+
+    public void setAmountTotal(Long amountTotal) {
+        this.amountTotal = optional(amountTotal);
     }
     
     @Override
