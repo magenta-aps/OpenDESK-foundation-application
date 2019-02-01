@@ -5,9 +5,11 @@
  */
 package dk.opendesk.foundationapplication;
 
+import dk.opendesk.foundationapplication.DAO.Budget;
+import dk.opendesk.foundationapplication.DAO.BudgetSummary;
+import dk.opendesk.foundationapplication.DAO.BudgetYear;
 import dk.opendesk.foundationapplication.DAO.BudgetYearSummary;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -49,6 +51,34 @@ public class BudgetYearTest extends AbstractTestClass{
         assertEquals(TestUtils.BUDGETYEAR1_NAME+TestUtils.TITLE_POSTFIX, summariesRest.get(0).getTitle());
     }
     
+    public void testGetBudgetYearsAndBudgets() throws Exception{
+        List<BudgetYearSummary> summariesRest = get(List.class, BudgetYearSummary.class);
+        for(BudgetYearSummary summary : summariesRest){
+            BudgetYear budgetYear = get(BudgetYear.class, summary.getNodeID());
+            assertEquals(summary.getNodeRef(), budgetYear.getNodeRef());
+            assertEquals(summary.getStartDate(), budgetYear.getStartDate());
+            assertEquals(summary.getEndDate(), budgetYear.getEndDate());
+            assertEquals(summary.getAmountTotal(), budgetYear.getAmountTotal());
+            assertEquals(summary.getTitle(), budgetYear.getTitle());
+        }
+        
+    }
+    
+    public void testGetBudgetYear() throws Exception{
+        BudgetYear budgetYear = get(BudgetYear.class, TestUtils.budgetYearRef1.getId());
+        Long expectedAmount = TestUtils.BUDGET1_AMOUNT + TestUtils.BUDGET2_AMOUNT;
+        assertEquals(expectedAmount, budgetYear.getAmountTotal());
+        assertEquals(Long.valueOf(0), budgetYear.getAmountApplied());
+        assertEquals(Long.valueOf(0), budgetYear.getAmountClosed());
+        assertEquals(Long.valueOf(0), budgetYear.getAmountAccepted());
+        
+        expectedAmount = TestUtils.APPLICATION1_AMOUNT+TestUtils.APPLICATION2_AMOUNT;
+        assertEquals(expectedAmount, budgetYear.getAmountNominated());
+        assertTrue(budgetYear.getEndDate().compareTo(budgetYear.getStartDate()) > 0);
+        
+        
+    }
+    
     public void testAddBudgetYear() throws Exception{
         Instant now = Instant.now();
         Instant later = now.plus(7, ChronoUnit.DAYS);
@@ -69,6 +99,17 @@ public class BudgetYearTest extends AbstractTestClass{
             }
         }
         fail("Could not find the new budget year");
+    }
+    
+    public void testGetBudgets() throws Exception{
+        List<BudgetSummary> summaries = get(List.class, BudgetSummary.class, TestUtils.budgetYearRef1.getId()+"/budget");
+        
+         for(BudgetSummary summary : summaries){
+             Budget budget = foundationBean.getBudget(summary.asNodeRef());
+            assertEquals(summary.getNodeRef(), budget.getNodeRef());
+            assertEquals(summary.getAmountTotal(), budget.getAmountTotal());
+            assertEquals(summary.getTitle(), budget.getTitle());
+        }
     }
     
     

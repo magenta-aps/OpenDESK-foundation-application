@@ -594,6 +594,14 @@ public class FoundationBean {
         summary.setTitle(getProperty(budgetYearRef, BUDGETYEAR_PARAM_TITLE, String.class));
         summary.setStartDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_STARTDATE, Date.class));
         summary.setEndDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_ENDDATE, Date.class));
+        
+        Long totalAmount = 0l;
+        List<BudgetSummary> budgets = getBudgetSummaries(summary);
+        for(BudgetSummary budget : budgets){
+            totalAmount += budget.getAmountTotal();
+        }
+        
+        summary.setAmountTotal(totalAmount);
         return summary;
     }
     
@@ -616,17 +624,24 @@ public class FoundationBean {
         Long amountAccepted= 0l;
         Long amountNominated= 0l;
         Long amountAvailable= 0l;
+        Long amountClosed= 0l;
+        Long amountApplied= 0l;
+        
         for(Budget budget : budgets){
-            amountTotal =+ budget.getAmountTotal();
-            amountAccepted =+ budget.getAmountAccepted();
-            amountNominated =+ budget.getAmountNominated();
-            amountAvailable =+ budget.getAmountAvailable();
+            amountTotal += budget.getAmountTotal();
+            amountAccepted += budget.getAmountAccepted();
+            amountNominated += budget.getAmountNominated();
+            amountAvailable += budget.getAmountAvailable();
+            amountClosed += budget.getAmountClosed();
+            amountApplied += budget.getAmountApplied();
         }
         
         budgetYear.setAmountTotal(amountTotal);
         budgetYear.setAmountAccepted(amountAccepted);
         budgetYear.setAmountNominated(amountNominated);
         budgetYear.setAmountAvailable(amountAvailable);
+        budgetYear.setAmountClosed(amountClosed);
+        budgetYear.setAmountApplied(amountApplied);
         
         return budgetYear;
     }

@@ -58,6 +58,30 @@ public class BudgetYear extends BudgetYearSummary{
         this.amountAvailable = optional(amountAvailable);
     }
     
+    public Long getAmountClosed() {
+        return get(amountClosed);
+    }    
+    
+    public boolean wasAmountClosedSet(){
+        return wasSet(amountClosed);
+    }
+
+    public void setAmountClosed(Long amountClosed) {
+        this.amountClosed = optional(amountClosed);
+    }
+    
+    public Long getAmountApplied() {
+        return get(amountApplied);
+    }    
+    
+    public boolean wasAmountAppliedSet(){
+        return wasSet(amountApplied);
+    }
+
+    public void setAmountApplied(Long amountApplied) {
+        this.amountApplied = optional(amountApplied);
+    }
+    
         @Override
     public int hashCode() {
         int hash = 7;
