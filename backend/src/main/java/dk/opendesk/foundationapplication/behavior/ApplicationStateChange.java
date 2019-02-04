@@ -6,17 +6,26 @@
 package dk.opendesk.foundationapplication.behavior;
 
 import static dk.opendesk.foundationapplication.Utilities.*;
+
+import java.awt.*;
 import java.util.List;
+import java.util.Set;
+
+import dk.opendesk.foundationapplication.Utilities;
 import org.alfresco.repo.action.executer.MoveActionExecuter;
 import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.TransformationOptionPair;
+import org.alfresco.service.namespace.QName;
+
+import javax.rmi.CORBA.Util;
 
 /**
  *
@@ -54,21 +63,60 @@ public class ApplicationStateChange implements NodeServicePolicies.OnCreateAssoc
     @Override
     public void onCreateAssociation(AssociationRef nodeAssocRef) {
         try {
-            NodeService ns = serviceRegistry.getNodeService();
-            System.out.println("create: " + ns.getType(nodeAssocRef.getSourceRef())+" "+ns.getType(nodeAssocRef.getTargetRef()));
-            System.out.println("create: " + ns.getProperty(nodeAssocRef.getSourceRef(), getODFName(APPLICATION_PARAM_TITLE))+" "+ns.getProperty(nodeAssocRef.getTargetRef(), getODFName(STATE_PARAM_TITLE)));
-            NodeRef stateRef = ns.getTargetAssocs(nodeAssocRef.getSourceRef(),getODFName(APPLICATION_ASSOC_STATE)).get(0).getTargetRef();
-            System.out.println("create: " + ns.getProperty(stateRef, getODFName(STATE_PARAM_TITLE)));
-        } catch (Exception ex) {
+            //source = application
+            //target = state
 
+            List<Action> stateActions = serviceRegistry.getActionService().getActions(nodeAssocRef.getTargetRef());
+
+            for (Action action : stateActions) {
+                Set<QName> actionAspects = serviceRegistry.getNodeService().getAspects(action.getNodeRef());
+                if (actionAspects.contains(Utilities.getODFName(ASPECT_ON_CREATE))) {
+                    serviceRegistry.getActionService().executeAction(action, nodeAssocRef.getSourceRef());
+                }
+            }
+
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
-        
+
+        /*
+            NodeService ns = serviceRegistry.getNodeService();
+            System.out.println("SourceRef (application): " + nodeAssocRef.getSourceRef());
+            System.out.println("TargetRef (state): " + nodeAssocRef.getTargetRef());
+            System.out.println();
+
+            System.out.println(ns.getType(nodeAssocRef.getTargetRef()).equals(Utilities.getODFName(STATE_TYPE_NAME)));
+            System.out.println(ns.getType(nodeAssocRef.getSourceRef()).equals(Utilities.getODFName(APPLICATION_TYPE_NAME)));
+
+
+            System.out.println("create1: " + ns.getType(nodeAssocRef.getSourceRef())+" "+ns.getType(nodeAssocRef.getTargetRef()));
+            System.out.println("create2: " + ns.getProperty(nodeAssocRef.getSourceRef(), getODFName(APPLICATION_PARAM_TITLE))+" "+ns.getProperty(nodeAssocRef.getTargetRef(), getODFName(STATE_PARAM_TITLE)));
+            //NodeRef stateRef = ns.getTargetAssocs(nodeAssocRef.getSourceRef(),getODFName(APPLICATION_ASSOC_STATE)).get(0).getTargetRef();
+            //System.out.println("--> " + stateRef);
+            AssociationRef test = ns.getTargetAssocs(nodeAssocRef.getSourceRef(),getODFName(APPLICATION_ASSOC_STATE)).get(0);
+            //System.out.println("create3: " + ns.getProperty(stateRef, getODFName(STATE_PARAM_TITLE)));
+        */
     }
 
 
     @Override
     public void beforeDeleteAssociation(AssociationRef nodeAssocRef) {
+
+        try {
+            List<Action> stateActions = serviceRegistry.getActionService().getActions(nodeAssocRef.getTargetRef());
+
+            for (Action action : stateActions) {
+                Set<QName> actionAspects = serviceRegistry.getNodeService().getAspects(action.getNodeRef());
+                if (actionAspects.contains(Utilities.getODFName(ASPECT_BEFORE_DELETE))) {
+                    serviceRegistry.getActionService().executeAction(action, nodeAssocRef.getSourceRef());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        /*
+
         NodeService ns = serviceRegistry.getNodeService();
         NodeRef stateRef = null;
         try {
@@ -91,6 +139,6 @@ public class ApplicationStateChange implements NodeServicePolicies.OnCreateAssoc
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        */
     }
 }

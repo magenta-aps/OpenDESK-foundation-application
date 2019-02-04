@@ -20,4 +20,17 @@
     <bean id="foundationBean" class="dk.opendesk.foundationapplication.beans.FoundationBean">
         <property name="serviceRegistry" ref="ServiceRegistry"/>
     </bean>
+    <bean id="foundationMail" class="dk.opendesk.foundationapplication.actions.EmailAction">
+        <property name="foundationBean" ref="foundationBean"/>
+        <property name="nodeService" ref="nodeService"/>
+        <property name="tenantService" ref="tenantService"/>
+        <property name="personService" ref="personService"/>
+        <property name="authenticationService" ref="authenticationService"/>
+        <property name="preferenceService" ref="preferenceService"/>
+        <property name="mailService" ref="mailService"/>
+        <property name="serviceRegistry" ref="ServiceRegistry"/>
+        <property name="templateService" ref="templateService"/>
+        <property name="authorityService" ref="authorityService"/>
+        <property name="sysAdminParams" ref="sysAdminParams"/>
+    </bean>
 </beans>

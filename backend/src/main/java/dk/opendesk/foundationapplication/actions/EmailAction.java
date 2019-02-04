@@ -5,10 +5,12 @@ import dk.opendesk.foundationapplication.beans.FoundationBean;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
 
 import org.alfresco.repo.action.executer.MailActionExecuter;
+import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -21,10 +23,16 @@ public class EmailAction extends MailActionExecuter {
     private static final String EMAIL_TYPE = "emailTemplateType";
 
     private FoundationBean foundationBean;
+    //private NodeService nodeService;
 
     public void setFoundationBean(FoundationBean foundationBean) {
         this.foundationBean = foundationBean;
     }
+
+    //public void setNodeService(NodeService nodeService)
+    //{
+    //    this.nodeService = nodeService;
+    //}
 
     //String recipient = (String) action.getParameterValue(RECIPIENT);
     /**
@@ -41,6 +49,8 @@ public class EmailAction extends MailActionExecuter {
             Map<String, Serializable> model = new HashMap<>();
             model.put("firstName", application.getContactFirstName());
             model.put("lastName", application.getContactLastName());
+            model.put("subject", "test-test-test");
+            model.put("body", "Der var en mand der hed " + application.getContactFirstName() );
 
             ruleAction.setParameterValue(PARAM_TO, application.getContactEmail());
             ruleAction.setParameterValue(PARAM_TEMPLATE_MODEL, (Serializable) model); //??
