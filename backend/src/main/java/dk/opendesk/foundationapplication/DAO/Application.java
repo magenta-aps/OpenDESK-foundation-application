@@ -320,10 +320,5 @@ public class Application extends ApplicationSummary{
     public ToStringBuilder toStringBuilder() {
         return super.toStringBuilder().append("budget", this.getBudget()).append("state", this.getState());
     }
-
-    @Override
-    public String toString() {
-        return toStringBuilder().build();
-    }
     
 }

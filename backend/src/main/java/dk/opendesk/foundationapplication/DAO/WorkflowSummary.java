@@ -8,6 +8,7 @@ package dk.opendesk.foundationapplication.DAO;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
@@ -82,10 +83,10 @@ public class WorkflowSummary extends WorkflowReference{
         }
         return true;
     }
-
+    
     @Override
-    public String toString() {
-        return "WorkflowSummary{" + "title=" + getTitle() + "entry=" + entry + ", states=" + states + "}";
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("entry", entry).append("states", states);
     }
     
     

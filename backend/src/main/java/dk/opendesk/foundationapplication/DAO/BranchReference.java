@@ -7,26 +7,27 @@ package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
  * @author martin
  */
-public class BranchReference extends Reference{
+public class BranchReference extends Reference {
+
     private Optional<String> title;
-    
+
     public String getTitle() {
         return get(title);
-    }    
-    
-    public boolean wasTitleSet(){
+    }
+
+    public boolean wasTitleSet() {
         return wasSet(title);
     }
 
     public void setTitle(String title) {
         this.title = optional(title);
     }
-
 
     @Override
     public int hashCode() {
@@ -56,5 +57,10 @@ public class BranchReference extends Reference{
         }
         return true;
     }
-    
+
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("title", title);
+    }
+
 }

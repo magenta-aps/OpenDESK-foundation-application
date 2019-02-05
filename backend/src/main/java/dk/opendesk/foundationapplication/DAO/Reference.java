@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  *
@@ -118,7 +119,7 @@ public class Reference {
     }
     
     public ToStringBuilder toStringBuilder(){
-        return new ToStringBuilder(this).append("StoreID", this.getStoreID()).append("NodeID", this.getNodeID()); 
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("StoreID", this.getStoreID()).append("NodeID", this.getNodeID()); 
     }
     
     @Override

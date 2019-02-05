@@ -189,9 +189,5 @@ public class ApplicationSummary extends ApplicationReference {
         return super.toStringBuilder().append("branchRef", this.getBranchRef()).append("category", this.getCategory()).append("amountApplied", this.getAmountApplied()).append("startDate", this.getStartDate()).append("endDate", this.getEndDate()).append("recipient", this.getRecipient()).append("shortDescription", this.getShortDescription());
     }
 
-    @Override
-    public String toString() {
-        return toStringBuilder().build();
-    }
 
 }

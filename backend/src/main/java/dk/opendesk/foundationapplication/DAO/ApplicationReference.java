@@ -66,10 +66,6 @@ public class ApplicationReference extends Reference{
     public ToStringBuilder toStringBuilder(){
         return super.toStringBuilder().append("title", this.getTitle()); 
     }
-    
-    @Override
-    public String toString(){
-        return toStringBuilder().build();
-    }
+
     
 }

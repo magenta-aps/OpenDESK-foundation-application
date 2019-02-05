@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
@@ -58,6 +59,11 @@ public class BudgetSummary extends BudgetReference {
             return false;
         }
         return true;
+    }
+    
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("amountTotal", amountTotal);
     }
 
 }

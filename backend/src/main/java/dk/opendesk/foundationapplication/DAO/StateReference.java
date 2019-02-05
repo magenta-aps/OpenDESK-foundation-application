@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
@@ -59,4 +60,11 @@ public class StateReference extends Reference {
         }
         return true;
     }
+
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("title", title);
+    }
+    
+    
 }

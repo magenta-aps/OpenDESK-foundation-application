@@ -8,6 +8,7 @@ package dk.opendesk.foundationapplication.DAO;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
@@ -91,5 +92,12 @@ public class BudgetYearSummary extends BudgetYearReference {
         }
         return true;
     }
+
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("startDate", startDate).append("endDate", endDate).append("amountTotal", amountTotal);
+    }
+    
+    
     
 }

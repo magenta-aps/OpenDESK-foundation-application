@@ -9,6 +9,7 @@ import dk.opendesk.foundationapplication.enums.StateCategory;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
@@ -78,6 +79,11 @@ public class StateSummary extends StateReference{
         }
 
         return true;
+    }
+    
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("category", category).append("references", references);
     }
     
 }
