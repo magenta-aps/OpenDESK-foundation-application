@@ -58,6 +58,8 @@ public class EmailAction extends MailActionExecuter {
             //TODO skal det tjekkes at template, subject og from er blevet sat inden eksekvering
             super.executeImpl(ruleAction,actionedUponNodeRef);
 
+            //TODO save info on template, date/time, recipient
+
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -33,4 +33,9 @@
         <property name="authorityService" ref="authorityService"/>
         <property name="sysAdminParams" ref="sysAdminParams"/>
     </bean>
+
+    <bean id="test" class="dk.opendesk.foundationapplication.actions.TestAction">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+
 </beans>

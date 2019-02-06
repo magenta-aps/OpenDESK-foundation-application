@@ -62,6 +62,7 @@ public class ApplicationStateChange implements NodeServicePolicies.OnCreateAssoc
 
     @Override
     public void onCreateAssociation(AssociationRef nodeAssocRef) {
+        System.out.println("\tI onCreateAssociation");
         try {
             //source = application
             //target = state
@@ -101,7 +102,7 @@ public class ApplicationStateChange implements NodeServicePolicies.OnCreateAssoc
 
     @Override
     public void beforeDeleteAssociation(AssociationRef nodeAssocRef) {
-
+        System.out.println("\tI beforeDeleteAssociation");
         try {
             List<Action> stateActions = serviceRegistry.getActionService().getActions(nodeAssocRef.getTargetRef());
 
