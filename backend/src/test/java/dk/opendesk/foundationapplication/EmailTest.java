@@ -1,9 +1,7 @@
 package dk.opendesk.foundationapplication;
 
-import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.State;
-import dk.opendesk.foundationapplication.DAO.StateReference;
-import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
+import com.benfante.jslideshare.App;
+import dk.opendesk.foundationapplication.DAO.*;
 import dk.opendesk.foundationapplication.actions.EmailAction;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.repo.model.OpenDeskModel;
@@ -18,6 +16,7 @@ import org.alfresco.service.cmr.search.SearchService;
 
 import javax.xml.namespace.QName;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,12 +61,12 @@ public class EmailTest extends AbstractTestClass{
         System.out.println("templateRef = " + templateRef);
         action.setParameterValue(PARAM_TEMPLATE, templateRef);
         action.setParameterValue(PARAM_SUBJECT, "Subject of testMail");
-        action.setParameterValue(PARAM_FROM, "an@magenta.dk");
+        action.setParameterValue(PARAM_FROM, "astrid@localhost");
 
         Application application = new Application();
         //application.setContactFirstName("Lars");
         //application.setContactLastName("Lokke");
-        application.setContactEmail("an@magenta.dk");
+        application.setContactEmail("astrid@localhost");
 
         application.parseRef(TestUtils.application1);
         foundationBean.updateApplication(application);
@@ -81,6 +80,9 @@ public class EmailTest extends AbstractTestClass{
         serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
         //ActionImpl
     }
+
+
+
 
 
 }
