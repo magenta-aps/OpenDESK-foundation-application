@@ -34,7 +34,7 @@
         <property name="sysAdminParams" ref="sysAdminParams"/>
     </bean>
 
-    <bean id="test" class="dk.opendesk.foundationapplication.actions.TestAction">
+    <bean id="test" class="dk.opendesk.foundationapplication.TestAction">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
 
