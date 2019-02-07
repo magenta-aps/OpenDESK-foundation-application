@@ -1,11 +1,10 @@
-package dk.opendesk.foundationapplication.actions;
+package dk.opendesk.foundationapplication;
 
+import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import org.alfresco.repo.action.ParameterDefinitionImpl;
 import org.alfresco.repo.action.executer.ActionExecuterAbstractBase;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ParameterDefinition;
-import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
 
 import java.util.List;
@@ -20,13 +19,19 @@ public class TestAction extends ActionExecuterAbstractBase {
 
     @Override
     protected void executeImpl(Action action, NodeRef actionedUponNodeRef) {
-        action.setParameterValue("executed", "true");
-        System.out.println("\t\texecuteImpl gets executed!");
+
+        Application change = new Application();
+        change.parseRef(actionedUponNodeRef);
+        change.setShortDescription((String) action.getParameterValue("executionMessage"));
+        try {
+            foundationBean.updateApplication(change);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
     @Override
     protected void addParameterDefinitions(List<ParameterDefinition> paramList) {
-        paramList.add(new ParameterDefinitionImpl("executed", DataTypeDefinition.TEXT,false, getParamDisplayLabel("executed"))); //ville gerne have mandatory = true hvis muligt
     }
 }
