@@ -568,7 +568,10 @@
                     </target>
                     <duplicate>false</duplicate>
                 </child-association>
-            </associations> 
+            </associations>
+            <mandatory-aspects>
+                <aspect>cm:versionable</aspect>
+            </mandatory-aspects>
         </type>
 
     </types>

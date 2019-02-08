@@ -87,6 +87,8 @@ public class FoundationBean {
         properties.put(getODFName(APPLICATION_PARAM_ACCOUNT_REGISTRATION), accountRegistration);
         properties.put(getODFName(APPLICATION_PARAM_ACCOUNT_NUMBER), accountNumber);
 
+        properties.put(QName.createQName("http://www.alfresco.org/model/content/1.0", "autoVersionOnUpdateProps"),true);
+
         QName applicationTypeQname = getODFName(APPLICATION_TYPE_NAME);
         QName applicationQname = getODFName(localName);
         QName dataAssocApplication = getODFName(DATA_ASSOC_APPLICATIONS);
