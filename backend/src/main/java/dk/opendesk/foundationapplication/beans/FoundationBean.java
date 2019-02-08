@@ -422,9 +422,7 @@ public class FoundationBean {
             application.setBudget(budget);
         }
         if (stateRef != null) {
-            StateReference state = new StateReference();
-            state.parseRef(stateRef);
-            application.setState(state);
+            application.setState(getStateReference(stateRef));
         }
         
         NodeRef projectDesc = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_PROJECT_DESCRIPTION_DOC);
