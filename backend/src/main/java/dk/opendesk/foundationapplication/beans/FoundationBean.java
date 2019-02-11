@@ -8,6 +8,8 @@ package dk.opendesk.foundationapplication.beans;
 import dk.opendesk.foundationapplication.DAO.*;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.*;
+import static org.alfresco.repo.action.executer.MailActionExecuter.*;
+
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import java.io.Serializable;
 import java.time.Instant;
@@ -18,19 +20,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+
+import dk.opendesk.repo.model.OpenDeskModel;
 import org.alfresco.error.AlfrescoRuntimeException;
-import org.alfresco.repo.action.executer.MailActionExecuter;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionDefinition;
 import org.alfresco.service.cmr.action.ParameterDefinition;
-import org.alfresco.service.cmr.repository.AssociationRef;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.repository.Path;
+import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.search.ResultSet;
+import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.QName;
 
 /**
@@ -87,8 +86,6 @@ public class FoundationBean {
         properties.put(getODFName(APPLICATION_PARAM_ACCOUNT_REGISTRATION), accountRegistration);
         properties.put(getODFName(APPLICATION_PARAM_ACCOUNT_NUMBER), accountNumber);
 
-        properties.put(QName.createQName("http://www.alfresco.org/model/content/1.0", "autoVersionOnUpdateProps"),true);
-
         QName applicationTypeQname = getODFName(APPLICATION_TYPE_NAME);
         QName applicationQname = getODFName(localName);
         QName dataAssocApplication = getODFName(DATA_ASSOC_APPLICATIONS);
@@ -113,6 +110,8 @@ public class FoundationBean {
     }
 
     public void updateApplication(Application app) throws Exception {
+        serviceRegistry.getVersionService().createVersion(app.asNodeRef(),null);
+
         NodeService ns = serviceRegistry.getNodeService();
         Map<QName, Serializable> properties = new HashMap<>();
         if (app.wasTitleSet()) {
@@ -243,6 +242,7 @@ public class FoundationBean {
         }
         
         ns.addProperties(app.asNodeRef(), properties);
+
     }
     
     private void updateContent(Reference toUpdate, Reference parent, String assoc) throws Exception{
@@ -920,5 +920,21 @@ public class FoundationBean {
             jsonActions.add(new JSONAction(action));
         }
         return jsonActions;
+    }
+
+
+    public Action configureEmailAction(String templateName, String subject, String fromAddress) {
+        Action action = serviceRegistry.getActionService().createAction("foundationMail");
+
+        String query = "PATH:\"" + OpenDeskModel.TEMPLATE_OD_FOLDER + "cm:" + templateName + "\"";
+        ResultSet resultSet = serviceRegistry.getSearchService().query(new StoreRef(StoreRef.PROTOCOL_WORKSPACE, "SpacesStore"),
+                SearchService.LANGUAGE_LUCENE, query);
+        NodeRef templateRef = resultSet.getNodeRef(0);
+
+        action.setParameterValue(PARAM_TEMPLATE, templateRef);
+        action.setParameterValue(PARAM_SUBJECT, subject);
+        action.setParameterValue(PARAM_FROM, fromAddress);
+
+        return action;
     }
 }

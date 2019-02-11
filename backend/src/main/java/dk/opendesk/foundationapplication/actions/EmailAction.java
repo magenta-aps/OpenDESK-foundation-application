@@ -49,8 +49,8 @@ public class EmailAction extends MailActionExecuter {
             Map<String, Serializable> model = new HashMap<>();
             model.put("firstName", application.getContactFirstName());
             model.put("lastName", application.getContactLastName());
-            model.put("subject", "test-test-test");
-            model.put("body", "Der var en mand der hed " + application.getContactFirstName() );
+            model.put("subject", "test-test-test"); //temp subject for temp template
+            model.put("body", "Der var en mand der hed " + application.getContactFirstName() ); //temp body for temp template
 
             ruleAction.setParameterValue(PARAM_TO, application.getContactEmail());
             ruleAction.setParameterValue(PARAM_TEMPLATE_MODEL, (Serializable) model); //??
