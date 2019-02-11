@@ -44,7 +44,7 @@ public class NewApplicationsTest extends AbstractTestClass{
         containsSameElements(newApplications, newApplicationsRest);
         
         assertEquals(TestUtils.APPLICATION3_NAME+TestUtils.TITLE_POSTFIX, newApplicationsRest.get(0).getTitle());
-        assertEquals(TestUtils.APPLICATION3_AMOUNT, newApplicationsRest.get(0).getAmountApplied());
+        assertEquals(TestUtils.APPLICATION3_AMOUNT, newApplicationsRest.get(0).totalAmount());
     }
     
 }

@@ -5,13 +5,20 @@
  */
 package dk.opendesk.foundationapplication;
 
+import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.StateCategory;
+import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -143,10 +150,118 @@ public final class TestUtils {
         foundationBean.addBranchBudget(branchRef, budgetRef1);
         foundationBean.addBranchBudget(branchRef, budgetRef2);
 
-        application1 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION1_NAME, APPLICATION1_NAME + TITLE_POSTFIX, "Category1", "Lars Larsen INC", "Tværstrede", 9, "2", "1234", "Lars", "Larsen", "lars@larsen.org", "004512345678", "Give me money", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(2))), APPLICATION1_AMOUNT, "4321", "00035254");
-        application2 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION2_NAME, APPLICATION2_NAME + TITLE_POSTFIX, "Category2", "Lars Larsen INC", "Tværstrede", 9, "2", "1234", "Lars", "Larsen", "lars@larsen.org", "004512345678", "Give me more money", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(4))), APPLICATION2_AMOUNT, "4321", "00035254");
-        application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME + TITLE_POSTFIX, "Category3", "Lars Larsen INC", "Tværstrede", 9, "2", "1234", "Lars", "Larsen", "lars@larsen.org", "004512345678", "Give me more money", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(4))), APPLICATION3_AMOUNT, "4321", "00035254");
+        ArrayList<ApplicationPropertyValue> fields;
+        Application app1 = new Application();
+        app1.setBranchRef(foundationBean.getBranchReference(branchRef));
+        app1.setBudget(foundationBean.getBudgetReference(budgetRef1));
+        app1.setTitle(APPLICATION1_NAME);
+        ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        
+        fields = new ArrayList<>();
+        fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
+        fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Tværstrede"));
+        fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 9));
+        fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2 th"));
+        fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "1234"));
+        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, "Lars"));
+        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, "Larsen"));
+        fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, "lars@larsen.org"));
+        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "004512345678"));
+        app1blockRecipient.setFields(fields);
+        
+        fields = new ArrayList<>();
+        fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category1"));
+        fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Give me money"));
+        fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
+        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,Date.from(Instant.now().plus(Duration.ofDays(2)))));
+        app1blockOverview.setFields(fields);
+        
+        fields = new ArrayList<>();
+        fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), APPLICATION1_AMOUNT));
+        fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "4321"));
+        fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
+        app1details.setFields(fields);
+        app1.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1details}));
+        foundationBean.addNewApplication(app1);
+        
+        //application1 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION1_NAME, APPLICATION1_NAME + TITLE_POSTFIX,, "", "", , "", "", "", "", "", "", "", , , , "", "");
+        
+        Application app2 = new Application();
+        app2.setBranchRef(foundationBean.getBranchReference(branchRef));
+        app2.setBudget(foundationBean.getBudgetReference(budgetRef1));
+        app2.setTitle(APPLICATION2_NAME);
+        ApplicationPropertiesContainer app2blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationPropertiesContainer app2blockOverview = new ApplicationPropertiesContainer();
+        ApplicationPropertiesContainer app2details = new ApplicationPropertiesContainer();
+        fields = new ArrayList<>();
+        fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
+        fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Tværstrede"));
+        fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 9));
+        fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2"));
+        fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "1234"));
+        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, "Lars"));
+        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, "Larsen"));
+        fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, "lars@larsen.org"));
+        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "004512345678"));
+        app2blockRecipient.setFields(fields);
+        
+        fields = new ArrayList<>();
+        fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category2"));
+        fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Give me more money"));
+        fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
+        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,Date.from(Instant.now().plus(Duration.ofDays(4)))));
+        app2blockOverview.setFields(fields);
+        
+        fields = new ArrayList<>();
+        fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), APPLICATION2_AMOUNT));
+        fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "4321"));
+        fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
+        app2details.setFields(fields);
+                
+        app2.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app2blockRecipient, app2blockOverview, app2details}));
+        foundationBean.addNewApplication(app2);
+        
+        //application2 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION2_NAME, APPLICATION2_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
+        
+        Application app3 = new Application();
+        app3.setTitle(APPLICATION3_NAME);
+        ApplicationPropertiesContainer app3blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationPropertiesContainer app3blockOverview = new ApplicationPropertiesContainer();
+        ApplicationPropertiesContainer app3details = new ApplicationPropertiesContainer();
+        
+        fields = new ArrayList<>();
+        fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
+        fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Tværstrede"));
+        fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 9));
+        fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2"));
+        fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "1234"));
+        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, "Lars"));
+        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, "Larsen"));
+        fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, "lars@larsen.org"));
+        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "004512345678"));
+        app3blockRecipient.setFields(fields);
+        
+        fields = new ArrayList<>();
+        fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category3"));
+        fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Give me even more money"));
+        fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
+        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,Date.from(Instant.now().plus(Duration.ofDays(4)))));
+        app3blockOverview.setFields(fields);
+        
+        fields = new ArrayList<>();
+        fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), APPLICATION3_AMOUNT));
+        fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "4321"));
+        fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
+        app3details.setFields(fields);
+                
+        app3.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app3blockRecipient, app3blockOverview, app3details}));
+        foundationBean.addNewApplication(app3);
+        //application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
         isInitiated = true;
     }
+    
+    
 
 }

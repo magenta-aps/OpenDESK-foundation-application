@@ -15,7 +15,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  *
  * @author martin
  */
-public class Reference {
+public class Reference extends DAOType{
     public static final String DEFAULT_STORE = "workspace://SpacesStore";
     
     private Optional<String> nodeID = null;
@@ -118,34 +118,9 @@ public class Reference {
         return true;
     }
     
+    @Override
     public ToStringBuilder toStringBuilder(){
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("StoreID", this.getStoreID()).append("NodeID", this.getNodeID()); 
     }
-    
-    @Override
-    public String toString(){
-        return toStringBuilder().build();
-    }
-    
-    protected <T> Optional<T> optional(T value){
-        if(value != null){
-            return Optional.of(value);
-        }else{
-            return Optional.empty();
-        }
-    }
-    
-    protected <T> T get(Optional<T> value){
-        if(value != null && value.isPresent()){
-            return value.get();
-        }else{
-            return null;
-        }
-    }
-    
-    protected boolean wasSet(Optional value){
-        return value != null;
-    }
-    
-    
+ 
 }

@@ -48,22 +48,22 @@ public class AddApplicationTemplate extends JacksonBackedWebscript{
             newApplication.setState(state);
         }
         newApplication.setTitle(name);
-        newApplication.setRecipient(name+"_recipient");
-        newApplication.setShortDescription(name+"_description");
-        newApplication.setContactFirstName(name+"_first_name");
-        newApplication.setContactLastName(name+"_last_anem");
-        newApplication.setContactEmail(name+"@mail.test");
-        newApplication.setContactPhone("+45"+randomNumbers(8));
-        newApplication.setCategory("Category2");
-        newApplication.setAddressRoad(name+"_street");
-        newApplication.setAddressNumber(14);
-        newApplication.setAddressFloor(randomNumbers(1));
-        newApplication.setAddressPostalCode(randomNumbers(4));
-        newApplication.setAmountApplied(100000l);
-        newApplication.setAccountRegistration(randomNumbers(4));
-        newApplication.setAccountNumber(randomNumbers(8));
-        newApplication.setStartDate(Date.from(Instant.now()));
-        newApplication.setEndDate(Date.from(Instant.now().plus(Duration.ofDays(30))));
+//        newApplication.setRecipient(name+"_recipient");
+//        newApplication.setShortDescription(name+"_description");
+//        newApplication.setContactFirstName(name+"_first_name");
+//        newApplication.setContactLastName(name+"_last_anem");
+//        newApplication.setContactEmail(name+"@mail.test");
+//        newApplication.setContactPhone("+45"+randomNumbers(8));
+//        newApplication.setCategory("Category2");
+//        newApplication.setAddressRoad(name+"_street");
+//        newApplication.setAddressNumber(14);
+//        newApplication.setAddressFloor(randomNumbers(1));
+//        newApplication.setAddressPostalCode(randomNumbers(4));
+//        newApplication.setAmountApplied(100000l);
+//        newApplication.setAccountRegistration(randomNumbers(4));
+//        newApplication.setAccountNumber(randomNumbers(8));
+//        newApplication.setStartDate(Date.from(Instant.now()));
+//        newApplication.setEndDate(Date.from(Instant.now().plus(Duration.ofDays(30))));
         
         
         return foundationBean.addNewApplication(newApplication);

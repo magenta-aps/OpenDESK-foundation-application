@@ -5,6 +5,8 @@
  */
 package dk.opendesk.foundationapplication.DAO;
 
+import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
@@ -13,47 +15,31 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @author martin
  */
 public class ApplicationPropertyValue<E> extends ApplicationProperty<E> {
-    private E value;
-    private String layout;
+    private Optional<E> value;
 
     public ApplicationPropertyValue() {
     }
 
-    public ApplicationPropertyValue(E value) {
+    public ApplicationPropertyValue(Optional<E> value, Optional<String> id, Optional<String> label, Optional<Class<E>> javaType, Optional<String> type, Optional<String> function, Optional<List<E>> allowedValues, Optional<String> layout) {
+        super(id, label, javaType, type, function, allowedValues, layout);
         this.value = value;
-    }
-
-    public ApplicationPropertyValue(E value, String layout) {
-        this.value = value;
-        this.layout = layout;
-    }
-
-    public ApplicationPropertyValue(E value, String layout, String id, String label, Class<E> javaType, String type) {
-        super(id, label, javaType, type);
-        this.value = value;
-        this.layout = layout;
     }
 
     public E getValue() {
-        return value;
+        return get(value);
+    }
+    
+    public boolean wasValueSet(){
+        return wasSet(value);
     }
 
     public void setValue(E value) {
-        this.value = value;
-    }
-
-    public String getLayout() {
-        return layout;
-    }
-
-    public void setLayout(String layout) {
-        this.layout = layout;
+        this.value = optional(value);
     }
     
     @Override
     public ToStringBuilder toStringBuilder(){
-        return super.toStringBuilder().append("value", value).append("value(Class)", (value != null ? value.getClass() : null)).append("layout", layout);
+        return super.toStringBuilder().append("value", value).append("value(Class)", (value != null ? value.getClass() : null));
     }
-    
     
 }

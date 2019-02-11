@@ -5,23 +5,32 @@
  */
 package dk.opendesk.foundationapplication;
 
+import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.StateSummary;
 import dk.opendesk.foundationapplication.DAO.Workflow;
+import static dk.opendesk.foundationapplication.TestUtils.APPLICATION1_AMOUNT;
+import static dk.opendesk.foundationapplication.TestUtils.APPLICATION1_NAME;
 import static dk.opendesk.foundationapplication.TestUtils.STATE_ACCEPTED_NAME;
 import static dk.opendesk.foundationapplication.TestUtils.STATE_ASSESS_NAME;
 import static dk.opendesk.foundationapplication.TestUtils.STATE_DENIED_NAME;
 import static dk.opendesk.foundationapplication.TestUtils.STATE_RECIEVED_NAME;
 import static dk.opendesk.foundationapplication.TestUtils.TITLE_POSTFIX;
+import static dk.opendesk.foundationapplication.TestUtils.branchRef;
+import static dk.opendesk.foundationapplication.TestUtils.budgetRef1;
 import dk.opendesk.foundationapplication.patches.InitialStructure;
 import static dk.opendesk.foundationapplication.Utilities.*;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.enums.Functional;
 import static dk.opendesk.foundationapplication.patches.InitialStructure.DICTIONARY_PATH;
 import static dk.opendesk.foundationapplication.patches.InitialStructure.FOUNDATION_TAG;
+import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -130,8 +139,36 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
 
         Long appliedAmount = 10000000l;
 
-        foundationBean.addNewApplication(getBranchRef(), budgetRef, APPLICATION_NAME, "NewApplication", "Category1", "Dansk Dræbersnegls Bevaringsforbund", "Sneglesporet", 3, "2", "1445", "Svend", "Svendsen", "ikkedraebesneglen@gmail.com", "12345678",
-                "Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr.", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(2))), appliedAmount, "1234", "00123456");
+        
+        Application app1 = new Application();
+        app1.setBranchRef(foundationBean.getBranchReference(getBranchRef()));
+        app1.setBudget(foundationBean.getBudgetReference(budgetRef));
+        app1.setTitle(APPLICATION_NAME);
+        ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Dansk Dræbersnegls Bevaringsforbund"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Sneglesporet"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 3));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "1445"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, "Svend"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, "Svendsen"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, "ikkedraebesneglen@gmail.com"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "12345678"));
+        
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category1"));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr."));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(2)))));
+        
+        app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), appliedAmount));
+        app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "1234"));
+        app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00123456"));
+        app1.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1details}));
+        foundationBean.addNewApplication(app1);
+        //foundationBean.addNewApplication(getBranchRef(), budgetRef, APPLICATION_NAME, "NewApplication", "Category1", "Dansk Dræbersnegls Bevaringsforbund", "Sneglesporet", 3, "2", "1445", "Svend", "Svendsen", "ikkedraebesneglen@gmail.com", "12345678",
+        //        "Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr.", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(2))), appliedAmount, "1234", "00123456");
 
         budget = foundationBean.getBudget(budgetRef);
         

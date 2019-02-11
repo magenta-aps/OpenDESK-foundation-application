@@ -5,7 +5,11 @@
  */
 package dk.opendesk.foundationapplication.beans;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Objects;
 import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.Branch;
@@ -31,6 +35,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,18 +47,24 @@ import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.cmr.search.QueryParameter;
+import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.namespace.QName;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author martin
  */
 public class FoundationBean {
+    private static final Logger LOGGER = Logger.getLogger(FoundationBean.class);
 
     public final String ONLY_ONE_REFERENCE = "odf.one.ref.requred";
     public final String INVALID_STATE = "odf.bad.state";
     public final String MUST_SPECIFY_STATE = "odf.specify.state";
     public final String INVALID_BRANCH = "odf.bad.branch";
+    public final String ID_IN_USE = "odf.id.used";
 
     private ServiceRegistry serviceRegistry;
 
@@ -65,60 +76,63 @@ public class FoundationBean {
         return Utilities.getDataNode(serviceRegistry);
     }
 
-    public ApplicationReference addNewApplication(Application app) throws Exception {
-        NodeRef branchRef = app.getBranchRef() != null ? app.getBranchRef().asNodeRef() : null;
-        NodeRef budgetRef = app.getBudget() != null ? app.getBudget().asNodeRef() : null;
-        String localName = "Application-" + DateTimeFormatter.ISO_INSTANT.format(Instant.now());
-        NodeRef newApplication = addNewApplication(branchRef, budgetRef, localName, app.getTitle(), app.getCategory(), app.getRecipient(), app.getAddressRoad(), app.getAddressNumber(), app.getAddressFloor(),
-                app.getAddressPostalCode(), app.getContactFirstName(), app.getContactLastName(), app.getContactEmail(), app.getContactPhone(), app.getShortDescription(),
-                app.getStartDate(), app.getEndDate(), app.getAmountApplied(), app.getAccountRegistration(), app.getAccountNumber());
-        ApplicationReference reference = getApplicationReference(newApplication);
-        return reference;
+    public ApplicationReference addNewApplication(String id, NodeRef branchRef, NodeRef budgetRef, String title, ApplicationPropertiesContainer... blocks) throws Exception {
+        Application app = new Application();
+        app.setId(id);
+        app.setTitle(title);
+        BranchReference branch = new BranchReference();
+        branch.parseRef(branchRef);
+        app.setBranchRef(branch);
+        BudgetReference budget = new BudgetReference();
+        budget.parseRef(budgetRef);
+        app.setBudget(budget);
+        app.setBlocks(Arrays.asList(blocks));
+        
+        return addNewApplication(app);
     }
 
-    public NodeRef addNewApplication(NodeRef branchRef, NodeRef budgetRef, String localName, String title, String category, String recipient, String addressRoad, Integer addressNumber, String addressFloor,
-            String addressPostalCode, String contactFirstName, String contactLastName, String contactEmail, String contactPhone, String shortDescription,
-            Date startDate, Date endDate, Long appliedAmount, String accountRegistration, String accountNumber) throws Exception {
+    public ApplicationReference addNewApplication(Application application) throws Exception {
+        ObjectMapper blockMapper = Utilities.getMapper();
         Map<QName, Serializable> properties = new HashMap<>();
-        properties.put(getODFName(APPLICATION_PARAM_TITLE), title);
-        properties.put(getODFName(APPLICATION_PARAM_CATEGORY), category);
-        properties.put(getODFName(APPLICATION_PARAM_RECIPIENT), recipient);
-        properties.put(getODFName(APPLICATION_PARAM_ADDR_ROAD), addressRoad);
-        properties.put(getODFName(APPLICATION_PARAM_ADDR_NUMBER), addressNumber);
-        properties.put(getODFName(APPLICATION_PARAM_ADDR_FLOOR), addressFloor);
-        properties.put(getODFName(APPLICATION_PARAM_ARRD_POSTALCODE), addressPostalCode);
-        properties.put(getODFName(APPLICATION_PARAM_PERSON_FIRSTNAME), contactFirstName);
-        properties.put(getODFName(APPLICATION_PARAM_PERSON_SURNAME), contactLastName);
-        properties.put(getODFName(APPLICATION_PARAM_PERSON_EMAIL), contactEmail);
-        properties.put(getODFName(APPLICATION_PARAM_PERSON_PHONE), contactPhone);
-        properties.put(getODFName(APPLICATION_PARAM_SHORT_DESCRIPTION), shortDescription);
-        properties.put(getODFName(APPLICATION_PARAM_START_DATE), startDate);
-        properties.put(getODFName(APPLICATION_PARAM_END_DATE), endDate);
-        properties.put(getODFName(APPLICATION_PARAM_APPLIED_AMOUNT), appliedAmount);
-        properties.put(getODFName(APPLICATION_PARAM_ACCOUNT_REGISTRATION), accountRegistration);
-        properties.put(getODFName(APPLICATION_PARAM_ACCOUNT_NUMBER), accountNumber);
+        if(application.getId() != null){
+            ApplicationReference ref = findByNumericID(Integer.parseInt(application.getId()));
+            if(ref != null){
+                throw new AlfrescoRuntimeException(ID_IN_USE);
+            }
+        }else{
+            application.setId(Utilities.getNextApplicationID(serviceRegistry)+"");
+        }
+        properties.put(getODFName(APPLICATION_PARAM_ID), application.getId());
+        properties.put(getODFName(APPLICATION_PARAM_TITLE), application.getTitle());
+        
+        ArrayList<String> blockStrings = new ArrayList<>();
+        for(ApplicationPropertiesContainer block : application.getBlocks()){
+            blockStrings.add(blockMapper.writeValueAsString(block));
+        }
+        
+        properties.put(getODFName(APPLICATION_PARAM_BLOCKS), blockStrings);
 
         QName applicationTypeQname = getODFName(APPLICATION_TYPE_NAME);
-        QName applicationQname = getODFName(localName);
+        QName applicationQname = getODFName(application.getTitle());
         QName dataAssocApplication = getODFName(DATA_ASSOC_APPLICATIONS);
 
         NodeRef applicationRef = serviceRegistry.getNodeService().createNode(getDataHome(), dataAssocApplication, applicationQname, applicationTypeQname, properties).getChildRef();
-        if (budgetRef != null) {
-            serviceRegistry.getNodeService().createAssociation(applicationRef, budgetRef, getODFName(APPLICATION_ASSOC_BUDGET));
+        if (application.getBudget() != null) {
+            serviceRegistry.getNodeService().createAssociation(applicationRef, application.getBudget().asNodeRef(), getODFName(APPLICATION_ASSOC_BUDGET));
         }
-        if (branchRef != null) {
-            NodeRef workFlowRef = serviceRegistry.getNodeService().getTargetAssocs(branchRef, getODFName(BRANCH_ASSOC_WORKFLOW)).get(0).getTargetRef();
+        if (application.getBranchRef() != null) {
+            NodeRef workFlowRef = serviceRegistry.getNodeService().getTargetAssocs(application.getBranchRef().asNodeRef(), getODFName(BRANCH_ASSOC_WORKFLOW)).get(0).getTargetRef();
             List<AssociationRef> workflowEntryRefs = serviceRegistry.getNodeService().getTargetAssocs(workFlowRef, getODFName(WORKFLOW_ASSOC_ENTRY));
             if (workflowEntryRefs.size() != 1) {
                 throw new AlfrescoRuntimeException("Cannot create new application. The workflow on this branch does not have an entry point set");
             }
-            serviceRegistry.getNodeService().createAssociation(applicationRef, branchRef, getODFName(APPLICATION_ASSOC_BRANCH));
+            serviceRegistry.getNodeService().createAssociation(applicationRef, application.getBranchRef().asNodeRef(), getODFName(APPLICATION_ASSOC_BRANCH));
             serviceRegistry.getNodeService().createAssociation(applicationRef, workflowEntryRefs.get(0).getTargetRef(), getODFName(APPLICATION_ASSOC_STATE));
         } else {
             serviceRegistry.getNodeService().createAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
         }
 
-        return applicationRef;
+        return getApplicationReference(applicationRef);
     }
 
     public void updateApplication(Application app) throws Exception {
@@ -127,54 +141,7 @@ public class FoundationBean {
         if (app.wasTitleSet()) {
             properties.put(getODFName(APPLICATION_PARAM_TITLE), app.getTitle());
         }
-        if (app.wasCategorySet()) {
-            properties.put(getODFName(APPLICATION_PARAM_CATEGORY), app.getCategory());
-        }
-        if (app.wasRecipientSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_RECIPIENT), app.getRecipient());
-        }
-        if (app.wasAddressRoadSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_ADDR_ROAD), app.getAddressRoad());
-        }
-        if (app.wasAddressNumberSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_ADDR_NUMBER), app.getAddressNumber());
-        }
-        if (app.wasAddressFloorSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_ADDR_FLOOR), app.getAddressFloor());
-        }
-        if (app.wasAddressPostalCodeSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_ARRD_POSTALCODE), app.getAddressPostalCode());
-        }
-        if (app.wasContactFirstNameSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_PERSON_FIRSTNAME), app.getContactFirstName());
-        }
-        if (app.wasContactLastNameSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_PERSON_SURNAME), app.getContactLastName());
-        }
-        if (app.wasContactEmailSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_PERSON_EMAIL), app.getContactEmail());
-        }
-        if (app.wasContactPhoneSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_PERSON_PHONE), app.getContactPhone());
-        }
-        if (app.wasShortDescriptionSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_SHORT_DESCRIPTION), app.getShortDescription());
-        }
-        if (app.wasStartDateSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_START_DATE), app.getStartDate());
-        }
-        if (app.wasEndDateSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_END_DATE), app.getEndDate());
-        }
-        if (app.wasAmountAppliedSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_APPLIED_AMOUNT), app.getAmountApplied());
-        }
-        if (app.wasAccountRegistrationSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_ACCOUNT_REGISTRATION), app.getAccountRegistration());
-        }
-        if (app.wasAccountNumberSet()) {
-            properties.put(getODFName(APPLICATION_PARAM_ACCOUNT_NUMBER), app.getAccountNumber());
-        }
+        
 
         boolean changedWorkflow = false;
         if (app.wasBranchRefSet()) {
@@ -235,23 +202,106 @@ public class FoundationBean {
             }
         }
         
-        if(app.wasProjectDescriptionDocSet()){
-            updateContent(app.getProjectDescriptionDoc(), app, APPLICATION_ASSOC_PROJECT_DESCRIPTION_DOC);
-        }
-        if(app.wasBudgetDocSet()){
-            updateContent(app.getBudgetDoc(), app, APPLICATION_ASSOC_BUDGET_DOC);
-        }
-        if(app.wasBoardMembersDocSet()){
-            updateContent(app.getBoardMembersDoc(), app, APPLICATION_ASSOC_BOARD_MEMBERS_DOC);
-        }
-        if(app.wasArticlesOfAssociationDocSet()){
-            updateContent(app.getArticlesOfAssociationDoc(), app, APPLICATION_ASSOC_ARTICLES_OF_ASSOCIATION_DOC);
-        }
-        if(app.wasFinancialAccountingDocSet()){
-            updateContent(app.getFinancialAccountingDoc(), app, APPLICATION_ASSOC_FINANCIAL_ACCOUTING_DOC);
+        List<ApplicationPropertiesContainer> oldBlocks = getApplication(app.asNodeRef()).getBlocks();
+        
+        if (app.wasBlocksSet() && app.getBlocks() != null) {
+            for (ApplicationPropertiesContainer block : app.getBlocks()) {
+                if (block.getId() != null) {
+                    ApplicationPropertiesContainer oldBlock = getBlockByID(block.getId(), oldBlocks);
+                    if (oldBlock == null) {
+                        oldBlocks.add(block);
+                    } else {
+                        if (block.wasLabelSet()) {
+                            oldBlock.setLabel(block.getLabel());
+                        }
+                        if (block.wasFieldsSet()) {
+                            if(block.getFields() == null){
+                                oldBlock.setFields(null);
+                            }else{
+                                for(ApplicationPropertyValue field : block.getFields()){
+                                    if(field.getId() != null){
+                                        ApplicationPropertyValue oldField =  getFieldByID(field.getId(), oldBlock.getFields());
+                                        if(oldField == null){
+                                            oldBlock.getFields().add(field);
+                                        }else{
+                                            if(field.wasLabelSet()){
+                                                oldField.setLabel(field.getLabel());
+                                            }
+                                            if(field.wasJavaTypeSet()){
+                                                oldField.setJavaType(field.getJavaType());
+                                            }
+                                            if(field.wasLayoutSet()){
+                                                oldField.setLayout(field.getLayout());
+                                            }
+                                            if(field.wasTypeSet()){
+                                                oldField.setType(field.getType());
+                                            }
+                                            if(field.wasFunctionSet()){
+                                                oldField.setFunction(field.getFunction());
+                                            }
+                                            if(field.wasAllowedValuesSet()){
+                                                oldField.setAllowedValues(field.getAllowedValues());
+                                            }
+                                            if(field.wasValueSet()){
+                                                oldField.setValue(field.getValue());
+                                            }
+                                        }
+                                    }else{
+                                        LOGGER.warn("Found field without ID: "+field+" in block: "+block);
+                                    }
+                                    
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    LOGGER.warn("Found block without ID: " + block);
+                }
+
+            }
+            ObjectMapper mapper = Utilities.getMapper();
+            ArrayList<String> blockStrings = new ArrayList<>();
+            for(ApplicationPropertiesContainer block : oldBlocks){
+                blockStrings.add(mapper.writeValueAsString(block));
+            }
+            properties.put(getODFName(APPLICATION_PARAM_BLOCKS), blockStrings);
         }
         
+//        if(app.wasProjectDescriptionDocSet()){
+//            updateContent(app.getProjectDescriptionDoc(), app, APPLICATION_ASSOC_PROJECT_DESCRIPTION_DOC);
+//        }
+//        if(app.wasBudgetDocSet()){
+//            updateContent(app.getBudgetDoc(), app, APPLICATION_ASSOC_BUDGET_DOC);
+//        }
+//        if(app.wasBoardMembersDocSet()){
+//            updateContent(app.getBoardMembersDoc(), app, APPLICATION_ASSOC_BOARD_MEMBERS_DOC);
+//        }
+//        if(app.wasArticlesOfAssociationDocSet()){
+//            updateContent(app.getArticlesOfAssociationDoc(), app, APPLICATION_ASSOC_ARTICLES_OF_ASSOCIATION_DOC);
+//        }
+//        if(app.wasFinancialAccountingDocSet()){
+//            updateContent(app.getFinancialAccountingDoc(), app, APPLICATION_ASSOC_FINANCIAL_ACCOUTING_DOC);
+//        }
+        
         ns.addProperties(app.asNodeRef(), properties);
+    }
+    
+    private ApplicationPropertiesContainer getBlockByID(String id, List<ApplicationPropertiesContainer> blocks){
+        for(ApplicationPropertiesContainer block : blocks){
+            if(Objects.equal(id, block.getId())){
+                return block;
+            }
+        }
+        return null;
+    }
+    
+    private ApplicationPropertyValue getFieldByID(String id, List<ApplicationPropertyValue> fields){
+        for(ApplicationPropertyValue field : fields){
+            if(Objects.equal(id, field.getId())){
+                return field;
+            }
+        }
+        return null;
     }
     
     private void updateContent(Reference toUpdate, Reference parent, String assoc) throws Exception{
@@ -306,12 +356,12 @@ public class FoundationBean {
 
     }
 
-    public void setApplicationState(NodeRef applicationRef, NodeRef stateRef) throws Exception {
+    private void setApplicationState(NodeRef applicationRef, NodeRef stateRef) throws Exception {
         serviceRegistry.getNodeService().removeAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
         serviceRegistry.getNodeService().setAssociations(applicationRef, getODFName(APPLICATION_ASSOC_STATE), Collections.singletonList(stateRef));
     }
 
-    public void clearApplicationState(NodeRef applicationRef) throws Exception {
+    private void clearApplicationState(NodeRef applicationRef) throws Exception {
         serviceRegistry.getNodeService().removeAssociation(getDataHome(), applicationRef, getODFName(APPLICATION_ASSOC_STATE));
         serviceRegistry.getNodeService().setAssociations(getDataHome(), getODFName(DATA_ASSOC_NEW_APPLICATIONS), Collections.singletonList(applicationRef));
     }
@@ -395,72 +445,7 @@ public class FoundationBean {
 //        return totalAmount - usedAmount;
 //    }
 
-    public Application getApplication(NodeRef applicationRef) throws Exception {
-        Application application = new Application();
-        application.parseRef(applicationRef);
-        application.setTitle(getProperty(applicationRef, APPLICATION_PARAM_TITLE, String.class));
-        application.setAccountRegistration(getProperty(applicationRef, APPLICATION_PARAM_ACCOUNT_REGISTRATION, String.class));
-        application.setAccountNumber(getProperty(applicationRef, APPLICATION_PARAM_ACCOUNT_NUMBER, String.class));
-        application.setAddressRoad(getProperty(applicationRef, APPLICATION_PARAM_ADDR_ROAD, String.class));
-        application.setAddressNumber(getProperty(applicationRef, APPLICATION_PARAM_ADDR_NUMBER, Integer.class));
-        application.setAddressFloor(getProperty(applicationRef, APPLICATION_PARAM_ADDR_FLOOR, String.class));
-        application.setAddressPostalCode(getProperty(applicationRef, APPLICATION_PARAM_ARRD_POSTALCODE, String.class));
-        application.setContactFirstName(getProperty(applicationRef, APPLICATION_PARAM_PERSON_FIRSTNAME, String.class));
-        application.setContactFirstName(getProperty(applicationRef, APPLICATION_PARAM_PERSON_SURNAME, String.class));
-        application.setContactEmail(getProperty(applicationRef, APPLICATION_PARAM_PERSON_EMAIL, String.class));
-        application.setContactPhone(getProperty(applicationRef, APPLICATION_PARAM_PERSON_PHONE, String.class));
-        application.setAmountApplied(getProperty(applicationRef, APPLICATION_PARAM_APPLIED_AMOUNT, Long.class));
-        application.setCategory(getProperty(applicationRef, APPLICATION_PARAM_CATEGORY, String.class));
-        application.setStartDate(getProperty(applicationRef, APPLICATION_PARAM_START_DATE, Date.class));
-        application.setEndDate(getProperty(applicationRef, APPLICATION_PARAM_END_DATE, Date.class));
-        application.setRecipient(getProperty(applicationRef, APPLICATION_PARAM_RECIPIENT, String.class));
-        application.setShortDescription(getProperty(applicationRef, APPLICATION_PARAM_SHORT_DESCRIPTION, String.class));
-        application.setCvr(getProperty(applicationRef, APPLICATION_PARAM_CVR, String.class));
 
-        NodeRef branchRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BRANCH);
-        NodeRef budgetRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET);
-        NodeRef stateRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_STATE);
-        if (branchRef != null) {
-            BranchReference branch = new BranchReference();
-            branch.parseRef(branchRef);
-            application.setBranchRef(branch);
-        }
-        if (budgetRef != null) {
-            BudgetReference budget = new BudgetReference();
-            budget.parseRef(budgetRef);
-            application.setBudget(budget);
-        }
-        if (stateRef != null) {
-            StateReference state = new StateReference();
-            state.parseRef(stateRef);
-            application.setState(state);
-        }
-        
-        NodeRef projectDesc = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_PROJECT_DESCRIPTION_DOC);
-        NodeRef budgetDoc = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET_DOC);
-        NodeRef boardMembers = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BOARD_MEMBERS_DOC);
-        NodeRef articlesOfAssociation = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_ARTICLES_OF_ASSOCIATION_DOC);
-        NodeRef financialAccouting = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_FINANCIAL_ACCOUTING_DOC);
-        
-        if(projectDesc != null){
-            application.setProjectDescriptionDoc(Reference.from(projectDesc));
-        }
-        if(budgetDoc != null){
-            application.setBudgetDoc(Reference.from(budgetDoc));
-        }
-        if(boardMembers != null){
-            application.setBoardMembersDoc(Reference.from(boardMembers));
-        }
-        if(articlesOfAssociation != null){
-            application.setArticlesOfAssociationDoc(Reference.from(articlesOfAssociation));
-        }
-        if(financialAccouting != null){
-            application.setFinancialAccountingDoc(Reference.from(financialAccouting));
-        }
-
-        return application;
-
-    }
 
     public BudgetReference getBudgetReference(NodeRef budgetRef) throws Exception {
         BudgetReference ref = new BudgetReference();
@@ -660,8 +645,13 @@ public class FoundationBean {
         List<ApplicationReference> applications = new ArrayList<>();
         List<AssociationRef> applicationRefs = ns.getSourceAssocs(budgetRef, getODFName(APPLICATION_ASSOC_BUDGET));
         for (AssociationRef applicationRef : applicationRefs) {
-            applications.add(getApplicationReference(applicationRef.getSourceRef()));
-            Long applicationAmount = getProperty(applicationRef.getSourceRef(), APPLICATION_PARAM_APPLIED_AMOUNT, Long.class);
+            ApplicationSummary application = getApplicationSummary(applicationRef.getSourceRef());
+            applications.add(application);
+            ApplicationPropertyValue<Long> value = application.totalAmount();
+            if(value == null){
+                continue;
+            }
+            Long applicationAmount = value.getValue();
             State state = getState(getApplicationState(applicationRef.getSourceRef()));
             StateCategory category = state.getCategory();
             if (category == null) {
@@ -783,6 +773,7 @@ public class FoundationBean {
     public ApplicationReference getApplicationReference(NodeRef applicationRef) throws Exception {
         ApplicationReference reference = new ApplicationReference();
         reference.parseRef(applicationRef);
+        reference.setId(getProperty(applicationRef, APPLICATION_PARAM_ID, String.class));
         reference.setTitle(getProperty(applicationRef, APPLICATION_PARAM_TITLE, String.class));
         return reference;
     }
@@ -806,22 +797,74 @@ public class FoundationBean {
     }
 
     public ApplicationSummary getApplicationSummary(NodeRef applicationSummary) throws Exception {
+        ObjectMapper mapper = Utilities.getMapper();
         ApplicationSummary app = new ApplicationSummary();
         app.parseRef(applicationSummary);
 
         BranchReference branchReference = getBranchReference(applicationSummary);
         app.setBranchRef(branchReference);
+        app.setId(getProperty(applicationSummary, APPLICATION_PARAM_ID, String.class));
         app.setTitle(getProperty(applicationSummary, APPLICATION_PARAM_TITLE, String.class));
-        app.setAmountApplied(getProperty(applicationSummary, APPLICATION_PARAM_APPLIED_AMOUNT, Long.class));
-        app.setCategory(getProperty(applicationSummary, APPLICATION_PARAM_CATEGORY, String.class));
-        app.setStartDate(getProperty(applicationSummary, APPLICATION_PARAM_START_DATE, Date.class));
-        app.setEndDate(getProperty(applicationSummary, APPLICATION_PARAM_END_DATE, Date.class));
-        app.setRecipient(getProperty(applicationSummary, APPLICATION_PARAM_RECIPIENT, String.class));
-        app.setShortDescription(getProperty(applicationSummary, APPLICATION_PARAM_SHORT_DESCRIPTION, String.class));
-        app.setCvr(getProperty(applicationSummary, APPLICATION_PARAM_CVR, String.class));
+        List<String> blockStrings = getProperty(applicationSummary, APPLICATION_PARAM_BLOCKS, List.class);
+        List<ApplicationPropertiesContainer> blocks = new ArrayList<>();
+
+        for (String blockString : blockStrings) {
+            blocks.add(mapper.readValue(blockString, ApplicationPropertiesContainer.class));
+        }
+        app.setBlocks(blocks);
 
 
         return app;
+    }
+    
+      public Application getApplication(NodeRef applicationRef) throws Exception {
+        ObjectMapper mapper = Utilities.getMapper();
+        Application application = new Application();
+        application.parseRef(applicationRef);
+        application.setTitle(getProperty(applicationRef, APPLICATION_PARAM_TITLE, String.class));
+        List<String> blockStrings = getProperty(applicationRef, APPLICATION_PARAM_BLOCKS, List.class);
+        List<ApplicationPropertiesContainer> blocks = new ArrayList<>();
+
+        for (String blockString : blockStrings) {
+            blocks.add(mapper.readValue(blockString, ApplicationPropertiesContainer.class));
+        }
+        application.setBlocks(blocks);
+
+        NodeRef branchRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BRANCH);
+        NodeRef budgetRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET);
+        NodeRef stateRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_STATE);
+        if (branchRef != null) {
+            BranchReference branch = new BranchReference();
+            branch.parseRef(branchRef);
+            application.setBranchRef(branch);
+        }
+        if (budgetRef != null) {
+            BudgetReference budget = new BudgetReference();
+            budget.parseRef(budgetRef);
+            application.setBudget(budget);
+        }
+        if (stateRef != null) {
+            StateReference state = new StateReference();
+            state.parseRef(stateRef);
+            application.setState(state);
+        }
+
+//        NodeRef projectDesc = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_PROJECT_DESCRIPTION_DOC);
+//        NodeRef budgetDoc = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET_DOC);
+//        NodeRef boardMembers = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BOARD_MEMBERS_DOC);
+//        NodeRef articlesOfAssociation = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_ARTICLES_OF_ASSOCIATION_DOC);
+//        NodeRef financialAccouting = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_FINANCIAL_ACCOUTING_DOC);
+        return application;
+
+    }
+      
+    public ApplicationReference findByNumericID(Integer id) throws Exception {
+        ResultSet set = serviceRegistry.getSearchService().query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "LANGUAGE_LUCENE", "TYPE:\"odf:application\" AND @odf:applicationID:\""+id+"\"");
+        if(set.length() == 0){
+            return null;
+        }
+        ChildAssociationRef ref = set.getRow(0).getChildAssocRef();
+        return getApplicationReference(ref.getChildRef());
     }
 
     public void updateBudget(Budget budget) throws Exception {

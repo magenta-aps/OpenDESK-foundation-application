@@ -115,6 +115,12 @@
         <type name="odf:data">
             <title>Foundation Application Data</title>
             <parent>cm:cmobject</parent>
+            <properties>
+                 <property name="odf:latestID">
+                     <type>d:int</type>
+                     <mandatory>true</mandatory>
+                 </property>
+             </properties>
             <associations>
                  <child-association name="odf:workflows">
                      <source>
@@ -336,122 +342,18 @@
             <title>Application</title>
             <parent>cm:folder</parent>
             <properties>
+                <property name="odf:applicationID">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
                 <property name="odf:applicationTitle">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                 </property>
-                <property name="odf:applicationCategory">
+                <property name="odf:applicationBlocks">
                     <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref='odf:categories'/>
-                    </constraints>
+                    <multiple>true</multiple>
                 </property>
-                <property name="odf:applicationRecipient">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                </property>
-                
-                <property name="odf:applicationAddressRoad">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                </property>
-                <property name="odf:applicationAddressNumber">
-                    <type>d:int</type>
-                    <mandatory>true</mandatory>
-                </property>
-                <property name="odf:applicationAddressFloor">
-                    <type>d:text</type>
-                    <mandatory>false</mandatory>
-                </property>
-                <property name="odf:applicationAddressPostalCode">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref='odf:postalCode'/>
-                    </constraints>
-                </property>
-                
-                <property name="odf:applicationContactPersonFirstName">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                </property>
-                <property name="odf:applicationContactPersonSurname">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                </property>
-                <property name="odf:applicationContactEmail">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref='odf:email'/>
-                    </constraints>
-                </property>
-                <property name="odf:applicationContactPhoneNumber">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref='odf:phoneNumber'/>
-                    </constraints>
-                </property>
-                <property name="odf:applicationShortDescription">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref='odf:shortDescription'/>
-                    </constraints>
-                </property>
-                
-                <property name="odf:applicationProjectStartDate">
-                    <type>d:datetime</type>
-                    <mandatory>true</mandatory>
-                </property>
-                <property name="odf:applicationProjectEndDate">
-                    <type>d:datetime</type>
-                    <mandatory>true</mandatory>
-                </property>
-                
-                <property name="odf:applicationAppliedAmount">
-                    <type>d:long</type>
-                    <mandatory>true</mandatory>
-                </property>
-                
-                <property name="odf:cvr">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint type='REGEX'>
-                            <parameter name='expression'>
-                                <value>[0-9]{8}</value>
-                            </parameter>
-                        </constraint>
-                    </constraints>
-                </property>
-                
-                <property name="odf:applicationAccountRegistration">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint type='REGEX'>
-                            <parameter name='expression'>
-                                <value>[0-9]{0,4}</value>
-                            </parameter>
-                        </constraint>
-                    </constraints>
-                </property>
-                
-                <property name="odf:applicationAccountNumber">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint type='REGEX'>
-                            <parameter name='expression'>
-                                <value>[0-9]{0,8}</value>
-                            </parameter>
-                        </constraint>
-                    </constraints>
-                </property>
-
             </properties>
             <associations>
                 <association name="odf:applicationBudget">
@@ -490,60 +392,8 @@
                         <many>false</many>
                     </target>
                 </association>
-                <child-association name="odf:projectDescriptionDoc">
-                    <title>Project Description</title>
-                    <source>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
-                    </source>
-                    <target>
-                        <class>cm:content</class>
-                        <mandatory>false</mandatory>
-                        <many>false</many>
-                    </target>
-                    <duplicate>false</duplicate>
-                </child-association>
-                <child-association name="odf:budgetDoc">
-                    <title>Budget</title>
-                    <source>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
-                    </source>
-                    <target>
-                        <class>cm:content</class>
-                        <mandatory>false</mandatory>
-                        <many>false</many>
-                    </target>
-                    <duplicate>false</duplicate>
-                </child-association>
-                <child-association name="odf:boardMembersDoc">
-                    <title>Board Members</title>
-                    <source>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
-                    </source>
-                    <target>
-                        <class>cm:content</class>
-                        <mandatory>false</mandatory>
-                        <many>false</many>
-                    </target>
-                    <duplicate>false</duplicate>
-                </child-association>
-                <child-association name="odf:articlesOfAssociationDoc">
-                    <title>Articles of Association</title>
-                    <source>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
-                    </source>
-                    <target>
-                        <class>cm:content</class>
-                        <mandatory>false</mandatory>
-                        <many>false</many>
-                    </target>
-                    <duplicate>false</duplicate>
-                </child-association>
-                <child-association name="odf:financialAccountingDoc">
-                    <title>Financial Accounting</title>
+                <child-association name="odf:documents">
+                    <title>Application Documents</title>
                     <source>
                         <mandatory>false</mandatory>
                         <many>true</many>

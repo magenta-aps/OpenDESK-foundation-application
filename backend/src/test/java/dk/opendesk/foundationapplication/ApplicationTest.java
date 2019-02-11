@@ -6,6 +6,7 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchReference;
@@ -14,8 +15,11 @@ import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import static dk.opendesk.foundationapplication.TestUtils.stateAccessRef;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.enums.Functional;
+import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
@@ -50,24 +54,31 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals(3, foundationBean.getApplicationSummaries().size());
         
         String applicationTitle = "More cats for dogs";
+        
         Application newApplication = new Application();
         newApplication.setTitle(applicationTitle);
-        newApplication.setRecipient("Cats4Dogs");
-        newApplication.setShortDescription("We want to buy a cat for every dog");
-        newApplication.setContactFirstName("Test");
-        newApplication.setContactLastName("Osteron");
-        newApplication.setContactEmail("t@est.dk");
-        newApplication.setContactPhone("12345678");
-        newApplication.setCategory("Category3");
-        newApplication.setAddressRoad("Testgade");
-        newApplication.setAddressNumber(1337);
-        newApplication.setAddressFloor("2");
-        newApplication.setAddressPostalCode("9999");
-        newApplication.setAmountApplied(10000l);
-        newApplication.setAccountRegistration("1234");
-        newApplication.setAccountNumber("12345678");
-        newApplication.setStartDate(Date.from(Instant.now()));
-        newApplication.setEndDate(Date.from(Instant.now().plus(Duration.ofDays(30))));
+        ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Cats4Dogs"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Testgade"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 1337));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "9999"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, "Test"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, "Osteron"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, "t@est.dk"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "12345678"));
+        
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category3"));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "We want to buy a cat for every dog"));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(30)))));
+        
+        app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), 10000l));
+        app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "1234"));
+        app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "12345678"));
+        newApplication.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1details}));
         
         ApplicationReference reference = post(newApplication, ApplicationReference.class);
         assertNotNull(reference);

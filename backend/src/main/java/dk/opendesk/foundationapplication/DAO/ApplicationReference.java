@@ -7,7 +7,6 @@ package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
 import java.util.Optional;
-import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -16,11 +15,23 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 public class ApplicationReference extends Reference{
     private Optional<String> title;
-
+    private Optional<String> id;
+    
     public ApplicationReference() {
     }
     
+    public String getId() {
+        return get(id);
+    }
+    
+    public boolean wasIdSet(){
+        return wasSet(id);
+    }
 
+    public void setId(String id) {
+        this.id = optional(id);
+    }
+    
     public String getTitle() {
         return get(title);
     }
@@ -37,6 +48,7 @@ public class ApplicationReference extends Reference{
     public int hashCode() {
         int hash = 7;
         hash = 37 * hash + Objects.hashCode(this.getNodeRef());
+        hash = 37 * hash + Objects.hashCode(this.getId());
         hash = 37 * hash + Objects.hashCode(this.getTitle());
         return hash;
     }
@@ -56,6 +68,9 @@ public class ApplicationReference extends Reference{
         if (!Objects.equals(this.getTitle(), other.getTitle())) {
             return false;
         }
+        if (!Objects.equals(this.getId(), other.getId())) {
+            return false;
+        }
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {
             return false;
         }
@@ -64,7 +79,7 @@ public class ApplicationReference extends Reference{
     
     @Override
     public ToStringBuilder toStringBuilder(){
-        return super.toStringBuilder().append("title", this.getTitle()); 
+        return super.toStringBuilder().append("ID", this.getId()).append("title", this.getTitle()); 
     }
 
     
