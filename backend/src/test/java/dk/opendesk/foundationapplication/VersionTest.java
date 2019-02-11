@@ -1,5 +1,6 @@
 package dk.opendesk.foundationapplication;
 
+import com.benfante.jslideshare.App;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.State;
 import dk.opendesk.foundationapplication.DAO.StateReference;
@@ -11,7 +12,9 @@ import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionHistory;
+import org.alfresco.service.cmr.version.VersionService;
 import org.json.JSONObject;
+import org.json.Test;
 import org.json.simple.JSONArray;
 
 import java.io.Serializable;
@@ -20,10 +23,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static dk.opendesk.foundationapplication.Utilities.ASPECT_ON_CREATE;
+
 public class VersionTest extends AbstractTestClass {
     private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
     private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
-    //private final NodeBean nodeBean = (NodeBean) getServer().getApplicationContext().getBean("nodeBean");
+    private final NodeBean nodeBean = (NodeBean) getServer().getApplicationContext().getBean("nodeBean");
+
+    VersionService versionService = serviceRegistry.getVersionService();
 
     public VersionTest() {
         super("");
@@ -43,22 +50,30 @@ public class VersionTest extends AbstractTestClass {
     }
 
     public void testVersioning() throws Exception {
+        final boolean PRINT = true;
 
-        printHistory();
+        NodeRef appRef = TestUtils.application3;
 
-        System.out.println("Setting desc='First change'\n");
+        //after setup, there should only be one version
+        //assertEquals(1,versionService.getVersionHistory(appRef).getAllVersions().size());
 
-        NodeRef appRef = TestUtils.application1;
-        Application change = new Application();
-        change.parseRef(appRef);
-        //StateReference ref = new StateReference();
+        if (PRINT) {
+            //printHistory(appRef);
+            System.out.println("Change #1: Changing the 'description' property\n");
+        }
 
-        //ref.parseRef(TestUtils.stateRecievedRef);
-        //change.setState(ref);
-        change.setShortDescription("First change");
-        foundationBean.updateApplication(change);
+        Application change1 = new Application();
+        change1.parseRef(appRef);
+        change1.setShortDescription("First change");
+        foundationBean.updateApplication(change1);
 
-        printHistory();
+        //there should now be two versions
+        //assertEquals(2,versionService.getVersionHistory(appRef).getAllVersions().size());
+
+        Application headVersion = foundationBean.getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
+        //assertEquals("First change", headVersion.getShortDescription());
+
+        if (PRINT) printHistory(appRef);
 
 
         System.out.println("Setting desc=TEST and email=test@test.dk\n");
@@ -69,28 +84,52 @@ public class VersionTest extends AbstractTestClass {
         change2.setContactEmail("test@test.dk");
         foundationBean.updateApplication(change2);
 
-        printHistory();
+        if (PRINT) printHistory(appRef);
 
+        nodeBean.getVersions(TestUtils.application1);
 
         System.out.println("setting state=assess\n");
         System.out.println("OG HER MANGLER DER VERSIONERING");
 
+        /*
         Application change3 = new Application();
         change3.parseRef(appRef);
         StateReference ref2 = new StateReference();
         ref2.parseRef(TestUtils.stateAccessRef);
         change3.setState(ref2);
+        change3.setContactEmail("newEmail@test.dk");
         foundationBean.updateApplication(change3);
 
-        printHistory();
+        if (PRINT) printHistory(appRef);
 
 
+        System.out.println("setting desc=and now?");
         Application change4 = new Application();
         change4.parseRef(appRef);
         change4.setShortDescription("and now?");
         foundationBean.updateApplication(change4);
 
-        printHistory();
+        if (PRINT) printHistory(appRef);
+
+
+        //sending a mail saved to a state
+        JSONObject mailData = new JSONObject();
+        mailData.put("stateRef", TestUtils.stateAcceptedRef);
+        mailData.put("aspect", ASPECT_ON_CREATE);
+        post(mailData,"/foundation/actions/mail");
+
+
+        Application change5 = new Application();
+        change5.parseRef(appRef);
+        StateReference ref3 = new StateReference();
+        ref3.parseRef(TestUtils.stateAcceptedRef);
+        change5.setState(ref3);
+        foundationBean.updateApplication(change5);
+
+        if (PRINT) printHistory(appRef);
+        */
+
+
         //System.out.println("------------------------------------------------------------");
 
         //using method from OpenDesk:
@@ -131,12 +170,19 @@ public class VersionTest extends AbstractTestClass {
         */
     }
 
-    private void printHistory() throws Exception {
+    private void printHistory(NodeRef application) throws Exception {
 
         System.out.println("---------Printing history-------");
-        VersionHistory history = serviceRegistry.getVersionService().getVersionHistory(TestUtils.application1);
+
+        System.out.println("Current version (not in version history):");
+        System.out.println("NodeRef: " + application);
+        //Application app =
+
+        //TODO: Print current version
+
+        VersionHistory history = serviceRegistry.getVersionService().getVersionHistory(application);
         Collection<Version> versions = history.getAllVersions();
-        System.out.println("# versions = "  + versions.size());
+        System.out.println("# versions in version history = "  + versions.size());
         for (Version ver : versions) {
             System.out.println("\nVersion:");
             System.out.println("\tnode-uuid (Props):                                           " + ver.getVersionProperties().get("node-uuid"));

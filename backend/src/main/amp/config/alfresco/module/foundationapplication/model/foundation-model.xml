@@ -569,9 +569,9 @@
                     <duplicate>false</duplicate>
                 </child-association>
             </associations>
-            <mandatory-aspects>
+            <!-- <mandatory-aspects>
                 <aspect>cm:versionable</aspect>
-            </mandatory-aspects>
+            </mandatory-aspects> -->
         </type>
 
     </types>
