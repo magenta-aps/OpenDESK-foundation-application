@@ -4,7 +4,9 @@ import com.benfante.jslideshare.App;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.State;
 import dk.opendesk.foundationapplication.DAO.StateReference;
+import dk.opendesk.foundationapplication.DAO.Workflow;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.enums.StateCategory;
 import dk.opendesk.repo.beans.NodeBean;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
@@ -52,76 +54,98 @@ public class VersionTest extends AbstractTestClass {
     public void testVersioning() throws Exception {
         final boolean PRINT = true;
 
-        NodeRef appRef = TestUtils.application3;
+        NodeRef appRef = TestUtils.application1;
+        String oldDesc = foundationBean.getApplication(appRef).getShortDescription();
 
-        //after setup, there should only be one version
-        //assertEquals(1,versionService.getVersionHistory(appRef).getAllVersions().size());
+        if (PRINT) printHistory(appRef);
 
-        if (PRINT) {
-            //printHistory(appRef);
-            System.out.println("Change #1: Changing the 'description' property\n");
-        }
+
+
+        // --- FIRST CHANGE --- //
+        if (PRINT) System.out.println("Change #1: Changing the 'description' property\n");
 
         Application change1 = new Application();
         change1.parseRef(appRef);
         change1.setShortDescription("First change");
         foundationBean.updateApplication(change1);
 
-        //there should now be two versions
-        //assertEquals(2,versionService.getVersionHistory(appRef).getAllVersions().size());
-
+        //There should now be one version in the history, and it should be the original application3
         Application headVersion = foundationBean.getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
-        //assertEquals("First change", headVersion.getShortDescription());
+        assertEquals(1,versionService.getVersionHistory(appRef).getAllVersions().size());
+        assertEquals(oldDesc, headVersion.getShortDescription());
 
         if (PRINT) printHistory(appRef);
 
 
-        System.out.println("Setting desc=TEST and email=test@test.dk\n");
+
+        // --- SECOND CHANGE --- //
+        if (PRINT) System.out.println("Change #2: Changing the state to 'assess'\n");
 
         Application change2 = new Application();
         change2.parseRef(appRef);
-        change2.setShortDescription("TEST");
-        change2.setContactEmail("test@test.dk");
+        StateReference stateAssess = new StateReference();
+        stateAssess.parseRef(TestUtils.stateAccessRef);
+        change2.setState(stateAssess);
         foundationBean.updateApplication(change2);
 
+        //There should now be two versions in the history and the newest on should be on state received and with desc = 'First change'
+        headVersion = foundationBean.getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
+        assertEquals(2,versionService.getVersionHistory(appRef).getAllVersions().size());
+        assertEquals(TestUtils.stateRecievedRef, headVersion.getState().asNodeRef());
+        assertEquals("First change",headVersion.getShortDescription());
+
         if (PRINT) printHistory(appRef);
 
-        nodeBean.getVersions(TestUtils.application1);
 
-        System.out.println("setting state=assess\n");
-        System.out.println("OG HER MANGLER DER VERSIONERING");
+        //System.out.println("!!!!!!!!!!!!!!");
 
-        /*
+        //JSONArray v = nodeBean.getVersions(TestUtils.application1);
+        //System.out.println(v);
+        //System.out.println("!!!!!!!!!!!!!!");
+
+
+
+        // --- THIRD CHANGE --- //
+        if(PRINT) System.out.println("Change #3: Changing both state and description\n");
+
         Application change3 = new Application();
         change3.parseRef(appRef);
-        StateReference ref2 = new StateReference();
-        ref2.parseRef(TestUtils.stateAccessRef);
-        change3.setState(ref2);
-        change3.setContactEmail("newEmail@test.dk");
+        StateReference stateAccepted = new StateReference();
+        stateAccepted.parseRef(TestUtils.stateAcceptedRef);
+        change3.setState(stateAccepted);
+        change3.setShortDescription("Third change");
         foundationBean.updateApplication(change3);
 
+        //There should now be three versions and the newest one should be on state 'assess' and have description = 'First change'
+        headVersion = foundationBean.getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
+        assertEquals(3,versionService.getVersionHistory(appRef).getAllVersions().size());
+        assertEquals(TestUtils.stateAccessRef, headVersion.getState().asNodeRef());
+        assertEquals("First change",headVersion.getShortDescription());
+
+        //Current version should be on state 'accepted' and have description = 'Third change'
+        Application currentVersion = foundationBean.getApplication(TestUtils.application1);
+        assertEquals(TestUtils.stateAcceptedRef, currentVersion.getState().asNodeRef());
+        assertEquals("Third change", currentVersion.getShortDescription());
+
         if (PRINT) printHistory(appRef);
 
 
-        System.out.println("setting desc=and now?");
-        Application change4 = new Application();
-        change4.parseRef(appRef);
-        change4.setShortDescription("and now?");
-        foundationBean.updateApplication(change4);
-
-        if (PRINT) printHistory(appRef);
 
 
-        //sending a mail saved to a state
+        /*
+        // --- FOURTH CHANGE --- //
+        if(PRINT) System.out.println("Change #4: Sending Email\n");
+
+        //saving a mail action to a state
         JSONObject mailData = new JSONObject();
         mailData.put("stateRef", TestUtils.stateAcceptedRef);
         mailData.put("aspect", ASPECT_ON_CREATE);
         post(mailData,"/foundation/actions/mail");
 
 
-        Application change5 = new Application();
-        change5.parseRef(appRef);
-        StateReference ref3 = new StateReference();
+        Application change4 = new Application();
+        change4.parseRef(appRef);
+        StateReference state4 = new StateReference();
         ref3.parseRef(TestUtils.stateAcceptedRef);
         change5.setState(ref3);
         foundationBean.updateApplication(change5);
@@ -129,92 +153,52 @@ public class VersionTest extends AbstractTestClass {
         if (PRINT) printHistory(appRef);
         */
 
-
-        //System.out.println("------------------------------------------------------------");
-
-        //using method from OpenDesk:
-
-        //JSONArray jsonVersions = nodeBean.getVersions(TestUtils.application1);
-        //System.out.println();
-        //System.out.println(jsonVersions);
-        //for (Object j : jsonVersions) {
-        //    System.out.println();
-        //}
-
-
-        //System.out.println("------------------------------------------------------------");
-
-
-        //seeing if I can get associations out:
-
-        /*
-        Version tester = (Version) versions.toArray()[1];
-        List<AssociationRef> sourceAssocs = serviceRegistry.getNodeService().getSourceAssocs(tester.getVersionedNodeRef(), Utilities.getODFName(Utilities.APPLICATION_ASSOC_STATE));
-        List<AssociationRef> targetAssocs = serviceRegistry.getNodeService().getTargetAssocs(tester.getVersionedNodeRef(), Utilities.getODFName(Utilities.APPLICATION_ASSOC_STATE));
-
-        System.out.println("sourceAssocs:");
-        for (AssociationRef a : sourceAssocs) {
-            System.out.println("\tget target:");
-            System.out.println(serviceRegistry.getNodeService().getType(a.getTargetRef()));
-            System.out.println("\tget source:");
-            System.out.println(serviceRegistry.getNodeService().getType(a.getSourceRef()));
-        }
-
-        System.out.println("targetAssocs:");
-        for (AssociationRef a : targetAssocs) {
-            System.out.println("\tget target:");
-            System.out.println(serviceRegistry.getNodeService().getType(a.getTargetRef()));
-            System.out.println("\tget source:");
-            System.out.println(serviceRegistry.getNodeService().getType(a.getSourceRef()));
-        }
-        */
     }
 
     private void printHistory(NodeRef application) throws Exception {
 
         System.out.println("---------Printing history-------");
 
-        System.out.println("Current version (not in version history):");
-        System.out.println("NodeRef: " + application);
-        //Application app =
-
-        //TODO: Print current version
+        System.out.println("Current version (not in version history):\n");
+        System.out.println("\tNodeRef:                        " + application);
+        Application app = foundationBean.getApplication(application);
+        if (app.getState() != null) {
+            System.out.println("\tState:                          " + app.getState().getTitle());
+        }
+        System.out.println("\tDescription:                    " + app.getShortDescription());
+        System.out.println("\temail:                          " + app.getContactEmail());
 
         VersionHistory history = serviceRegistry.getVersionService().getVersionHistory(application);
-        Collection<Version> versions = history.getAllVersions();
-        System.out.println("# versions in version history = "  + versions.size());
-        for (Version ver : versions) {
-            System.out.println("\nVersion:");
-            System.out.println("\tnode-uuid (Props):                                           " + ver.getVersionProperties().get("node-uuid"));
-            System.out.println("\tFrozenStateNodeRef (getMethod): " + ver.getFrozenStateNodeRef());
-            System.out.println();
-            System.out.println("\tFrozenStateNodeRef (Props):     " + ver.getVersionProperties().get("frozenNodeRef"));
-            System.out.println("\tVersionNodeRef (getMethod):     " + ver.getVersionedNodeRef());
-            System.out.println("\tname (Props):                                           " + ver.getVersionProperties().get("name"));
-            System.out.println();
+        if (history != null) {
+            Collection<Version> versions = history.getAllVersions();
+            System.out.println("\n\n\nVersions in version history (" + versions.size() + "):");
+            for (Version ver : versions) {
+                System.out.println("\nVersion:");
+                System.out.println("\tnode-uuid (Props):                                           " + ver.getVersionProperties().get("node-uuid"));
+                System.out.println("\tFrozenStateNodeRef (getMethod): " + ver.getFrozenStateNodeRef());
+                System.out.println();
+                System.out.println("\tFrozenStateNodeRef (Props):     " + ver.getVersionProperties().get("frozenNodeRef"));
+                System.out.println("\tVersionNodeRef (getMethod):     " + ver.getVersionedNodeRef());
+                System.out.println("\tname (Props):                                           " + ver.getVersionProperties().get("name"));
+                System.out.println();
 
-            Application app = foundationBean.getApplication(ver.getFrozenStateNodeRef());
-            if (app.getState() != null) {
-                System.out.println("\tState:                          " + app.getState().getTitle());
+                app = foundationBean.getApplication(ver.getFrozenStateNodeRef());
+                if (app.getState() != null) {
+                    System.out.println("\tState:                          " + app.getState().getTitle());
+                }
+                System.out.println("\tDescription:                    " + app.getShortDescription());
+                System.out.println("\temail:                          " + app.getContactEmail());
+
+                //uncomment to print all properties on a version:
+                /*
+                System.out.println();
+                for (String s : ver.getVersionProperties().keySet()) {
+                    System.out.println("\t" + s + ": " + ver.getVersionProperties().get(s));
+                    //System.out.println(ver);
+                }
+                */
+
             }
-            System.out.println("\tDescription:                    " + app.getShortDescription());
-            System.out.println("\temail:                          " + app.getContactEmail());
-
-
-            //List<AssociationRef> assoc = serviceRegistry.getNodeService().getTargetAssocs(ver.getFrozenStateNodeRef(), Utilities.getODFName(Utilities.APPLICATION_ASSOC_STATE));
-            //State state = foundationBean.getState(assoc.get(0).getTargetRef());
-            //System.out.println("\tState:                          " + state.getTitle());
-            //System.out.println("\tDescription:                    " + ver.getDescription());
-            //System.out.println("\temail:                          " + ver.getVersionProperties().get("applicationContactEmail"));
-
-            /*
-            System.out.println();
-            for (String s : ver.getVersionProperties().keySet()) {
-                System.out.println("\t" + s + ": " + ver.getVersionProperties().get(s));
-                //System.out.println(ver);
-            }
-            */
-
         }
         System.out.println("--------------------------------\n\n\n\n");
     }
