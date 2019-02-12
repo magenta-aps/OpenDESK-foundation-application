@@ -1,31 +1,18 @@
 package dk.opendesk.foundationapplication;
 
-import com.benfante.jslideshare.App;
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.State;
 import dk.opendesk.foundationapplication.DAO.StateReference;
-import dk.opendesk.foundationapplication.DAO.Workflow;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import dk.opendesk.foundationapplication.enums.StateCategory;
 import dk.opendesk.repo.beans.NodeBean;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
-import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.cmr.version.VersionService;
-import org.json.JSONObject;
-import org.json.Test;
-import org.json.simple.JSONArray;
 
-import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import static dk.opendesk.foundationapplication.Utilities.ASPECT_ON_CREATE;
 
 public class VersionTest extends AbstractTestClass {
     private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
@@ -52,13 +39,12 @@ public class VersionTest extends AbstractTestClass {
     }
 
     public void testVersioning() throws Exception {
-        final boolean PRINT = true;
+        final boolean PRINT = false;
 
         NodeRef appRef = TestUtils.application1;
         String oldDesc = foundationBean.getApplication(appRef).getShortDescription();
 
         if (PRINT) printHistory(appRef);
-
 
 
         // --- FIRST CHANGE --- //
@@ -71,11 +57,10 @@ public class VersionTest extends AbstractTestClass {
 
         //There should now be one version in the history, and it should be the original application3
         Application headVersion = foundationBean.getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
-        assertEquals(1,versionService.getVersionHistory(appRef).getAllVersions().size());
+        assertEquals(1, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals(oldDesc, headVersion.getShortDescription());
 
         if (PRINT) printHistory(appRef);
-
 
 
         // --- SECOND CHANGE --- //
@@ -90,23 +75,16 @@ public class VersionTest extends AbstractTestClass {
 
         //There should now be two versions in the history and the newest on should be on state received and with desc = 'First change'
         headVersion = foundationBean.getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
-        assertEquals(2,versionService.getVersionHistory(appRef).getAllVersions().size());
+        assertEquals(2, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals(TestUtils.stateRecievedRef, headVersion.getState().asNodeRef());
-        assertEquals("First change",headVersion.getShortDescription());
+        assertEquals("First change", headVersion.getShortDescription());
 
         if (PRINT) printHistory(appRef);
 
 
-        //System.out.println("!!!!!!!!!!!!!!");
-
-        //JSONArray v = nodeBean.getVersions(TestUtils.application1);
-        //System.out.println(v);
-        //System.out.println("!!!!!!!!!!!!!!");
-
-
 
         // --- THIRD CHANGE --- //
-        if(PRINT) System.out.println("Change #3: Changing both state and description\n");
+        if (PRINT) System.out.println("Change #3: Changing both state and description\n");
 
         Application change3 = new Application();
         change3.parseRef(appRef);
@@ -118,9 +96,9 @@ public class VersionTest extends AbstractTestClass {
 
         //There should now be three versions and the newest one should be on state 'assess' and have description = 'First change'
         headVersion = foundationBean.getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
-        assertEquals(3,versionService.getVersionHistory(appRef).getAllVersions().size());
+        assertEquals(3, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals(TestUtils.stateAccessRef, headVersion.getState().asNodeRef());
-        assertEquals("First change",headVersion.getShortDescription());
+        assertEquals("First change", headVersion.getShortDescription());
 
         //Current version should be on state 'accepted' and have description = 'Third change'
         Application currentVersion = foundationBean.getApplication(TestUtils.application1);
@@ -128,30 +106,6 @@ public class VersionTest extends AbstractTestClass {
         assertEquals("Third change", currentVersion.getShortDescription());
 
         if (PRINT) printHistory(appRef);
-
-
-
-
-        /*
-        // --- FOURTH CHANGE --- //
-        if(PRINT) System.out.println("Change #4: Sending Email\n");
-
-        //saving a mail action to a state
-        JSONObject mailData = new JSONObject();
-        mailData.put("stateRef", TestUtils.stateAcceptedRef);
-        mailData.put("aspect", ASPECT_ON_CREATE);
-        post(mailData,"/foundation/actions/mail");
-
-
-        Application change4 = new Application();
-        change4.parseRef(appRef);
-        StateReference state4 = new StateReference();
-        ref3.parseRef(TestUtils.stateAcceptedRef);
-        change5.setState(ref3);
-        foundationBean.updateApplication(change5);
-
-        if (PRINT) printHistory(appRef);
-        */
 
     }
 
@@ -203,10 +157,4 @@ public class VersionTest extends AbstractTestClass {
         System.out.println("--------------------------------\n\n\n\n");
     }
 
-
-    public Map<String, Serializable> getVersionDifference(Version old, Version neo) {
-
-        throw new UnsupportedOperationException();
-    }
 }
-
