@@ -13,6 +13,7 @@ import static org.alfresco.repo.action.executer.MailActionExecuter.*;
 
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.version.Version;
+import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.namespace.QName;
 
 /**
@@ -943,4 +945,75 @@ public class FoundationBean {
         return action;
     }
 
+    public List<ApplicationChangeList> getApplicationHistory(NodeRef appRef) throws Exception {
+        List<ApplicationChangeList> changes = new ArrayList<>();
+
+        VersionHistory history = serviceRegistry.getVersionService().getVersionHistory(appRef);
+        Version current = history.getHeadVersion();
+
+        while (current != null) {
+            Version predecessor = history.getPredecessor(current);
+            if (predecessor == null) {
+
+            }
+            changes.add(getVersionDifference(predecessor,current));
+            current = history.getPredecessor(current);
+        }
+
+        return changes;
+    }
+
+    public ApplicationChangeList getVersionDifference(Version oldVersion, Version newVersion) throws Exception {
+        if (newVersion == null) {
+            throw new Exception("oldVersion must not be null");
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        Serializable timeStamp = sdf.format(newVersion.getFrozenModifiedDate());
+        NodeRef modifier = serviceRegistry.getPersonService().getPerson(newVersion.getFrozenModifier());
+        if (oldVersion == null) {
+            return new ApplicationChangeList(timeStamp,modifier,null); //todo make constructor take changeType
+        }
+        Application oldApp = getApplication(oldVersion.getFrozenStateNodeRef());
+        Application newApp = getApplication(newVersion.getFrozenStateNodeRef());
+        return new ApplicationChangeList(timeStamp,modifier,getApplicationDifference(oldApp, newApp));
+    }
+
+
+    public List<ApplicationChange> getApplicationDifference(Application oldVersion, Application newVersion) {
+
+        List<ApplicationChange> changes = new ArrayList<>();
+
+        //todo: tilføjes flere felter, dette er bare en prøve
+        if (!oldVersion.getState().equals(newVersion.getState())) {
+            changes.add(new ApplicationChange(STATE_PARAM_TITLE, oldVersion.getState().getTitle(), newVersion.getState().getTitle()));
+        }
+
+        if (!oldVersion.getContactFirstName().equals(newVersion.getContactFirstName())) {
+            changes.add(new ApplicationChange(APPLICATION_PARAM_PERSON_FIRSTNAME, oldVersion.getContactFirstName(),newVersion.getContactFirstName()));
+        }
+
+
+        throw new UnsupportedOperationException();
+    }
+    //JSONArray v = nodeBean.getVersions(TestUtils.application1);
+    //System.out.println(v);
+        /*
+        if(PRINT) System.out.println("Change #4: Sending Email\n");
+
+        //saving a mail action to a state
+        JSONObject mailData = new JSONObject();
+        mailData.put("stateRef", TestUtils.stateAcceptedRef);
+        mailData.put("aspect", ASPECT_ON_CREATE);
+        post(mailData,"/foundation/actions/mail");
+
+
+        Application change4 = new Application();
+        change4.parseRef(appRef);
+        StateReference state4 = new StateReference();
+        ref3.parseRef(TestUtils.stateAcceptedRef);
+        change5.setState(ref3);
+        foundationBean.updateApplication(change5);
+
+        if (PRINT) printHistory(appRef);
+        */
 }
