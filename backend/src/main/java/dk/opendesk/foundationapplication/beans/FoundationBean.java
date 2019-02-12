@@ -5,6 +5,7 @@
  */
 package dk.opendesk.foundationapplication.beans;
 
+import com.benfante.jslideshare.App;
 import dk.opendesk.foundationapplication.DAO.*;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.*;
@@ -30,6 +31,7 @@ import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchService;
+import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.namespace.QName;
 
 /**
@@ -106,11 +108,12 @@ public class FoundationBean {
             serviceRegistry.getNodeService().createAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
         }
 
+        serviceRegistry.getVersionService().createVersion(applicationRef, null);
+
         return applicationRef;
     }
 
     public void updateApplication(Application app) throws Exception {
-        serviceRegistry.getVersionService().createVersion(app.asNodeRef(),null);
 
         NodeService ns = serviceRegistry.getNodeService();
         Map<QName, Serializable> properties = new HashMap<>();
@@ -242,6 +245,8 @@ public class FoundationBean {
         }
         
         ns.addProperties(app.asNodeRef(), properties);
+
+        serviceRegistry.getVersionService().createVersion(app.asNodeRef(), null);
 
     }
     
@@ -937,4 +942,5 @@ public class FoundationBean {
 
         return action;
     }
+
 }
