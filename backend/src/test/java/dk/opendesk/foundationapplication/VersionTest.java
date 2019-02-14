@@ -1,17 +1,25 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.ApplicationChange;
+import dk.opendesk.foundationapplication.DAO.ApplicationChangeList;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.repo.beans.AuthorityBean;
 import dk.opendesk.repo.beans.NodeBean;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.rest.api.tests.client.data.Person;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.cmr.version.VersionService;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 
 public class VersionTest extends AbstractTestClass {
@@ -22,7 +30,7 @@ public class VersionTest extends AbstractTestClass {
     VersionService versionService = serviceRegistry.getVersionService();
 
     public VersionTest() {
-        super("");
+        super("foundation/application");
     }
 
     @Override
@@ -39,7 +47,7 @@ public class VersionTest extends AbstractTestClass {
     }
 
     public void testVersioning() throws Exception {
-        final boolean PRINT = false;
+        final boolean PRINT = true;
 
         NodeRef appRef = TestUtils.application1;
 
@@ -83,7 +91,6 @@ public class VersionTest extends AbstractTestClass {
         if (PRINT) printHistory(appRef);
 
 
-
         // --- THIRD CHANGE --- //
         if (PRINT) System.out.println("Change #3: Changing both state and description\n");
 
@@ -107,6 +114,36 @@ public class VersionTest extends AbstractTestClass {
         assertEquals("Third change", currentVersion.getShortDescription());
 
         if (PRINT) printHistory(appRef);
+
+
+        Set<NodeRef> people = serviceRegistry.getPersonService().getAllPeople();
+        for (NodeRef pRef : people) {
+            String userName = serviceRegistry.getPersonService().getPerson(pRef).getUserName();
+            System.out.println(userName);
+        }
+
+
+
+        List<ApplicationChangeList> changes = foundationBean.getApplicationHistory(appRef);
+
+        System.out.println(changes);
+
+        for (ApplicationChangeList changeList : changes) {
+            System.out.println("--");
+            System.out.println("Time: " + changeList.getTimesStamp());
+            System.out.println("Modifier: " + serviceRegistry.getPersonService().getPerson(changeList.getModifier()).getUserName());
+            for (ApplicationChange change : changeList.getChanges()) {
+                System.out.println("change: ");
+                System.out.println("\tfield: " + change.getChangedField());
+                System.out.println("\told value: " + change.getOldValue());
+                System.out.println("\tnew value: " + change.getNewValue());
+                System.out.println("\ttyp: " + change.getChangeType());
+            }
+        }
+
+        System.out.println("====================");
+        System.out.println(get(List.class, ApplicationChangeList.class, appRef+"/history"));
+
 
     }
 

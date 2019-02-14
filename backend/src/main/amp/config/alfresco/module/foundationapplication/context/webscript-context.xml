@@ -36,6 +36,12 @@
           parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
+
+    <bean id="webscript.foundation.applicationHistory.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplicationHistory"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
     
     <bean id="webscript.foundation.applicationtemplate.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.AddApplicationTemplate"

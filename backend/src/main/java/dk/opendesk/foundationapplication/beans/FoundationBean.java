@@ -953,11 +953,8 @@ public class FoundationBean {
 
         while (current != null) {
             Version predecessor = history.getPredecessor(current);
-            if (predecessor == null) {
-
-            }
             changes.add(getVersionDifference(predecessor,current));
-            current = history.getPredecessor(current);
+            current = predecessor;
         }
 
         return changes;
@@ -965,17 +962,21 @@ public class FoundationBean {
 
     public ApplicationChangeList getVersionDifference(Version oldVersion, Version newVersion) throws Exception {
         if (newVersion == null) {
-            throw new Exception("oldVersion must not be null");
+            throw new Exception("newVersion must not be null");
         }
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         Serializable timeStamp = sdf.format(newVersion.getFrozenModifiedDate());
         NodeRef modifier = serviceRegistry.getPersonService().getPerson(newVersion.getFrozenModifier());
-        if (oldVersion == null) {
-            return new ApplicationChangeList(timeStamp,modifier,null); //todo make constructor take changeType
-        }
-        Application oldApp = getApplication(oldVersion.getFrozenStateNodeRef());
+
         Application newApp = getApplication(newVersion.getFrozenStateNodeRef());
-        return new ApplicationChangeList(timeStamp,modifier,getApplicationDifference(oldApp, newApp));
+        if (oldVersion != null) {
+            Application oldApp = getApplication(oldVersion.getFrozenStateNodeRef());
+            return new ApplicationChangeList(timeStamp, modifier, getApplicationDifference(oldApp, newApp));
+        } else {
+            return new ApplicationChangeList(timeStamp,modifier,getApplicationDifference(null, newApp));
+        }
+
     }
 
 
@@ -983,17 +984,27 @@ public class FoundationBean {
 
         List<ApplicationChange> changes = new ArrayList<>();
 
+        if (oldVersion == null) {
+            changes.add(new ApplicationChange(STATE_PARAM_TITLE, null, newVersion.getState().getTitle(), APPLICATION_CHANGE_CREATED));
+            changes.add(new ApplicationChange(APPLICATION_PARAM_SHORT_DESCRIPTION, null, newVersion.getShortDescription(),APPLICATION_CHANGE_CREATED));
+            changes.add(new ApplicationChange(APPLICATION_PARAM_PERSON_FIRSTNAME, null, newVersion.getContactFirstName(),APPLICATION_CHANGE_CREATED));
+            return changes;
+        }
+
         //todo: tilføjes flere felter, dette er bare en prøve
         if (!oldVersion.getState().equals(newVersion.getState())) {
-            changes.add(new ApplicationChange(STATE_PARAM_TITLE, oldVersion.getState().getTitle(), newVersion.getState().getTitle()));
+            changes.add(new ApplicationChange(STATE_PARAM_TITLE, oldVersion.getState().getTitle(), newVersion.getState().getTitle(),APPLICATION_CHANGE_STATE));
+        }
+
+        if (!oldVersion.getShortDescription().equals(newVersion.getShortDescription())) {
+            changes.add(new ApplicationChange(APPLICATION_PARAM_SHORT_DESCRIPTION, oldVersion.getShortDescription(),newVersion.getShortDescription(),APPLICATION_CHANGE_PROP));
         }
 
         if (!oldVersion.getContactFirstName().equals(newVersion.getContactFirstName())) {
-            changes.add(new ApplicationChange(APPLICATION_PARAM_PERSON_FIRSTNAME, oldVersion.getContactFirstName(),newVersion.getContactFirstName()));
+            changes.add(new ApplicationChange(APPLICATION_PARAM_PERSON_FIRSTNAME, oldVersion.getContactFirstName(),newVersion.getContactFirstName(),APPLICATION_CHANGE_PROP));
         }
 
-
-        throw new UnsupportedOperationException();
+        return changes;
     }
     //JSONArray v = nodeBean.getVersions(TestUtils.application1);
     //System.out.println(v);

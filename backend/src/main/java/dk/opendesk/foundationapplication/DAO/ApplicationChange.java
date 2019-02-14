@@ -7,11 +7,17 @@ public class ApplicationChange {
     private String changedField;
     private Serializable oldValue;
     private Serializable newValue;
+    private String changeType;
 
-    public ApplicationChange(String changedField, Serializable oldValue, Serializable newValue) {
+    public ApplicationChange() {
+
+    }
+
+    public ApplicationChange(String changedField, Serializable oldValue, Serializable newValue, String changeType) {
         this.changedField = changedField;
         this.oldValue = oldValue;
         this.newValue = newValue;
+        this.changeType = changeType;
     }
 
     public String getChangedField() {
@@ -24,5 +30,9 @@ public class ApplicationChange {
 
     public Serializable getNewValue() {
         return newValue;
+    }
+
+    public String getChangeType() {
+        return changeType;
     }
 }

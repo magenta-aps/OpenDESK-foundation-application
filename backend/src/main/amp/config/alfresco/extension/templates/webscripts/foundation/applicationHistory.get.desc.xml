@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Application History</shortname>
+    <description>Gets a list of the changes made to an application with timestamp and modifier (user) </description>
+    <url>/foundation/application/{applicationID}/history</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

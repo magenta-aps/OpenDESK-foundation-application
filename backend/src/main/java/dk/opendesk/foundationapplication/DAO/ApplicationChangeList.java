@@ -3,7 +3,6 @@ package dk.opendesk.foundationapplication.DAO;
 import org.alfresco.service.cmr.repository.NodeRef;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ApplicationChangeList extends ApplicationReference {
@@ -11,7 +10,10 @@ public class ApplicationChangeList extends ApplicationReference {
     private Serializable timesStamp;
     private NodeRef modifier;
     private List<ApplicationChange> changes;
-    //todo make changeType field
+
+    public ApplicationChangeList() {
+    
+    }
 
     public ApplicationChangeList(Serializable timesStamp, NodeRef modifier, List<ApplicationChange> changes) {
         this.timesStamp = timesStamp;

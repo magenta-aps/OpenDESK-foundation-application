@@ -94,6 +94,14 @@ public final class Utilities {
     public static final String APPLICATION_PARAM_ACCOUNT_NUMBER = "applicationAccountNumber";
     public static final String APPLICATION_PARAM_CVR = "cvr";
 
+    public static final String APPLICATION_CHANGE_CREATED = "applicationCreation";
+    public static final String APPLICATION_CHANGE_EMAIL = "email";
+    public static final String APPLICATION_CHANGE_STATE = "stateChange";
+    public static final String APPLICATION_CHANGE_PROP = "propertyChange";
+    public static final String APPLICATION_CHANGE_BUDGET = "budgetChange";
+    public static final String APPLICATION_CHANGE_BRANCH = "branchChange";
+
+
     public static final String ASPECT_ON_CREATE = "onCreate";
     public static final String ASPECT_BEFORE_DELETE = "beforeDelete";
 
@@ -127,8 +135,11 @@ public final class Utilities {
         NodeRef rootRef = nodeService.getRootNode(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
         
         List<NodeRef> refs = searchService.selectNodes(rootRef, InitialStructure.DATA_PATH, null, namespaceService, false);
-        if (refs.size() != 1) {
+        if (refs.size() > 1) {
             throw new AlfrescoRuntimeException("Failed to create structure: Returned multiple refs for " + InitialStructure.DATA_PATH);
+        }
+        if (refs.size() == 0) {
+            throw new  AlfrescoRuntimeException("Failed to create structure: No refs returned for " + InitialStructure.DATA_PATH);
         }
         
         return refs.get(0);
