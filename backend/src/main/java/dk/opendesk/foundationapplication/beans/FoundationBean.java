@@ -5,7 +5,6 @@
  */
 package dk.opendesk.foundationapplication.beans;
 
-import com.benfante.jslideshare.App;
 import dk.opendesk.foundationapplication.DAO.*;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.*;
@@ -13,7 +12,6 @@ import static org.alfresco.repo.action.executer.MailActionExecuter.*;
 
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -945,8 +943,8 @@ public class FoundationBean {
         return action;
     }
 
-    public List<ApplicationChangeList> getApplicationHistory(NodeRef appRef) throws Exception {
-        List<ApplicationChangeList> changes = new ArrayList<>();
+    public List<ApplicationChange> getApplicationHistory(NodeRef appRef) throws Exception {
+        List<ApplicationChange> changes = new ArrayList<>();
 
         VersionHistory history = serviceRegistry.getVersionService().getVersionHistory(appRef);
         Version current = history.getHeadVersion();
@@ -960,48 +958,44 @@ public class FoundationBean {
         return changes;
     }
 
-    public ApplicationChangeList getVersionDifference(Version oldVersion, Version newVersion) throws Exception {
+    public ApplicationChange getVersionDifference(Version oldVersion, Version newVersion) throws Exception {
         if (newVersion == null) {
             throw new Exception("newVersion must not be null");
         }
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        Serializable timeStamp = sdf.format(newVersion.getFrozenModifiedDate());
-        NodeRef modifier = serviceRegistry.getPersonService().getPerson(newVersion.getFrozenModifier());
+        Date timeStamp = newVersion.getFrozenModifiedDate();
+        String modifier = newVersion.getFrozenModifier();
+        NodeRef modifierId = serviceRegistry.getPersonService().getPerson(modifier);
 
         Application newApp = getApplication(newVersion.getFrozenStateNodeRef());
-        if (oldVersion != null) {
-            Application oldApp = getApplication(oldVersion.getFrozenStateNodeRef());
-            return new ApplicationChangeList(timeStamp, modifier, getApplicationDifference(oldApp, newApp));
-        } else {
-            return new ApplicationChangeList(timeStamp,modifier,getApplicationDifference(null, newApp));
-        }
+        Application oldApp = (oldVersion == null) ? null : getApplication(oldVersion.getFrozenStateNodeRef());
 
+        return new ApplicationChange().setTimeStamp(timeStamp).setModifier(modifier).setModifierId(modifierId).setChangeList(getApplicationDifference(oldApp, newApp));
     }
 
 
-    public List<ApplicationChange> getApplicationDifference(Application oldVersion, Application newVersion) {
+    public List<ApplicationChangeUnit> getApplicationDifference(Application oldVersion, Application newVersion) {
 
-        List<ApplicationChange> changes = new ArrayList<>();
+        List<ApplicationChangeUnit> changes = new ArrayList<>();
 
         if (oldVersion == null) {
-            changes.add(new ApplicationChange(STATE_PARAM_TITLE, null, newVersion.getState().getTitle(), APPLICATION_CHANGE_CREATED));
-            changes.add(new ApplicationChange(APPLICATION_PARAM_SHORT_DESCRIPTION, null, newVersion.getShortDescription(),APPLICATION_CHANGE_CREATED));
-            changes.add(new ApplicationChange(APPLICATION_PARAM_PERSON_FIRSTNAME, null, newVersion.getContactFirstName(),APPLICATION_CHANGE_CREATED));
+            changes.add(new ApplicationChangeUnit().setChangedField(STATE_PARAM_TITLE).setNewValue(newVersion.getState().getTitle()).setChangeType(APPLICATION_CHANGE_CREATED));
+            changes.add(new ApplicationChangeUnit().setChangedField(APPLICATION_PARAM_SHORT_DESCRIPTION).setNewValue(newVersion.getShortDescription()).setChangeType(APPLICATION_CHANGE_CREATED));
+            changes.add(new ApplicationChangeUnit().setChangedField(APPLICATION_PARAM_PERSON_FIRSTNAME).setNewValue(newVersion.getContactFirstName()).setChangeType(APPLICATION_CHANGE_CREATED));
             return changes;
         }
 
         //todo: tilføjes flere felter, dette er bare en prøve
         if (!oldVersion.getState().equals(newVersion.getState())) {
-            changes.add(new ApplicationChange(STATE_PARAM_TITLE, oldVersion.getState().getTitle(), newVersion.getState().getTitle(),APPLICATION_CHANGE_STATE));
+            changes.add(new ApplicationChangeUnit().setChangedField(STATE_PARAM_TITLE).setOldValue(oldVersion.getState().getTitle()).setNewValue(newVersion.getState().getTitle()).setChangeType(APPLICATION_CHANGE_STATE));
         }
 
         if (!oldVersion.getShortDescription().equals(newVersion.getShortDescription())) {
-            changes.add(new ApplicationChange(APPLICATION_PARAM_SHORT_DESCRIPTION, oldVersion.getShortDescription(),newVersion.getShortDescription(),APPLICATION_CHANGE_PROP));
+            changes.add(new ApplicationChangeUnit().setChangedField(APPLICATION_PARAM_SHORT_DESCRIPTION).setOldValue(oldVersion.getShortDescription()).setNewValue(newVersion.getShortDescription()).setChangeType(APPLICATION_CHANGE_PROP));
         }
 
         if (!oldVersion.getContactFirstName().equals(newVersion.getContactFirstName())) {
-            changes.add(new ApplicationChange(APPLICATION_PARAM_PERSON_FIRSTNAME, oldVersion.getContactFirstName(),newVersion.getContactFirstName(),APPLICATION_CHANGE_PROP));
+            changes.add(new ApplicationChangeUnit().setChangedField(APPLICATION_PARAM_PERSON_FIRSTNAME).setOldValue(oldVersion.getContactFirstName()).setNewValue(newVersion.getContactFirstName()).setChangeType(APPLICATION_CHANGE_PROP));
         }
 
         return changes;

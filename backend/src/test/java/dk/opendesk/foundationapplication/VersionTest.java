@@ -2,17 +2,13 @@ package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationChange;
-import dk.opendesk.foundationapplication.DAO.ApplicationChangeList;
+import dk.opendesk.foundationapplication.DAO.ApplicationChangeUnit;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import dk.opendesk.repo.beans.AuthorityBean;
 import dk.opendesk.repo.beans.NodeBean;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.rest.api.tests.client.data.Person;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.cmr.version.VersionService;
@@ -20,6 +16,8 @@ import org.alfresco.service.cmr.version.VersionService;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
+import static dk.opendesk.foundationapplication.Utilities.*;
 
 
 public class VersionTest extends AbstractTestClass {
@@ -47,9 +45,10 @@ public class VersionTest extends AbstractTestClass {
     }
 
     public void testVersioning() throws Exception {
-        final boolean PRINT = true;
+        final boolean PRINT = false;
 
         NodeRef appRef = TestUtils.application1;
+        String origDesc = foundationBean.getApplication(appRef).getShortDescription();
 
         assertEquals(1,versionService.getVersionHistory(appRef).getAllVersions().size());
 
@@ -116,36 +115,47 @@ public class VersionTest extends AbstractTestClass {
         if (PRINT) printHistory(appRef);
 
 
-        Set<NodeRef> people = serviceRegistry.getPersonService().getAllPeople();
-        for (NodeRef pRef : people) {
-            String userName = serviceRegistry.getPersonService().getPerson(pRef).getUserName();
-            System.out.println(userName);
-        }
+        // --- TESTING THE WEBSCRIPT --- //
+        List<ApplicationChange> changeLists = get(List.class, ApplicationChange.class, appRef+"/history");
 
+        //Testing the changes made when creating the original version
+        ApplicationChange changeList = changeLists.get(3);
+        assertEquals("admin", changeList.getModifier());
+        assertEquals(serviceRegistry.getPersonService().getPerson("admin").toString(), changeList.getModifierId());
+        List<ApplicationChangeUnit> appChanges = changeList.getChanges();
+        assertEquals(APPLICATION_CHANGE_CREATED, appChanges.get(0).getChangeType());
+        assertEquals(null, appChanges.get(0).getOldValue());
 
+        //Testing the first change
+        List<ApplicationChangeUnit> changeUnits = changeLists.get(2).getChanges();
+        assertEquals(1, changeUnits.size());
+        assertEquals(APPLICATION_PARAM_SHORT_DESCRIPTION, changeUnits.get(0).getChangedField());
+        assertEquals(origDesc, changeUnits.get(0).getOldValue());
+        assertEquals("First change", changeUnits.get(0).getNewValue());
+        assertEquals(APPLICATION_CHANGE_PROP, changeUnits.get(0).getChangeType());
 
-        List<ApplicationChangeList> changes = foundationBean.getApplicationHistory(appRef);
+        //Testing the second change
+        changeUnits = changeLists.get(1).getChanges();
+        assertEquals(1, changeUnits.size());
+        assertEquals(STATE_PARAM_TITLE, changeUnits.get(0).getChangedField());
+        assertEquals(foundationBean.getState(TestUtils.stateRecievedRef).getTitle(), changeUnits.get(0).getOldValue());
+        assertEquals(foundationBean.getState(TestUtils.stateAccessRef).getTitle(), changeUnits.get(0).getNewValue());
+        assertEquals(APPLICATION_CHANGE_STATE, changeUnits.get(0).getChangeType());
 
-        System.out.println(changes);
-
-        for (ApplicationChangeList changeList : changes) {
-            System.out.println("--");
-            System.out.println("Time: " + changeList.getTimesStamp());
-            System.out.println("Modifier: " + serviceRegistry.getPersonService().getPerson(changeList.getModifier()).getUserName());
-            for (ApplicationChange change : changeList.getChanges()) {
-                System.out.println("change: ");
-                System.out.println("\tfield: " + change.getChangedField());
-                System.out.println("\told value: " + change.getOldValue());
-                System.out.println("\tnew value: " + change.getNewValue());
-                System.out.println("\ttyp: " + change.getChangeType());
-            }
-        }
-
-        System.out.println("====================");
-        System.out.println(get(List.class, ApplicationChangeList.class, appRef+"/history"));
-
+        //Testing the third change
+        changeUnits = changeLists.get(0).getChanges();
+        assertEquals(2, changeUnits.size());
+        assertEquals(STATE_PARAM_TITLE, changeUnits.get(0).getChangedField());
+        assertEquals(foundationBean.getState(TestUtils.stateAccessRef).getTitle(), changeUnits.get(0).getOldValue());
+        assertEquals(foundationBean.getState(TestUtils.stateAcceptedRef).getTitle(), changeUnits.get(0).getNewValue());
+        assertEquals(APPLICATION_CHANGE_STATE, changeUnits.get(0).getChangeType());
+        assertEquals(APPLICATION_PARAM_SHORT_DESCRIPTION, changeUnits.get(1).getChangedField());
+        assertEquals("First change", changeUnits.get(1).getOldValue());
+        assertEquals("Third change", changeUnits.get(1).getNewValue());
+        assertEquals(APPLICATION_CHANGE_PROP, changeUnits.get(1).getChangeType());
 
     }
+
 
     private void printHistory(NodeRef application) throws Exception {
 
