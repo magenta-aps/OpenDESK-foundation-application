@@ -6,6 +6,7 @@ import dk.opendesk.foundationapplication.actions.EmailAction;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.repo.model.OpenDeskModel;
 import org.alfresco.repo.action.ActionImpl;
+import org.alfresco.repo.action.executer.MailActionExecuter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.action.Action;
@@ -56,6 +57,12 @@ public class EmailTest extends AbstractTestClass{
         foundationBean.updateApplication(application);
 
         serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
+    }
+
+    public void testEmail() {
+        Action action = foundationBean.configureEmailAction("email.html.ftl" , "Subject of test mail", "astrid@localhost");
+        MailActionExecuter executer = new MailActionExecuter();
+        executer.sendTestMessage();
     }
 
 

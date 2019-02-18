@@ -5,36 +5,33 @@ import dk.opendesk.foundationapplication.beans.FoundationBean;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
 
 import org.alfresco.repo.action.executer.MailActionExecuter;
-import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.util.Pair;
+import org.springframework.mail.javamail.MimeMessageHelper;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EmailAction extends MailActionExecuter {
 
     private static final String RECIPIENT = "recipient";
     private static final String EMAIL_TYPE = "emailTemplateType";
+    private static ThreadLocal<MimeMessage> threadLocal = new ThreadLocal<>();
 
     private FoundationBean foundationBean;
-    //private NodeService nodeService;
 
     public void setFoundationBean(FoundationBean foundationBean) {
         this.foundationBean = foundationBean;
     }
 
-    //public void setNodeService(NodeService nodeService)
-    //{
-    //    this.nodeService = nodeService;
-    //}
 
-    //String recipient = (String) action.getParameterValue(RECIPIENT);
     /**
      * Send an email message
      *
@@ -53,10 +50,12 @@ public class EmailAction extends MailActionExecuter {
             model.put("body", "Der var en mand der hed " + application.getContactFirstName() ); //temp body for temp template
 
             ruleAction.setParameterValue(PARAM_TO, application.getContactEmail());
-            ruleAction.setParameterValue(PARAM_TEMPLATE_MODEL, (Serializable) model); //??
+            ruleAction.setParameterValue(PARAM_TEMPLATE_MODEL, (Serializable) model);
 
             //TODO skal det tjekkes at template, subject og from er blevet sat inden eksekvering
+            System.out.println(super.getNumberSuccessfulSends());
             super.executeImpl(ruleAction,actionedUponNodeRef);
+            System.out.println(super.getNumberSuccessfulSends());
 
             //TODO save info on template, date/time, recipient
 
@@ -65,6 +64,52 @@ public class EmailAction extends MailActionExecuter {
         }
 
     }
+
+
+    @Override
+    public MimeMessageHelper prepareEmail(final Action ruleAction , final NodeRef actionedUponNodeRef, final Pair<String, Locale> recipient, final Pair<InternetAddress, Locale> sender) {
+        MimeMessageHelper mimeMessageHelper = super.prepareEmail(ruleAction, actionedUponNodeRef, recipient, sender);
+        saveEmailCopy(mimeMessageHelper);
+        //threadLocal.set(mimeMessageHelper.getMimeMessage());
+        return mimeMessageHelper;
+    }
+
+    private void saveEmailCopy(MimeMessageHelper mimeMessageHelper) {
+        System.out.println("--Saving email copy --");
+        try {
+
+            Enumeration headers = mimeMessageHelper.getMimeMessage().getAllHeaderLines();
+            while (headers.hasMoreElements()) {
+                System.out.println(headers.nextElement());
+            }
+
+            System.out.println(mimeMessageHelper.getMimeMessage().getReceivedDate());
+
+            System.out.println(mimeMessageHelper.getMimeMessage().getDescription());
+
+            System.out.println(mimeMessageHelper.getMimeMessage().getContent());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    protected void onSend() {
+        //MimeMessage message = threadLocal.get();
+        //try {
+            //System.out.println(message.getSentDate());
+            //System.out.println(message);
+        //} catch (MessagingException e) {
+          //  e.printStackTrace();
+        //}
+        super.onSend();
+    }
+
+
 
     /**
      * Add the parameter definitions
