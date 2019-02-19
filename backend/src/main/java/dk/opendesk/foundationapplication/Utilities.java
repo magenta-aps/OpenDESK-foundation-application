@@ -151,6 +151,10 @@ public final class Utilities {
         }
         return QName.createQName(foundationNameSpace, name);
     }
+
+    public static QName getCMName(String name) {
+        return QName.createQName("http://www.alfresco.org/model/content/1.0", name);
+    }
     
     public static boolean stringExists(String s){
         return s != null && !s.isEmpty();

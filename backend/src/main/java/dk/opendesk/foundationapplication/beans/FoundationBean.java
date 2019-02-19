@@ -8,21 +8,23 @@ package dk.opendesk.foundationapplication.beans;
 import dk.opendesk.foundationapplication.DAO.*;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.*;
+import static org.alfresco.model.ContentModel.*;
 import static org.alfresco.repo.action.executer.MailActionExecuter.*;
 
 import dk.opendesk.foundationapplication.enums.StateCategory;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import dk.opendesk.repo.model.OpenDeskModel;
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionDefinition;
@@ -33,6 +35,9 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.namespace.QName;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 /**
  *
@@ -1000,6 +1005,68 @@ public class FoundationBean {
 
         return changes;
     }
+
+
+    public NodeRef getOrCreateFolder(NodeRef applicationRef, String folderName){
+        NodeRef folder = null;
+        try {
+            folder = serviceRegistry.getNodeService().getChildByName(applicationRef, getODFName(folderName), "cm:" + folderName);
+            if (folder == null) {
+                ChildAssociationRef childRef = serviceRegistry.getNodeService().createNode(applicationRef, getODFName(folderName), getCMName(folderName), getCMName("Folder"));
+                folder = childRef.getChildRef();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return folder;
+    }
+
+
+    public void saveEmailCopy(MimeMessage mimeMessage, NodeRef applicationRef) {
+
+        String folderName = "emailFolder";
+        String fileName = null;
+        NodeRef emailFolderRef = null;
+
+        //setting filename and creating email folder if it does not already exist
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");  //todo: Hvad vil vi have filen til at hedde?
+            fileName = sdf.format(mimeMessage.getSentDate()) + ".txt";
+
+            emailFolderRef = serviceRegistry.getNodeService().getChildByName(applicationRef, getODFName(folderName), "cm:" + folderName);
+            if (emailFolderRef == null) {
+                emailFolderRef = serviceRegistry.getNodeService().createNode(applicationRef, getODFName(folderName), getCMName(folderName), TYPE_FOLDER).getChildRef();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //creating the file
+        Map<QName, Serializable> properties = new HashMap<>();
+        properties.put(getCMName("name"), fileName);
+
+        NodeRef fileRef = serviceRegistry.getNodeService().createNode(emailFolderRef, ASSOC_CONTAINS,
+                getCMName("test"), TYPE_CONTENT, properties).getChildRef();
+
+        //writing to file
+        ContentWriter contentWriter = serviceRegistry.getContentService().getWriter(fileRef, PROP_CONTENT, true);
+        contentWriter.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN);
+
+        try (OutputStream s = contentWriter.getContentOutputStream(); PrintWriter printWriter = new PrintWriter(s)) {
+            Enumeration headers = mimeMessage.getAllHeaderLines();
+            while (headers.hasMoreElements()) {
+                printWriter.println(headers.nextElement());
+            }
+            printWriter.println(mimeMessage.getContent());
+        } catch (IOException | MessagingException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
     //JSONArray v = nodeBean.getVersions(TestUtils.application1);
     //System.out.println(v);
         /*

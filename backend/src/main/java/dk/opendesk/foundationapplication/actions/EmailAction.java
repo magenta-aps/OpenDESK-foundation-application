@@ -23,7 +23,7 @@ public class EmailAction extends MailActionExecuter {
 
     private static final String RECIPIENT = "recipient";
     private static final String EMAIL_TYPE = "emailTemplateType";
-    private static ThreadLocal<MimeMessage> threadLocal = new ThreadLocal<>();
+    private static ThreadLocal<Pair<MimeMessage,NodeRef>> threadLocal = new ThreadLocal<>();
 
     private FoundationBean foundationBean;
 
@@ -53,9 +53,9 @@ public class EmailAction extends MailActionExecuter {
             ruleAction.setParameterValue(PARAM_TEMPLATE_MODEL, (Serializable) model);
 
             //TODO skal det tjekkes at template, subject og from er blevet sat inden eksekvering
-            System.out.println(super.getNumberSuccessfulSends());
+            //System.out.println(super.getNumberSuccessfulSends());
             super.executeImpl(ruleAction,actionedUponNodeRef);
-            System.out.println(super.getNumberSuccessfulSends());
+            //System.out.println(super.getNumberSuccessfulSends());
 
             //TODO save info on template, date/time, recipient
 
@@ -69,43 +69,40 @@ public class EmailAction extends MailActionExecuter {
     @Override
     public MimeMessageHelper prepareEmail(final Action ruleAction , final NodeRef actionedUponNodeRef, final Pair<String, Locale> recipient, final Pair<InternetAddress, Locale> sender) {
         MimeMessageHelper mimeMessageHelper = super.prepareEmail(ruleAction, actionedUponNodeRef, recipient, sender);
-        saveEmailCopy(mimeMessageHelper);
-        //threadLocal.set(mimeMessageHelper.getMimeMessage());
+        threadLocal.set(new Pair<>(mimeMessageHelper.getMimeMessage(),actionedUponNodeRef));
         return mimeMessageHelper;
     }
 
-    private void saveEmailCopy(MimeMessageHelper mimeMessageHelper) {
+    //private void saveEmailCopy(MimeMessage mimeMessage, NodeRef actionedUponNodeRef) {
+      //  foundationBean.saveEmail(mimeMessage,actionedUponNodeRef);
+
+        /*
+        NodeRef emailFolder = foundationBean.getOrCreateFolder(actionedUponNodeRef, "emailFolder");
+        NodeRef email = foundationBean.createDocument(emailFolder);
         System.out.println("--Saving email copy --");
         try {
 
-            Enumeration headers = mimeMessageHelper.getMimeMessage().getAllHeaderLines();
+            Enumeration headers = mimeMessage.getAllHeaderLines();
             while (headers.hasMoreElements()) {
                 System.out.println(headers.nextElement());
             }
 
-            System.out.println(mimeMessageHelper.getMimeMessage().getReceivedDate());
+            System.out.println(mimeMessage.getContent());
 
-            System.out.println(mimeMessageHelper.getMimeMessage().getDescription());
-
-            System.out.println(mimeMessageHelper.getMimeMessage().getContent());
 
         } catch (IOException e) {
             e.printStackTrace();
         } catch (MessagingException e) {
             e.printStackTrace();
         }
-    }
+        */
+    //}
 
 
     @Override
     protected void onSend() {
-        //MimeMessage message = threadLocal.get();
-        //try {
-            //System.out.println(message.getSentDate());
-            //System.out.println(message);
-        //} catch (MessagingException e) {
-          //  e.printStackTrace();
-        //}
+        Pair message = threadLocal.get();
+        foundationBean.saveEmailCopy((MimeMessage) message.getFirst(), (NodeRef) message.getSecond());
         super.onSend();
     }
 
