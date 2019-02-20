@@ -12,10 +12,8 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.util.Pair;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
-import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -46,18 +44,14 @@ public class EmailAction extends MailActionExecuter {
             Map<String, Serializable> model = new HashMap<>();
             model.put("firstName", application.getContactFirstName());
             model.put("lastName", application.getContactLastName());
-            model.put("subject", "test-test-test"); //temp subject for temp template
-            model.put("body", "Der var en mand der hed " + application.getContactFirstName() ); //temp body for temp template
+            model.put("subject", "test-test-test"); //todo temp subject for temp template
+            model.put("body", "Der var en mand der hed " + application.getContactFirstName() ); //todo temp body for temp template
 
             ruleAction.setParameterValue(PARAM_TO, application.getContactEmail());
             ruleAction.setParameterValue(PARAM_TEMPLATE_MODEL, (Serializable) model);
 
             //TODO skal det tjekkes at template, subject og from er blevet sat inden eksekvering
-            //System.out.println(super.getNumberSuccessfulSends());
             super.executeImpl(ruleAction,actionedUponNodeRef);
-            //System.out.println(super.getNumberSuccessfulSends());
-
-            //TODO save info on template, date/time, recipient
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -72,31 +66,6 @@ public class EmailAction extends MailActionExecuter {
         threadLocal.set(new Pair<>(mimeMessageHelper.getMimeMessage(),actionedUponNodeRef));
         return mimeMessageHelper;
     }
-
-    //private void saveEmailCopy(MimeMessage mimeMessage, NodeRef actionedUponNodeRef) {
-      //  foundationBean.saveEmail(mimeMessage,actionedUponNodeRef);
-
-        /*
-        NodeRef emailFolder = foundationBean.getOrCreateFolder(actionedUponNodeRef, "emailFolder");
-        NodeRef email = foundationBean.createDocument(emailFolder);
-        System.out.println("--Saving email copy --");
-        try {
-
-            Enumeration headers = mimeMessage.getAllHeaderLines();
-            while (headers.hasMoreElements()) {
-                System.out.println(headers.nextElement());
-            }
-
-            System.out.println(mimeMessage.getContent());
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
-        */
-    //}
 
 
     @Override

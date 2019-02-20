@@ -6,6 +6,7 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.NodeRef;
 
 import java.util.List;
@@ -54,15 +55,50 @@ public class EmailTest extends AbstractTestClass{
         application.parseRef(TestUtils.application1);
         foundationBean.updateApplication(application);
 
+        //sending the email
         serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
-        //todo tirsdag : emailfolder er null :(
 
-        NodeRef emailFolder = serviceRegistry.getNodeService().getChildByName(TestUtils.application1, Utilities.getODFName("emailFolder"), "cm:emailFolder");
-        System.out.println(emailFolder + "<--");
-        List<ChildAssociationRef> childrenRefs = serviceRegistry.getNodeService().getChildAssocs(emailFolder);
-        //assertEquals(1, childrenRefs.size());
-        //FileInfo fileInfo = serviceRegistry.getFileFolderService().getFileInfo(childrenRefs.get(0).getChildRef());
-        //System.out.println(fileInfo.getContentData());
+        //getting the email folder from the application
+        List<ChildAssociationRef> childAssociationRefs = serviceRegistry.getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName("emailFolder"), null);
+        assertEquals(1, childAssociationRefs.size()); //there should only be one folder
+        NodeRef emailFolderRef = childAssociationRefs.get(0).getChildRef();
+
+        //getting the contents of the email folder
+        List<ChildAssociationRef> childrenRefs = serviceRegistry.getNodeService().getChildAssocs(emailFolderRef);
+        assertEquals(1, childrenRefs.size()); //there should be one email in the folder
+
+        ContentReader reader = serviceRegistry.getFileFolderService().getReader(childrenRefs.get(0).getChildRef());
+        String[] lines = reader.getContentString().split("\n");
+        for (String s : lines) {
+            if (s.startsWith("From:")) {
+                assertEquals("From: astrid@localhost", s);
+            }
+        }
+        assertEquals("<html>", lines[9]);
+
+
+        //sending one more email
+        Thread.sleep(2000); //avoid duplicate filenames
+        serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
+
+        //getting the email folder from the application
+        childAssociationRefs = serviceRegistry.getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName("emailFolder"), null);
+        assertEquals(1, childAssociationRefs.size()); //there should still only be one folder
+        emailFolderRef = childAssociationRefs.get(0).getChildRef();
+
+        //getting the contents of the email folder
+        childrenRefs = serviceRegistry.getNodeService().getChildAssocs(emailFolderRef);
+        assertEquals(2, childrenRefs.size()); //there should now be two emails in the folder
+
+        reader = serviceRegistry.getFileFolderService().getReader(childrenRefs.get(1).getChildRef());
+        lines = reader.getContentString().split("\n");
+        for (String s : lines) {
+            if (s.startsWith("From:")) {
+                assertEquals("From: astrid@localhost", s);
+            }
+        }
+        assertEquals("<html>", lines[9]);
+
     }
 
     /*

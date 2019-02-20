@@ -1031,13 +1031,20 @@ public class FoundationBean {
 
         //setting filename and creating email folder if it does not already exist
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");  //todo: Hvad vil vi have filen til at hedde?
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS");  //todo: Hvad vil vi have filen til at hedde?
             fileName = sdf.format(mimeMessage.getSentDate()) + ".txt";
 
-            emailFolderRef = serviceRegistry.getNodeService().getChildByName(applicationRef, getODFName(folderName), "cm:" + folderName);
-            if (emailFolderRef == null) {
+            List<ChildAssociationRef> childAssociationRefs = serviceRegistry.getNodeService().getChildAssocs(applicationRef, Utilities.getODFName("emailFolder"), null);
+            if (childAssociationRefs.size() == 0) {
                 emailFolderRef = serviceRegistry.getNodeService().createNode(applicationRef, getODFName(folderName), getCMName(folderName), TYPE_FOLDER).getChildRef();
             }
+            else if (childAssociationRefs.size() == 1) {
+                emailFolderRef = childAssociationRefs.get(0).getChildRef();
+            }
+            else {
+                throw new Exception("More than one email folder created on application " + applicationRef);
+            }
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1059,6 +1066,7 @@ public class FoundationBean {
             while (headers.hasMoreElements()) {
                 printWriter.println(headers.nextElement());
             }
+            printWriter.println();
             printWriter.println(mimeMessage.getContent());
         } catch (IOException | MessagingException e) {
             e.printStackTrace();
