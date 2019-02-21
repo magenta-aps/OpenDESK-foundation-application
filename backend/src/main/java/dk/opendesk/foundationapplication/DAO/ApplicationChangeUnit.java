@@ -11,6 +11,7 @@ public class ApplicationChangeUnit {
     private String changedField;
     private String oldValue;
     private String newValue;
+    private String newValueLink;
     private String changeType;
 
     public ApplicationChangeUnit() {
@@ -33,6 +34,10 @@ public class ApplicationChangeUnit {
         return changeType;
     }
 
+    public String getNewValueLink() {
+        return newValueLink;
+    }
+
 
     @JsonIgnore
     public ApplicationChangeUnit setChangedField(String changedField) {
@@ -50,6 +55,11 @@ public class ApplicationChangeUnit {
     public ApplicationChangeUnit setNewValue(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         this.newValue = sdf.format(date);
+        return this;
+    }
+
+    public ApplicationChangeUnit setNewValueLink(String link) {
+        this.newValueLink = link;
         return this;
     }
 

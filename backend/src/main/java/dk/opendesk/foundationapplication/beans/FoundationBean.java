@@ -960,8 +960,19 @@ public class FoundationBean {
             current = predecessor;
         }
 
+        for (NodeRef ref : getApplicationEmails(appRef)) {
+            ApplicationChangeUnit unit = new ApplicationChangeUnit()
+                    .setNewValue(ref)
+                    .setChangeType(APPLICATION_CHANGE_EMAIL)
+                    .setNewValueLink("/foundation/application/" + appRef.getId() + "/email/" + ref.getId()); //TODO er dette det rigtige link?
+            Date timeStamp = serviceRegistry.getFileFolderService().getFileInfo(ref).getCreatedDate();
+            changes.add(new ApplicationChange().setTimeStamp(timeStamp).setChangeList(Collections.singletonList(unit)));
+        }
+
         return changes;
     }
+
+
 
     public ApplicationChange getVersionDifference(Version oldVersion, Version newVersion) throws Exception {
         if (newVersion == null) {
@@ -1023,29 +1034,15 @@ public class FoundationBean {
     }
 
 
-    public void saveEmailCopy(MimeMessage mimeMessage, NodeRef applicationRef) {
+    public void saveEmailCopy(MimeMessage mimeMessage, NodeRef applicationRef) throws Exception {
 
-        String folderName = "emailFolder";
+        NodeRef emailFolderRef = getEmailFolder(applicationRef);
+
+        //setting filename
         String fileName = null;
-        NodeRef emailFolderRef = null;
-
-        //setting filename and creating email folder if it does not already exist
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS");  //todo: Hvad vil vi have filen til at hedde?
             fileName = sdf.format(mimeMessage.getSentDate()) + ".txt";
-
-            List<ChildAssociationRef> childAssociationRefs = serviceRegistry.getNodeService().getChildAssocs(applicationRef, Utilities.getODFName("emailFolder"), null);
-            if (childAssociationRefs.size() == 0) {
-                emailFolderRef = serviceRegistry.getNodeService().createNode(applicationRef, getODFName(folderName), getCMName(folderName), TYPE_FOLDER).getChildRef();
-            }
-            else if (childAssociationRefs.size() == 1) {
-                emailFolderRef = childAssociationRefs.get(0).getChildRef();
-            }
-            else {
-                throw new Exception("More than one email folder created on application " + applicationRef);
-            }
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1072,6 +1069,56 @@ public class FoundationBean {
             e.printStackTrace();
         }
 
+    }
+
+
+    public String getEmail(NodeRef applicationRef, NodeRef emailRef) throws Exception {
+        List<NodeRef> emailRefs = getApplicationEmails(applicationRef);
+        for (NodeRef ref : emailRefs) {
+            if (ref.equals(emailRef)) {
+                ContentReader reader = serviceRegistry.getFileFolderService().getReader(ref);
+                return reader.getContentString();
+            }
+        }
+        throw new Exception("The requested email does not exists");
+    }
+
+
+    public List<NodeRef> getApplicationEmails(NodeRef applicationRef) throws Exception {
+        NodeRef emailFolder = getEmailFolder(applicationRef);
+
+        List<NodeRef> emailRefs = new ArrayList<>();
+
+        for (ChildAssociationRef ref : serviceRegistry.getNodeService().getChildAssocs(emailFolder)) {
+            emailRefs.add(ref.getChildRef());
+        }
+
+        return emailRefs;
+    }
+
+
+    /**
+     * Gets the email folder for an application or creates it if it does not exists.
+     * @param applicationRef Application nodeRef
+     * @return Email folder nodeRef
+     * @throws Exception if there are more than one email folder on the application.
+     */
+    public NodeRef getEmailFolder(NodeRef applicationRef) throws Exception {
+        NodeRef emailFolderRef = null;
+
+        List<ChildAssociationRef> childAssociationRefs = serviceRegistry.getNodeService().getChildAssocs(applicationRef, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
+
+        if (childAssociationRefs.size() == 0) {
+            emailFolderRef = serviceRegistry.getNodeService().createNode(applicationRef, getODFName(APPLICATION_EMAILFOLDER), getCMName(APPLICATION_EMAILFOLDER), TYPE_FOLDER).getChildRef();
+        }
+        else if (childAssociationRefs.size() == 1) {
+            emailFolderRef = childAssociationRefs.get(0).getChildRef();
+        }
+        else {
+            throw new Exception("More than one email folder created on application " + applicationRef);
+        }
+
+        return emailFolderRef;
     }
 
 

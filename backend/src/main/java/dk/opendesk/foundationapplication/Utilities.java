@@ -101,6 +101,7 @@ public final class Utilities {
     public static final String APPLICATION_CHANGE_BUDGET = "budgetChange";
     public static final String APPLICATION_CHANGE_BRANCH = "branchChange";
 
+    public static final String APPLICATION_EMAILFOLDER = "emailFolder";
 
     public static final String ASPECT_ON_CREATE = "onCreate";
     public static final String ASPECT_BEFORE_DELETE = "beforeDelete";

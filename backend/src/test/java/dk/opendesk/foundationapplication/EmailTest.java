@@ -17,15 +17,21 @@ public class EmailTest extends AbstractTestClass{
     private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public EmailTest() {
-        super("");
+        super("/foundation");
     }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
         TestUtils.wipeData(serviceRegistry);
         TestUtils.setupSimpleFlow(serviceRegistry);
+
+        Application application = new Application();
+        application.setContactEmail("astrid@localhost");
+        application.parseRef(TestUtils.application1);
+        foundationBean.updateApplication(application);
     }
 
     @Override
@@ -35,25 +41,14 @@ public class EmailTest extends AbstractTestClass{
 
     //todo this test is not finished, currently only works on astrid@localhost
     public void testEmailAction() throws Exception {
-
         Action action = foundationBean.configureEmailAction("email.html.ftl" , "Subject of test mail", "astrid@localhost");
-
-        Application application = new Application();
-        application.setContactEmail("astrid@localhost");
-        application.parseRef(TestUtils.application1);
-        foundationBean.updateApplication(application);
-
         serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
     }
 
 
     public void testEmailCopying() throws Exception {
-        Action action = foundationBean.configureEmailAction("email.html.ftl" , "Subject of test mail", "astrid@localhost");
 
-        Application application = new Application();
-        application.setContactEmail("astrid@localhost");
-        application.parseRef(TestUtils.application1);
-        foundationBean.updateApplication(application);
+        Action action = foundationBean.configureEmailAction("email.html.ftl" , "Subject of test mail", "astrid@localhost");
 
         //sending the email
         serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
@@ -99,6 +94,31 @@ public class EmailTest extends AbstractTestClass{
         }
         assertEquals("<html>", lines[9]);
 
+    }
+
+    public void testGetEmail() throws Exception {
+
+        //sending two emails
+        Action action = foundationBean.configureEmailAction("email.html.ftl" , "TestSubject1", "astrid@localhost");
+        serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
+        Thread.sleep(2000);
+        action = foundationBean.configureEmailAction("email.html.ftl" , "TestSubject2", "astrid@localhost");
+        serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
+
+        //testing that the emails.get script returns two elements
+        List<String> emailRefs = get(List.class, String.class, "/application/" + TestUtils.application1.getId() + "/emails");
+        assertEquals(2,emailRefs.size());
+
+        //testing that the email.get script returns an email when given one of the elements from above
+        String email =  get(String.class, "/application/" + TestUtils.application1.getId() + "/email/" + emailRefs.get(0));
+
+        String[] lines = email.split("\n");
+        for (String s : lines) {
+            if (s.startsWith("From:")) {
+                assertEquals("From: astrid@localhost", s);
+            }
+        }
+        assertEquals("<html>", lines[9]);
     }
 
     /*

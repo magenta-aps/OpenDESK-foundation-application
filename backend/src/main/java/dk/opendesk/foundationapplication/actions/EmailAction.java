@@ -71,7 +71,11 @@ public class EmailAction extends MailActionExecuter {
     @Override
     protected void onSend() {
         Pair message = threadLocal.get();
-        foundationBean.saveEmailCopy((MimeMessage) message.getFirst(), (NodeRef) message.getSecond());
+        try {
+            foundationBean.saveEmailCopy((MimeMessage) message.getFirst(), (NodeRef) message.getSecond());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         super.onSend();
     }
 

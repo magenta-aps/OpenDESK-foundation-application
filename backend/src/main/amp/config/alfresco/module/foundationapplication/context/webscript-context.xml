@@ -126,7 +126,19 @@
               parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
-    
+
+    <bean id="webscript.foundation.email.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetEmail"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+
+    <bean id="webscript.foundation.emails.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetEmails"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+
     <bean id="webscript.foundation.workflows.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetWorkflows"
               parent="webscript">
