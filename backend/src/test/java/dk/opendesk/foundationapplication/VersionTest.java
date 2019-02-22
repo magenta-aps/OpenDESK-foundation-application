@@ -45,7 +45,7 @@ public class VersionTest extends AbstractTestClass {
     }
 
     public void testVersioning() throws Exception {
-        final boolean PRINT = false;
+        final boolean PRINT = true;
 
         NodeRef appRef = TestUtils.application1;
         String origDesc = foundationBean.getApplication(appRef).getShortDescription();
@@ -114,12 +114,15 @@ public class VersionTest extends AbstractTestClass {
 
         if (PRINT) printHistory(appRef);
 
+        //todo fredag : print ogsaa emailchanges og faa dem med i testen
 
         // --- TESTING THE WEBSCRIPT --- //
         List<ApplicationChange> changeLists = get(List.class, ApplicationChange.class, appRef+"/history");
+        System.out.println(changeLists);
 
         //Testing the changes made when creating the original version
         ApplicationChange changeList = changeLists.get(3);
+        //System.out.println(changeList);
         assertEquals("admin", changeList.getModifier());
         assertEquals(serviceRegistry.getPersonService().getPerson("admin").toString(), changeList.getModifierId());
         List<ApplicationChangeUnit> appChanges = changeList.getChanges();

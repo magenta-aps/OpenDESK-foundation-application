@@ -1,7 +1,8 @@
 package dk.opendesk.foundationapplication.DAO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.codehaus.jackson.annotate.JsonIgnore;
+
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -39,6 +40,22 @@ public class ApplicationChange extends ApplicationReference {
         return changes;
     }
 
+
+    public ApplicationChange setTimesStamp(String timesStamp) {
+        this.timesStamp = timesStamp;
+        return this;
+    }
+
+    public ApplicationChange setModifierId(String modifierId) {
+        this.modifierId = modifierId;
+        return this;
+    }
+
+    public ApplicationChange setChanges(List<ApplicationChangeUnit> changes) {
+        this.changes = changes;
+        return this;
+    }
+
     @JsonIgnore
     public ApplicationChange setTimeStamp(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -52,7 +69,6 @@ public class ApplicationChange extends ApplicationReference {
         return this;
     }
 
-    @JsonIgnore
     public ApplicationChange setModifier(String userName) {
         this.modifier = userName;
         return this;
@@ -64,4 +80,13 @@ public class ApplicationChange extends ApplicationReference {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "---\nApplicationChange\n" +
+                "\ttimesStamp='" + timesStamp + '\n' +
+                "\tmodifierId='" + modifierId + '\n' +
+                "\tmodifier='" + modifier + '\n' +
+                "\tchanges=\n" + changes +
+                '\n';
+    }
 }

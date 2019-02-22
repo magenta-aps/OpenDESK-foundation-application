@@ -933,6 +933,13 @@ public class FoundationBean {
     }
 
 
+    /**
+     * Sets up an email action with template, subject and 'from'
+     * @param templateName filename of a template located in the template folder
+     * @param subject subject of the email
+     * @param fromAddress sender of the email
+     * @return email action
+     */
     public Action configureEmailAction(String templateName, String subject, String fromAddress) {
         Action action = serviceRegistry.getActionService().createAction("foundationMail");
 

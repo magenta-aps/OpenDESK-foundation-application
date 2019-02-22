@@ -1,6 +1,6 @@
 package dk.opendesk.foundationapplication.DAO;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -26,7 +26,7 @@ public class ApplicationChangeUnit {
         return oldValue;
     }
 
-    public Serializable getNewValue() {
+    public String getNewValue() {
         return newValue;
     }
 
@@ -39,7 +39,16 @@ public class ApplicationChangeUnit {
     }
 
 
-    @JsonIgnore
+    public ApplicationChangeUnit setOldValue(String oldValue) {
+        this.oldValue = oldValue;
+        return this;
+    }
+
+    public ApplicationChangeUnit setNewValue(String newValue) {
+        this.newValue = newValue;
+        return this;
+    }
+
     public ApplicationChangeUnit setChangedField(String changedField) {
         this.changedField = changedField;
         return this;
@@ -76,9 +85,18 @@ public class ApplicationChangeUnit {
         return this;
     }
 
-    @JsonIgnore
     public ApplicationChangeUnit setChangeType(String changeType) {
         this.changeType = changeType;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "\t\tApplicationChangeUnit\n" +
+                "\t\t\tchangedField='" + changedField + '\n' +
+                "\t\t\toldValue='" + oldValue + '\n' +
+                "\t\t\tnewValue='" + newValue + '\n' +
+                "\t\t\tnewValueLink='" + newValueLink + '\n' +
+                "\t\t\tchangeType='" + changeType + '\n';
     }
 }
