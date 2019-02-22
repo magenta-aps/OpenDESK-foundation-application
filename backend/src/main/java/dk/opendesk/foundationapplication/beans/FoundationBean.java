@@ -940,12 +940,18 @@ public class FoundationBean {
      * @param fromAddress sender of the email
      * @return email action
      */
-    public Action configureEmailAction(String templateName, String subject, String fromAddress) {
+    public Action configureEmailAction(String templateName, String subject, String fromAddress) throws Exception {
         Action action = serviceRegistry.getActionService().createAction("foundationMail");
 
         String query = "PATH:\"" + OpenDeskModel.TEMPLATE_OD_FOLDER + "cm:" + templateName + "\"";
         ResultSet resultSet = serviceRegistry.getSearchService().query(new StoreRef(StoreRef.PROTOCOL_WORKSPACE, "SpacesStore"),
                 SearchService.LANGUAGE_LUCENE, query);
+        if (resultSet.getNodeRefs().size() == 0) {
+            throw new Exception("Template not found");
+        }
+        if (resultSet.getNodeRefs().size() > 1) {
+            throw new Exception("Multiple templates found");
+        }
         NodeRef templateRef = resultSet.getNodeRef(0);
 
         action.setParameterValue(PARAM_TEMPLATE, templateRef);
@@ -1041,9 +1047,19 @@ public class FoundationBean {
     }
 
 
-    public void saveEmailCopy(MimeMessage mimeMessage, NodeRef applicationRef) throws Exception {
+    /**
+     * Saves a email message on the given application
+     * @param mimeMessage The message to be saved
+     * @param applicationRef NodeRef to the application that the email shall be saved on
+     */
+    public void saveEmailCopy(MimeMessage mimeMessage, NodeRef applicationRef) {
 
-        NodeRef emailFolderRef = getEmailFolder(applicationRef);
+        NodeRef emailFolderRef = null;
+        try {
+            emailFolderRef = getOrCreateEmailFolder(applicationRef);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         //setting filename
         String fileName = null;
@@ -1059,7 +1075,7 @@ public class FoundationBean {
         properties.put(getCMName("name"), fileName);
 
         NodeRef fileRef = serviceRegistry.getNodeService().createNode(emailFolderRef, ASSOC_CONTAINS,
-                getCMName("test"), TYPE_CONTENT, properties).getChildRef();
+                getCMName("emailFolder"), TYPE_CONTENT, properties).getChildRef();
 
         //writing to file
         ContentWriter contentWriter = serviceRegistry.getContentService().getWriter(fileRef, PROP_CONTENT, true);
@@ -1079,6 +1095,13 @@ public class FoundationBean {
     }
 
 
+    /**
+     * Gets a given email from a given application
+     * @param applicationRef application NodeRef
+     * @param emailRef Email NodeRef
+     * @return content of email
+     * @throws Exception if the email is not found
+     */
     public String getEmail(NodeRef applicationRef, NodeRef emailRef) throws Exception {
         List<NodeRef> emailRefs = getApplicationEmails(applicationRef);
         for (NodeRef ref : emailRefs) {
@@ -1087,12 +1110,21 @@ public class FoundationBean {
                 return reader.getContentString();
             }
         }
-        throw new Exception("The requested email does not exists");
+        throw new Exception("The requested email was not found");
     }
 
-
-    public List<NodeRef> getApplicationEmails(NodeRef applicationRef) throws Exception {
-        NodeRef emailFolder = getEmailFolder(applicationRef);
+    /**
+     * Gets a list of NodeRefs on all emails saved on a given application
+     * @param applicationRef The NodeRef for the Application
+     * @return A List of email NodeRefs
+     */
+    public List<NodeRef> getApplicationEmails(NodeRef applicationRef) {
+        NodeRef emailFolder = null;
+        try {
+            emailFolder = getOrCreateEmailFolder(applicationRef);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         List<NodeRef> emailRefs = new ArrayList<>();
 
@@ -1110,7 +1142,7 @@ public class FoundationBean {
      * @return Email folder nodeRef
      * @throws Exception if there are more than one email folder on the application.
      */
-    public NodeRef getEmailFolder(NodeRef applicationRef) throws Exception {
+    public NodeRef getOrCreateEmailFolder(NodeRef applicationRef) throws Exception {
         NodeRef emailFolderRef = null;
 
         List<ChildAssociationRef> childAssociationRefs = serviceRegistry.getNodeService().getChildAssocs(applicationRef, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
