@@ -10,6 +10,7 @@ import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchReference;
+import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
@@ -19,6 +20,7 @@ import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -60,6 +62,7 @@ public class ApplicationTest extends AbstractTestClass{
         ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
         ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
         ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        app1blockRecipient.setFields(new ArrayList<>());
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Cats4Dogs"));
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Testgade"));
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 1337));
@@ -70,11 +73,13 @@ public class ApplicationTest extends AbstractTestClass{
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, "t@est.dk"));
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "12345678"));
         
+        app1blockOverview.setFields(new ArrayList<>());
         app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category3"));
         app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "We want to buy a cat for every dog"));
         app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
         app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(30)))));
         
+        app1details.setFields(new ArrayList<>());
         app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), 10000l));
         app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "1234"));
         app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "12345678"));
@@ -163,18 +168,18 @@ public class ApplicationTest extends AbstractTestClass{
         NodeRef appRef = TestUtils.application3;
         Application app = get(Application.class, appRef.getId());
 
-        assertNull(app.getBranchRef().asNodeRef());
+        assertNull(app.getBranchSummary().asNodeRef());
         assertNull(app.getState().asNodeRef());
 
         Application change = new Application();
         change.parseRef(appRef);
-        BranchReference ref = new BranchReference();
+        BranchSummary ref = new BranchSummary();
         ref.parseRef(TestUtils.branchRef);
-        change.setBranchRef(ref);
+        change.setBranchSummary(ref);
         post(change, app.getNodeID());
         
         app = get(Application.class, appRef.getId());
-        assertEquals(TestUtils.branchRef, app.getBranchRef().asNodeRef());
+        assertEquals(TestUtils.branchRef, app.getBranchSummary().asNodeRef());
         assertEquals(TestUtils.stateRecievedRef, app.getState().asNodeRef());
     }
     

@@ -6,6 +6,7 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -36,6 +37,33 @@ public class ApplicationPropertyValue<E> extends ApplicationProperty<E> {
     public void setValue(E value) {
         this.value = optional(value);
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 31 * hash + Objects.hashCode(this.getValue());
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ApplicationPropertyValue<?> other = (ApplicationPropertyValue<?>) obj;
+        if (!Objects.equals(this.getValue(), other.getValue())) {
+            return false;
+        }
+        return true;
+    }
+    
+    
     
     @Override
     public ToStringBuilder toStringBuilder(){

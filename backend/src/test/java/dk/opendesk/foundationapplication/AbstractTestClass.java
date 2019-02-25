@@ -41,7 +41,7 @@ public class AbstractTestClass extends BaseWebScriptTest {
     }
     
     protected <R> R get(Class<R> returnType, String path) throws IOException{
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         TestWebScriptServer.GetRequest request = new TestWebScriptServer.GetRequest(getPath(path));
         request.setHeaders(Collections.singletonMap("Accept", "application/json"));
@@ -54,7 +54,7 @@ public class AbstractTestClass extends BaseWebScriptTest {
     }
     
     protected <R, C extends Collection<R>> C get(Class<C> collectionType, Class<R> returnType, String path) throws IOException{
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         CollectionType type = mapper.getTypeFactory().constructCollectionType(collectionType, returnType);
         TestWebScriptServer.GetRequest request = new TestWebScriptServer.GetRequest(getPath(path));
@@ -68,7 +68,7 @@ public class AbstractTestClass extends BaseWebScriptTest {
     }
     
     protected <S, R, C extends Collection<R>> C post(S toSend, Class<C> collection, Class<R> recieve, String path) throws IOException{
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         CollectionType type = mapper.getTypeFactory().constructCollectionType(collection, recieve);
         String data = getContent(toSend, mapper);
@@ -93,7 +93,7 @@ public class AbstractTestClass extends BaseWebScriptTest {
     }
     
     protected <S, R> R post(S toSend, Class<R> recieve, String path) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String data = getContent(toSend, mapper);
 

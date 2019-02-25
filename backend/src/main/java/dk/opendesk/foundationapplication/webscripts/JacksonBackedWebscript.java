@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.opendesk.foundationapplication.DAO.Reference;
+import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.stringExists;
 import static dk.opendesk.foundationapplication.webscripts.foundation.UpdateBudget.BUDGET_DID_NOT_MATCH;
 import java.util.Map;
@@ -44,7 +45,7 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        mapper = new ObjectMapper();
+        mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         this.req = req;
         this.res = res;

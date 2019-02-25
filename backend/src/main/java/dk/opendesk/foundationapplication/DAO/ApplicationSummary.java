@@ -16,22 +16,22 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @author martin
  */
 public class ApplicationSummary extends ApplicationReference {
-    private Optional<BranchReference> branchRef;
+    private Optional<BranchSummary> branchSummary;
     private Optional<List<ApplicationPropertiesContainer>> blocks;
     
     public ApplicationSummary() {
     }
 
-    public BranchReference getBranchRef() {
-        return get(branchRef);
+    public BranchSummary getBranchSummary() {
+        return get(branchSummary);
     }
     
-    public boolean wasBranchRefSet(){
-        return wasSet(branchRef);
+    public boolean wasBranchSummarySet(){
+        return wasSet(branchSummary);
     }
 
-    public void setBranchRef(BranchReference branchRef) {
-        this.branchRef = optional(branchRef);
+    public void setBranchSummary(BranchSummary branchSummary) {
+        this.branchSummary = optional(branchSummary);
     }
 
     public List<ApplicationPropertiesContainer> getBlocks() {
@@ -68,7 +68,7 @@ public class ApplicationSummary extends ApplicationReference {
         int hash = 3;
         hash = 23 * hash + Objects.hashCode(super.hashCode());
         hash = 23 * hash + Objects.hashCode(this.getNodeRef());
-        hash = 23 * hash + Objects.hashCode(this.getBranchRef());
+        hash = 23 * hash + Objects.hashCode(this.getBranchSummary());
         hash = 23 * hash + Objects.hashCode(this.getBlocks());
         return hash;
     }
@@ -91,7 +91,7 @@ public class ApplicationSummary extends ApplicationReference {
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {
             return false;
         }
-        if (!Objects.equals(this.getBranchRef(), other.getBranchRef())) {
+        if (!Objects.equals(this.getBranchSummary(), other.getBranchSummary())) {
             return false;
         }
         if (!Objects.equals(this.getBlocks(), other.getBlocks())) {
@@ -102,6 +102,6 @@ public class ApplicationSummary extends ApplicationReference {
 
     @Override
     public ToStringBuilder toStringBuilder() {
-        return super.toStringBuilder().append("branchRef", branchRef).append("blocks", blocks);
+        return super.toStringBuilder().append("branchRef", branchSummary).append("blocks", blocks);
     }
 }

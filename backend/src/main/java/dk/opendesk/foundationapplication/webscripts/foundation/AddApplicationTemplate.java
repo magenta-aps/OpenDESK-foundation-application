@@ -8,6 +8,7 @@ package dk.opendesk.foundationapplication.webscripts.foundation;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.BranchReference;
+import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
@@ -34,12 +35,12 @@ public class AddApplicationTemplate extends JacksonBackedWebscript{
     protected ApplicationReference doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         Application input = getRequestAs(Application.class);
         String name = input.getTitle();
-        BranchReference branch = input.getBranchRef();
+        BranchSummary branch = input.getBranchSummary();
         BudgetReference budget = input.getBudget();
         StateReference state = input.getState();
         Application newApplication = new Application();
         if(branch != null){
-            newApplication.setBranchRef(branch);
+            newApplication.setBranchSummary(branch);
         }
         if(budget != null){
             newApplication.setBudget(budget);

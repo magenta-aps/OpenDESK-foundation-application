@@ -152,12 +152,15 @@ public final class TestUtils {
 
         ArrayList<ApplicationPropertyValue> fields;
         Application app1 = new Application();
-        app1.setBranchRef(foundationBean.getBranchReference(branchRef));
+        app1.setBranchSummary(foundationBean.getBranchSummary(branchRef));
         app1.setBudget(foundationBean.getBudgetReference(budgetRef1));
         app1.setTitle(APPLICATION1_NAME);
         ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        app1blockRecipient.setLabel("Recipient");
         ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
-        ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        app1blockOverview.setLabel("Overview");
+        ApplicationPropertiesContainer app1Details = new ApplicationPropertiesContainer();
+        app1Details.setLabel("Details");
         
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
@@ -182,19 +185,23 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), APPLICATION1_AMOUNT));
         fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "4321"));
         fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
-        app1details.setFields(fields);
-        app1.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1details}));
-        foundationBean.addNewApplication(app1);
+        app1Details.setFields(fields);
+        app1.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1Details}));
+        application1 = foundationBean.addNewApplication(app1).asNodeRef();
         
         //application1 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION1_NAME, APPLICATION1_NAME + TITLE_POSTFIX,, "", "", , "", "", "", "", "", "", "", , , , "", "");
         
         Application app2 = new Application();
-        app2.setBranchRef(foundationBean.getBranchReference(branchRef));
+        app2.setBranchSummary(foundationBean.getBranchSummary(branchRef));
         app2.setBudget(foundationBean.getBudgetReference(budgetRef1));
         app2.setTitle(APPLICATION2_NAME);
         ApplicationPropertiesContainer app2blockRecipient = new ApplicationPropertiesContainer();
+        app2blockRecipient.setLabel("Recipient");
         ApplicationPropertiesContainer app2blockOverview = new ApplicationPropertiesContainer();
+        app2blockOverview.setLabel("Overview");
         ApplicationPropertiesContainer app2details = new ApplicationPropertiesContainer();
+        app2details.setLabel("Details");
+
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
         fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Tværstrede"));
@@ -221,15 +228,20 @@ public final class TestUtils {
         app2details.setFields(fields);
                 
         app2.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app2blockRecipient, app2blockOverview, app2details}));
-        foundationBean.addNewApplication(app2);
+        application2 = foundationBean.addNewApplication(app2).asNodeRef();
         
         //application2 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION2_NAME, APPLICATION2_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
         
         Application app3 = new Application();
         app3.setTitle(APPLICATION3_NAME);
         ApplicationPropertiesContainer app3blockRecipient = new ApplicationPropertiesContainer();
+        app3blockRecipient.setLabel("Recipient");
+
         ApplicationPropertiesContainer app3blockOverview = new ApplicationPropertiesContainer();
+        app3blockOverview.setLabel("Overview");
+
         ApplicationPropertiesContainer app3details = new ApplicationPropertiesContainer();
+        app3details.setLabel("Details");
         
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
@@ -257,7 +269,7 @@ public final class TestUtils {
         app3details.setFields(fields);
                 
         app3.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app3blockRecipient, app3blockOverview, app3details}));
-        foundationBean.addNewApplication(app3);
+        application3 = foundationBean.addNewApplication(app3).asNodeRef();
         //application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
         isInitiated = true;
     }

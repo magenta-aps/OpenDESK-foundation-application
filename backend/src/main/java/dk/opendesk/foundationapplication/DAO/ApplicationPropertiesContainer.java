@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication.DAO;
 
 import dk.opendesk.foundationapplication.enums.Functional;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -80,7 +81,7 @@ public class ApplicationPropertiesContainer extends DAOType{
     public final <E, A extends ApplicationPropertyValue<E>> A getFunctionalField(Functional<E> describes) {
         List<ApplicationPropertyValue> fields = get(this.fields);
         for (ApplicationPropertyValue blockField : fields) {
-            if (describes.getFriendlyName().equals(blockField.getFunction())) {
+            if (describes.getFriendlyName().equals(blockField.getDescribes())) {
                 if(describes.getRequiredType().isAssignableFrom(blockField.getJavaType())){
                     LOGGER.warn("Found a match for "+describes+" in "+blockField+" but the types did not match");
                 }
@@ -89,6 +90,45 @@ public class ApplicationPropertiesContainer extends DAOType{
         }
         return null;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 89 * hash + Objects.hashCode(this.getId());
+        hash = 89 * hash + Objects.hashCode(this.getLabel());
+        hash = 89 * hash + Objects.hashCode(this.getLayout());
+        hash = 89 * hash + Objects.hashCode(this.getFields());
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ApplicationPropertiesContainer other = (ApplicationPropertiesContainer) obj;
+        if (!Objects.equals(this.getId(), other.getId())) {
+            return false;
+        }
+        if (!Objects.equals(this.getLabel(), other.getLabel())) {
+            return false;
+        }
+        if (!Objects.equals(this.getLayout(), other.getLayout())) {
+            return false;
+        }
+        if (!Objects.equals(this.getFields(), other.getFields())) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 
     @Override
     public String toString() {

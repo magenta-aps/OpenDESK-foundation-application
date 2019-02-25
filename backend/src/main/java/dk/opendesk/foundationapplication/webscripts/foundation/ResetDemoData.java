@@ -11,6 +11,7 @@ import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchReference;
+import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
@@ -220,9 +221,9 @@ public class ResetDemoData extends JacksonBackedWebscript {
         app.setTitle(name);
         app.setBlocks(Collections.singletonList(block1));
         if (branch != null) {
-            BranchReference branchRef = new BranchReference();
+            BranchSummary branchRef = new BranchSummary();
             branchRef.parseRef(branch);
-            app.setBranchRef(branchRef);
+            app.setBranchSummary(branchRef);
         }
         if (budget != null) {
             BudgetReference budgetRef = new BudgetReference();
@@ -246,7 +247,7 @@ public class ResetDemoData extends JacksonBackedWebscript {
         valueField.setType(type);
         valueField.setJavaType(javaType);
         if(function != null){
-            valueField.setFunction(function.getFriendlyName());
+            valueField.setDescribes(function.getFriendlyName());
         }
         valueField.setValue(value);
         

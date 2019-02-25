@@ -27,6 +27,7 @@ public class ApplicationPropertySerializer extends JsonSerializer<ApplicationPro
         jgen.writeStringField("javaType", value.getJavaType().getCanonicalName());
         jgen.writeObjectField("value", value.getValue());
         jgen.writeObjectField("layout", value.getLayout());
+        jgen.writeObjectField("describes", value.getDescribes());
         jgen.writeEndObject();
     }
 

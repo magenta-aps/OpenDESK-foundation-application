@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -141,12 +142,14 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
 
         
         Application app1 = new Application();
-        app1.setBranchRef(foundationBean.getBranchReference(getBranchRef()));
+        app1.setBranchSummary(foundationBean.getBranchSummary(getBranchRef()));
         app1.setBudget(foundationBean.getBudgetReference(budgetRef));
         app1.setTitle(APPLICATION_NAME);
         ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
         ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
         ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        
+        app1blockRecipient.setFields(new ArrayList<>());
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Dansk Dræbersnegls Bevaringsforbund"));
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Sneglesporet"));
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 3));
@@ -157,11 +160,13 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, "ikkedraebesneglen@gmail.com"));
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "12345678"));
         
+        app1blockOverview.setFields(new ArrayList<>());
         app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category1"));
         app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr."));
         app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
         app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(2)))));
         
+        app1details.setFields(new ArrayList<>());
         app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), appliedAmount));
         app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "1234"));
         app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00123456"));

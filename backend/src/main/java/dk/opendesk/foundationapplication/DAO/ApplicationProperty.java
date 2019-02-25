@@ -6,6 +6,7 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -19,7 +20,7 @@ public class ApplicationProperty<E> extends DAOType{
     private Optional<String> label;
     private Optional<Class<E>> javaType;
     private Optional<String> type;
-    private Optional<String> function;
+    private Optional<String> describes;
     private Optional<List<E>> allowedValues;
     private Optional<String> layout;
 
@@ -31,7 +32,7 @@ public class ApplicationProperty<E> extends DAOType{
         this.label = label;
         this.javaType = javaType;
         this.type = type;
-        this.function = function;
+        this.describes = function;
         this.allowedValues = allowedValues;
         this.layout = layout;
     }
@@ -84,16 +85,16 @@ public class ApplicationProperty<E> extends DAOType{
         this.type = optional(type);
     }
 
-    public String getFunction() {
-        return get(function);
+    public String getDescribes() {
+        return get(describes);
     }
     
-    public boolean wasFunctionSet(){
-        return wasSet(function);
+    public boolean wasDescribesSet(){
+        return wasSet(describes);
     }
 
-    public void setFunction(String function) {
-        this.function = optional(function);
+    public void setDescribes(String describes) {
+        this.describes = optional(describes);
     }
 
     public List<E> getAllowedValues() {
@@ -119,11 +120,62 @@ public class ApplicationProperty<E> extends DAOType{
     public void setLayout(String layout) {
         this.layout = optional(layout);
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.getId());
+        hash = 97 * hash + Objects.hashCode(this.getLabel());
+        hash = 97 * hash + Objects.hashCode(this.getJavaType());
+        hash = 97 * hash + Objects.hashCode(this.getType());
+        hash = 97 * hash + Objects.hashCode(this.getDescribes());
+        hash = 97 * hash + Objects.hashCode(this.getAllowedValues());
+        hash = 97 * hash + Objects.hashCode(this.getLayout());
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ApplicationProperty<?> other = (ApplicationProperty<?>) obj;
+        if (!Objects.equals(this.getId(), other.getId())) {
+            return false;
+        }
+        if (!Objects.equals(this.getLabel(), other.getLabel())) {
+            return false;
+        }
+        if (!Objects.equals(this.getJavaType(), other.getJavaType())) {
+            return false;
+        }
+        if (!Objects.equals(this.getType(), other.getType())) {
+            return false;
+        }
+        if (!Objects.equals(this.getDescribes(), other.getDescribes())) {
+            return false;
+        }
+        if (!Objects.equals(this.getAllowedValues(), other.getAllowedValues())) {
+            return false;
+        }
+        if (!Objects.equals(this.getLayout(), other.getLayout())) {
+            return false;
+        }
+        return true;
+    }
+    
+    
     
     @Override
     public ToStringBuilder toStringBuilder(){
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE);
-        builder.append("id", id).append("label", label).append("javaType", javaType).append("type", type).append("function", function).append("layout", layout);
+        builder.append("id", id).append("label", label).append("javaType", javaType).append("type", type).append("function", describes).append("layout", layout);
         return builder;
     }
     

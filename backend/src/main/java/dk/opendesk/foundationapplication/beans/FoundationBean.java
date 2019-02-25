@@ -58,6 +58,7 @@ import org.apache.log4j.Logger;
  * @author martin
  */
 public class FoundationBean {
+
     private static final Logger LOGGER = Logger.getLogger(FoundationBean.class);
 
     public final String ONLY_ONE_REFERENCE = "odf.one.ref.requred";
@@ -82,34 +83,42 @@ public class FoundationBean {
         app.setTitle(title);
         BranchReference branch = new BranchReference();
         branch.parseRef(branchRef);
-        app.setBranchRef(branch);
+
+        BranchSummary branchSummary = new BranchSummary();
+        branchSummary.setNodeRef(branchRef.toString());
+
+        app.setBranchSummary(branchSummary);
         BudgetReference budget = new BudgetReference();
         budget.parseRef(budgetRef);
         app.setBudget(budget);
         app.setBlocks(Arrays.asList(blocks));
-        
+
         return addNewApplication(app);
     }
 
     public ApplicationReference addNewApplication(Application application) throws Exception {
         ObjectMapper blockMapper = Utilities.getMapper();
         Map<QName, Serializable> properties = new HashMap<>();
-        if(application.getId() != null){
+        if (application.getId() != null) {
             ApplicationReference ref = findByNumericID(Integer.parseInt(application.getId()));
-            if(ref != null){
+            if (ref != null) {
                 throw new AlfrescoRuntimeException(ID_IN_USE);
             }
-        }else{
-            application.setId(Utilities.getNextApplicationID(serviceRegistry)+"");
+        } else {
+            application.setId(Utilities.getNextApplicationID(serviceRegistry) + "");
         }
         properties.put(getODFName(APPLICATION_PARAM_ID), application.getId());
         properties.put(getODFName(APPLICATION_PARAM_TITLE), application.getTitle());
-        
+
         ArrayList<String> blockStrings = new ArrayList<>();
-        for(ApplicationPropertiesContainer block : application.getBlocks()){
-            blockStrings.add(blockMapper.writeValueAsString(block));
+        List<ApplicationPropertiesContainer> blocks = application.getBlocks();
+        if (blocks != null) {
+            for (ApplicationPropertiesContainer block : blocks) {
+                String blockString = blockMapper.writeValueAsString(block);
+                blockStrings.add(blockString);
+            }
         }
-        
+
         properties.put(getODFName(APPLICATION_PARAM_BLOCKS), blockStrings);
 
         QName applicationTypeQname = getODFName(APPLICATION_TYPE_NAME);
@@ -120,13 +129,13 @@ public class FoundationBean {
         if (application.getBudget() != null) {
             serviceRegistry.getNodeService().createAssociation(applicationRef, application.getBudget().asNodeRef(), getODFName(APPLICATION_ASSOC_BUDGET));
         }
-        if (application.getBranchRef() != null) {
-            NodeRef workFlowRef = serviceRegistry.getNodeService().getTargetAssocs(application.getBranchRef().asNodeRef(), getODFName(BRANCH_ASSOC_WORKFLOW)).get(0).getTargetRef();
+        if (application.getBranchSummary() != null) {
+            NodeRef workFlowRef = serviceRegistry.getNodeService().getTargetAssocs(application.getBranchSummary().asNodeRef(), getODFName(BRANCH_ASSOC_WORKFLOW)).get(0).getTargetRef();
             List<AssociationRef> workflowEntryRefs = serviceRegistry.getNodeService().getTargetAssocs(workFlowRef, getODFName(WORKFLOW_ASSOC_ENTRY));
             if (workflowEntryRefs.size() != 1) {
                 throw new AlfrescoRuntimeException("Cannot create new application. The workflow on this branch does not have an entry point set");
             }
-            serviceRegistry.getNodeService().createAssociation(applicationRef, application.getBranchRef().asNodeRef(), getODFName(APPLICATION_ASSOC_BRANCH));
+            serviceRegistry.getNodeService().createAssociation(applicationRef, application.getBranchSummary().asNodeRef(), getODFName(APPLICATION_ASSOC_BRANCH));
             serviceRegistry.getNodeService().createAssociation(applicationRef, workflowEntryRefs.get(0).getTargetRef(), getODFName(APPLICATION_ASSOC_STATE));
         } else {
             serviceRegistry.getNodeService().createAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
@@ -141,11 +150,10 @@ public class FoundationBean {
         if (app.wasTitleSet()) {
             properties.put(getODFName(APPLICATION_PARAM_TITLE), app.getTitle());
         }
-        
 
         boolean changedWorkflow = false;
-        if (app.wasBranchRefSet()) {
-            NodeRef newBranchRef = app.getBranchRef().asNodeRef();
+        if (app.wasBranchSummarySet()) {
+            NodeRef newBranchRef = app.getBranchSummary().asNodeRef();
             NodeRef currentBranchRef = getSingleTargetAssoc(app.asNodeRef(), APPLICATION_ASSOC_BRANCH);
 
             NodeRef newBranchWorkflow = getSingleTargetAssoc(newBranchRef, BRANCH_ASSOC_WORKFLOW);
@@ -195,15 +203,15 @@ public class FoundationBean {
                         break;
                     }
                 }
-                if(!found){
+                if (!found) {
                     throw new AlfrescoRuntimeException(INVALID_BRANCH);
                 }
                 ns.setAssociations(app.asNodeRef(), getODFName(APPLICATION_ASSOC_BUDGET), Collections.singletonList(newBudget));
             }
         }
-        
+
         List<ApplicationPropertiesContainer> oldBlocks = getApplication(app.asNodeRef()).getBlocks();
-        
+
         if (app.wasBlocksSet() && app.getBlocks() != null) {
             for (ApplicationPropertiesContainer block : app.getBlocks()) {
                 if (block.getId() != null) {
@@ -215,41 +223,41 @@ public class FoundationBean {
                             oldBlock.setLabel(block.getLabel());
                         }
                         if (block.wasFieldsSet()) {
-                            if(block.getFields() == null){
+                            if (block.getFields() == null) {
                                 oldBlock.setFields(null);
-                            }else{
-                                for(ApplicationPropertyValue field : block.getFields()){
-                                    if(field.getId() != null){
-                                        ApplicationPropertyValue oldField =  getFieldByID(field.getId(), oldBlock.getFields());
-                                        if(oldField == null){
+                            } else {
+                                for (ApplicationPropertyValue field : block.getFields()) {
+                                    if (field.getId() != null) {
+                                        ApplicationPropertyValue oldField = getFieldByID(field.getId(), oldBlock.getFields());
+                                        if (oldField == null) {
                                             oldBlock.getFields().add(field);
-                                        }else{
-                                            if(field.wasLabelSet()){
+                                        } else {
+                                            if (field.wasLabelSet()) {
                                                 oldField.setLabel(field.getLabel());
                                             }
-                                            if(field.wasJavaTypeSet()){
+                                            if (field.wasJavaTypeSet()) {
                                                 oldField.setJavaType(field.getJavaType());
                                             }
-                                            if(field.wasLayoutSet()){
+                                            if (field.wasLayoutSet()) {
                                                 oldField.setLayout(field.getLayout());
                                             }
-                                            if(field.wasTypeSet()){
+                                            if (field.wasTypeSet()) {
                                                 oldField.setType(field.getType());
                                             }
-                                            if(field.wasFunctionSet()){
-                                                oldField.setFunction(field.getFunction());
+                                            if (field.wasDescribesSet()) {
+                                                oldField.setDescribes(field.getDescribes());
                                             }
-                                            if(field.wasAllowedValuesSet()){
+                                            if (field.wasAllowedValuesSet()) {
                                                 oldField.setAllowedValues(field.getAllowedValues());
                                             }
-                                            if(field.wasValueSet()){
+                                            if (field.wasValueSet()) {
                                                 oldField.setValue(field.getValue());
                                             }
                                         }
-                                    }else{
-                                        LOGGER.warn("Found field without ID: "+field+" in block: "+block);
+                                    } else {
+                                        LOGGER.warn("Found field without ID: " + field + " in block: " + block);
                                     }
-                                    
+
                                 }
                             }
                         }
@@ -261,12 +269,12 @@ public class FoundationBean {
             }
             ObjectMapper mapper = Utilities.getMapper();
             ArrayList<String> blockStrings = new ArrayList<>();
-            for(ApplicationPropertiesContainer block : oldBlocks){
+            for (ApplicationPropertiesContainer block : oldBlocks) {
                 blockStrings.add(mapper.writeValueAsString(block));
             }
             properties.put(getODFName(APPLICATION_PARAM_BLOCKS), blockStrings);
         }
-        
+
 //        if(app.wasProjectDescriptionDocSet()){
 //            updateContent(app.getProjectDescriptionDoc(), app, APPLICATION_ASSOC_PROJECT_DESCRIPTION_DOC);
 //        }
@@ -282,34 +290,33 @@ public class FoundationBean {
 //        if(app.wasFinancialAccountingDocSet()){
 //            updateContent(app.getFinancialAccountingDoc(), app, APPLICATION_ASSOC_FINANCIAL_ACCOUTING_DOC);
 //        }
-        
         ns.addProperties(app.asNodeRef(), properties);
     }
-    
-    private ApplicationPropertiesContainer getBlockByID(String id, List<ApplicationPropertiesContainer> blocks){
-        for(ApplicationPropertiesContainer block : blocks){
-            if(Objects.equal(id, block.getId())){
+
+    private ApplicationPropertiesContainer getBlockByID(String id, List<ApplicationPropertiesContainer> blocks) {
+        for (ApplicationPropertiesContainer block : blocks) {
+            if (Objects.equal(id, block.getId())) {
                 return block;
             }
         }
         return null;
     }
-    
-    private ApplicationPropertyValue getFieldByID(String id, List<ApplicationPropertyValue> fields){
-        for(ApplicationPropertyValue field : fields){
-            if(Objects.equal(id, field.getId())){
+
+    private ApplicationPropertyValue getFieldByID(String id, List<ApplicationPropertyValue> fields) {
+        for (ApplicationPropertyValue field : fields) {
+            if (Objects.equal(id, field.getId())) {
                 return field;
             }
         }
         return null;
     }
-    
-    private void updateContent(Reference toUpdate, Reference parent, String assoc) throws Exception{
+
+    private void updateContent(Reference toUpdate, Reference parent, String assoc) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
-        if(toUpdate == null){
+        if (toUpdate == null) {
             NodeRef currentProject = getSingleTargetAssoc(parent.asNodeRef(), assoc);
             ns.removeAssociation(parent.asNodeRef(), currentProject, getODFName(assoc));
-        }else{
+        } else {
             ns.setAssociations(parent.asNodeRef(), getODFName(assoc), Collections.singletonList(toUpdate.asNodeRef()));
         }
     }
@@ -317,7 +324,7 @@ public class FoundationBean {
     private void setStateDifferentWorkflow(Application app) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
         NodeRef newState = app.getState().asNodeRef();
-        NodeRef newBranchRef = app.getBranchRef().asNodeRef();
+        NodeRef newBranchRef = app.getBranchSummary().asNodeRef();
         NodeRef newBranchWorkflow = getSingleTargetAssoc(newBranchRef, BRANCH_ASSOC_WORKFLOW);
         List<AssociationRef> newWorkflowStates = ns.getTargetAssocs(newBranchWorkflow, getODFName(WORKFLOW_ASSOC_STATES));
         boolean found = false;
@@ -376,33 +383,33 @@ public class FoundationBean {
         //The association is singular, it is never a list
         return states != null && !states.isEmpty() ? states.get(0).getTargetRef() : null;
     }
-    
-    public List<BudgetYear> getCurrentBudgetYears() throws Exception{
+
+    public List<BudgetYear> getCurrentBudgetYears() throws Exception {
         Instant now = Instant.now();
         List<BudgetYearSummary> budgetYears = getBudgetYearSummaries();
         List<BudgetYear> currentBudgets = new ArrayList<>();
-        for(BudgetYearSummary budgetYear : budgetYears){
+        for (BudgetYearSummary budgetYear : budgetYears) {
             Instant budgetStartDate = budgetYear.getStartDate().toInstant();
             Instant budgetEndDate = budgetYear.getEndDate().toInstant();
-            if(now.isAfter(budgetStartDate) && now.isBefore(budgetEndDate)){
+            if (now.isAfter(budgetStartDate) && now.isBefore(budgetEndDate)) {
                 currentBudgets.add(getBudgetYear(budgetYear.asNodeRef()));
             }
         }
         return currentBudgets;
     }
-    
-    public NodeRef addNewBudgetYear(String localName, String title, Date startDate, Date endDate) throws Exception{
+
+    public NodeRef addNewBudgetYear(String localName, String title, Date startDate, Date endDate) throws Exception {
         QName budgetYearsQname = getODFName(DATA_ASSOC_BUDGETYEARS);
         QName budgetYearTypeQname = getODFName(BUDGETYEAR_TYPE_NAME);
         QName budgetYearQname = getODFName(localName);
-        
+
         Map<QName, Serializable> budgetParams = new HashMap<>();
         budgetParams.put(getODFName(BUDGETYEAR_PARAM_TITLE), title);
         budgetParams.put(getODFName(BUDGETYEAR_PARAM_STARTDATE), startDate);
         budgetParams.put(getODFName(BUDGETYEAR_PARAM_ENDDATE), endDate);
 
         return serviceRegistry.getNodeService().createNode(getDataHome(), budgetYearsQname, budgetYearQname, budgetYearTypeQname, budgetParams).getChildRef();
-        
+
     }
 
 //    public NodeRef getApplicationBudget(NodeRef applicationRef) throws Exception{
@@ -421,7 +428,7 @@ public class FoundationBean {
         budgetParams.put(getODFName(BUDGET_PARAM_AMOUNT), amount);
 
         return serviceRegistry.getNodeService().createNode(budgetYear, budgetYearBudgetsQname, budgetQname, budgetTypeQname, budgetParams).getChildRef();
-        
+
     }
 
 //    public Long getBudgetAllocatedFunding(NodeRef budgetRef) throws Exception {
@@ -444,9 +451,6 @@ public class FoundationBean {
 //        Long usedAmount = getBudgetAllocatedFunding(budgetRef);
 //        return totalAmount - usedAmount;
 //    }
-
-
-
     public BudgetReference getBudgetReference(NodeRef budgetRef) throws Exception {
         BudgetReference ref = new BudgetReference();
         ref.parseRef(budgetRef);
@@ -498,7 +502,7 @@ public class FoundationBean {
         QName stateCategory = getODFName(STATE_PARAM_CATEGORY);
         Map<QName, Serializable> stateParams = new HashMap<>();
         stateParams.put(stateTitle, title);
-        if(category != null){
+        if (category != null) {
             stateParams.put(stateCategory, category.getCategoryName());
         }
         return serviceRegistry.getNodeService().createNode(workFlowRef, workFlowStatesQname, stateQName, stateTypeQname, stateParams).getChildRef();
@@ -536,7 +540,7 @@ public class FoundationBean {
         }
         return workflows;
     }
-    
+
     public List<NodeRef> getBudgetYearRefs() throws Exception {
         QName budgetYearsQName = getODFName(DATA_ASSOC_BUDGETYEARS);
         List<ChildAssociationRef> budgetAssocs = serviceRegistry.getNodeService().getChildAssocs(getDataHome(), budgetYearsQName, null);
@@ -560,59 +564,59 @@ public class FoundationBean {
     public List<BudgetYearSummary> getBudgetYearSummaries() throws Exception {
         List<BudgetYearSummary> summaries = new ArrayList<>();
         NodeService ns = serviceRegistry.getNodeService();
-        for(ChildAssociationRef budgetYear : ns.getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_BUDGETYEARS), null)){
+        for (ChildAssociationRef budgetYear : ns.getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_BUDGETYEARS), null)) {
             summaries.add(getBudgetYearSummary(budgetYear.getChildRef()));
         }
         return summaries;
     }
-    
+
     public BudgetYearReference getBudgetYearReference(NodeRef budgetYearRef) throws Exception {
         BudgetYearReference reference = new BudgetYearReference();
         reference.parseRef(budgetYearRef);
         reference.setTitle(getProperty(budgetYearRef, BUDGETYEAR_PARAM_TITLE, String.class));
         return reference;
     }
-    
+
     public BudgetYearSummary getBudgetYearSummary(NodeRef budgetYearRef) throws Exception {
         BudgetYearSummary summary = new BudgetYearSummary();
         summary.parseRef(budgetYearRef);
         summary.setTitle(getProperty(budgetYearRef, BUDGETYEAR_PARAM_TITLE, String.class));
         summary.setStartDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_STARTDATE, Date.class));
         summary.setEndDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_ENDDATE, Date.class));
-        
+
         Long totalAmount = 0l;
         List<BudgetSummary> budgets = getBudgetSummaries(summary);
-        for(BudgetSummary budget : budgets){
+        for (BudgetSummary budget : budgets) {
             totalAmount += budget.getAmountTotal();
         }
-        
+
         summary.setAmountTotal(totalAmount);
         return summary;
     }
-    
-    public BudgetYear getBudgetYear(NodeRef budgetYearRef) throws Exception{
+
+    public BudgetYear getBudgetYear(NodeRef budgetYearRef) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
-        
+
         BudgetYear budgetYear = new BudgetYear();
         budgetYear.parseRef(budgetYearRef);
         budgetYear.setTitle(getProperty(budgetYearRef, BUDGETYEAR_PARAM_TITLE, String.class));
         budgetYear.setStartDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_STARTDATE, Date.class));
         budgetYear.setEndDate(getProperty(budgetYearRef, BUDGETYEAR_PARAM_ENDDATE, Date.class));
-        
+
         List<Budget> budgets = new ArrayList<>();
-        
-        for(ChildAssociationRef budgetRef : ns.getChildAssocs(budgetYearRef, getODFName(BUDGETYEAR_ASSOC_BUDGETS), null)){
+
+        for (ChildAssociationRef budgetRef : ns.getChildAssocs(budgetYearRef, getODFName(BUDGETYEAR_ASSOC_BUDGETS), null)) {
             budgets.add(getBudget(budgetRef.getChildRef()));
         }
-        
+
         Long amountTotal = 0l;
-        Long amountAccepted= 0l;
-        Long amountNominated= 0l;
-        Long amountAvailable= 0l;
-        Long amountClosed= 0l;
-        Long amountApplied= 0l;
-        
-        for(Budget budget : budgets){
+        Long amountAccepted = 0l;
+        Long amountNominated = 0l;
+        Long amountAvailable = 0l;
+        Long amountClosed = 0l;
+        Long amountApplied = 0l;
+
+        for (Budget budget : budgets) {
             amountTotal += budget.getAmountTotal();
             amountAccepted += budget.getAmountAccepted();
             amountNominated += budget.getAmountNominated();
@@ -620,17 +624,17 @@ public class FoundationBean {
             amountClosed += budget.getAmountClosed();
             amountApplied += budget.getAmountApplied();
         }
-        
+
         budgetYear.setAmountTotal(amountTotal);
         budgetYear.setAmountAccepted(amountAccepted);
         budgetYear.setAmountNominated(amountNominated);
         budgetYear.setAmountAvailable(amountAvailable);
         budgetYear.setAmountClosed(amountClosed);
         budgetYear.setAmountApplied(amountApplied);
-        
+
         return budgetYear;
     }
-    
+
     public Budget getBudget(NodeRef budgetRef) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
         Budget budget = new Budget();
@@ -646,9 +650,12 @@ public class FoundationBean {
         List<AssociationRef> applicationRefs = ns.getSourceAssocs(budgetRef, getODFName(APPLICATION_ASSOC_BUDGET));
         for (AssociationRef applicationRef : applicationRefs) {
             ApplicationSummary application = getApplicationSummary(applicationRef.getSourceRef());
-            applications.add(application);
+            ApplicationReference appRef = new ApplicationReference();
+            appRef.setNodeRef(application.getNodeRef());
+            appRef.setTitle(application.getTitle());
+            applications.add(appRef);
             ApplicationPropertyValue<Long> value = application.totalAmount();
-            if(value == null){
+            if (value == null) {
                 continue;
             }
             Long applicationAmount = value.getValue();
@@ -683,7 +690,7 @@ public class FoundationBean {
 
         return budget;
     }
-    
+
     public List<BudgetSummary> getBudgetSummaries(BudgetYearReference budgetYear) throws Exception {
         List<BudgetSummary> summaries = new ArrayList<>();
         NodeService ns = serviceRegistry.getNodeService();
@@ -713,20 +720,8 @@ public class FoundationBean {
         List<BranchSummary> branches = new ArrayList<>();
         NodeService ns = serviceRegistry.getNodeService();
         for (NodeRef branchRef : refs) {
-            BranchSummary summary = new BranchSummary();
-            summary.parseRef(branchRef);
-            summary.setTitle((String) ns.getProperty(branchRef, getODFName(BRANCH_PARAM_TITLE)));
-            NodeRef workflowRef = getBranchWorkflow(branchRef);
-            if (workflowRef != null) {
-                WorkflowReference workflow = new WorkflowReference();
-                workflow.parseRef(workflowRef);
-                workflow.setTitle((String) ns.getProperty(workflowRef, getODFName(WORKFLOW_PARAM_TITLE)));
-                summary.setWorkflowRef(workflow);
-            }
-            branches.add(summary);
-
+            branches.add(getBranchSummary(branchRef));
         }
-
         return branches;
     }
 
@@ -735,6 +730,21 @@ public class FoundationBean {
         branchReference.parseRef(branchRef);
         branchReference.setTitle(getProperty(branchRef, BRANCH_PARAM_TITLE, String.class));
         return branchReference;
+    }
+
+    public BranchSummary getBranchSummary(NodeRef branchRef) throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+        BranchSummary summary = new BranchSummary();
+        summary.parseRef(branchRef);
+        summary.setTitle((String) ns.getProperty(branchRef, getODFName(BRANCH_PARAM_TITLE)));
+        NodeRef workflowRef = getBranchWorkflow(branchRef);
+        if (workflowRef != null) {
+            WorkflowReference workflow = new WorkflowReference();
+            workflow.parseRef(workflowRef);
+            workflow.setTitle((String) ns.getProperty(workflowRef, getODFName(WORKFLOW_PARAM_TITLE)));
+            summary.setWorkflowRef(workflow);
+        }
+        return summary;
     }
 
     public Branch getBranch(NodeRef branchRef) throws Exception {
@@ -801,8 +811,8 @@ public class FoundationBean {
         ApplicationSummary app = new ApplicationSummary();
         app.parseRef(applicationSummary);
 
-        BranchReference branchReference = getBranchReference(applicationSummary);
-        app.setBranchRef(branchReference);
+        BranchSummary branchSummary = getBranchSummary(applicationSummary);
+        app.setBranchSummary(branchSummary);
         app.setId(getProperty(applicationSummary, APPLICATION_PARAM_ID, String.class));
         app.setTitle(getProperty(applicationSummary, APPLICATION_PARAM_TITLE, String.class));
         List<String> blockStrings = getProperty(applicationSummary, APPLICATION_PARAM_BLOCKS, List.class);
@@ -813,11 +823,10 @@ public class FoundationBean {
         }
         app.setBlocks(blocks);
 
-
         return app;
     }
-    
-      public Application getApplication(NodeRef applicationRef) throws Exception {
+
+    public Application getApplication(NodeRef applicationRef) throws Exception {
         ObjectMapper mapper = Utilities.getMapper();
         Application application = new Application();
         application.parseRef(applicationRef);
@@ -834,9 +843,7 @@ public class FoundationBean {
         NodeRef budgetRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET);
         NodeRef stateRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_STATE);
         if (branchRef != null) {
-            BranchReference branch = new BranchReference();
-            branch.parseRef(branchRef);
-            application.setBranchRef(branch);
+            application.setBranchSummary(getBranchSummary(branchRef));
         }
         if (budgetRef != null) {
             BudgetReference budget = new BudgetReference();
@@ -857,10 +864,10 @@ public class FoundationBean {
         return application;
 
     }
-      
+
     public ApplicationReference findByNumericID(Integer id) throws Exception {
-        ResultSet set = serviceRegistry.getSearchService().query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "LANGUAGE_LUCENE", "TYPE:\"odf:application\" AND @odf:applicationID:\""+id+"\"");
-        if(set.length() == 0){
+        ResultSet set = serviceRegistry.getSearchService().query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "LANGUAGE_LUCENE", "TYPE:\"odf:application\" AND @odf:applicationID:\"" + id + "\"");
+        if (set.length() == 0) {
             return null;
         }
         ChildAssociationRef ref = set.getRow(0).getChildAssocRef();
@@ -955,8 +962,7 @@ public class FoundationBean {
         state.setCategory(StateCategory.getFromName(getProperty(stateRef, STATE_PARAM_CATEGORY, String.class)));
         return state;
     }
-   
-    
+
     public StateSummary getStateSummary(NodeRef stateRef) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
         StateSummary summary = new StateSummary();

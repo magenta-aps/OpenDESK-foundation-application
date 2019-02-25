@@ -69,7 +69,7 @@ public class Application extends ApplicationSummary{
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {
             return false;
         }
-        if (!Objects.equals(this.getBranchRef(), other.getBranchRef())) {
+        if (!Objects.equals(this.getBranchSummary(), other.getBranchSummary())) {
             return false;
         }
         if (!Objects.equals(this.getState(), other.getState())) {

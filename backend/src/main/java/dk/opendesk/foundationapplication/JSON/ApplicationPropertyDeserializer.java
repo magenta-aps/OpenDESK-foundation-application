@@ -36,6 +36,7 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
             toReturn.setType(node.get("type").asText());
             toReturn.setLabel(node.get("label").asText());
             toReturn.setLayout(node.get("layout").asText());
+            toReturn.setDescribes(node.get("describes").asText());
             String typeString = node.get("javaType").asText();
             Class type = Class.forName(typeString);
             toReturn.setJavaType(type);
