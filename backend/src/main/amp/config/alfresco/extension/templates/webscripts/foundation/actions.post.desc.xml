@@ -1,7 +1,7 @@
 <webscript>
     <shortname>Save action</shortname>
     <description>Saves an action to the specified state. StateRef and aspect (onCreate/beforeDelete) is mandatory</description>
-    <url>/foundation/actions/{action}</url>
+    <url>/foundation/action/{action}</url>
     <authentication>user</authentication>
     <transaction>none</transaction>
 </webscript>

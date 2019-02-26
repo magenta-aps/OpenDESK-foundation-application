@@ -24,7 +24,7 @@ public class ActionTest extends AbstractTestClass {
     private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public ActionTest() {
-        super("/foundation/actions");
+        super("/foundation/action");
     }
 
     @Override
