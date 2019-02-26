@@ -54,7 +54,13 @@
           parent="webscript">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
-    
+
+    <bean id="webscript.foundation.application.delete"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.DeleteApplication"
+          parent="webscript">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+
     <bean id="webscript.foundation.applicationUpdate.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateApplication"
           parent="webscript">

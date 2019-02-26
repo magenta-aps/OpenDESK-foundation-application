@@ -175,6 +175,19 @@
                      </target>
                      <duplicate>true</duplicate>
                 </child-association>
+                <child-association name="odf:deletedApplications">
+                    <source>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>odf:application</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                    <duplicate>true</duplicate>
+                </child-association>
+
 
 
              </associations>
