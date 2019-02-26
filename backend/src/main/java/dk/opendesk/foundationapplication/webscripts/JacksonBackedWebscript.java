@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.stringExists;
+import dk.opendesk.foundationapplication.beans.FoundationBean;
 import static dk.opendesk.foundationapplication.webscripts.foundation.UpdateBudget.BUDGET_DID_NOT_MATCH;
 import java.util.Map;
 import org.apache.log4j.Logger;
@@ -29,6 +30,8 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.service.ServiceRegistry;
+import org.apache.log4j.MDC;
 
 /**
  *
@@ -36,15 +39,50 @@ import org.alfresco.error.AlfrescoRuntimeException;
  */
 public abstract class JacksonBackedWebscript extends AbstractWebScript {
 
-    private Logger logger = Logger.getLogger(getClass());
+    public static final String MDC_USERID = "webservice.userid";
+    public static final String MDC_TICKETID = "webservice.ticketid";
+    public static final String MDC_SERVICE_URL = "webservice.url";
+    public static final String MDC_MIMETYPE = "webservice.mime";
+    public static final String MDC_FORMAT = "webservice.format";
+
+    protected Logger logger = Logger.getLogger(getClass());
     private ObjectMapper mapper;
     private WebScriptRequest req;
     private WebScriptResponse res;
     private Map<String, String> urlParams;
     private Map<String, String> urlQueryParams;
 
+    private ServiceRegistry serviceRegistry;
+    private FoundationBean foundationBean;
+
+    protected ServiceRegistry getServiceRegistry() {
+        return serviceRegistry;
+    }
+
+    public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
+    }
+
+    protected FoundationBean getFoundationBean() {
+        return foundationBean;
+    }
+
+    public void setFoundationBean(FoundationBean foundationBean) {
+        this.foundationBean = foundationBean;
+    }
+
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
+        if (req.getFormat() != null) {
+            MDC.put(MDC_FORMAT, req.getFormat());
+        }
+        if (req.getContentType() != null) {
+            MDC.put(MDC_MIMETYPE, req.getContentType());
+        }
+        MDC.put(MDC_USERID, serviceRegistry.getAuthenticationService().getCurrentUserName());
+        MDC.put(MDC_TICKETID, serviceRegistry.getAuthenticationService().getCurrentTicket());
+        MDC.put(MDC_SERVICE_URL, req.getURL());
+        logger.info("Service called");
         mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         this.req = req;
@@ -65,6 +103,11 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
         } catch (Exception e) {
             error(res, e);
         } finally {
+            MDC.remove(MDC_FORMAT);
+            MDC.remove(MDC_MIMETYPE);
+            MDC.remove(MDC_USERID);
+            MDC.remove(MDC_TICKETID);
+            MDC.remove(MDC_SERVICE_URL);
             this.req = null;
             this.res = null;
             urlParams = null;
@@ -81,8 +124,8 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
             return mapper.readValue(req.getContent().getContent(), clazz);
         }
     }
-    
-    protected <T> T getRequestListAs(Class<T> clazz) throws IOException{
+
+    protected <T> T getRequestListAs(Class<T> clazz) throws IOException {
         return mapper.readValue(req.getContent().getContent(), mapper.getTypeFactory().constructCollectionType(List.class, clazz));
     }
 
@@ -93,7 +136,7 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
     public Map<String, String> getUrlQueryParams() {
         return Collections.unmodifiableMap(urlQueryParams);
     }
-    
+
     private void error(WebScriptResponse res, Exception e) throws IOException {
         logger.error("Encountered error when executing script", e);
         try {
@@ -130,8 +173,8 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
         List<String> values = paramValues.stream().map(NameValuePair::getValue).collect(Collectors.toList());
         return "[" + StringUtils.join(values, ",") + "]";
     }
-    
-    protected void resolveNodeRef(Reference reference, String nodeID){
+
+    protected void resolveNodeRef(Reference reference, String nodeID) {
         if (stringExists(reference.getNodeID()) && !reference.getNodeID().equals(nodeID)) {
             throw new AlfrescoRuntimeException(BUDGET_DID_NOT_MATCH);
         }

@@ -6,7 +6,6 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -17,11 +16,6 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  * @author martin
  */
 public class UpdateApplication extends JacksonBackedWebscript{
-    private FoundationBean foundationBean;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
 
     @Override
     protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
@@ -29,7 +23,7 @@ public class UpdateApplication extends JacksonBackedWebscript{
         Application application = getRequestAs(Application.class);
         resolveNodeRef(application, applicationID);
         
-        foundationBean.updateApplication(application);
+        getFoundationBean().updateApplication(application);
         return new JSONObject().put("status", "OK");
     }
 }

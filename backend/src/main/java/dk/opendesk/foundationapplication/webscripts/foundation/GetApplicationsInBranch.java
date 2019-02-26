@@ -6,7 +6,6 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import java.util.List;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -18,18 +17,12 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  * @author martin
  */
 public class GetApplicationsInBranch extends JacksonBackedWebscript{
-    
-    private FoundationBean foundationBean;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
 
     @Override
     protected List<ApplicationSummary> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         String branchID = getUrlParams().get("branchID");
 
-        return foundationBean.getBranchApplications(new NodeRef("/"+branchID));
+        return getFoundationBean().getBranchApplications(new NodeRef("/"+branchID));
     }
 
     

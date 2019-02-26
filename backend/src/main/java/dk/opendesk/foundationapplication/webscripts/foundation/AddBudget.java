@@ -8,7 +8,6 @@ package dk.opendesk.foundationapplication.webscripts.foundation;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetYearReference;
 import dk.opendesk.foundationapplication.DAO.Reference;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
@@ -18,12 +17,6 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  * @author martin
  */
 public class AddBudget extends JacksonBackedWebscript {
- 
-    private FoundationBean foundationBean;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
 
     @Override
     protected Reference doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
@@ -31,7 +24,7 @@ public class AddBudget extends JacksonBackedWebscript {
         BudgetYearReference budgetYear = new BudgetYearReference();
         budgetYear.setNodeID(budgetYearID);
         Budget budget = getRequestAs(Budget.class);
-        return Reference.from(foundationBean.addNewBudget(budgetYear.asNodeRef(), budget.getTitle(), budget.getTitle(), budget.getAmountTotal()));
+        return Reference.from(getFoundationBean().addNewBudget(budgetYear.asNodeRef(), budget.getTitle(), budget.getTitle(), budget.getAmountTotal()));
     }
     
     

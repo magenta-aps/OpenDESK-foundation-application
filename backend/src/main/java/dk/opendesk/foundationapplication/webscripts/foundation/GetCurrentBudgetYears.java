@@ -6,7 +6,6 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.BudgetYear;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import java.util.List;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -17,16 +16,10 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  * @author martin
  */
 public class GetCurrentBudgetYears extends JacksonBackedWebscript{
-    
-    private FoundationBean foundationBean;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
 
     @Override
     protected List<BudgetYear> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        List<BudgetYear> budgetYears = foundationBean.getCurrentBudgetYears();
+        List<BudgetYear> budgetYears = getFoundationBean().getCurrentBudgetYears();
         return budgetYears;
     }
     

@@ -82,7 +82,7 @@ public class ApplicationPropertiesContainer extends DAOType{
         List<ApplicationPropertyValue> fields = get(this.fields);
         for (ApplicationPropertyValue blockField : fields) {
             if (describes.getFriendlyName().equals(blockField.getDescribes())) {
-                if(describes.getRequiredType().isAssignableFrom(blockField.getJavaType())){
+                if(!describes.getRequiredType().isAssignableFrom(blockField.getJavaType())){
                     LOGGER.warn("Found a match for "+describes+" in "+blockField+" but the types did not match");
                 }
                 return (A)blockField;

@@ -10,7 +10,6 @@ import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
-import dk.opendesk.foundationapplication.DAO.BranchReference;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
@@ -56,20 +55,10 @@ public class ResetDemoData extends JacksonBackedWebscript {
             + "Donec justo sapien, convallis vitae erat et, pulvinar elementum velit.";
 
     private static final Random RANDOM = new Random();
-    private FoundationBean foundationBean;
-    private ServiceRegistry serviceRegistry;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
-
-    public void setServiceRegistry(ServiceRegistry serviceRegistry) {
-        this.serviceRegistry = serviceRegistry;
-    }
 
     @Override
     protected JSONObject doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        wipeData(serviceRegistry);
+        wipeData(getServiceRegistry());
         
         createData();
         
@@ -104,15 +93,15 @@ public class ResetDemoData extends JacksonBackedWebscript {
         
         NodeRef budgetNextYear = createBudget(budgetYearCurrent2, "Central", 5500000l);
         
-        foundationBean.addBranchBudget(central, budgetCentral);
-        foundationBean.addBranchBudget(local1, budgetLocal1);
-        foundationBean.addBranchBudget(local2, budgetLocal2);
-        foundationBean.addBranchBudget(local3, budgetLocal3);
-        foundationBean.addBranchBudget(local2, budgetSharedJutland);
-        foundationBean.addBranchBudget(local3, budgetSharedJutland);
-        foundationBean.addBranchBudget(local1, budgetSharedTotal);
-        foundationBean.addBranchBudget(local2, budgetSharedTotal);
-        foundationBean.addBranchBudget(local3, budgetSharedTotal); 
+        getFoundationBean().addBranchBudget(central, budgetCentral);
+        getFoundationBean().addBranchBudget(local1, budgetLocal1);
+        getFoundationBean().addBranchBudget(local2, budgetLocal2);
+        getFoundationBean().addBranchBudget(local3, budgetLocal3);
+        getFoundationBean().addBranchBudget(local2, budgetSharedJutland);
+        getFoundationBean().addBranchBudget(local3, budgetSharedJutland);
+        getFoundationBean().addBranchBudget(local1, budgetSharedTotal);
+        getFoundationBean().addBranchBudget(local2, budgetSharedTotal);
+        getFoundationBean().addBranchBudget(local3, budgetSharedTotal); 
         
         //Create Workflows
         NodeRef centralWorkflow = createWorkflow("Central");
@@ -143,10 +132,10 @@ public class ResetDemoData extends JacksonBackedWebscript {
         createWorkflowStateTransitions(lCSReview, lPayout);
         createWorkflowStateTransitions(lPayout, lClosed);
         
-        foundationBean.addBranchWorkflow(central, centralWorkflow);
-        foundationBean.addBranchWorkflow(local1, localWorkflow);
-        foundationBean.addBranchWorkflow(local2, localWorkflow);
-        foundationBean.addBranchWorkflow(local3, localWorkflow);
+        getFoundationBean().addBranchWorkflow(central, centralWorkflow);
+        getFoundationBean().addBranchWorkflow(local1, localWorkflow);
+        getFoundationBean().addBranchWorkflow(local2, localWorkflow);
+        getFoundationBean().addBranchWorkflow(local3, localWorkflow);
         
         //Create Applications
         NodeRef appc1 = createApplication(cHandleApplication, budgetCentral, central, "Ansøgning central 1", 60000);
@@ -178,7 +167,7 @@ public class ResetDemoData extends JacksonBackedWebscript {
         
         
         
-        ApplicationReference app =  foundationBean.addNewApplication(buildApplication(state, budget, branch, name, requiredAmount));
+        ApplicationReference app =  getFoundationBean().addNewApplication(buildApplication(state, budget, branch, name, requiredAmount));
         
 //        if(state != null){
 //            foundationBean.setApplicationState(app.asNodeRef(), state);
@@ -255,32 +244,32 @@ public class ResetDemoData extends JacksonBackedWebscript {
     }
     
     public NodeRef createBranch(String name) throws Exception{
-        return foundationBean.addNewBranch("TestBranch-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name);
+        return getFoundationBean().addNewBranch("TestBranch-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name);
     }
     
     public NodeRef createBudgetYear(String name, Date startDate, Date endDate) throws Exception{
-        return foundationBean.addNewBudgetYear(name, "TestBudgetYear"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), startDate, endDate);
+        return getFoundationBean().addNewBudgetYear(name, "TestBudgetYear"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), startDate, endDate);
     }
     
     public NodeRef createBudget(NodeRef budgetYear, String name, Long amount) throws Exception{
-        return foundationBean.addNewBudget(budgetYear, "TestBudget-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, amount);
+        return getFoundationBean().addNewBudget(budgetYear, "TestBudget-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, amount);
     }
     
     public NodeRef createWorkflow(String name) throws Exception{
-        return foundationBean.addNewWorkflow("TestWorkflow-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name);
+        return getFoundationBean().addNewWorkflow("TestWorkflow-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name);
     }
     
     public NodeRef createWorkflowState(String name, NodeRef workflowRef, boolean isEntry, StateCategory category) throws Exception{
-        NodeRef stateRef = foundationBean.addNewWorkflowState(workflowRef, "TestState-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, category);
+        NodeRef stateRef = getFoundationBean().addNewWorkflowState(workflowRef, "TestState-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, category);
         if(isEntry){
-            foundationBean.setWorkflowEntryPoint(workflowRef, stateRef);
+            getFoundationBean().setWorkflowEntryPoint(workflowRef, stateRef);
         }
         return stateRef;
     }
     
     public void createWorkflowStateTransitions(NodeRef from, NodeRef... to) throws Exception{
         for(NodeRef toRef : to){
-            foundationBean.createWorkflowTransition(from, toRef);
+            getFoundationBean().createWorkflowTransition(from, toRef);
         }
     } 
     

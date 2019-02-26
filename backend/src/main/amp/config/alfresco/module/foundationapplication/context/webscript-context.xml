@@ -20,139 +20,115 @@
     
     <bean id="webscript.foundation.demodata.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
-        <property name="serviceRegistry" ref="ServiceRegistry"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.newapplications.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetNewApplications"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.application.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.AddApplication"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.applicationtemplate.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.AddApplicationTemplate"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.application.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplication"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.applicationUpdate.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateApplication"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.branchApplications.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplicationsInBranch"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.branches.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetBranches"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.branch.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetBranch"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.branch.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.AddBranch"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.budget.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetBudget"
-              parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+              parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.budgets.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetBudgets"
-              parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+              parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.budget.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.AddBudget"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.budgetUpdate.post"
               class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateBudget"
-              parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+              parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.budgetYear.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetBudgetYear"
-              parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+              parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.budgetYears.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetBudgetYears"
-              parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+              parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.budgetYear.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.AddBudgetYear"
-          parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+          parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.budgetYearCurrent.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetCurrentBudgetYears"
-              parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+              parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.branchUpdate.post"
               class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateBranch"
-              parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+              parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.workflows.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetWorkflows"
-              parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+              parent="webscript.foundation">
     </bean>
     <bean id="webscript.foundation.workflow.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetWorkflow"
-              parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+              parent="webscript.foundation">
     </bean>
     <bean id="webscript.foundation.workflowsactive.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetWorkflowsActive"
-              parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+              parent="webscript.foundation">
     </bean>
     
     <bean id="webscript.foundation.state.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetState"
-              parent="webscript">
-        <property name="foundationBean" ref="foundationBean"/>
+              parent="webscript.foundation">
     </bean>
     
 </beans>

@@ -7,15 +7,10 @@ package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
-import dk.opendesk.foundationapplication.DAO.BranchReference;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
@@ -24,12 +19,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  * @author martin
  */
 public class AddApplicationTemplate extends JacksonBackedWebscript{
-    
-    private FoundationBean foundationBean;
 
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
 
     @Override
     protected ApplicationReference doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
@@ -67,7 +57,7 @@ public class AddApplicationTemplate extends JacksonBackedWebscript{
 //        newApplication.setEndDate(Date.from(Instant.now().plus(Duration.ofDays(30))));
         
         
-        return foundationBean.addNewApplication(newApplication);
+        return getFoundationBean().addNewApplication(newApplication);
     }
     
     String randomNumbers(int length){
