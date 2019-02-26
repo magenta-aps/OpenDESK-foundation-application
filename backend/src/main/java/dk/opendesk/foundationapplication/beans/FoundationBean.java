@@ -119,7 +119,7 @@ public class FoundationBean {
     }
 
     public void updateApplication(Application app) throws Exception {
-
+        String currentUser = getCurrentUserName();
         NodeService ns = serviceRegistry.getNodeService();
         Map<QName, Serializable> properties = new HashMap<>();
         if (app.wasTitleSet()) {
@@ -172,6 +172,18 @@ public class FoundationBean {
         }
         if (app.wasAccountNumberSet()) {
             properties.put(getODFName(APPLICATION_PARAM_ACCOUNT_NUMBER), app.getAccountNumber());
+        }
+        if (app.wasIsSeenSet()) {
+            //if isSeen shall be set to true but is currently false
+            if (app.getIsSeen() && !isApplicationSeen(app.asNodeRef(), currentUser)) {
+                properties.put(getODFName(APPLICATION_PARAM_SEEN_BY), currentUser);
+            }
+            //if isSeen shall be set to false but is currently true
+            else if (!app.getIsSeen() && isApplicationSeen(app.asNodeRef(), currentUser)){
+                ArrayList<String> seenBy = (ArrayList<String>) ns.getProperty(app.asNodeRef(), getODFName(APPLICATION_PARAM_SEEN_BY));
+                seenBy.remove(currentUser);
+                properties.put(getODFName(APPLICATION_PARAM_SEEN_BY), seenBy);
+            }
         }
 
         boolean changedWorkflow = false;
@@ -254,7 +266,20 @@ public class FoundationBean {
         serviceRegistry.getVersionService().createVersion(app.asNodeRef(), null);
 
     }
-    
+
+    private String getCurrentUserName() {
+        return serviceRegistry.getAuthenticationService().getCurrentUserName();
+    }
+
+    public boolean isApplicationSeen(NodeRef appRef, String userName) throws Exception {
+        List<String> seenByList = (List<String>) serviceRegistry.getNodeService().getProperty(appRef, getODFName(APPLICATION_PARAM_SEEN_BY));
+        //Set<String> seenBySet = new HashSet<>(seenByList);
+        if (seenByList == null) {
+            return false;
+        }
+        return seenByList.contains(userName);
+    }
+
     private void updateContent(Reference toUpdate, Reference parent, String assoc) throws Exception{
         NodeService ns = serviceRegistry.getNodeService();
         if(toUpdate == null){
@@ -417,6 +442,7 @@ public class FoundationBean {
         application.setRecipient(getProperty(applicationRef, APPLICATION_PARAM_RECIPIENT, String.class));
         application.setShortDescription(getProperty(applicationRef, APPLICATION_PARAM_SHORT_DESCRIPTION, String.class));
         application.setCvr(getProperty(applicationRef, APPLICATION_PARAM_CVR, String.class));
+        application.setIsSeen(isApplicationSeen(applicationRef,getCurrentUserName()));
 
         NodeRef branchRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BRANCH);
         NodeRef budgetRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET);
@@ -776,6 +802,7 @@ public class FoundationBean {
         app.setRecipient(getProperty(applicationSummary, APPLICATION_PARAM_RECIPIENT, String.class));
         app.setShortDescription(getProperty(applicationSummary, APPLICATION_PARAM_SHORT_DESCRIPTION, String.class));
         app.setCvr(getProperty(applicationSummary, APPLICATION_PARAM_CVR, String.class));
+        app.setIsSeen(isApplicationSeen(applicationSummary,getCurrentUserName()));
 
 
         return app;
@@ -894,6 +921,7 @@ public class FoundationBean {
         NodeService ns = serviceRegistry.getNodeService();
         return (T) ns.getProperty(ref, getODFName(name));
     }
+
 
     public NodeRef getSingleTargetAssoc(NodeRef sourceRef, String assocName) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
@@ -1159,27 +1187,4 @@ public class FoundationBean {
 
         return emailFolderRef;
     }
-
-
-    //JSONArray v = nodeBean.getVersions(TestUtils.application1);
-    //System.out.println(v);
-        /*
-        if(PRINT) System.out.println("Change #4: Sending Email\n");
-
-        //saving a mail action to a state
-        JSONObject mailData = new JSONObject();
-        mailData.put("stateRef", TestUtils.stateAcceptedRef);
-        mailData.put("aspect", ASPECT_ON_CREATE);
-        post(mailData,"/foundation/actions/mail");
-
-
-        Application change4 = new Application();
-        change4.parseRef(appRef);
-        StateReference state4 = new StateReference();
-        ref3.parseRef(TestUtils.stateAcceptedRef);
-        change5.setState(ref3);
-        foundationBean.updateApplication(change5);
-
-        if (PRINT) printHistory(appRef);
-        */
 }

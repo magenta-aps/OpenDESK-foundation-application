@@ -93,6 +93,7 @@ public final class Utilities {
     public static final String APPLICATION_PARAM_ACCOUNT_REGISTRATION = "applicationAccountRegistration";
     public static final String APPLICATION_PARAM_ACCOUNT_NUMBER = "applicationAccountNumber";
     public static final String APPLICATION_PARAM_CVR = "cvr";
+    public static final String APPLICATION_PARAM_SEEN_BY = "applicationSeenBy";
 
     public static final String APPLICATION_CHANGE_CREATED = "applicationCreation";
     public static final String APPLICATION_CHANGE_EMAIL = "email";

@@ -24,6 +24,7 @@ public class ApplicationSummary extends ApplicationReference {
     private Optional<Date> endDate;
     private Optional<Long> amountApplied;
     private Optional<String> cvr;
+    private Optional<Boolean> isSeen;
 
     public ApplicationSummary() {
     }
@@ -122,6 +123,21 @@ public class ApplicationSummary extends ApplicationReference {
 
     public void setCvr(String cvr) {
         this.cvr = optional(cvr);
+    }
+
+    public boolean getIsSeen() {
+        if (!isSeen.isPresent()) {
+            return false;
+        }
+        return get(isSeen);
+    }
+
+    public boolean wasIsSeenSet() {
+        return wasSet(isSeen);
+    }
+
+    public void setIsSeen(Boolean isSeen) {
+        this.isSeen = optional(isSeen);
     }
 
     @Override

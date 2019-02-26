@@ -12,9 +12,12 @@ import dk.opendesk.foundationapplication.DAO.BranchReference;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -160,7 +163,52 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals(TestUtils.stateAccessRef, app.getState().asNodeRef());
     }
     
-    
+
+    public void testSeenByList() throws Exception {
+        NodeRef appRef = TestUtils.application2;
+
+        //isSeen is initially false
+        Application app = get(Application.class, appRef.getId());
+        assertFalse(app.getIsSeen());
+
+        //from isSeen=false to isSeen=false
+        Application change = new Application();
+        change.parseRef(appRef);
+        change.setIsSeen(false);
+        post(change,appRef.getId());
+
+        app = get(Application.class, appRef.getId());
+        assertFalse(app.getIsSeen());
+
+        //from isSeen=false to isSeen=true
+        change = new Application();
+        change.parseRef(appRef);
+        change.setIsSeen(true);
+        post(change,appRef.getId());
+
+        app = get(Application.class, appRef.getId());
+        assertTrue(app.getIsSeen());
+
+        //from isSeen=true to isSeen=true
+        change = new Application();
+        change.parseRef(appRef);
+        change.setIsSeen(true);
+        post(change,appRef.getId());
+
+        app = get(Application.class, appRef.getId());
+        assertTrue(app.getIsSeen());
+
+        //from isSeen=true to isSeen=false
+        change = new Application();
+        change.parseRef(appRef);
+        change.setIsSeen(false);
+        post(change,appRef.getId());
+
+        app = get(Application.class, appRef.getId());
+        assertFalse(app.getIsSeen());
+
+        //todo Test with two different users as well
+    }
     
     
     

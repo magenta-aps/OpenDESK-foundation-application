@@ -465,6 +465,11 @@
                     </constraints>
                 </property>
 
+                <property name="odf:applicationSeenBy">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                    <multiple>true</multiple>
+                </property>
             </properties>
             <associations>
                 <association name="odf:applicationBudget">

@@ -5,8 +5,8 @@
  */
 package dk.opendesk.foundationapplication.DAO;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -31,7 +31,7 @@ public class Application extends ApplicationSummary{
     private Optional<Reference> boardMembersDoc;
     private Optional<Reference> articlesOfAssociationDoc;
     private Optional<Reference> financialAccountingDoc;
-    
+
     public StateReference getState() {
         return get(state);
     }
@@ -239,7 +239,7 @@ public class Application extends ApplicationSummary{
     public void setFinancialAccountingDoc(Reference financialAccountingDoc) {
         this.financialAccountingDoc = optional(financialAccountingDoc);
     }
-    
+
 
     @Override
     public int hashCode() {
