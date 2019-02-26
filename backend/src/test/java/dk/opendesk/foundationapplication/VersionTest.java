@@ -12,10 +12,10 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.cmr.version.VersionService;
+import org.apache.log4j.Logger;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import static dk.opendesk.foundationapplication.Utilities.*;
 
@@ -31,6 +31,8 @@ public class VersionTest extends AbstractTestClass {
         super("foundation/application");
     }
 
+    Logger logger = Logger.getLogger(getClass());
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -45,18 +47,17 @@ public class VersionTest extends AbstractTestClass {
     }
 
     public void testVersioning() throws Exception {
-        final boolean PRINT = false;
 
         NodeRef appRef = TestUtils.application1;
         String origDesc = foundationBean.getApplication(appRef).getShortDescription();
 
         assertEquals(1,versionService.getVersionHistory(appRef).getAllVersions().size());
 
-        if (PRINT) printHistory(appRef);
+        if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
 
 
         // --- FIRST CHANGE --- //
-        if (PRINT) System.out.println("Change #1: Changing the 'description' property\n");
+        if (logger.isDebugEnabled()) logger.debug("Change #1: Changing the 'description' property\n");
 
         Application change1 = new Application();
         change1.parseRef(appRef);
@@ -68,11 +69,11 @@ public class VersionTest extends AbstractTestClass {
         assertEquals(2, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals("First change", headVersion.getShortDescription());
 
-        if (PRINT) printHistory(appRef);
+        if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
 
 
         // --- SECOND CHANGE --- //
-        if (PRINT) System.out.println("Change #2: Changing the state to 'assess'\n");
+        if (logger.isDebugEnabled()) logger.debug("Change #2: Changing the state to 'assess'\n");
 
         Application change2 = new Application();
         change2.parseRef(appRef);
@@ -87,11 +88,11 @@ public class VersionTest extends AbstractTestClass {
         assertEquals(TestUtils.stateAccessRef, headVersion.getState().asNodeRef());
         assertEquals("First change", headVersion.getShortDescription());
 
-        if (PRINT) printHistory(appRef);
+        if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
 
 
         // --- THIRD CHANGE --- //
-        if (PRINT) System.out.println("Change #3: Changing both state and description\n");
+        if (logger.isDebugEnabled()) logger.debug("Change #3: Changing both state and description\n");
 
         Application change3 = new Application();
         change3.parseRef(appRef);
@@ -112,17 +113,15 @@ public class VersionTest extends AbstractTestClass {
         assertEquals(TestUtils.stateAcceptedRef, currentVersion.getState().asNodeRef());
         assertEquals("Third change", currentVersion.getShortDescription());
 
-        if (PRINT) printHistory(appRef);
+        if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
 
         //todo fredag : print ogsaa emailchanges og faa dem med i testen
 
         // --- TESTING THE WEBSCRIPT --- //
         List<ApplicationChange> changeLists = get(List.class, ApplicationChange.class, appRef+"/history");
-        //System.out.println(changeLists);
 
         //Testing the changes made when creating the original version
         ApplicationChange changeList = changeLists.get(3);
-        //System.out.println(changeList);
         assertEquals("admin", changeList.getModifier());
         assertEquals(serviceRegistry.getPersonService().getPerson("admin").toString(), changeList.getModifierId());
         List<ApplicationChangeUnit> appChanges = changeList.getChanges();
@@ -160,52 +159,52 @@ public class VersionTest extends AbstractTestClass {
     }
 
 
-    private void printHistory(NodeRef application) throws Exception {
+    private String buildVersionString(NodeRef application) throws Exception {
 
-        System.out.println("---------Printing history-------");
-
-        System.out.println("Current version (also in version history):\n");
-        System.out.println("\tNodeRef:                        " + application);
+        StringBuilder builder = new StringBuilder();
+        builder.append("--------- Version history -------")
+                .append("\nCurrent version (also in version history):\n")
+                .append("\n\tNodeRef:                        ").append(application);
         Application app = foundationBean.getApplication(application);
         if (app.getState() != null) {
-            System.out.println("\tState:                          " + app.getState().getTitle());
+            builder.append("\n\tState:                          ").append(app.getState().getTitle());
         }
-        System.out.println("\tDescription:                    " + app.getShortDescription());
-        System.out.println("\temail:                          " + app.getContactEmail());
+        builder.append("\n\tDescription:                    ").append(app.getShortDescription());
+        builder.append("\n\temail:                          ").append(app.getContactEmail());
 
         VersionHistory history = serviceRegistry.getVersionService().getVersionHistory(application);
         if (history != null) {
             Collection<Version> versions = history.getAllVersions();
-            System.out.println("\n\n\nVersions in version history (" + versions.size() + "):");
+            builder.append("\n\n\nVersions in version history (").append(versions.size()).append("):");
             for (Version ver : versions) {
-                System.out.println("\nVersion:");
-                System.out.println("\tnode-uuid (Props):                                           " + ver.getVersionProperties().get("node-uuid"));
-                System.out.println("\tFrozenStateNodeRef (getMethod): " + ver.getFrozenStateNodeRef());
-                System.out.println();
-                System.out.println("\tFrozenStateNodeRef (Props):     " + ver.getVersionProperties().get("frozenNodeRef"));
-                System.out.println("\tVersionNodeRef (getMethod):     " + ver.getVersionedNodeRef());
-                System.out.println("\tname (Props):                                           " + ver.getVersionProperties().get("name"));
-                System.out.println();
+                builder.append("\n\nVersion:")
+                        .append("\n\tnode-uuid (Props):                                           ").append(ver.getVersionProperties().get("node-uuid"))
+                        .append("\n\tFrozenStateNodeRef (getMethod): ").append(ver.getFrozenStateNodeRef())
+                        .append("\n")
+                        .append("\n\tFrozenStateNodeRef (Props):     ").append(ver.getVersionProperties().get("frozenNodeRef"))
+                        .append("\n\tVersionNodeRef (getMethod):     ").append(ver.getVersionedNodeRef())
+                        .append("\n\tname (Props):                                           ").append(ver.getVersionProperties().get("name"))
+                        .append("\n");
 
                 app = foundationBean.getApplication(ver.getFrozenStateNodeRef());
                 if (app.getState() != null) {
-                    System.out.println("\tState:                          " + app.getState().getTitle());
+                    builder.append("\n\tState:                          ").append(app.getState().getTitle());
                 }
-                System.out.println("\tDescription:                    " + app.getShortDescription());
-                System.out.println("\temail:                          " + app.getContactEmail());
+                builder.append("\n\tDescription:                    ").append(app.getShortDescription())
+                        .append("\n\temail:                          ").append(app.getContactEmail());
 
-                //uncomment to print all properties on a version:
+                //uncomment to log all properties on a version:
                 /*
-                System.out.println();
+                builder.append("\n");
                 for (String s : ver.getVersionProperties().keySet()) {
-                    System.out.println("\t" + s + ": " + ver.getVersionProperties().get(s));
-                    //System.out.println(ver);
+                    builder.append("\n\t").append(s).append(": ").append(ver.getVersionProperties().get(s));
                 }
                 */
 
             }
         }
-        System.out.println("--------------------------------\n\n\n\n");
+        builder.append("\n--------------------------------\n\n\n\n");
+        return builder.toString();
     }
 
 }

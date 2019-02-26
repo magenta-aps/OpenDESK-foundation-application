@@ -68,7 +68,6 @@ public class ActionTest extends AbstractTestClass {
         data.put("aspect", ASPECT_ON_CREATE);
         data.put("cc", "test@test.dk"); //TODO make sure only real email adresses can be set as parameters
         post(data, actionName);
-        System.out.println(data);
 
         List<Action> actions = serviceRegistry.getActionService().getActions(TestUtils.stateRecievedRef);
         for (Action act : actions) {
