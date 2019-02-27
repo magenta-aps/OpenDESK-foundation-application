@@ -124,18 +124,12 @@ public class BranchTest extends AbstractTestClass {
         applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications?budgetID="+TestUtils.budgetRef2.getId());
         assertEquals(0, applications.size());
         
-        Budget budget1 = foundationBean.getBudget(TestUtils.budgetRef1);
-        Budget budget2 = foundationBean.getBudget(TestUtils.budgetRef2);
-        
         Application change = new Application();
         change.parseRef(TestUtils.application2);
         BudgetReference newBudget = new BudgetReference();
         newBudget.parseRef(TestUtils.budgetRef2);
         change.setBudget(newBudget);
         foundationBean.updateApplication(change);
-        
-        budget1 = foundationBean.getBudget(TestUtils.budgetRef1);
-        budget2 = foundationBean.getBudget(TestUtils.budgetRef2);
         
         applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications?budgetID="+TestUtils.budgetRef1.getId());
         assertEquals(1, applications.size());
