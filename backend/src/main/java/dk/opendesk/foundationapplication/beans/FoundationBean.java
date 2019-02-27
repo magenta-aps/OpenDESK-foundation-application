@@ -67,6 +67,7 @@ public class FoundationBean {
     public final String MUST_SPECIFY_STATE = "odf.specify.state";
     public final String INVALID_BRANCH = "odf.bad.branch";
     public final String ID_IN_USE = "odf.id.used";
+    public final String ID_BAD_NODE_TYPE = "odf.node.badtype";
 
     private ServiceRegistry serviceRegistry;
 
@@ -379,6 +380,8 @@ public class FoundationBean {
     }
 
     public NodeRef getApplicationState(NodeRef applicationRef) throws Exception {
+        ensureType(getODFName(APPLICATION_TYPE_NAME), applicationRef);
+        
         QName applicationStateName = getODFName(APPLICATION_ASSOC_STATE);
         List<AssociationRef> states = serviceRegistry.getNodeService().getTargetAssocs(applicationRef, applicationStateName);
         //The association is singular, it is never a list
@@ -453,6 +456,8 @@ public class FoundationBean {
 //        return totalAmount - usedAmount;
 //    }
     public BudgetReference getBudgetReference(NodeRef budgetRef) throws Exception {
+        ensureType(getODFName(BUDGET_TYPE_NAME), budgetRef);
+        
         BudgetReference ref = new BudgetReference();
         ref.parseRef(budgetRef);
         ref.setTitle(getProperty(budgetRef, BUDGET_PARAM_TITLE, String.class));
@@ -472,6 +477,8 @@ public class FoundationBean {
     }
 
     public WorkflowReference getWorkflowReference(NodeRef reference) throws Exception {
+        ensureType(getODFName(WORKFLOW_TYPE_NAME), reference);
+        
         WorkflowReference ref = new WorkflowReference();
         ref.parseRef(reference);
         ref.setTitle(getProperty(reference, WORKFLOW_PARAM_TITLE, String.class));
@@ -572,6 +579,8 @@ public class FoundationBean {
     }
 
     public BudgetYearReference getBudgetYearReference(NodeRef budgetYearRef) throws Exception {
+        ensureType(getODFName(BUDGETYEAR_TYPE_NAME), budgetYearRef);
+        
         BudgetYearReference reference = new BudgetYearReference();
         reference.parseRef(budgetYearRef);
         reference.setTitle(getProperty(budgetYearRef, BUDGETYEAR_PARAM_TITLE, String.class));
@@ -579,6 +588,8 @@ public class FoundationBean {
     }
 
     public BudgetYearSummary getBudgetYearSummary(NodeRef budgetYearRef) throws Exception {
+        ensureType(getODFName(BUDGETYEAR_TYPE_NAME), budgetYearRef);
+        
         BudgetYearSummary summary = new BudgetYearSummary();
         summary.parseRef(budgetYearRef);
         summary.setTitle(getProperty(budgetYearRef, BUDGETYEAR_PARAM_TITLE, String.class));
@@ -596,6 +607,9 @@ public class FoundationBean {
     }
 
     public BudgetYear getBudgetYear(NodeRef budgetYearRef) throws Exception {
+        ensureType(getODFName(BUDGETYEAR_TYPE_NAME), budgetYearRef);
+        
+        
         NodeService ns = serviceRegistry.getNodeService();
 
         BudgetYear budgetYear = new BudgetYear();
@@ -637,6 +651,8 @@ public class FoundationBean {
     }
 
     public Budget getBudget(NodeRef budgetRef) throws Exception {
+        ensureType(getODFName(BUDGET_TYPE_NAME), budgetRef);
+        
         NodeService ns = serviceRegistry.getNodeService();
         Budget budget = new Budget();
         budget.parseRef(budgetRef);
@@ -693,6 +709,8 @@ public class FoundationBean {
     }
 
     public List<BudgetSummary> getBudgetSummaries(BudgetYearReference budgetYear) throws Exception {
+        
+        
         List<BudgetSummary> summaries = new ArrayList<>();
         NodeService ns = serviceRegistry.getNodeService();
         for (NodeRef budgetRef : getBudgetRefs(budgetYear.asNodeRef())) {
@@ -727,6 +745,8 @@ public class FoundationBean {
     }
 
     public BranchReference getBranchReference(NodeRef branchRef) throws Exception {
+        ensureType(getODFName(BRANCH_TYPE_NAME), branchRef);
+        
         BranchReference branchReference = new BranchReference();
         branchReference.parseRef(branchRef);
         branchReference.setTitle(getProperty(branchRef, BRANCH_PARAM_TITLE, String.class));
@@ -734,6 +754,8 @@ public class FoundationBean {
     }
 
     public BranchSummary getBranchSummary(NodeRef branchRef) throws Exception {
+        ensureType(getODFName(BRANCH_TYPE_NAME), branchRef);
+        
         NodeService ns = serviceRegistry.getNodeService();
         BranchSummary summary = new BranchSummary();
         summary.parseRef(branchRef);
@@ -749,6 +771,8 @@ public class FoundationBean {
     }
 
     public Branch getBranch(NodeRef branchRef) throws Exception {
+        ensureType(getODFName(BRANCH_TYPE_NAME), branchRef);
+        
         NodeService ns = serviceRegistry.getNodeService();
         Branch branch = new Branch();
         branch.parseRef(branchRef);
@@ -774,7 +798,7 @@ public class FoundationBean {
         List<AssociationRef> applicationRefs = serviceRegistry.getNodeService().getSourceAssocs(branchRef, getODFName(APPLICATION_ASSOC_BRANCH));
         List<ApplicationSummary> applications = new ArrayList<>();
         for (AssociationRef ref : applicationRefs) {
-            NodeRef appRef = ref.getTargetRef();
+            NodeRef appRef = ref.getSourceRef();
             applications.add(getApplicationSummary(appRef));
         }
         return applications;
@@ -782,6 +806,8 @@ public class FoundationBean {
     }
 
     public ApplicationReference getApplicationReference(NodeRef applicationRef) throws Exception {
+        ensureType(getODFName(APPLICATION_TYPE_NAME), applicationRef);
+        
         ApplicationReference reference = new ApplicationReference();
         reference.parseRef(applicationRef);
         reference.setId(getProperty(applicationRef, APPLICATION_PARAM_ID, String.class));
@@ -808,26 +834,36 @@ public class FoundationBean {
     }
 
     public ApplicationSummary getApplicationSummary(NodeRef applicationSummary) throws Exception {
+        ensureType(getODFName(APPLICATION_TYPE_NAME), applicationSummary);
+        
         ObjectMapper mapper = Utilities.getMapper();
         ApplicationSummary app = new ApplicationSummary();
         app.parseRef(applicationSummary);
-
-        BranchSummary branchSummary = getBranchSummary(applicationSummary);
-        app.setBranchSummary(branchSummary);
+        
+        NodeRef branchRef = getSingleTargetAssoc(applicationSummary, APPLICATION_ASSOC_BRANCH);
+        if(branchRef != null){
+            BranchSummary branchSummary = getBranchSummary(branchRef);
+            app.setBranchSummary(branchSummary);
+        }
         app.setId(getProperty(applicationSummary, APPLICATION_PARAM_ID, String.class));
         app.setTitle(getProperty(applicationSummary, APPLICATION_PARAM_TITLE, String.class));
         List<String> blockStrings = getProperty(applicationSummary, APPLICATION_PARAM_BLOCKS, List.class);
         List<ApplicationPropertiesContainer> blocks = new ArrayList<>();
 
-        for (String blockString : blockStrings) {
-            blocks.add(mapper.readValue(blockString, ApplicationPropertiesContainer.class));
+        if(blockStrings != null){
+            for (String blockString : blockStrings) {
+                blocks.add(mapper.readValue(blockString, ApplicationPropertiesContainer.class));
+            }
         }
+        
         app.setBlocks(blocks);
 
         return app;
     }
 
     public Application getApplication(NodeRef applicationRef) throws Exception {
+        ensureType(getODFName(APPLICATION_TYPE_NAME), applicationRef);
+        
         ObjectMapper mapper = Utilities.getMapper();
         Application application = new Application();
         application.parseRef(applicationRef);
@@ -1039,6 +1075,13 @@ public class FoundationBean {
             return refs.get(0).getParentRef();
         } else {
             return null;
+        }
+    }
+    
+    public void ensureType(QName expectedType, NodeRef ref){
+        QName actualType = serviceRegistry.getNodeService().getType(ref);
+        if(!expectedType.equals(actualType)){
+            throw new AlfrescoRuntimeException(ID_BAD_NODE_TYPE, new Object[]{expectedType, actualType});
         }
     }
 

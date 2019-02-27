@@ -5,7 +5,11 @@
  */
 package dk.opendesk.foundationapplication;
 
+import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
+import dk.opendesk.foundationapplication.DAO.Budget;
+import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.DAO.WorkflowReference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
@@ -98,8 +102,45 @@ public class BranchTest extends AbstractTestClass {
         
         branch = foundationBean.getBranch(ref.asNodeRef());
         assertEquals(foundationBean.getWorkflowReference(newWorkflowRef), branch.getWorkflowRef());
+    }
+    
+    public void testGetBranchApplications() throws Exception{
+        List<ApplicationSummary> applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications");
+        for(ApplicationSummary app : applications){
+            switch(app.getTitle()){
+                case TestUtils.APPLICATION1_NAME: continue;
+                case TestUtils.APPLICATION2_NAME: continue;
+                default:
+                    fail("Application list did not contain the expected applications");
+            }
+        }
+    }
+    
+    public void testGetBranchApplicationsByBudget() throws Exception{
+        List<ApplicationSummary> applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications");
+        assertEquals(2, applications.size());
+        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications?budgetID="+TestUtils.budgetRef1.getId());
+        assertEquals(2, applications.size());
+        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications?budgetID="+TestUtils.budgetRef2.getId());
+        assertEquals(0, applications.size());
         
+        Budget budget1 = foundationBean.getBudget(TestUtils.budgetRef1);
+        Budget budget2 = foundationBean.getBudget(TestUtils.budgetRef2);
         
+        Application change = new Application();
+        change.parseRef(TestUtils.application2);
+        BudgetReference newBudget = new BudgetReference();
+        newBudget.parseRef(TestUtils.budgetRef2);
+        change.setBudget(newBudget);
+        foundationBean.updateApplication(change);
+        
+        budget1 = foundationBean.getBudget(TestUtils.budgetRef1);
+        budget2 = foundationBean.getBudget(TestUtils.budgetRef2);
+        
+        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications?budgetID="+TestUtils.budgetRef1.getId());
+        assertEquals(1, applications.size());
+        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications?budgetID="+TestUtils.budgetRef2.getId());
+        assertEquals(1, applications.size());
     }
     
     
