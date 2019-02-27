@@ -15,6 +15,7 @@ import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import static dk.opendesk.foundationapplication.TestUtils.stateAccessRef;
+import static dk.opendesk.foundationapplication.TestUtils.stateRecievedRef;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
@@ -105,12 +106,18 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals(4, foundationBean.getApplicationSummaries().size());
     }
     
-    public void testGetApplication() throws Exception{
+    public void testGetApplicationFromSummary() throws Exception{
         for(ApplicationSummary summary : foundationBean.getApplicationSummaries()){
             Application application = get(Application.class, summary.getNodeID());
             assertEquals(summary.getTitle(), application.getTitle());
         }
     }
+    public void testGetApplicationState() throws Exception{
+        Application application = foundationBean.getApplication(TestUtils.application1);
+        assertEquals(TestUtils.stateRecievedRef,application.getState().asNodeRef());
+        assertEquals(TestUtils.workFlowRef,application.getWorkflow().asNodeRef());
+    }
+    
     
     public void testUpdateBudget() throws Exception{
         NodeRef currentBudgetRef = TestUtils.budgetRef1;

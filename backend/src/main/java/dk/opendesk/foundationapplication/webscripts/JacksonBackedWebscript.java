@@ -82,7 +82,7 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
         MDC.put(MDC_USERID, serviceRegistry.getAuthenticationService().getCurrentUserName());
         MDC.put(MDC_TICKETID, serviceRegistry.getAuthenticationService().getCurrentTicket());
         MDC.put(MDC_SERVICE_URL, req.getURL());
-        logger.info("Service called");
+        logger.debug("Service called");
         mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         this.req = req;

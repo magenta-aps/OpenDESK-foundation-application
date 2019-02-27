@@ -51,6 +51,7 @@ import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.search.QueryParameter;
 import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.service.namespace.QNamePattern;
 import org.apache.log4j.Logger;
 
 /**
@@ -842,6 +843,7 @@ public class FoundationBean {
         NodeRef branchRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BRANCH);
         NodeRef budgetRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET);
         NodeRef stateRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_STATE);
+
         if (branchRef != null) {
             application.setBranchSummary(getBranchSummary(branchRef));
         }
@@ -854,7 +856,14 @@ public class FoundationBean {
             StateReference state = new StateReference();
             state.parseRef(stateRef);
             application.setState(state);
+            NodeRef workflowRef = getSingleParentAssoc(stateRef, WORKFLOW_ASSOC_STATES);
+            if (workflowRef != null) {
+                WorkflowReference workflow = new WorkflowReference();
+                workflow.parseRef(workflowRef);
+                application.setWorkflow(workflow);
+            }
         }
+        
 
 //        NodeRef projectDesc = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_PROJECT_DESCRIPTION_DOC);
 //        NodeRef budgetDoc = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET_DOC);
@@ -997,6 +1006,37 @@ public class FoundationBean {
         }
         if (refs != null && !refs.isEmpty()) {
             return refs.get(0).getTargetRef();
+        } else {
+            return null;
+        }
+    }
+    
+    public NodeRef getSingleSourceAssoc(NodeRef targetRef, String assocName) throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+        List<AssociationRef> refs = ns.getSourceAssocs(targetRef, getODFName(assocName));
+        if (refs != null && refs.size() > 1) {
+            throw new AlfrescoRuntimeException(ONLY_ONE_REFERENCE);
+        }
+        if (refs != null && !refs.isEmpty()) {
+            return refs.get(0).getSourceRef();
+        } else {
+            return null;
+        }
+    }
+    
+    public NodeRef getSingleParentAssoc(NodeRef childRef, String assocName) throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+        List<ChildAssociationRef> refs = ns.getParentAssocs(childRef, getODFName(assocName), new QNamePattern() {
+            @Override
+            public boolean isMatch(QName qname) {
+                return true;
+            }
+        });
+        if (refs != null && refs.size() > 1) {
+            throw new AlfrescoRuntimeException(ONLY_ONE_REFERENCE);
+        }
+        if (refs != null && !refs.isEmpty()) {
+            return refs.get(0).getParentRef();
         } else {
             return null;
         }

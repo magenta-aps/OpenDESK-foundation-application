@@ -15,6 +15,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 public class Application extends ApplicationSummary{
     private Optional<StateReference> state;
+    private Optional<WorkflowReference> workflow;
     private Optional<BudgetReference> budget;
     
     public StateReference getState() {
@@ -27,6 +28,18 @@ public class Application extends ApplicationSummary{
 
     public void setState(StateReference state) {
         this.state = optional(state);
+    }
+    
+    public WorkflowReference getWorkflow() {
+        return get(workflow);
+    }
+    
+    public boolean wasWorkflowSet(){
+        return wasSet(workflow);
+    }
+
+    public void setWorkflow(WorkflowReference workflow) {
+        this.workflow = optional(workflow);
     }
 
     public BudgetReference getBudget() {
@@ -47,6 +60,7 @@ public class Application extends ApplicationSummary{
         int hash = 3;
         hash = 79 * hash + super.hashCode();
         hash = 79 * hash + Objects.hashCode(this.getState());
+        hash = 79 * hash + Objects.hashCode(this.getWorkflow());
         hash = 79 * hash + Objects.hashCode(this.getBudget());
         return hash;
     }
@@ -75,6 +89,9 @@ public class Application extends ApplicationSummary{
         if (!Objects.equals(this.getState(), other.getState())) {
             return false;
         }
+        if (!Objects.equals(this.getWorkflow(), other.getWorkflow())) {
+            return false;
+        }
         if (!Objects.equals(this.getBudget(), other.getBudget())) {
             return false;
         }
@@ -83,7 +100,7 @@ public class Application extends ApplicationSummary{
     
     @Override
     public ToStringBuilder toStringBuilder() {
-        return super.toStringBuilder().append("budget", this.getBudget()).append("state", this.getState());
+        return super.toStringBuilder().append("budget", this.getBudget()).append("workflow", this.getWorkflow()).append("state", this.getState());
     }
     
 }
