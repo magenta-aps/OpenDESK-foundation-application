@@ -99,6 +99,10 @@ public final class TestUtils {
             nodeService.removeChild(dataRef, application.asNodeRef());
         }
 
+        for (ApplicationSummary application : foundationBean.getDeletedApplicationSummaries()) {
+            nodeService.removeChild(dataRef, application.asNodeRef());
+        }
+
         isInitiated = false;
 
     }

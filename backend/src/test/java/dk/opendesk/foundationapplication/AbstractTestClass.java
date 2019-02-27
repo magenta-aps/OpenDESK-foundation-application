@@ -124,6 +124,17 @@ public class AbstractTestClass extends BaseWebScriptTest {
 
     }
 
+    protected <R> R delete(Class<R> returnType, String path) throws IOException{
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        TestWebScriptServer.DeleteRequest request = new TestWebScriptServer.DeleteRequest(getPath(path));
+        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, TestUtils.ADMIN_USER);
+        if (returnType == String.class) {
+            return (R) response.getContentAsString();
+        }
+        return mapper.readValue(response.getContentAsString(), returnType);
+    }
+
     protected <S> String getContent(S toSend, ObjectMapper mapper) throws IOException{
         String data;
         Objects.requireNonNull(toSend);

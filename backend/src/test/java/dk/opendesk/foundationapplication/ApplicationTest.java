@@ -13,14 +13,16 @@ import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 
 /**
  *
@@ -209,7 +211,49 @@ public class ApplicationTest extends AbstractTestClass{
 
         //todo Test with two different users as well
     }
-    
+
+    public void testDeleteApplication() throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+
+        //before delete
+        List<ChildAssociationRef> applications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
+        List<ChildAssociationRef> deletedApplications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
+
+        assertEquals(3, applications.size());
+        assertEquals(0, deletedApplications.size());
+
+        //choosing application to remove
+        NodeRef applicationToRemove = applications.get(0).getChildRef();
+        assertFalse(ns.getTargetAssocs(applicationToRemove,qname -> true).size() == 0); //the application has associations (branch, budget, state)
+
+        //removing application with foundationBean method
+        foundationBean.deleteApplication(applicationToRemove);
+
+        //after delete
+        applications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
+        deletedApplications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
+
+        assertEquals(2, applications.size());
+        assertEquals(1, deletedApplications.size());
+
+        assertEquals(deletedApplications.get(0).getChildRef(), applicationToRemove); //the deleted application is the intended one
+        assertTrue(ns.getTargetAssocs(applicationToRemove,qname -> true).size() == 0); //the associations of the application has been removed
+
+        //choosing application to remove
+        applicationToRemove = applications.get(0).getChildRef();
+
+        //removing application with webscript
+        delete(String.class, applicationToRemove.getId());
+
+        //after delete
+        applications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
+        deletedApplications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
+
+        assertEquals(1, applications.size());
+        assertEquals(2, deletedApplications.size());
+
+
+    }
     
     
 }

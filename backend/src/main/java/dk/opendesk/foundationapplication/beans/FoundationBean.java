@@ -779,6 +779,15 @@ public class FoundationBean {
         return toReturn;
     }
 
+    public List<ApplicationSummary> getDeletedApplicationSummaries() throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+        List<ApplicationSummary> toReturn = new ArrayList<>();
+        for (ChildAssociationRef applicationRef : ns.getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_DELETED_APPLICATION), null)) {
+            toReturn.add(getApplicationSummary(applicationRef.getChildRef()));
+        }
+        return toReturn;
+    }
+
     public List<ApplicationSummary> getNewApplicationSummaries() throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
         List<ApplicationSummary> toReturn = new ArrayList<>();
@@ -1186,5 +1195,31 @@ public class FoundationBean {
         }
 
         return emailFolderRef;
+    }
+
+
+    public void deleteApplication(NodeRef applicationRef) throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+
+        //removing associations
+        ns.setAssociations(applicationRef, getODFName(BRANCH_TYPE_NAME), new ArrayList<>());
+        ns.setAssociations(applicationRef, getODFName(BUDGET_TYPE_NAME), new ArrayList<>());
+        ns.setAssociations(applicationRef, getODFName(STATE_TYPE_NAME), new ArrayList<>());
+
+        //getting the parent
+        List<ChildAssociationRef> parentRefs = ns.getParentAssocs(applicationRef, getODFName(DATA_ASSOC_APPLICATIONS), qname -> true);
+        if (parentRefs.size() == 0) {
+            throw new Exception(applicationRef + "has no parent");
+        }
+        if (parentRefs.size() != 1) {
+            throw new Exception(applicationRef + "has more than one parent");
+        }
+        NodeRef parentRef = parentRefs.get(0).getParentRef();
+
+        //moving application to odf:deletedApplications
+        ns.moveNode(applicationRef,parentRef,getODFName(DATA_ASSOC_DELETED_APPLICATION), null);
+
+        //creating version in application history
+        serviceRegistry.getVersionService().createVersion(applicationRef, null); //todo test deletion in version history test
     }
 }

@@ -38,6 +38,7 @@ public final class Utilities {
     public static final String DATA_ASSOC_BUDGETYEARS = "budgetYears";
     public static final String DATA_ASSOC_APPLICATIONS = "applications";
     public static final String DATA_ASSOC_NEW_APPLICATIONS = "newApplications";
+    public static final String DATA_ASSOC_DELETED_APPLICATION = "deletedApplications";
     
     public static final String BRANCH_TYPE_NAME = "applicationBranch"; 
     public static final String BRANCH_ASSOC_WORKFLOW = "branchWorkflow";
@@ -101,6 +102,7 @@ public final class Utilities {
     public static final String APPLICATION_CHANGE_PROP = "propertyChange";
     public static final String APPLICATION_CHANGE_BUDGET = "budgetChange";
     public static final String APPLICATION_CHANGE_BRANCH = "branchChange";
+    public static final String APPLICATION_CHANGE_DELETED = "applicationDeletion";
 
     public static final String APPLICATION_EMAILFOLDER = "emailFolder";
 
@@ -155,7 +157,7 @@ public final class Utilities {
     }
 
     public static QName getCMName(String name) {
-        return QName.createQName("http://www.alfresco.org/model/content/1.0", name);
+        return QName.createQName(CONTENT_NAME_SPACE, name);
     }
     
     public static boolean stringExists(String s){
