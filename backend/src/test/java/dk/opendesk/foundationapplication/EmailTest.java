@@ -1,12 +1,8 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.*;
-import dk.opendesk.foundationapplication.actions.EmailAction;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import junit.framework.Test;
-import org.alfresco.repo.action.executer.MailActionExecuter;
 import org.alfresco.repo.content.MimetypeMap;
-import org.alfresco.repo.search.SearcherException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.action.Action;
@@ -14,19 +10,16 @@ import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.apache.poi.ss.formula.functions.T;
-import thredds.wcs.v1_1_0.WcsException;
+import org.json.JSONObject;
 
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
-import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_EMAILFOLDER;
-import static dk.opendesk.foundationapplication.Utilities.getCMName;
+import static dk.opendesk.foundationapplication.Utilities.*;
 import static org.alfresco.model.ContentModel.ASSOC_CONTAINS;
 import static org.alfresco.model.ContentModel.TYPE_CONTENT;
 import static org.alfresco.repo.action.executer.MailActionExecuter.*;
@@ -236,7 +229,7 @@ public class EmailTest extends AbstractTestClass{
 
         //todo jeg kan ikke få denne test til at virke:
         /*
-        Action action2 = foundationBean.configureEmailAction("non-existing template name", "subject 2", TEST_ADDRESSEE);
+        FoundationAction action2 = foundationBean.configureEmailAction("non-existing template name", "subject 2", TEST_ADDRESSEE);
         try{
             action2.getParameterValue(PARAM_TEMPLATE);
             fail("Expected exception not thrown");
@@ -252,18 +245,24 @@ public class EmailTest extends AbstractTestClass{
         }
 
     }
-    /*
-    public void testEmail() {
-        Action action = foundationBean.configureEmailAction("email.html.ftl" , "Subject of test mail", "astrid@localhost");
-        MailActionExecuter executer = new MailActionExecuter();
-        executer.sendTestMessage();
+
+    public void testEmailSavedToHistory() throws Exception {
+        foundationBean.saveAction("foundationMail", TestUtils.stateAccessRef, getODFName(ASPECT_ON_CREATE), null);
+
+        JSONObject data = new JSONObject();
+        data.put("stateRef", TestUtils.stateAccessRef);
+        data.put("aspect", ASPECT_ON_CREATE);
+        post(data, "/action/" + ACTION_NAME_EMAIL);
+        System.out.println(foundationBean.getApplicationHistory(TestUtils.application1));
+
+        Application change = new Application();
+        change.parseRef(TestUtils.application1);
+        StateReference stateRef = new StateReference();
+        stateRef.parseRef(TestUtils.stateAccessRef);
+        change.setState(stateRef);
+        foundationBean.updateApplication(change);
+
+        foundationBean.getApplicationHistory(TestUtils.application1);
     }
-    */
-
-
-
-
-
-
 
 }

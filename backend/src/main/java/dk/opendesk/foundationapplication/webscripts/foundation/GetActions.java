@@ -1,5 +1,6 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
+import dk.opendesk.foundationapplication.DAO.FoundationAction;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -7,6 +8,8 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static dk.opendesk.foundationapplication.Utilities.ACTION_NAME_EMAIL;
 
 public class GetActions extends JacksonBackedWebscript {
     private FoundationBean foundationBean;
@@ -16,9 +19,11 @@ public class GetActions extends JacksonBackedWebscript {
     }
 
     @Override
-    protected List<String> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        List<String> actions = new ArrayList<>();
-        actions.add("MailActionExecuter.mail");
+    protected List<FoundationAction> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
+        List<FoundationAction> actions = new ArrayList<>();
+
+        actions.add(new FoundationAction(ACTION_NAME_EMAIL, foundationBean.getActionParameters(ACTION_NAME_EMAIL)));
+
         return actions;
     }
 }

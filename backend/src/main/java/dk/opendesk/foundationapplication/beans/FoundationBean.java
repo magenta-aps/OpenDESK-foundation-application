@@ -1230,6 +1230,6 @@ public class FoundationBean {
 
         //creating version in application history
 
-        serviceRegistry.getVersionService().createVersion(applicationRef, Collections.singletonMap(APPLICATION_CHANGE, APPLICATION_CHANGE_DELETED)); //todo test deletion in version history test
+        serviceRegistry.getVersionService().createVersion(applicationRef, Collections.singletonMap(APPLICATION_CHANGE, APPLICATION_CHANGE_DELETED));
     }
 }

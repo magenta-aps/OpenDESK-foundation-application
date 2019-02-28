@@ -1,6 +1,7 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.FoundationAction;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -42,15 +43,15 @@ public class ActionTest extends AbstractTestClass {
 
 
     public void testGetActions() throws IOException {
-        List actions = get(List.class, String.class, "");
+        List<FoundationAction> actions = get(List.class, FoundationAction.class, "");
 
         assertEquals(1, actions.size());
-        assertEquals("MailActionExecuter.mail", actions.get(0));
+        assertEquals(ACTION_NAME_EMAIL, actions.get(0).getName());
     }
 
     public void testGetParameters() throws IOException {
         Map actParams = get(Map.class, String.class, String.class, "mail/parameters");
-        List<ParameterDefinition> expParams = serviceRegistry.getActionService().getActionDefinition("mail").getParameterDefinitions();
+        List<ParameterDefinition> expParams = serviceRegistry.getActionService().getActionDefinition(ACTION_NAME_EMAIL).getParameterDefinitions();
 
         assertEquals(expParams.size(), actParams.size());
 
@@ -61,17 +62,16 @@ public class ActionTest extends AbstractTestClass {
     }
 
     public void testSaveAction() throws Exception {
-        String actionName = "mail";
 
         JSONObject data = new JSONObject();
         data.put("stateRef", TestUtils.stateRecievedRef);
         data.put("aspect", ASPECT_ON_CREATE);
         data.put("cc", "test@test.dk"); //TODO make sure only real email adresses can be set as parameters
-        post(data, actionName);
+        post(data, ACTION_NAME_EMAIL);
 
         List<Action> actions = serviceRegistry.getActionService().getActions(TestUtils.stateRecievedRef);
         for (Action act : actions) {
-            if (act.getActionDefinitionName().equals(actionName)) {
+            if (act.getActionDefinitionName().equals(ACTION_NAME_EMAIL)) {
 
                 //testing the aspect is set on the action
                 Set<QName> aspects = serviceRegistry.getNodeService().getAspects(act.getNodeRef());
@@ -84,12 +84,12 @@ public class ActionTest extends AbstractTestClass {
 
         //testing missing state NodeRef
         data.remove("stateRef");
-        post(data, actionName, Status.STATUS_BAD_REQUEST);
+        post(data, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
 
         //testing wrong aspect name
         data.put("stateRef", TestUtils.stateRecievedRef);
         data.put("aspect", "totallyWrongAspect");
-        post(data, actionName, Status.STATUS_BAD_REQUEST);
+        post(data, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
     }
 
 
