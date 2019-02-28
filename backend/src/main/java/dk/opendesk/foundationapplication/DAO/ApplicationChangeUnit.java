@@ -93,10 +93,10 @@ public class ApplicationChangeUnit {
     @Override
     public String toString() {
         return "\t\tApplicationChangeUnit\n" +
-                "\t\t\tchangedField='" + changedField + '\n' +
-                "\t\t\toldValue='" + oldValue + '\n' +
-                "\t\t\tnewValue='" + newValue + '\n' +
-                "\t\t\tnewValueLink='" + newValueLink + '\n' +
-                "\t\t\tchangeType='" + changeType + '\n';
+                "\t\t\tchangedField = '" + changedField + "'\n" +
+                "\t\t\toldValue     = '" + oldValue + "'\n" +
+                "\t\t\tnewValue     = '" + newValue + "'\n" +
+                "\t\t\tnewValueLink = '" + newValueLink + "'\n" +
+                "\t\t\tchangeType   = '" + changeType + "'\n";
     }
 }

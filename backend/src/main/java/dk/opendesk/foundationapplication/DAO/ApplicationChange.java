@@ -11,6 +11,7 @@ import java.util.List;
 
 public class ApplicationChange extends ApplicationReference {
 
+    private String changeType;
     private String timesStamp;
     private String modifierId;
     private String modifier;
@@ -22,6 +23,10 @@ public class ApplicationChange extends ApplicationReference {
 
     public void addApplicationChange(ApplicationChangeUnit change) {
         changes.add(change);
+    }
+
+    public String getChangeType() {
+        return changeType;
     }
 
     public Serializable getTimesStamp() {
@@ -40,6 +45,10 @@ public class ApplicationChange extends ApplicationReference {
         return changes;
     }
 
+    public ApplicationChange setChangeType(String changeType) {
+        this.changeType = changeType;
+        return this;
+    }
 
     public ApplicationChange setTimesStamp(String timesStamp) {
         this.timesStamp = timesStamp;
@@ -83,10 +92,10 @@ public class ApplicationChange extends ApplicationReference {
     @Override
     public String toString() {
         return "---\nApplicationChange\n" +
-                "\ttimesStamp='" + timesStamp + '\n' +
-                "\tmodifierId='" + modifierId + '\n' +
-                "\tmodifier='" + modifier + '\n' +
-                "\tchanges=\n" + changes +
-                '\n';
+                "\tchangetype = '" + changeType + "'\n" +
+                "\ttimesStamp = '" + timesStamp + "'\n" +
+                "\tmodifierId = '" + modifierId + "'\n" +
+                "\tmodifier   = '" + modifier + "'\n" +
+                "\tchanges    =\n" + changes + "'\n";
     }
 }

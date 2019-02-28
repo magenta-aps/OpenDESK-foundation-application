@@ -35,6 +35,7 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.collections.map.SingletonMap;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -113,7 +114,7 @@ public class FoundationBean {
             serviceRegistry.getNodeService().createAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
         }
 
-        serviceRegistry.getVersionService().createVersion(applicationRef, null);
+        serviceRegistry.getVersionService().createVersion(applicationRef, Collections.singletonMap(APPLICATION_CHANGE, APPLICATION_CHANGE_CREATED));
 
         return applicationRef;
     }
@@ -263,7 +264,7 @@ public class FoundationBean {
         
         ns.addProperties(app.asNodeRef(), properties);
 
-        serviceRegistry.getVersionService().createVersion(app.asNodeRef(), null);
+        serviceRegistry.getVersionService().createVersion(app.asNodeRef(), Collections.singletonMap(APPLICATION_CHANGE, APPLICATION_CHANGE_UPDATE));
 
     }
 
@@ -1013,7 +1014,7 @@ public class FoundationBean {
         for (NodeRef ref : getApplicationEmails(appRef)) {
             ApplicationChangeUnit unit = new ApplicationChangeUnit()
                     .setNewValue(ref)
-                    .setChangeType(APPLICATION_CHANGE_EMAIL)
+                    .setChangeType(APPLICATION_CHANGE_UPDATE_EMAIL)
                     .setNewValueLink("/foundation/application/" + appRef.getId() + "/email/" + ref.getId()); //TODO er dette det rigtige link?
             Date timeStamp = serviceRegistry.getFileFolderService().getFileInfo(ref).getCreatedDate();
             changes.add(new ApplicationChange().setTimeStamp(timeStamp).setChangeList(Collections.singletonList(unit)));
@@ -1029,6 +1030,8 @@ public class FoundationBean {
             throw new Exception("newVersion must not be null");
         }
 
+        String changeType = (String) newVersion.getVersionProperty(APPLICATION_CHANGE);
+
         Date timeStamp = newVersion.getFrozenModifiedDate();
         String modifier = newVersion.getFrozenModifier();
         NodeRef modifierId = serviceRegistry.getPersonService().getPerson(modifier);
@@ -1036,32 +1039,38 @@ public class FoundationBean {
         Application newApp = getApplication(newVersion.getFrozenStateNodeRef());
         Application oldApp = (oldVersion == null) ? null : getApplication(oldVersion.getFrozenStateNodeRef());
 
-        return new ApplicationChange().setTimeStamp(timeStamp).setModifier(modifier).setModifierId(modifierId).setChangeList(getApplicationDifference(oldApp, newApp));
+        return new ApplicationChange().setChangeType(changeType).setTimeStamp(timeStamp).setModifier(modifier).setModifierId(modifierId).setChangeList(getApplicationDifference(oldApp, newApp, changeType));
     }
 
 
-    public List<ApplicationChangeUnit> getApplicationDifference(Application oldVersion, Application newVersion) {
+    public List<ApplicationChangeUnit> getApplicationDifference(Application oldVersion, Application newVersion, String changeType) {
 
         List<ApplicationChangeUnit> changes = new ArrayList<>();
 
-        if (oldVersion == null) {
+        if (changeType.equals(APPLICATION_CHANGE_CREATED)) {
             changes.add(new ApplicationChangeUnit().setChangedField(STATE_PARAM_TITLE).setNewValue(newVersion.getState().getTitle()).setChangeType(APPLICATION_CHANGE_CREATED));
             changes.add(new ApplicationChangeUnit().setChangedField(APPLICATION_PARAM_SHORT_DESCRIPTION).setNewValue(newVersion.getShortDescription()).setChangeType(APPLICATION_CHANGE_CREATED));
             changes.add(new ApplicationChangeUnit().setChangedField(APPLICATION_PARAM_PERSON_FIRSTNAME).setNewValue(newVersion.getContactFirstName()).setChangeType(APPLICATION_CHANGE_CREATED));
             return changes;
         }
 
-        //todo: tilføjes flere felter, dette er bare en prøve
-        if (!oldVersion.getState().equals(newVersion.getState())) {
-            changes.add(new ApplicationChangeUnit().setChangedField(STATE_PARAM_TITLE).setOldValue(oldVersion.getState().getTitle()).setNewValue(newVersion.getState().getTitle()).setChangeType(APPLICATION_CHANGE_STATE));
+        if (changeType.equals(APPLICATION_CHANGE_UPDATE)) {
+            //todo: tilføjes flere felter, dette er bare en prøve
+            if (!oldVersion.getState().equals(newVersion.getState())) {
+                changes.add(new ApplicationChangeUnit().setChangedField(STATE_PARAM_TITLE).setOldValue(oldVersion.getState().getTitle()).setNewValue(newVersion.getState().getTitle()).setChangeType(APPLICATION_CHANGE_UPDATE_STATE));
+            }
+
+            if (!oldVersion.getShortDescription().equals(newVersion.getShortDescription())) {
+                changes.add(new ApplicationChangeUnit().setChangedField(APPLICATION_PARAM_SHORT_DESCRIPTION).setOldValue(oldVersion.getShortDescription()).setNewValue(newVersion.getShortDescription()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
+            }
+
+            if (!oldVersion.getContactFirstName().equals(newVersion.getContactFirstName())) {
+                changes.add(new ApplicationChangeUnit().setChangedField(APPLICATION_PARAM_PERSON_FIRSTNAME).setOldValue(oldVersion.getContactFirstName()).setNewValue(newVersion.getContactFirstName()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
+            }
         }
 
-        if (!oldVersion.getShortDescription().equals(newVersion.getShortDescription())) {
-            changes.add(new ApplicationChangeUnit().setChangedField(APPLICATION_PARAM_SHORT_DESCRIPTION).setOldValue(oldVersion.getShortDescription()).setNewValue(newVersion.getShortDescription()).setChangeType(APPLICATION_CHANGE_PROP));
-        }
-
-        if (!oldVersion.getContactFirstName().equals(newVersion.getContactFirstName())) {
-            changes.add(new ApplicationChangeUnit().setChangedField(APPLICATION_PARAM_PERSON_FIRSTNAME).setOldValue(oldVersion.getContactFirstName()).setNewValue(newVersion.getContactFirstName()).setChangeType(APPLICATION_CHANGE_PROP));
+        if (changeType.equals(APPLICATION_CHANGE_DELETED)) {
+            changes.add(new ApplicationChangeUnit().setChangedField(STATE_PARAM_TITLE).setOldValue(oldVersion.getState().getTitle()).setChangeType(APPLICATION_CHANGE_DELETED));
         }
 
         return changes;
@@ -1220,6 +1229,7 @@ public class FoundationBean {
         ns.moveNode(applicationRef,parentRef,getODFName(DATA_ASSOC_DELETED_APPLICATION), null);
 
         //creating version in application history
-        serviceRegistry.getVersionService().createVersion(applicationRef, null); //todo test deletion in version history test
+
+        serviceRegistry.getVersionService().createVersion(applicationRef, Collections.singletonMap(APPLICATION_CHANGE, APPLICATION_CHANGE_DELETED)); //todo test deletion in version history test
     }
 }

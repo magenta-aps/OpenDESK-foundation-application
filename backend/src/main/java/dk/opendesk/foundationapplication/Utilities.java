@@ -96,13 +96,15 @@ public final class Utilities {
     public static final String APPLICATION_PARAM_CVR = "cvr";
     public static final String APPLICATION_PARAM_SEEN_BY = "applicationSeenBy";
 
+    public static final String APPLICATION_CHANGE = "applicationChange";
     public static final String APPLICATION_CHANGE_CREATED = "applicationCreation";
-    public static final String APPLICATION_CHANGE_EMAIL = "email";
-    public static final String APPLICATION_CHANGE_STATE = "stateChange";
-    public static final String APPLICATION_CHANGE_PROP = "propertyChange";
-    public static final String APPLICATION_CHANGE_BUDGET = "budgetChange";
-    public static final String APPLICATION_CHANGE_BRANCH = "branchChange";
+    public static final String APPLICATION_CHANGE_UPDATE = "applicationUpdate";
     public static final String APPLICATION_CHANGE_DELETED = "applicationDeletion";
+    public static final String APPLICATION_CHANGE_UPDATE_EMAIL = "email";
+    public static final String APPLICATION_CHANGE_UPDATE_STATE = "stateChange";
+    public static final String APPLICATION_CHANGE_UPDATE_PROP = "propertyChange";
+    public static final String APPLICATION_CHANGE_UPDATE_BUDGET = "budgetChange";
+    public static final String APPLICATION_CHANGE_UPDATE_BRANCH = "branchChange";
 
     public static final String APPLICATION_EMAILFOLDER = "emailFolder";
 
