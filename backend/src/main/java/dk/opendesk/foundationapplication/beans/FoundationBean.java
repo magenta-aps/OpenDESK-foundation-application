@@ -676,7 +676,11 @@ public class FoundationBean {
                 continue;
             }
             Long applicationAmount = value.getValue();
-            State state = getState(getApplicationState(applicationRef.getSourceRef()));
+            NodeRef applicationStateRef = getApplicationState(applicationRef.getSourceRef());
+            if(applicationStateRef == null){
+                continue;
+            }
+            State state = getState(applicationStateRef);
             StateCategory category = state.getCategory();
             if (category == null) {
                 ammountApplied += applicationAmount;
