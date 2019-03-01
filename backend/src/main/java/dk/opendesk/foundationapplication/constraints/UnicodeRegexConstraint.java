@@ -11,7 +11,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.alfresco.repo.dictionary.constraint.AbstractConstraint;
 import org.alfresco.repo.dictionary.constraint.RegexConstraint;
-import static org.alfresco.repo.dictionary.constraint.RegexConstraint.CONSTRAINT_REGEX_MSG_PREFIX;
 import org.alfresco.service.cmr.dictionary.ConstraintException;
 import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
 import org.springframework.extensions.surf.util.I18NUtil;

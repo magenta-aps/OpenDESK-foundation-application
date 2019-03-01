@@ -15,7 +15,6 @@ import dk.opendesk.foundationapplication.enums.StateCategory;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.Year;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
