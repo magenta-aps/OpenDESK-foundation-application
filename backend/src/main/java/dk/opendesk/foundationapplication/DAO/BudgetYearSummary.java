@@ -8,6 +8,7 @@ package dk.opendesk.foundationapplication.DAO;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
@@ -17,6 +18,7 @@ public class BudgetYearSummary extends BudgetYearReference {
     //Consider making these into strings
     private Optional<Date> startDate;
     private Optional<Date> endDate;
+    private Optional<Long> amountTotal;
 
     public Date getStartDate() {
         return get(startDate);
@@ -40,6 +42,18 @@ public class BudgetYearSummary extends BudgetYearReference {
 
     public void setEndDate(Date endDate) {
         this.endDate = optional(endDate);
+    }
+    
+    public Long getAmountTotal() {
+        return get(amountTotal);
+    }    
+    
+    public boolean wasAmountTotalSet(){
+        return wasSet(amountTotal);
+    }
+
+    public void setAmountTotal(Long amountTotal) {
+        this.amountTotal = optional(amountTotal);
     }
     
     @Override
@@ -78,5 +92,12 @@ public class BudgetYearSummary extends BudgetYearReference {
         }
         return true;
     }
+
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("startDate", startDate).append("endDate", endDate).append("amountTotal", amountTotal);
+    }
+    
+    
     
 }

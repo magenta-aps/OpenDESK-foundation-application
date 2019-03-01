@@ -38,4 +38,11 @@
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
 
+    
+    <bean id="webscript.foundation"
+          class="dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript"
+          parent="webscript" abstract="true">
+        <property name="serviceRegistry" ref="ServiceRegistry"/>
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
 </beans>

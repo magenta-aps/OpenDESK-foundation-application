@@ -5,9 +5,9 @@
  */
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
-import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
+import dk.opendesk.foundationapplication.DAO.BudgetYear;
+import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
-import java.util.List;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
@@ -15,11 +15,15 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  *
  * @author martin
  */
-public class GetWorkflows extends JacksonBackedWebscript{
+public class GetBudgetYear extends JacksonBackedWebscript{
 
     @Override
-    protected List<WorkflowSummary> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        return getFoundationBean().getWorkflowSummaries();
+    protected BudgetYear doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
+        String budgetYearID = getUrlParams().get("budgetYearID");
+        BudgetYear budgetYear = getFoundationBean().getBudgetYear(Reference.refFromID(budgetYearID));
+        return budgetYear;
     }
+    
+    
     
 }

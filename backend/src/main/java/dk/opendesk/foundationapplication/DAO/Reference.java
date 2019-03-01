@@ -9,16 +9,18 @@ import java.util.Objects;
 import java.util.Optional;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  *
  * @author martin
  */
-public class Reference {
+public class Reference extends DAOType{
     public static final String DEFAULT_STORE = "workspace://SpacesStore";
     
     private Optional<String> nodeID = null;
     private Optional<String> storeID = null;
+    private Optional<String> title;
 
     public Reference() {
     }
@@ -45,6 +47,18 @@ public class Reference {
 
     public void setStoreID(String storeID) {
         this.storeID = optional(storeID);
+    }
+    
+    public String getTitle() {
+        return get(title);
+    }    
+    
+    public boolean wasTitleSet(){
+        return wasSet(title);
+    }
+
+    public void setTitle(String title) {
+        this.title = optional(title);
     }
 
     public String getNodeRef() {
@@ -77,6 +91,16 @@ public class Reference {
         reference.parseRef(ref);
         return reference;
     }
+    
+    public static final Reference fromID(String nodeID){
+        Reference reference = new Reference();
+        reference.setNodeID(nodeID);
+        return reference;
+    }
+    
+    public static final NodeRef refFromID(String nodeID){
+        return fromID(nodeID).asNodeRef();
+    }
 
     @Override
     public int hashCode() {
@@ -107,34 +131,9 @@ public class Reference {
         return true;
     }
     
-    public ToStringBuilder toStringBuilder(){
-        return new ToStringBuilder(this).append("StoreID", this.getStoreID()).append("NodeID", this.getNodeID()); 
-    }
-    
     @Override
-    public String toString(){
-        return toStringBuilder().build();
+    public ToStringBuilder toStringBuilder(){
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("StoreID", this.getStoreID()).append("NodeID", this.getNodeID()); 
     }
-    
-    protected <T> Optional<T> optional(T value){
-        if(value != null){
-            return Optional.of(value);
-        }else{
-            return Optional.empty();
-        }
-    }
-    
-    protected <T> T get(Optional<T> value){
-        if(value != null && value.isPresent()){
-            return value.get();
-        }else{
-            return null;
-        }
-    }
-    
-    protected boolean wasSet(Optional value){
-        return value != null;
-    }
-    
-    
+ 
 }

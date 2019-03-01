@@ -7,8 +7,6 @@ package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.WorkflowReference;
-import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,17 +23,11 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  */
 public class GetWorkflowsActive extends JacksonBackedWebscript{
 
-    private FoundationBean foundationBean;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
-
     @Override
     protected List<WorkflowReference> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         //A workflow can be used by several branches. We do not want duplicates, so we use a set which will ignore repeated equal noderefs.
         Set<WorkflowReference> workflows = new TreeSet<>((o1, o2) -> o1.getNodeRef().compareTo(o2.getNodeRef()));
-        for(BranchSummary branch : foundationBean.getBranchSummaries()){
+        for(BranchSummary branch : getFoundationBean().getBranchSummaries()){
             workflows.add(branch.getWorkflowRef());
         }
         List<WorkflowReference> workflowList = new ArrayList<>(workflows);

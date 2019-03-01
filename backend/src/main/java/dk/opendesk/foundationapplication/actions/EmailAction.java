@@ -1,8 +1,10 @@
 package dk.opendesk.foundationapplication.actions;
 
 import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
-import dk.opendesk.repo.model.OpenDeskModel;
+import dk.opendesk.foundationapplication.enums.Functional;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
 
 import org.alfresco.repo.action.executer.MailActionExecuter;
@@ -10,9 +12,6 @@ import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.StoreRef;
-import org.alfresco.service.cmr.search.ResultSet;
-import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.util.Pair;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
@@ -20,8 +19,10 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.Serializable;
 import java.util.*;
+import org.alfresco.error.AlfrescoRuntimeException;
 
 public class EmailAction extends MailActionExecuter {
+    public static final String EXCEPTION_SEND_EMAIL_FAIL = "email.action.exception";
 
     private static final String RECIPIENT = "recipient";
     private static final String EMAIL_TYPE = "emailTemplateType";
@@ -46,19 +47,23 @@ public class EmailAction extends MailActionExecuter {
             Application application = foundationBean.getApplication(actionedUponNodeRef);
 
             Map<String, Serializable> model = new HashMap<>();
-            model.put("firstName", application.getContactFirstName());
-            model.put("lastName", application.getContactLastName());
+            for(ApplicationPropertiesContainer block : application.getBlocks()){
+                for(ApplicationPropertyValue field : block.getFields()){
+                    model.put(block.getLabel()+":"+field.getLabel(), field.getValue().toString());//Parse instead of tostring
+                    model.put(field.getId(), field.getValue().toString());
+                }
+            }
             model.put("subject", ruleAction.getParameterValue(PARAM_SUBJECT)); //todo temp subject for temp template
-            model.put("body", "Der var en mand der hed " + application.getContactFirstName() ); //todo temp body for temp template
+            model.put("body", "Bye bye" ); //todo temp body for temp template
             ruleAction.setParameterValue(PARAM_TEMPLATE_MODEL, (Serializable) model);
 
-            ruleAction.setParameterValue(PARAM_TO, application.getContactEmail());
+            ruleAction.setParameterValue(PARAM_TO, application.getFunctionalField(Functional.email_to()).getValue());
 
             //TODO skal det tjekkes at template, subject og from er blevet sat inden eksekvering
             super.executeImpl(ruleAction,actionedUponNodeRef);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new AlfrescoRuntimeException(EXCEPTION_SEND_EMAIL_FAIL, e);
         }
 
     }

@@ -6,7 +6,6 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Budget;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -19,12 +18,6 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 public class UpdateBudget extends JacksonBackedWebscript {
     public static final String BUDGET_DID_NOT_MATCH = "foundation.service.budget.mismatch";
 
-    private FoundationBean foundationBean;
-
-    public void setFoundationBean (FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
-    
     @Override
     protected JSONObject doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         String branchID = getUrlParams().get("budgetID");
@@ -32,7 +25,7 @@ public class UpdateBudget extends JacksonBackedWebscript {
         
         resolveNodeRef(budget, branchID);
         
-        foundationBean.updateBudget(budget);
+        getFoundationBean().updateBudget(budget);
         return new JSONObject().put("status", "OK");
     }
     

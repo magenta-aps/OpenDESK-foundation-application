@@ -8,6 +8,7 @@ package dk.opendesk.foundationapplication.DAO;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
@@ -83,6 +84,9 @@ public class Branch extends BranchSummary{
         return true;
     }
 
-    
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("budgets", budgets).append("summaries", summaries);
+    }
     
 }

@@ -47,9 +47,9 @@ public class TestDemoData extends AbstractTestClass{
         assertEquals(2, foundationBean.getBudgetYearSummaries().size());
         for(BudgetYearSummary budgetYear : foundationBean.getBudgetYearSummaries()){
             if(budgetYear.getTitle().equals(ResetDemoData.BUDGETYEAR1_TITLE)){
-                assertEquals(6, foundationBean.getBudgets(budgetYear));
+                assertEquals(6, foundationBean.getBudgetSummaries(budgetYear));
             }else if (budgetYear.getTitle().equals(ResetDemoData.BUDGETYEAR2_TITLE)){
-                assertEquals(0, foundationBean.getBudgets(budgetYear));
+                assertEquals(0, foundationBean.getBudgetSummaries(budgetYear));
             }
         }
         

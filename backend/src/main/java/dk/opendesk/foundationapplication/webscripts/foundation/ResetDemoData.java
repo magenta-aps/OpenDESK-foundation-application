@@ -5,18 +5,29 @@
  */
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
+import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
+import dk.opendesk.foundationapplication.DAO.BranchSummary;
+import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -29,34 +40,25 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
  * @author martin
  */
 public class ResetDemoData extends JacksonBackedWebscript {
+    public static final AtomicInteger COUNTER = new AtomicInteger();
     public static final String BUDGETYEAR1_TITLE = "BudgetYearCurrent";
     public static final String BUDGETYEAR2_TITLE = "BudgetYearNext";
-    private final List<String> companyNames = Arrays.asList(new String[]{"Fuglevennerne", "Fluefiskerforeningen", "Natteravnene", "Lones Kattehjem", "Fies Kattehjem", "Peters Kattehjem"});
-    private final List<String> firstNames = Arrays.asList(new String[]{"Anders", "Anne", "Bjarne", "Børge", "Belinda", "Charlotte", "Casper", "Dorthe", "Mikkel", "Martin", "Mads", "Maja"});
-    private final List<String> lastNames = Arrays.asList(new String[]{"Andersen", "Brandshøj", "Carlsen", "Svendsen", "Pedersen", "Sørensen", "Nielsen", "Fisker", "Smed"});
-    private final List<String> streetName = Arrays.asList(new String[]{"Nørregade", "Søndergade", "Østergade", "Vestergade"});
-    private final List<String> floors = Arrays.asList(new String[]{"", "1th", "1tv", "2tv", "10th"});
-    private final String lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vitae iaculis mi. "
+    private static final List<String> COMPANYNAMES = Arrays.asList(new String[]{"Fuglevennerne", "Fluefiskerforeningen", "Natteravnene", "Lones Kattehjem", "Fies Kattehjem", "Peters Kattehjem"});
+    private static final List<String> FIRSTNAMES = Arrays.asList(new String[]{"Anders", "Anne", "Bjarne", "Børge", "Belinda", "Charlotte", "Casper", "Dorthe", "Mikkel", "Martin", "Mads", "Maja"});
+    private static final List<String> LASTNAMES = Arrays.asList(new String[]{"Andersen", "Brandshøj", "Carlsen", "Svendsen", "Pedersen", "Sørensen", "Nielsen", "Fisker", "Smed"});
+    private static final List<String> STREETNAMES = Arrays.asList(new String[]{"Nørregade", "Søndergade", "Østergade", "Vestergade"});
+    private static final List<String> FLOORS = Arrays.asList(new String[]{"", "1th", "1tv", "2tv", "10th"});
+    private static final String LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vitae iaculis mi. "
             + "Aenean enim lorem, fringilla eget convallis et, euismod eget nisi. Sed consectetur magna nisl, id congue orci tincidunt et. "
             + "Quisque id hendrerit lectus. Nullam porttitor massa nec enim rhoncus gravida. Aenean finibus quis augue id placerat. "
             + "Fusce enim nibh, elementum non viverra non, convallis id est. Morbi nunc leo, eleifend eu eleifend non, vehicula ac libero. "
             + "Donec justo sapien, convallis vitae erat et, pulvinar elementum velit.";
 
-    private Random random = new Random();
-    private FoundationBean foundationBean;
-    private ServiceRegistry serviceRegistry;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
-
-    public void setServiceRegistry(ServiceRegistry serviceRegistry) {
-        this.serviceRegistry = serviceRegistry;
-    }
+    private static final Random RANDOM = new Random();
 
     @Override
     protected JSONObject doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        wipeData(serviceRegistry);
+        wipeData(getServiceRegistry());
         
         createData();
         
@@ -91,15 +93,15 @@ public class ResetDemoData extends JacksonBackedWebscript {
         
         NodeRef budgetNextYear = createBudget(budgetYearCurrent2, "Central", 5500000l);
         
-        foundationBean.addBranchBudget(central, budgetCentral);
-        foundationBean.addBranchBudget(local1, budgetLocal1);
-        foundationBean.addBranchBudget(local2, budgetLocal2);
-        foundationBean.addBranchBudget(local3, budgetLocal3);
-        foundationBean.addBranchBudget(local2, budgetSharedJutland);
-        foundationBean.addBranchBudget(local3, budgetSharedJutland);
-        foundationBean.addBranchBudget(local1, budgetSharedTotal);
-        foundationBean.addBranchBudget(local2, budgetSharedTotal);
-        foundationBean.addBranchBudget(local3, budgetSharedTotal); 
+        getFoundationBean().addBranchBudget(central, budgetCentral);
+        getFoundationBean().addBranchBudget(local1, budgetLocal1);
+        getFoundationBean().addBranchBudget(local2, budgetLocal2);
+        getFoundationBean().addBranchBudget(local3, budgetLocal3);
+        getFoundationBean().addBranchBudget(local2, budgetSharedJutland);
+        getFoundationBean().addBranchBudget(local3, budgetSharedJutland);
+        getFoundationBean().addBranchBudget(local1, budgetSharedTotal);
+        getFoundationBean().addBranchBudget(local2, budgetSharedTotal);
+        getFoundationBean().addBranchBudget(local3, budgetSharedTotal); 
         
         //Create Workflows
         NodeRef centralWorkflow = createWorkflow("Central");
@@ -130,10 +132,10 @@ public class ResetDemoData extends JacksonBackedWebscript {
         createWorkflowStateTransitions(lCSReview, lPayout);
         createWorkflowStateTransitions(lPayout, lClosed);
         
-        foundationBean.addBranchWorkflow(central, centralWorkflow);
-        foundationBean.addBranchWorkflow(local1, localWorkflow);
-        foundationBean.addBranchWorkflow(local2, localWorkflow);
-        foundationBean.addBranchWorkflow(local3, localWorkflow);
+        getFoundationBean().addBranchWorkflow(central, centralWorkflow);
+        getFoundationBean().addBranchWorkflow(local1, localWorkflow);
+        getFoundationBean().addBranchWorkflow(local2, localWorkflow);
+        getFoundationBean().addBranchWorkflow(local3, localWorkflow);
         
         //Create Applications
         NodeRef appc1 = createApplication(cHandleApplication, budgetCentral, central, "Ansøgning central 1", 60000);
@@ -159,49 +161,115 @@ public class ResetDemoData extends JacksonBackedWebscript {
         
     }
     
-    public NodeRef createApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmont) throws Exception{
-        String recipient = random(companyNames);
-        String firstName = random(firstNames);
-        String lastName = random(lastNames);
-        String steetName = random(streetName);
-        String floor = random(floors);
-        Date startDate = Date.from(Instant.now());
-        Date endDate = Date.from(Instant.now().plus(Duration.ofDays(random.nextInt(50)+1)));
-        NodeRef app =  foundationBean.addNewApplication(branch, budget, "TestApplication-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, "Category1", recipient, steetName, random.nextInt(40), floor, numberString(4), firstName, lastName, firstName+"@mail.dk", phoneNumber(), lorem, startDate, endDate, requiredAmont, numberString(4), "000"+numberString(5));
+    
+    
+    public NodeRef createApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) throws Exception{
         
-        if(state != null){
-            foundationBean.setApplicationState(app, state);
+        
+        
+        ApplicationReference app =  getFoundationBean().addNewApplication(buildApplication(state, budget, branch, name, requiredAmount));
+        
+//        if(state != null){
+//            foundationBean.setApplicationState(app.asNodeRef(), state);
+//        }
+        return app.asNodeRef();
+    }
+    
+    public static Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) {
+        String recipient = random(COMPANYNAMES);
+        String firstName = random(FIRSTNAMES);
+        String lastName = random(LASTNAMES);
+        String steetName = random(STREETNAMES);
+        String floor = random(FLOORS);
+        Date startDate = Date.from(Instant.now());
+        Date endDate = Date.from(Instant.now().plus(Duration.ofDays(RANDOM.nextInt(50) + 1)));
+        ApplicationPropertiesContainer block1 = new ApplicationPropertiesContainer();
+        block1.setId("block1");
+        block1.setLabel("Information");
+        block1.setLayout("display:block;");
+        List<ApplicationPropertyValue> fields = new ArrayList<>();
+        fields.add(buildValue("1", "Kategori", "display:block;", "text", String.class, null, "My new Category"));
+        fields.add(buildValue("2", "Modtager", "display:block;", "text", String.class, null, recipient));
+        fields.add(buildValue("3", "Vejnavn", "display:block;", "text", String.class, null, steetName));
+        fields.add(buildValue("4", "Etage", "display:block;", "text", String.class, null, floor));
+        fields.add(buildValue("5", "Postnr", "display:block;", "text", String.class, null, numberString(4)));
+        fields.add(buildValue("6", "Fornavn", "display:block;", "text", String.class, null, firstName));
+        fields.add(buildValue("7", "Efternavn", "display:block;", "text", String.class, null, lastName));
+        fields.add(buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), firstName + "@mail.dk"));
+        fields.add(buildValue("9", "Telefonnummer", "display:block;", "text", String.class, null, phoneNumber()));
+        fields.add(buildValue("10", "Kort beskrivelse", "display:block;", "text", String.class, null, LOREM));
+        fields.add(buildValue("11", "Startdato", "display:block;", "text", Date.class, null, startDate));
+        fields.add(buildValue("12", "EndDate", "display:block;", "text", Date.class, null, endDate));
+        fields.add(buildValue("13", "Beløb", "display:block;", "text", Long.class, Functional.amount(), requiredAmount));
+        fields.add(buildValue("14", "Registreringsnummer", "display:block;", "text", String.class, Functional.amount(), numberString(4)));
+        fields.add(buildValue("15", "Kontonummer", "display:block;", "text", String.class, Functional.amount(), "000" + numberString(5)));
+
+        block1.setFields(fields);
+
+        Application app = new Application();
+        app.setTitle(name);
+        app.setBlocks(Collections.singletonList(block1));
+        if (branch != null) {
+            BranchSummary branchRef = new BranchSummary();
+            branchRef.parseRef(branch);
+            app.setBranchSummary(branchRef);
         }
+        if (budget != null) {
+            BudgetReference budgetRef = new BudgetReference();
+            budgetRef.parseRef(budget);
+            app.setBudget(budgetRef);
+        }
+        if (state != null) {
+            StateReference stateRef = new StateReference();
+            stateRef.parseRef(state);
+            app.setState(stateRef);
+        }
+
         return app;
     }
     
+    public static <E> ApplicationPropertyValue<E> buildValue(String id, String label, String layout, String type, Class<E> javaType, Functional function, E value){
+        ApplicationPropertyValue valueField = new ApplicationPropertyValue();
+        valueField.setId(id);
+        valueField.setLabel(label);
+        valueField.setLayout(layout);
+        valueField.setType(type);
+        valueField.setJavaType(javaType);
+        if(function != null){
+            valueField.setDescribes(function.getFriendlyName());
+        }
+        valueField.setValue(value);
+        
+        return valueField;
+    }
+    
     public NodeRef createBranch(String name) throws Exception{
-        return foundationBean.addNewBranch("TestBranch-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name);
+        return getFoundationBean().addNewBranch("TestBranch-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name);
     }
     
     public NodeRef createBudgetYear(String name, Date startDate, Date endDate) throws Exception{
-        return foundationBean.addNewBudgetYear(name, "TestBudgetYear"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), startDate, endDate);
+        return getFoundationBean().addNewBudgetYear(name, "TestBudgetYear"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), startDate, endDate);
     }
     
     public NodeRef createBudget(NodeRef budgetYear, String name, Long amount) throws Exception{
-        return foundationBean.addNewBudget(budgetYear, "TestBudget-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, amount);
+        return getFoundationBean().addNewBudget(budgetYear, "TestBudget-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, amount);
     }
     
     public NodeRef createWorkflow(String name) throws Exception{
-        return foundationBean.addNewWorkflow("TestWorkflow-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name);
+        return getFoundationBean().addNewWorkflow("TestWorkflow-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name);
     }
     
     public NodeRef createWorkflowState(String name, NodeRef workflowRef, boolean isEntry, StateCategory category) throws Exception{
-        NodeRef stateRef = foundationBean.addNewWorkflowState(workflowRef, "TestState-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, category);
+        NodeRef stateRef = getFoundationBean().addNewWorkflowState(workflowRef, "TestState-"+DateTimeFormatter.ISO_INSTANT.format(Instant.now()), name, category);
         if(isEntry){
-            foundationBean.setWorkflowEntryPoint(workflowRef, stateRef);
+            getFoundationBean().setWorkflowEntryPoint(workflowRef, stateRef);
         }
         return stateRef;
     }
     
     public void createWorkflowStateTransitions(NodeRef from, NodeRef... to) throws Exception{
         for(NodeRef toRef : to){
-            foundationBean.createWorkflowTransition(from, toRef);
+            getFoundationBean().createWorkflowTransition(from, toRef);
         }
     } 
     
@@ -232,26 +300,26 @@ public class ResetDemoData extends JacksonBackedWebscript {
     }
     
     
-    public <T> T random(List<T> collection){
-        return collection.get(random.nextInt(collection.size()));
+    public static <T> T random(List<T> collection){
+        return collection.get(RANDOM.nextInt(collection.size()));
     }
     
     
-    public String phoneNumber(){
+    public static String phoneNumber(){
         StringBuilder pn = new StringBuilder();
-        if(random.nextInt(10)>8){
-            pn.append("+").append(random.nextInt(9)).append(random.nextInt(9));
+        if(RANDOM.nextInt(10)>8){
+            pn.append("+").append(RANDOM.nextInt(9)).append(RANDOM.nextInt(9));
         }
         pn.append(numberString(8));
         return pn.toString();
     }
     
-    public String numberString(int count){
+    public static String numberString(int count){
         StringBuilder number = new StringBuilder();
         
         
         for(int i = 0 ; i<count ; i++){
-            number.append(random.nextInt(9));
+            number.append(RANDOM.nextInt(9));
         }
         return number.toString();
     }

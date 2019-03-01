@@ -22,7 +22,7 @@ public class TestAction extends ActionExecuterAbstractBase {
 
         Application change = new Application();
         change.parseRef(actionedUponNodeRef);
-        change.setShortDescription((String) action.getParameterValue("executionMessage"));
+        change.emailTo().setValue((String) action.getParameterValue("executionMessage"));
         try {
             foundationBean.updateApplication(change);
         } catch (Exception e) {

@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
@@ -14,22 +15,13 @@ import java.util.Optional;
  */
 public class BudgetYear extends BudgetYearSummary{
     
-    private Optional<Long> amountTotal;
     private Optional<Long> amountAccepted;
     private Optional<Long> amountNominated;
     private Optional<Long> amountAvailable;
+    private Optional<Long> amountClosed;
+    private Optional<Long> amountApplied;
 
-    public Long getAmountTotal() {
-        return get(amountTotal);
-    }    
     
-    public boolean wasAmountTotalSet(){
-        return wasSet(amountTotal);
-    }
-
-    public void setAmountTotal(Long amountTotal) {
-        this.amountTotal = optional(amountTotal);
-    }
     
     public Long getAmountAccepted() {
         return get(amountAccepted);
@@ -65,6 +57,30 @@ public class BudgetYear extends BudgetYearSummary{
 
     public void setAmountAvailable(Long amountAvailable) {
         this.amountAvailable = optional(amountAvailable);
+    }
+    
+    public Long getAmountClosed() {
+        return get(amountClosed);
+    }    
+    
+    public boolean wasAmountClosedSet(){
+        return wasSet(amountClosed);
+    }
+
+    public void setAmountClosed(Long amountClosed) {
+        this.amountClosed = optional(amountClosed);
+    }
+    
+    public Long getAmountApplied() {
+        return get(amountApplied);
+    }    
+    
+    public boolean wasAmountAppliedSet(){
+        return wasSet(amountApplied);
+    }
+
+    public void setAmountApplied(Long amountApplied) {
+        this.amountApplied = optional(amountApplied);
     }
     
         @Override
@@ -119,5 +135,11 @@ public class BudgetYear extends BudgetYearSummary{
         }
         return true;
     }
+
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("amountAccepted", amountAccepted).append("amountNominated", amountNominated).append("amountAvailable", amountAvailable).append("amountClosed", amountClosed).append("amountApplied", amountApplied);
+    }
+    
     
 }

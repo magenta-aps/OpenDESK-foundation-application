@@ -14,6 +14,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.namespace.QName;
 import static dk.opendesk.foundationapplication.Utilities.*;
+import java.util.Collections;
 import org.apache.log4j.Logger;
 
 /**
@@ -57,7 +58,7 @@ public class InitialStructure extends AbstractPatch {
         QName dataQname = getODFName(DATA_NAME);
         
         NodeRef dictionaryRef = getDataDictionaryRef();
-        NodeRef dataRef = serviceRegistry.getNodeService().createNode(dictionaryRef, ContentModel.ASSOC_CONTAINS, dataQname, dataTypeQname).getChildRef();    
+        NodeRef dataRef = serviceRegistry.getNodeService().createNode(dictionaryRef, ContentModel.ASSOC_CONTAINS, dataQname, dataTypeQname, Collections.singletonMap(getODFName(DATA_PARAM_LASTID), 0)).getChildRef();    
         serviceRegistry.getPermissionService().setInheritParentPermissions(dataRef, false);
         
         return "Patch applied";

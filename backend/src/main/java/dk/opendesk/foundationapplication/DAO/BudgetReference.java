@@ -7,28 +7,16 @@ package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
  * @author martin
  */
-public class BudgetReference extends Reference{
+public class BudgetReference extends Reference {
 
-    private Optional<String> title;
 
     public BudgetReference() {
-    }
-
-    public String getTitle() {
-        return get(title);
-    }    
-    
-    public boolean wasTitleSet(){
-        return wasSet(title);
-    }
-
-    public void setTitle(String title) {
-        this.title = optional(title);
     }
 
     @Override
@@ -58,5 +46,10 @@ public class BudgetReference extends Reference{
             return false;
         }
         return true;
+    }
+
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("title", getTitle());
     }
 }

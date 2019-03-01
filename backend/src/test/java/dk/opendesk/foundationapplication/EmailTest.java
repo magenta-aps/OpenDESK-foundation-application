@@ -45,7 +45,7 @@ public class EmailTest extends AbstractTestClass{
         TestUtils.setupSimpleFlow(serviceRegistry);
 
         Application application = new Application();
-        application.setContactEmail(TEST_ADDRESSEE);
+        application.emailTo().setValue(TEST_ADDRESSEE);
         application.parseRef(TestUtils.application1);
         foundationBean.updateApplication(application);
     }

@@ -5,7 +5,8 @@
  */
 package dk.opendesk.foundationapplication.DAO;
 
-import java.util.Date;
+import dk.opendesk.foundationapplication.enums.Functional;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -15,114 +16,48 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @author martin
  */
 public class ApplicationSummary extends ApplicationReference {
-
-    private Optional<BranchReference> branchRef;
-    private Optional<String> category;
-    private Optional<String> recipient;
-    private Optional<String> shortDescription;
-    private Optional<Date> startDate;
-    private Optional<Date> endDate;
-    private Optional<Long> amountApplied;
-    private Optional<String> cvr;
+    private Optional<BranchSummary> branchSummary;
+    private Optional<List<ApplicationPropertiesContainer>> blocks;
     private Optional<Boolean> isSeen;
-
+    
     public ApplicationSummary() {
     }
 
-    public BranchReference getBranchRef() {
-        return get(branchRef);
+    public BranchSummary getBranchSummary() {
+        return get(branchSummary);
     }
     
-    public boolean wasBranchRefSet(){
-        return wasSet(branchRef);
+    public boolean wasBranchSummarySet(){
+        return wasSet(branchSummary);
     }
 
-    public void setBranchRef(BranchReference branchRef) {
-        this.branchRef = optional(branchRef);
+    public void setBranchSummary(BranchSummary branchSummary) {
+        this.branchSummary = optional(branchSummary);
     }
 
-    public String getCategory() {
-        return get(category);
+    public List<ApplicationPropertiesContainer> getBlocks() {
+        return get(blocks);
     }
     
-    public boolean wasCategorySet(){
-        return wasSet(category);
+    public boolean wasBlocksSet(){
+        return wasSet(blocks);
     }
 
-    public void setCategory(String category) {
-        this.category = optional(category);
-    }
-
-    public String getRecipient() {
-        return get(recipient);
+    public void setBlocks(List<ApplicationPropertiesContainer> blocks) {
+        this.blocks = optional(blocks);
     }
     
-    public boolean wasRecipientSet() {
-        return wasSet(recipient);
-    }
-
-    public void setRecipient(String recipient) {
-        this.recipient = optional(recipient);
-    }
-
-    public String getShortDescription() {
-        return get(shortDescription);
-    }
-    
-    public boolean wasShortDescriptionSet(){
-        return wasSet(shortDescription);
-    }
-
-    public void setShortDescription(String shortDescription) {
-        this.shortDescription = optional(shortDescription);
-    }
-
-    public Date getStartDate() {
-        return get(startDate);
-    }
-    
-    public boolean wasStartDateSet(){
-        return wasSet(startDate);
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = optional(startDate);
-    }
-
-    public Date getEndDate() {
-        return get(endDate);
-    }
-    
-    public boolean wasEndDateSet(){
-        return wasSet(endDate);
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = optional(endDate);
-    }
-
-    public Long getAmountApplied() {
-        return get(amountApplied);
-    }
-    
-    public boolean wasAmountAppliedSet(){
-        return wasSet(amountApplied);
-    }
-
-    public void setAmountApplied(Long amountApplied) {
-        this.amountApplied = optional(amountApplied);
-    }
-
-    public String getCvr() {
-        return get(cvr);
-    }
-    
-    public boolean wasCvrSet(){
-        return wasSet(cvr);
-    }
-
-    public void setCvr(String cvr) {
-        this.cvr = optional(cvr);
+    public final <E, A extends ApplicationPropertyValue<E>> A getFunctionalField(Functional<E> describes){
+        if(blocks == null || !blocks.isPresent()){
+            return null;
+        }
+        for(ApplicationPropertiesContainer block: blocks.get()){
+            A value = block.getFunctionalField(describes);
+            if(value != null){
+                return value;
+            }
+        }
+        return null;
     }
 
     public boolean getIsSeen() {
@@ -139,19 +74,22 @@ public class ApplicationSummary extends ApplicationReference {
     public void setIsSeen(Boolean isSeen) {
         this.isSeen = optional(isSeen);
     }
-
+    
+    public final ApplicationPropertyValue<Long> totalAmount(){
+        return getFunctionalField(Functional.amount());
+    }
+    
+    public final ApplicationPropertyValue<String> emailTo(){
+        return getFunctionalField(Functional.email_to());
+    }
+    
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 23 * hash + Objects.hashCode(this.getTitle());
+        hash = 23 * hash + Objects.hashCode(super.hashCode());
         hash = 23 * hash + Objects.hashCode(this.getNodeRef());
-        hash = 23 * hash + Objects.hashCode(this.getCategory());
-        hash = 23 * hash + Objects.hashCode(this.getRecipient());
-        hash = 23 * hash + Objects.hashCode(this.getShortDescription());
-        hash = 23 * hash + Objects.hashCode(this.getStartDate());
-        hash = 23 * hash + Objects.hashCode(this.getEndDate());
-        hash = 23 * hash + Objects.hashCode(this.getAmountApplied());
-        hash = 23 * hash + Objects.hashCode(this.getBranchRef());
+        hash = 23 * hash + Objects.hashCode(this.getBranchSummary());
+        hash = 23 * hash + Objects.hashCode(this.getBlocks());
         return hash;
     }
 
@@ -173,28 +111,10 @@ public class ApplicationSummary extends ApplicationReference {
         if (!Objects.equals(this.getNodeRef(), other.getNodeRef())) {
             return false;
         }
-        if (!Objects.equals(this.getCategory(), other.getCategory())) {
+        if (!Objects.equals(this.getBranchSummary(), other.getBranchSummary())) {
             return false;
         }
-        if (!Objects.equals(this.getRecipient(), other.getRecipient())) {
-            return false;
-        }
-        if (!Objects.equals(this.getShortDescription(), other.getShortDescription())) {
-            return false;
-        }
-        if (!Objects.equals(this.getStartDate(), other.getStartDate())) {
-            return false;
-        }
-        if (!Objects.equals(this.getEndDate(), other.getEndDate())) {
-            return false;
-        }
-        if (!Objects.equals(this.getAmountApplied(), other.getAmountApplied())) {
-            return false;
-        }
-        if (!Objects.equals(this.getBranchRef(), other.getBranchRef())) {
-            return false;
-        }
-        if (!Objects.equals(this.getCvr(), other.getCvr())) {
+        if (!Objects.equals(this.getBlocks(), other.getBlocks())) {
             return false;
         }
         return true;
@@ -202,12 +122,6 @@ public class ApplicationSummary extends ApplicationReference {
 
     @Override
     public ToStringBuilder toStringBuilder() {
-        return super.toStringBuilder().append("branchRef", this.getBranchRef()).append("category", this.getCategory()).append("amountApplied", this.getAmountApplied()).append("startDate", this.getStartDate()).append("endDate", this.getEndDate()).append("recipient", this.getRecipient()).append("shortDescription", this.getShortDescription());
+        return super.toStringBuilder().append("branchRef", branchSummary).append("blocks", blocks);
     }
-
-    @Override
-    public String toString() {
-        return toStringBuilder().build();
-    }
-
 }
