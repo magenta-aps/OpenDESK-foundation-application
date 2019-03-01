@@ -946,8 +946,8 @@ public class FoundationBean {
         }
     }
 
-    public List<ParameterDefinition> getActionParameters(String actionName) {
-        ActionDefinition actionDefinition = serviceRegistry.getActionService().getActionDefinition(actionName);
+    public List<ParameterDefinition> getActionParameters(String actionBeanName) {
+        ActionDefinition actionDefinition = serviceRegistry.getActionService().getActionDefinition(actionBeanName);
         return actionDefinition.getParameterDefinitions();
     }
 
@@ -972,13 +972,11 @@ public class FoundationBean {
 
 
     /**
-     * Sets up an email action with template, subject and 'from'
+     * Gets the NodeRef for a template from a template name
      * @param templateName filename of a template located in the template folder
-     * @param subject subject of the email
-     * @param fromAddress sender of the email
-     * @return email action
+     * @return template NodeRef
      */
-    public Action configureEmailAction(String templateName, String subject, String fromAddress) throws Exception {
+    public NodeRef getEmailTemplate(String templateName) throws Exception {
         Action action = serviceRegistry.getActionService().createAction("foundationMail");
 
         String query = "PATH:\"" + OpenDeskModel.TEMPLATE_OD_FOLDER + "cm:" + templateName + "\"";
@@ -990,14 +988,9 @@ public class FoundationBean {
         if (resultSet.getNodeRefs().size() > 1) {
             throw new Exception("Multiple templates found");
         }
-        NodeRef templateRef = resultSet.getNodeRef(0);
-
-        action.setParameterValue(PARAM_TEMPLATE, templateRef);
-        action.setParameterValue(PARAM_SUBJECT, subject);
-        action.setParameterValue(PARAM_FROM, fromAddress);
-
-        return action;
+        return resultSet.getNodeRef(0);
     }
+
 
     public List<ApplicationChange> getApplicationHistory(NodeRef appRef) throws Exception {
         List<ApplicationChange> changes = new ArrayList<>();

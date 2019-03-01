@@ -43,23 +43,14 @@ public class ActionTest extends AbstractTestClass {
 
 
     public void testGetActions() throws IOException {
+
         List<FoundationAction> actions = get(List.class, FoundationAction.class, "");
 
         assertEquals(1, actions.size());
         assertEquals(ACTION_NAME_EMAIL, actions.get(0).getName());
+        assertEquals(8,actions.get(0).getParams().size());
     }
 
-    public void testGetParameters() throws IOException {
-        Map actParams = get(Map.class, String.class, String.class, "mail/parameters");
-        List<ParameterDefinition> expParams = serviceRegistry.getActionService().getActionDefinition(ACTION_NAME_EMAIL).getParameterDefinitions();
-
-        assertEquals(expParams.size(), actParams.size());
-
-        for (ParameterDefinition expParam : expParams) {
-            assertTrue(actParams.containsKey(expParam.getName()));
-            assertEquals(expParam.getType().getPrefixString(), actParams.get(expParam.getName()));
-        }
-    }
 
     public void testSaveAction() throws Exception {
 

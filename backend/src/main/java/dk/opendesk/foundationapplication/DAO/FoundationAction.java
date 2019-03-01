@@ -36,4 +36,11 @@ public class FoundationAction {
     public void setParams(List<FoundationActionParameter> params) {
         this.params = params;
     }
+
+    @Override
+    public String toString() {
+        return "FoundationAction\n" +
+                "\tname   = '" + name + "'\n'" +
+                "\tparams =\n" + params;
+    }
 }

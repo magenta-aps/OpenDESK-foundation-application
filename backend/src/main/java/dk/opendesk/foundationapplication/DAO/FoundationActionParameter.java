@@ -70,4 +70,15 @@ public class FoundationActionParameter {
     public void setParameterConstraintName(String parameterConstraintName) {
         this.parameterConstraintName = parameterConstraintName;
     }
+
+    @Override
+    public String toString() {
+        return "\tFoundationActionParameter\n" +
+                "\t\tname='" + name + "'\n" +
+                "\t\ttype='" + type + "'\n" +
+                "\t\tisMultivalued=" + isMultivalued + "\n" +
+                "\t\tisMandatory=" + isMandatory + "\n" +
+                "\t\tdisplayLabel='" + displayLabel + "'\n" +
+                "\t\tparameterConstraintName='" + parameterConstraintName + "'\n";
+    }
 }

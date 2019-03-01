@@ -9,6 +9,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 import java.util.ArrayList;
 import java.util.List;
 
+import static dk.opendesk.foundationapplication.Utilities.ACTION_BEAN_NAME_EMAIL;
 import static dk.opendesk.foundationapplication.Utilities.ACTION_NAME_EMAIL;
 
 public class GetActions extends JacksonBackedWebscript {
@@ -22,7 +23,7 @@ public class GetActions extends JacksonBackedWebscript {
     protected List<FoundationAction> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         List<FoundationAction> actions = new ArrayList<>();
 
-        actions.add(new FoundationAction(ACTION_NAME_EMAIL, foundationBean.getActionParameters(ACTION_NAME_EMAIL)));
+        actions.add(new FoundationAction(ACTION_NAME_EMAIL, foundationBean.getActionParameters(ACTION_BEAN_NAME_EMAIL)));
 
         return actions;
     }

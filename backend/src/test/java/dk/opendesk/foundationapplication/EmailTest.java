@@ -57,7 +57,9 @@ public class EmailTest extends AbstractTestClass{
 
     //todo this test is not finished, currently only works on astrid@localhost
     public void testEmailAction() throws Exception {
-        Action action = foundationBean.configureEmailAction(TEST_TEMPLATE_NAME , "Subject of test mail", TEST_ADDRESSEE);
+        Action action = serviceRegistry.getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
+        action.setParameterValue(PARAM_TEMPLATE, foundationBean.getEmailTemplate(TEST_TEMPLATE_NAME));
+        action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
         serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
     }
 
@@ -65,7 +67,10 @@ public class EmailTest extends AbstractTestClass{
     //todo this test is not finished, currently only works on astrid@localhost
     public void testEmailCopying() throws Exception {
 
-        Action action = foundationBean.configureEmailAction(TEST_TEMPLATE_NAME , "Subject of test mail", TEST_ADDRESSEE);
+        Action action = serviceRegistry.getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
+        action.setParameterValue(PARAM_TEMPLATE, foundationBean.getEmailTemplate(TEST_TEMPLATE_NAME));
+        action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
+        action.setParameterValue(PARAM_FROM, TEST_ADDRESSEE);
 
         //sending the email
         serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
@@ -117,10 +122,14 @@ public class EmailTest extends AbstractTestClass{
     public void testSendEmail() throws Exception {
 
         //sending two emails
-        Action action = foundationBean.configureEmailAction(TEST_TEMPLATE_NAME, "TestSubject1", TEST_ADDRESSEE);
+        Action action = serviceRegistry.getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
+        action.setParameterValue(PARAM_TEMPLATE, foundationBean.getEmailTemplate(TEST_TEMPLATE_NAME));
+        action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
         serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
         Thread.sleep(2000);
-        action = foundationBean.configureEmailAction(TEST_TEMPLATE_NAME , "TestSubject2", TEST_ADDRESSEE);
+        action = serviceRegistry.getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
+        action.setParameterValue(PARAM_TEMPLATE, foundationBean.getEmailTemplate(TEST_TEMPLATE_NAME));
+        action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
         serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
 
         //testing that the emails.get script returns two elements
@@ -132,8 +141,8 @@ public class EmailTest extends AbstractTestClass{
 
         String[] lines = email.split("\n");
         for (String s : lines) {
-            if (s.startsWith("From:")) {
-                assertEquals("From: " + TEST_ADDRESSEE, s);
+            if (s.startsWith("Subject:")) {
+                assertEquals("Subject: " + "hallo hallo", s);
             }
         }
         assertEquals("<html>", lines[9]);
@@ -221,30 +230,7 @@ public class EmailTest extends AbstractTestClass{
 
     }
 
-    public void testConfigureEmailAction() throws Exception {
-        Action action1 = foundationBean.configureEmailAction(TEST_TEMPLATE_NAME, "subject 1", TEST_ADDRESSEE);
-        assertNotNull(action1.getParameterValue(PARAM_TEMPLATE));
-        assertEquals(action1.getParameterValue(PARAM_SUBJECT), "subject 1");
-        assertEquals(action1.getParameterValue(PARAM_FROM), TEST_ADDRESSEE);
-
-        //todo jeg kan ikke få denne test til at virke:
-        /*
-        FoundationAction action2 = foundationBean.configureEmailAction("non-existing template name", "subject 2", TEST_ADDRESSEE);
-        try{
-            action2.getParameterValue(PARAM_TEMPLATE);
-            fail("Expected exception not thrown");
-        } catch (Exception e){
-        }
-        */
-
-        Action action3 = foundationBean.configureEmailAction(TEST_TEMPLATE_NAME, null, TEST_ADDRESSEE);
-        try {
-            serviceRegistry.getActionService().executeAction(action3,TestUtils.application1);
-            fail("Expected exception not thrown");
-        } catch (Exception e) {
-        }
-
-    }
+    /*
 
     public void testEmailSavedToHistory() throws Exception {
         foundationBean.saveAction("foundationMail", TestUtils.stateAccessRef, getODFName(ASPECT_ON_CREATE), null);
@@ -264,5 +250,5 @@ public class EmailTest extends AbstractTestClass{
 
         foundationBean.getApplicationHistory(TestUtils.application1);
     }
-
+    */
 }
