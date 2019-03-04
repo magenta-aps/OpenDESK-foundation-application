@@ -35,7 +35,7 @@
 
     <bean id="webscript.foundation.applicationHistory.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplicationHistory"
-          parent="webscript">
+          parent="webscript.foundation">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
     
@@ -51,7 +51,7 @@
 
     <bean id="webscript.foundation.application.delete"
           class="dk.opendesk.foundationapplication.webscripts.foundation.DeleteApplication"
-          parent="webscript">
+          parent="webscript.foundation">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
 
@@ -127,13 +127,13 @@
 
     <bean id="webscript.foundation.email.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetEmail"
-          parent="webscript">
+          parent="webscript.foundation">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
 
     <bean id="webscript.foundation.emails.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetEmails"
-          parent="webscript">
+          parent="webscript.foundation">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
 
@@ -157,19 +157,19 @@
 
     <bean id="webscript.foundation.stateactions.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetStateActions"
-          parent="webscript">
+          parent="webscript.foundation">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
 
     <bean id="webscript.foundation.actions.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetActions"
-          parent="webscript">
+          parent="webscript.foundation">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
 
     <bean id="webscript.foundation.actions.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.SaveAction"
-          parent="webscript">
+          parent="webscript.foundation">
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
 

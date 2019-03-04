@@ -13,17 +13,13 @@ import static dk.opendesk.foundationapplication.Utilities.ACTION_BEAN_NAME_EMAIL
 import static dk.opendesk.foundationapplication.Utilities.ACTION_NAME_EMAIL;
 
 public class GetActions extends JacksonBackedWebscript {
-    private FoundationBean foundationBean;
 
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
 
     @Override
     protected List<FoundationAction> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         List<FoundationAction> actions = new ArrayList<>();
 
-        actions.add(new FoundationAction(ACTION_NAME_EMAIL, foundationBean.getActionParameters(ACTION_BEAN_NAME_EMAIL)));
+        actions.add(new FoundationAction(ACTION_NAME_EMAIL, getFoundationBean().getActionParameters(ACTION_BEAN_NAME_EMAIL)));
 
         return actions;
     }

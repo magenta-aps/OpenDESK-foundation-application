@@ -8,18 +8,13 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
 public class DeleteApplication extends JacksonBackedWebscript {
-    FoundationBean foundationBean;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
 
     @Override
     protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         String applicationID = getUrlParams().get("applicationId");
         Reference ref = new Reference();
         ref.setNodeID(applicationID);
-        foundationBean.deleteApplication(ref.asNodeRef());
+        getFoundationBean().deleteApplication(ref.asNodeRef());
         return new JSONObject().put("status", "OK");
     }
 }

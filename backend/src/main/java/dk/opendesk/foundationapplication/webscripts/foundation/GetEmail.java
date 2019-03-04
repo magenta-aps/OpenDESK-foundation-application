@@ -8,12 +8,6 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 public class GetEmail extends JacksonBackedWebscript {
 
-    private FoundationBean foundationBean;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
-
     @Override
     protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         String applicationId = getUrlParams().get("applicationId");
@@ -22,6 +16,6 @@ public class GetEmail extends JacksonBackedWebscript {
         Reference emailRef = new Reference();
         appRef.setNodeID(applicationId);
         emailRef.setNodeID(emailId);
-        return foundationBean.getEmail(appRef.asNodeRef(), emailRef.asNodeRef());
+        return getFoundationBean().getEmail(appRef.asNodeRef(), emailRef.asNodeRef());
     }
 }

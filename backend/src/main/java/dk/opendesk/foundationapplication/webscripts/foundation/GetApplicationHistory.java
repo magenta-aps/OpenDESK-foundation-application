@@ -8,15 +8,9 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 public class GetApplicationHistory extends JacksonBackedWebscript {
 
-    FoundationBean foundationBean;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
-
     @Override
     protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         NodeRef appRef = new NodeRef(getUrlParams().get("applicationID"));
-        return foundationBean.getApplicationHistory(appRef);
+        return getFoundationBean().getApplicationHistory(appRef);
     }
 }

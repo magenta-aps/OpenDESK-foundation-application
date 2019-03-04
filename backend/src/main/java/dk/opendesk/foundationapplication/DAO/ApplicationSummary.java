@@ -60,10 +60,7 @@ public class ApplicationSummary extends ApplicationReference {
         return null;
     }
 
-    public boolean getIsSeen() {
-        if (!isSeen.isPresent()) {
-            return false;
-        }
+    public Boolean getIsSeen() {
         return get(isSeen);
     }
 

@@ -12,11 +12,6 @@ import java.util.List;
 
 public class GetEmails extends JacksonBackedWebscript {
 
-    private FoundationBean foundationBean;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
 
     @Override
     protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
@@ -24,7 +19,7 @@ public class GetEmails extends JacksonBackedWebscript {
         Reference appRef = new Reference();
         appRef.setNodeID(applicationId);
         List<String> emailRefs= new ArrayList<>();
-        for (NodeRef ref : foundationBean.getApplicationEmails(appRef.asNodeRef())) {
+        for (NodeRef ref : getFoundationBean().getApplicationEmails(appRef.asNodeRef())) {
             emailRefs.add(ref.getId());
         }
         return emailRefs;

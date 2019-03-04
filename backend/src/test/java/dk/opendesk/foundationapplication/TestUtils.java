@@ -20,9 +20,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.util.Pair;
 import org.apache.log4j.Logger;
 
 /**
@@ -116,7 +118,7 @@ public final class TestUtils {
 
     public synchronized static void setupSimpleFlow(ServiceRegistry serviceRegistry) throws Exception {
         //When we are using static properties, we need to make sure that tests aren't accidentaly run in parallel
-        if(isInitiated){
+        if (isInitiated) {
             throw new RuntimeException("Test has already been initiated. Did you remember to call WipeData?");
         }
         FoundationBean foundationBean = new FoundationBean();
@@ -146,9 +148,9 @@ public final class TestUtils {
         //Create budgets and associate it with a branch
         Date startDate = Date.from(Instant.now().minus(Duration.ofDays(1)));
         Date endDate = Date.from(Instant.now().plus(300, ChronoUnit.DAYS));
-        
-        budgetYearRef1 = foundationBean.addNewBudgetYear(BUDGETYEAR1_NAME, BUDGETYEAR1_NAME+TITLE_POSTFIX, startDate, endDate);
-        
+
+        budgetYearRef1 = foundationBean.addNewBudgetYear(BUDGETYEAR1_NAME, BUDGETYEAR1_NAME + TITLE_POSTFIX, startDate, endDate);
+
         budgetRef1 = foundationBean.addNewBudget(budgetYearRef1, BUDGET1_NAME, BUDGET1_NAME + TITLE_POSTFIX, BUDGET1_AMOUNT);
         budgetRef2 = foundationBean.addNewBudget(budgetYearRef1, BUDGET2_NAME, BUDGET2_NAME + TITLE_POSTFIX, BUDGET2_AMOUNT);
         foundationBean.addBranchBudget(branchRef, budgetRef1);
@@ -165,7 +167,7 @@ public final class TestUtils {
         app1blockOverview.setLabel("Overview");
         ApplicationPropertiesContainer app1Details = new ApplicationPropertiesContainer();
         app1Details.setLabel("Details");
-        
+
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
         fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Tværstrede"));
@@ -177,14 +179,14 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), "lars@larsen.org"));
         fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "004512345678"));
         app1blockRecipient.setFields(fields);
-        
+
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category1"));
         fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Give me money"));
         fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
-        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,Date.from(Instant.now().plus(Duration.ofDays(2)))));
+        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(2)))));
         app1blockOverview.setFields(fields);
-        
+
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), APPLICATION1_AMOUNT));
         fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "4321"));
@@ -192,9 +194,8 @@ public final class TestUtils {
         app1Details.setFields(fields);
         app1.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1Details}));
         application1 = foundationBean.addNewApplication(app1).asNodeRef();
-        
+
         //application1 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION1_NAME, APPLICATION1_NAME + TITLE_POSTFIX,, "", "", , "", "", "", "", "", "", "", , , , "", "");
-        
         Application app2 = new Application();
         app2.setBranchSummary(foundationBean.getBranchSummary(branchRef));
         app2.setBudget(foundationBean.getBudgetReference(budgetRef1));
@@ -217,25 +218,24 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), "lars@larsen.org"));
         fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "004512345678"));
         app2blockRecipient.setFields(fields);
-        
+
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category2"));
         fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Give me more money"));
         fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
-        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,Date.from(Instant.now().plus(Duration.ofDays(4)))));
+        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(4)))));
         app2blockOverview.setFields(fields);
-        
+
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), APPLICATION2_AMOUNT));
         fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "4321"));
         fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
         app2details.setFields(fields);
-                
+
         app2.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app2blockRecipient, app2blockOverview, app2details}));
         application2 = foundationBean.addNewApplication(app2).asNodeRef();
-        
+
         //application2 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION2_NAME, APPLICATION2_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
-        
         Application app3 = new Application();
         app3.setTitle(APPLICATION3_NAME);
         ApplicationPropertiesContainer app3blockRecipient = new ApplicationPropertiesContainer();
@@ -246,7 +246,7 @@ public final class TestUtils {
 
         ApplicationPropertiesContainer app3details = new ApplicationPropertiesContainer();
         app3details.setLabel("Details");
-        
+
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
         fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Tværstrede"));
@@ -258,26 +258,139 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), "lars@larsen.org"));
         fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "004512345678"));
         app3blockRecipient.setFields(fields);
-        
+
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category3"));
         fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Give me even more money"));
         fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
-        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,Date.from(Instant.now().plus(Duration.ofDays(4)))));
+        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(4)))));
         app3blockOverview.setFields(fields);
-        
+
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), APPLICATION3_AMOUNT));
         fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "4321"));
         fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
         app3details.setFields(fields);
-                
+
         app3.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app3blockRecipient, app3blockOverview, app3details}));
         application3 = foundationBean.addNewApplication(app3).asNodeRef();
         //application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
         isInitiated = true;
     }
-    
-    
+
+    public static ApplicationChangeBuilder buildChange(Application toChange) {
+        return new ApplicationChangeBuilder(toChange);
+    }
+
+    public static class ApplicationChangeBuilder {
+
+        public Application original;
+        public Application change = new Application();
+
+        public ApplicationChangeBuilder(Application original) {
+            this.original = original;
+            change.parseRef(original.asNodeRef());
+        }
+
+        public FieldChangeBuilder changeField(String fieldId) {
+            return new FieldChangeBuilder(fieldId);
+        }
+
+        public Application build() {
+            return change;
+        }
+
+        public class FieldChangeBuilder {
+
+            private final ApplicationPropertyValue value;
+
+            public FieldChangeBuilder(String fieldID) {
+                Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> existing = findField(change, fieldID);
+                if (existing != null) {
+                    value = existing.getSecond();
+                } else {
+                    Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> originalVal = findField(original, fieldID);
+                    ApplicationPropertyValue changeVal = new ApplicationPropertyValue();
+                    changeVal.setId(originalVal.getSecond().getId());
+
+                    boolean found = false;
+                    if (change.getBlocks() != null) {
+                        for (ApplicationPropertiesContainer block : change.getBlocks()) {
+                            if (originalVal.getFirst().getId().equals(block.getId())) {
+                                block.getFields().add(changeVal);
+                                found = true;
+                            }
+                        }
+                    }
+
+                    if (!found) {
+                        ApplicationPropertiesContainer changeBlock = new ApplicationPropertiesContainer();
+                        changeBlock.setId(originalVal.getFirst().getId());
+                        changeBlock.setFields(new ArrayList<>());
+                        changeBlock.getFields().add(changeVal);
+                        change.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{changeBlock}));
+                    }
+
+                    value = changeVal;
+
+                }
+            }
+
+            public FieldChangeBuilder setLabel(String newLabel) {
+                value.setLabel(newLabel);
+                return this;
+            }
+
+            public FieldChangeBuilder setLayout(String newLayout) {
+                value.setLayout(newLayout);
+                return this;
+            }
+
+            public FieldChangeBuilder setType(String newType) {
+                value.setType(newType);
+                return this;
+            }
+
+            public FieldChangeBuilder setJavaType(Class newType) {
+                value.setJavaType(newType);
+                return this;
+            }
+
+            public FieldChangeBuilder setDescribes(String newDescribes) {
+                value.setDescribes(newDescribes);
+                return this;
+            }
+
+            public FieldChangeBuilder setDescribes(List newAllowedValues) {
+                value.setAllowedValues(newAllowedValues);
+                return this;
+            }
+
+            public FieldChangeBuilder setValue(Object newValue) {
+                value.setValue(newValue);
+                return this;
+            }
+
+            public ApplicationChangeBuilder done() {
+                return ApplicationChangeBuilder.this;
+            }
+
+            public final Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> findField(Application target, String id) {
+                if (target.getBlocks() == null) {
+                    return null;
+                }
+                for (ApplicationPropertiesContainer block : target.getBlocks()) {
+                    for (ApplicationPropertyValue field : block.getFields()) {
+                        if (id.equals(field.getId())) {
+                            return new Pair<>(block, field);
+                        }
+                    }
+                }
+                return null;
+            }
+
+        }
+
+    }
 
 }

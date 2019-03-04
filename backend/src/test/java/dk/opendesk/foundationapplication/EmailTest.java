@@ -1,5 +1,9 @@
 package dk.opendesk.foundationapplication;
 
+import com.github.sleroy.fakesmtp.core.ServerConfiguration;
+import com.github.sleroy.junit.mail.server.MailServer;
+import com.github.sleroy.junit.mail.server.test.FakeSmtpRule;
+import com.github.sleroy.junit.mail.server.test.FakeSmtpRuleException;
 import dk.opendesk.foundationapplication.DAO.*;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import org.alfresco.repo.content.MimetypeMap;
@@ -23,12 +27,15 @@ import static dk.opendesk.foundationapplication.Utilities.*;
 import static org.alfresco.model.ContentModel.ASSOC_CONTAINS;
 import static org.alfresco.model.ContentModel.TYPE_CONTENT;
 import static org.alfresco.repo.action.executer.MailActionExecuter.*;
+import org.junit.Rule;
 
 
 public class EmailTest extends AbstractTestClass{
     private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
     private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
+    MailServer mailServer;
+    
     public EmailTest() {
         super("/foundation");
     }
@@ -40,27 +47,39 @@ public class EmailTest extends AbstractTestClass{
     protected void setUp() throws Exception {
         super.setUp();
 
+        mailServer = new MailServer(ServerConfiguration.create().port(25).charset("UTF-8"));
+	mailServer.start();
+        
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
         TestUtils.wipeData(serviceRegistry);
         TestUtils.setupSimpleFlow(serviceRegistry);
 
-        Application application = new Application();
-        application.emailTo().setValue(TEST_ADDRESSEE);
-        application.parseRef(TestUtils.application1);
-        foundationBean.updateApplication(application);
+        Application change = TestUtils.buildChange(foundationBean.getApplication(TestUtils.application1)).changeField("8").setValue(TEST_ADDRESSEE).done().build();
+        foundationBean.updateApplication(change);
     }
 
     @Override
     protected void tearDown() throws Exception {
+        try {
+	    if (mailServer != null) {
+		mailServer.close();
+	    }
+	    mailServer = null;
+	} catch (final Exception e) {
+	    throw new FakeSmtpRuleException(e);
+	}
+        
         TestUtils.wipeData(serviceRegistry);
     }
 
     //todo this test is not finished, currently only works on astrid@localhost
     public void testEmailAction() throws Exception {
+        assertTrue(mailServer.getMails().isEmpty());
         Action action = serviceRegistry.getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, foundationBean.getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
         serviceRegistry.getActionService().executeAction(action,TestUtils.application1);
+        assertEquals(1, mailServer.getMails().size());
     }
 
 

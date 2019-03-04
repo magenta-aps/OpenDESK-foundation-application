@@ -18,12 +18,6 @@ import static dk.opendesk.foundationapplication.Utilities.ASPECT_BEFORE_DELETE;
 import static dk.opendesk.foundationapplication.Utilities.ASPECT_ON_CREATE;
 
 public class SaveAction extends JacksonBackedWebscript {
-    FoundationBean foundationBean;
-
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
-    }
-
     @Override
     protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
 
@@ -56,7 +50,7 @@ public class SaveAction extends JacksonBackedWebscript {
         if (stateRef == null || aspect == null) {
             throw new Exception("'stateRef' and 'aspect' has to be set");
         } else {
-            foundationBean.saveAction(actionName, stateRef, aspect, params);
+            getFoundationBean().saveAction(actionName, stateRef, aspect, params);
             return new JSONObject().put("status", "OK");
         }
 
