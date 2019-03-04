@@ -924,6 +924,7 @@ public class FoundationBean {
         Application application = new Application();
         application.parseRef(applicationRef);
         application.setTitle(getProperty(applicationRef, APPLICATION_PARAM_TITLE, String.class));
+        application.setIsSeen(isApplicationSeen(applicationRef,getCurrentUserName()));
         List<String> blockStrings = getProperty(applicationRef, APPLICATION_PARAM_BLOCKS, List.class);
         List<ApplicationPropertiesContainer> blocks = new ArrayList<>();
 

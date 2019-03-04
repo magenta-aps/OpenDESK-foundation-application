@@ -146,8 +146,14 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         app1.setBudget(foundationBean.getBudgetReference(budgetRef));
         app1.setTitle(APPLICATION_NAME);
         ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        app1blockRecipient.setId("1");
+        app1blockRecipient.setLabel("Recipients");
         ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        app1blockOverview.setId("2");
+        app1blockOverview.setLabel("Overview");
         ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        app1details.setId("3");
+        app1details.setLabel("Details");
         
         app1blockRecipient.setFields(new ArrayList<>());
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Dansk Dræbersnegls Bevaringsforbund"));

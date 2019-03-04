@@ -162,10 +162,13 @@ public final class TestUtils {
         app1.setBudget(foundationBean.getBudgetReference(budgetRef1));
         app1.setTitle(APPLICATION1_NAME);
         ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        app1blockRecipient.setId("1");
         app1blockRecipient.setLabel("Recipient");
         ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        app1blockOverview.setId("2");
         app1blockOverview.setLabel("Overview");
         ApplicationPropertiesContainer app1Details = new ApplicationPropertiesContainer();
+        app1Details.setId("3");
         app1Details.setLabel("Details");
 
         fields = new ArrayList<>();
@@ -201,10 +204,13 @@ public final class TestUtils {
         app2.setBudget(foundationBean.getBudgetReference(budgetRef1));
         app2.setTitle(APPLICATION2_NAME);
         ApplicationPropertiesContainer app2blockRecipient = new ApplicationPropertiesContainer();
+        app2blockRecipient.setId("1");
         app2blockRecipient.setLabel("Recipient");
         ApplicationPropertiesContainer app2blockOverview = new ApplicationPropertiesContainer();
+        app2blockOverview.setId("2");
         app2blockOverview.setLabel("Overview");
         ApplicationPropertiesContainer app2details = new ApplicationPropertiesContainer();
+        app2details.setId("3");
         app2details.setLabel("Details");
 
         fields = new ArrayList<>();
@@ -240,13 +246,14 @@ public final class TestUtils {
         app3.setTitle(APPLICATION3_NAME);
         ApplicationPropertiesContainer app3blockRecipient = new ApplicationPropertiesContainer();
         app3blockRecipient.setLabel("Recipient");
-
+        app3blockRecipient.setId("1");
         ApplicationPropertiesContainer app3blockOverview = new ApplicationPropertiesContainer();
         app3blockOverview.setLabel("Overview");
-
+        app3blockOverview.setId("2");
         ApplicationPropertiesContainer app3details = new ApplicationPropertiesContainer();
         app3details.setLabel("Details");
-
+        app3details.setId("3");
+        
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
         fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Tværstrede"));
@@ -289,6 +296,7 @@ public final class TestUtils {
 
         public ApplicationChangeBuilder(Application original) {
             this.original = original;
+            change.setId(original.getId());
             change.parseRef(original.asNodeRef());
         }
 

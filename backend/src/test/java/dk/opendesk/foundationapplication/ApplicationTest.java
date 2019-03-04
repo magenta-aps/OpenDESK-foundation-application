@@ -65,8 +65,14 @@ public class ApplicationTest extends AbstractTestClass{
         Application newApplication = new Application();
         newApplication.setTitle(applicationTitle);
         ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        app1blockRecipient.setId("1");
+        app1blockRecipient.setLabel("Recipients");
         ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        app1blockOverview.setId("2");
+        app1blockOverview.setLabel("Overview");
         ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        app1details.setId("3");
+        app1details.setLabel("Details");
         app1blockRecipient.setFields(new ArrayList<>());
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Cats4Dogs"));
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Testgade"));
