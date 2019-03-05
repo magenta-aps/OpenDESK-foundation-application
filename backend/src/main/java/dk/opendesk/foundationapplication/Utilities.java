@@ -98,6 +98,8 @@ public final class Utilities {
 
     public static final String APPLICATION_EMAILFOLDER = "emailFolder";
 
+    public static final String ACTION_NAME_ADD_BLOCKS = "addBlocks";
+    public static final String ACTION_NAME_ADD_FIELDS = "addFields";
     public static final String ACTION_NAME_EMAIL = "email";
     public static final String ACTION_BEAN_NAME_EMAIL = "foundationMail";
 

@@ -38,7 +38,14 @@
         <property name="foundationBean" ref="foundationBean"/>
     </bean>
 
-    
+    <bean id="addBlocks" class="dk.opendesk.foundationapplication.actions.AddBlocksToApplicationAction">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+
+    <bean id="addFields" class="dk.opendesk.foundationapplication.actions.AddFieldsToApplicationAction">
+        <property name="foundationBean" ref="foundationBean"/>
+    </bean>
+
     <bean id="webscript.foundation"
           class="dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript"
           parent="webscript" abstract="true">
