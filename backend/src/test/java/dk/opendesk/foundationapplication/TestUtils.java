@@ -291,8 +291,8 @@ public final class TestUtils {
 
     public static class ApplicationChangeBuilder {
 
-        public Application original;
-        public Application change = new Application();
+        private final Application original;
+        private final Application change = new Application();
 
         public ApplicationChangeBuilder(Application original) {
             this.original = original;
@@ -376,6 +376,7 @@ public final class TestUtils {
 
             public FieldChangeBuilder setValue(Object newValue) {
                 value.setValue(newValue);
+                value.setJavaType(newValue.getClass());
                 return this;
             }
 
@@ -383,7 +384,7 @@ public final class TestUtils {
                 return ApplicationChangeBuilder.this;
             }
 
-            public final Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> findField(Application target, String id) {
+            protected final Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> findField(Application target, String id) {
                 if (target.getBlocks() == null) {
                     return null;
                 }

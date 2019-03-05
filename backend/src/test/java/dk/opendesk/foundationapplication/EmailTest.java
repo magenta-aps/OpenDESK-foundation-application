@@ -41,13 +41,13 @@ public class EmailTest extends AbstractTestClass {
     }
 
     private static String TEST_TEMPLATE_NAME = "email.html.ftl";
-    private static String TEST_ADDRESSEE = "astrid@localhost";
+    private static String TEST_ADDRESSEE = "astrid@testmail.dk";
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
-        mailServer = new MailServer(ServerConfiguration.create().port(2525).charset("UTF-8"));
+        mailServer = new MailServer(ServerConfiguration.create().port(2525).charset("UTF-8").relayDomains("testmail.dk"));
         mailServer.start();
 
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
@@ -81,7 +81,7 @@ public class EmailTest extends AbstractTestClass {
 
     //todo this test is not finished, currently only works on astrid@localhost
     public void testEmailCopying() throws Exception {
-
+        assertTrue(mailServer.getMails().isEmpty());
         Action action = serviceRegistry.getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, foundationBean.getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
@@ -89,6 +89,8 @@ public class EmailTest extends AbstractTestClass {
 
         //sending the email
         serviceRegistry.getActionService().executeAction(action, TestUtils.application1);
+        assertEquals(1, mailServer.getMails().size());
+        assertEquals("hallo hallo", mailServer.getMails().get(0).getSubject());
 
         //getting the email folder from the application
         List<ChildAssociationRef> childAssociationRefs = serviceRegistry.getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName("emailFolder"), null);
@@ -134,17 +136,21 @@ public class EmailTest extends AbstractTestClass {
 
     //todo this test is not finished, currently only works on astrid@localhost
     public void testSendEmail() throws Exception {
-
+        assertEquals(0, mailServer.getMails().size());
         //sending two emails
         Action action = serviceRegistry.getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, foundationBean.getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
         serviceRegistry.getActionService().executeAction(action, TestUtils.application1);
+        assertEquals(1, mailServer.getMails().size());
+        assertEquals("hallo hallo", mailServer.getMails().get(0).getSubject());
         Thread.sleep(2000);
         action = serviceRegistry.getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, foundationBean.getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
         serviceRegistry.getActionService().executeAction(action, TestUtils.application1);
+        assertEquals(2, mailServer.getMails().size());
+        assertEquals("hallo hallo", mailServer.getMails().get(1).getSubject());
 
         //testing that the emails.get script returns two elements
         List<String> emailRefs = get(List.class, String.class, "/application/" + TestUtils.application1.getId() + "/emails");

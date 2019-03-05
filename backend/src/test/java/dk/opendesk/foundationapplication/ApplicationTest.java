@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchReference;
@@ -305,6 +306,104 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals(2, deletedApplications.size());
 
 
+    }
+    
+    public void testUpdateApplication() throws Exception{
+        String newDescription = "new description";
+        Application beforeChange = foundationBean.getApplication(TestUtils.application1);
+        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
+        ApplicationPropertyValue description = overview.getFields().get(1);
+        assertEquals("Overview", overview.getLabel());
+        assertEquals("Short Description", description.getLabel());
+        assertEquals("Give me money", description.getValue());
+        
+        Application change = TestUtils.buildChange(beforeChange).changeField(description.getId()).setValue(newDescription).done().build();
+        foundationBean.updateApplication(change);
+        
+        Application afterChange = foundationBean.getApplication(TestUtils.application1);
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+        
+        for(int blk = 0 ; blk<beforeChange.getBlocks().size() ; blk++){
+            for(int fld = 0 ; fld<beforeChange.getBlocks().get(blk).getFields().size() ; fld++){
+                if(!(blk == 1 && fld == 1)){
+                    assertEquals(beforeChange.getBlocks().get(blk).getFields().get(fld), afterChange.getBlocks().get(blk).getFields().get(fld));
+                }
+                
+            }
+        }
+    }
+    
+        
+    public void testUpdateFullApplication() throws Exception{
+        String newDescription = "new description";
+        Application beforeChange = foundationBean.getApplication(TestUtils.application1);
+        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
+        ApplicationPropertyValue description = overview.getFields().get(1);
+        assertEquals("Overview", overview.getLabel());
+        assertEquals("Short Description", description.getLabel());
+        assertEquals("Give me money", description.getValue());
+        
+        description.setValue(newDescription);
+        foundationBean.updateApplication(beforeChange);
+        
+        Application afterChange = foundationBean.getApplication(TestUtils.application1);
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+        for(int blk = 0 ; blk<beforeChange.getBlocks().size() ; blk++){
+            for(int fld = 0 ; fld<beforeChange.getBlocks().get(blk).getFields().size() ; fld++){
+                if(!(blk == 1 && fld == 1)){
+                    assertEquals(beforeChange.getBlocks().get(blk).getFields().get(fld), afterChange.getBlocks().get(blk).getFields().get(fld));
+                }
+                
+            }
+        }
+    }
+    
+    public void testRestUpdateApplication() throws Exception {
+        String newDescription = "changed description";
+        Application beforeChange = get(Application.class, TestUtils.application1.getId());
+        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
+        ApplicationPropertyValue description = overview.getFields().get(1);
+        assertEquals("Overview", overview.getLabel());
+        assertEquals("Short Description", description.getLabel());
+        assertEquals("Give me money", description.getValue());
+
+        Application change = TestUtils.buildChange(beforeChange).changeField(description.getId()).setValue(newDescription).done().build();
+        post(change, TestUtils.application1.getId());
+
+        Application afterChange = get(Application.class, TestUtils.application1.getId());
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+
+        for (int blk = 0; blk < beforeChange.getBlocks().size(); blk++) {
+            for (int fld = 0; fld < beforeChange.getBlocks().get(blk).getFields().size(); fld++) {
+                if (!(blk == 1 && fld == 1)) {
+                    assertEquals(beforeChange.getBlocks().get(blk).getFields().get(fld), afterChange.getBlocks().get(blk).getFields().get(fld));
+                }
+            }
+        }
+    }
+    
+    public void testRestUpdateFullApplication() throws Exception {
+        String newDescription = "changed description";
+        Application beforeChange = get(Application.class, TestUtils.application1.getId());
+        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
+        ApplicationPropertyValue description = overview.getFields().get(1);
+        assertEquals("Overview", overview.getLabel());
+        assertEquals("Short Description", description.getLabel());
+        assertEquals("Give me money", description.getValue());
+        description.setValue(newDescription);
+        
+        post(beforeChange, TestUtils.application1.getId());
+
+        Application afterChange = get(Application.class, TestUtils.application1.getId());
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+
+        for (int blk = 0; blk < beforeChange.getBlocks().size(); blk++) {
+            for (int fld = 0; fld < beforeChange.getBlocks().get(blk).getFields().size(); fld++) {
+                if (!(blk == 1 && fld == 1)) {
+                    assertEquals(beforeChange.getBlocks().get(blk).getFields().get(fld), afterChange.getBlocks().get(blk).getFields().get(fld));
+                }
+            }
+        }
     }
     
     
