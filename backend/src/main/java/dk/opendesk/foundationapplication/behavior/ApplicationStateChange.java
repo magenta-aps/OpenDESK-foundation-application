@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import dk.opendesk.foundationapplication.Utilities;
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.JavaBehaviour;
@@ -25,6 +26,10 @@ import org.alfresco.service.namespace.QName;
  * @author martin
  */
 public class ApplicationStateChange implements NodeServicePolicies.OnCreateAssociationPolicy, NodeServicePolicies.BeforeDeleteAssociationPolicy{
+
+    private static final String EXCEPTION_MESSAGE_ON_CREATION = "OnAssociationCreation-actions not properly executed";
+    private static final String EXCEPTION_MESSAGE_BEFORE_DELETE = "BeforeAssociationDeletion-actions not properly executed";
+
     private PolicyComponent eventManager;
     private ServiceRegistry serviceRegistry;
 
@@ -67,7 +72,7 @@ public class ApplicationStateChange implements NodeServicePolicies.OnCreateAssoc
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new AlfrescoRuntimeException(EXCEPTION_MESSAGE_ON_CREATION);
         }
 
     }
@@ -85,7 +90,7 @@ public class ApplicationStateChange implements NodeServicePolicies.OnCreateAssoc
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new AlfrescoRuntimeException(EXCEPTION_MESSAGE_BEFORE_DELETE);
         }
 
     }

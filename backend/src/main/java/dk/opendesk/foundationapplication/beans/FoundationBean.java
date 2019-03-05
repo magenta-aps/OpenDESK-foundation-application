@@ -310,6 +310,8 @@ public class FoundationBean {
 //            updateContent(app.getFinancialAccountingDoc(), app, APPLICATION_ASSOC_FINANCIAL_ACCOUTING_DOC);
 //        }
         ns.addProperties(app.asNodeRef(), properties);
+
+        serviceRegistry.getVersionService().createVersion(app.asNodeRef(), Collections.singletonMap(APPLICATION_CHANGE, APPLICATION_CHANGE_UPDATE));
     }
 
     private String getCurrentUserName() {
@@ -940,18 +942,15 @@ public class FoundationBean {
             application.setBranchSummary(getBranchSummary(branchRef));
         }
         if (budgetRef != null) {
-            BudgetReference budget = new BudgetReference();
-            budget.parseRef(budgetRef);
+            BudgetReference budget = getBudgetReference(budgetRef);
             application.setBudget(budget);
         }
         if (stateRef != null) {
-            StateReference state = new StateReference();
-            state.parseRef(stateRef);
+            StateReference state = getStateReference(stateRef);
             application.setState(state);
             NodeRef workflowRef = getSingleParentAssoc(stateRef, WORKFLOW_ASSOC_STATES);
             if (workflowRef != null) {
-                WorkflowReference workflow = new WorkflowReference();
-                workflow.parseRef(workflowRef);
+                WorkflowReference workflow = getWorkflowReference(workflowRef);
                 application.setWorkflow(workflow);
             }
         }
@@ -1230,20 +1229,23 @@ public class FoundationBean {
 
         List<ApplicationChangeUnit> changes = new ArrayList<>();
 
-        Map<String, ApplicationPropertyValue> oldVersionProperties = getApplicationFields(oldVersion);
         Map<String, ApplicationPropertyValue> newVersionProperties = getApplicationFields(newVersion);
 
-        for (String key : oldVersionProperties.keySet()) {
-            ApplicationPropertyValue oldValueField = oldVersionProperties.get(key);
-            ApplicationPropertyValue newValueField = newVersionProperties.get(key);
-            if (newValueField != null) {
-                if (!Objects.equals(oldValueField.getValue(), newValueField.getValue())) {
-                    changes.add(new ApplicationChangeUnit().setChangedField(oldValueField.getLabel()).setOldValue(oldValueField.getValue()).setNewValue(newValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
+        if (oldVersion != null) {
+            Map<String, ApplicationPropertyValue> oldVersionProperties = getApplicationFields(oldVersion);
+
+            for (String key : oldVersionProperties.keySet()) {
+                ApplicationPropertyValue oldValueField = oldVersionProperties.get(key);
+                ApplicationPropertyValue newValueField = newVersionProperties.get(key);
+                if (newValueField != null) {
+                    if (!Objects.equals(oldValueField.getValue(), newValueField.getValue())) {
+                        changes.add(new ApplicationChangeUnit().setChangedField(oldValueField.getLabel()).setOldValue(oldValueField.getValue()).setNewValue(newValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
+                    }
+                } else {
+                    changes.add(new ApplicationChangeUnit().setChangedField(oldValueField.getLabel()).setOldValue(oldValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
                 }
-            } else {
-                changes.add(new ApplicationChangeUnit().setChangedField(oldValueField.getLabel()).setOldValue(oldValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
+                newVersionProperties.remove(key);
             }
-            newVersionProperties.remove(key);
         }
 
         for (String key : newVersionProperties.keySet()) {
@@ -1251,15 +1253,25 @@ public class FoundationBean {
             changes.add(new ApplicationChangeUnit().setChangedField(newValueField.getLabel()).setNewValue(newValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
         }
 
-        resolveChangedAssociation(oldVersion.getBranchSummary(), newVersion.getBranchSummary(), "Branch", changes);
-        resolveChangedAssociation(oldVersion.getBudget(), newVersion.getBudget(), "Budget", changes);
-        resolveChangedAssociation(oldVersion.getState(), newVersion.getState(), "State", changes);
-        resolveChangedAssociation(oldVersion.getWorkflow(), newVersion.getWorkflow(), "Workflow", changes);
+        if (oldVersion != null) {
+            resolveChangedAssociation(oldVersion.getBranchSummary(), newVersion.getBranchSummary(), "Branch", changes);
+            resolveChangedAssociation(oldVersion.getBudget(), newVersion.getBudget(), "Budget", changes);
+            resolveChangedAssociation(oldVersion.getState(), newVersion.getState(), "State", changes);
+            resolveChangedAssociation(oldVersion.getWorkflow(), newVersion.getWorkflow(), "Workflow", changes);
+        } else {
+            resolveChangedAssociation(null, newVersion.getBranchSummary(), "Branch", changes);
+            resolveChangedAssociation(null, newVersion.getBudget(), "Budget", changes);
+            resolveChangedAssociation(null, newVersion.getState(), "State", changes);
+            resolveChangedAssociation(null, newVersion.getWorkflow(), "Workflow", changes);
+        }
 
         return changes;
     }
-
-    public Map<String, ApplicationPropertyValue> getApplicationFields(Application application) {
+    
+    public Map<String, ApplicationPropertyValue> getApplicationFields(Application application){
+        if (application == null) {
+            return null;
+        }
         Map<String, ApplicationPropertyValue> toReturn = new HashMap<>();
         for (ApplicationPropertiesContainer block : application.getBlocks()) {
             for (ApplicationPropertyValue field : block.getFields()) {
@@ -1269,24 +1281,27 @@ public class FoundationBean {
         return toReturn;
     }
 
-    public <E extends Reference> void resolveChangedAssociation(E oldType, E newType, String associationName, List<ApplicationChangeUnit> changes) {
-        if (!Objects.equals(oldType, newType)) {
-            changes.add(new ApplicationChangeUnit().setChangedField(associationName).setOldValue(oldType.getTitle()).setNewValue(newType.getTitle()).setChangeType(APPLICATION_CHANGE_UPDATE_ASSOCIATION));
+    
+    public <E extends Reference> void resolveChangedAssociation(E oldType, E newType, String associationName, List<ApplicationChangeUnit> changes){
+        if(!Objects.equals(oldType, newType)){
+            ApplicationChangeUnit changeUnit = new ApplicationChangeUnit().setChangedField(associationName).setChangeType(APPLICATION_CHANGE_UPDATE_ASSOCIATION);
+            if (oldType != null) {
+                changeUnit.setOldValue(oldType.getTitle());
+            }
+            if (newType != null) {
+                changeUnit.setNewValue(newType.getTitle());
+            }
+            changes.add(changeUnit);
         }
     }
 
-    public NodeRef getOrCreateFolder(NodeRef applicationRef, String folderName) {
-        NodeRef folder = null;
-        try {
-            folder = serviceRegistry.getNodeService().getChildByName(applicationRef, getODFName(folderName), "cm:" + folderName);
-            if (folder == null) {
-                ChildAssociationRef childRef = serviceRegistry.getNodeService().createNode(applicationRef, getODFName(folderName), getCMName(folderName), getCMName("Folder"));
-                folder = childRef.getChildRef();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+    public NodeRef getOrCreateFolder(NodeRef applicationRef, String folderName) throws Exception {
+        NodeRef folder = serviceRegistry.getNodeService().getChildByName(applicationRef, getODFName(folderName), "cm:" + folderName);
+        if (folder == null) {
+            ChildAssociationRef childRef = serviceRegistry.getNodeService().createNode(applicationRef, getODFName(folderName), getCMName(folderName), getCMName("Folder"));
+            folder = childRef.getChildRef();
         }
+
         return folder;
     }
 
@@ -1297,23 +1312,13 @@ public class FoundationBean {
      * @param applicationRef NodeRef to the application that the email shall be
      * saved on
      */
-    public void saveEmailCopy(MimeMessage mimeMessage, NodeRef applicationRef) {
+    public void saveEmailCopy(MimeMessage mimeMessage, NodeRef applicationRef) throws Exception {
 
-        NodeRef emailFolderRef = null;
-        try {
-            emailFolderRef = getOrCreateEmailFolder(applicationRef);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        NodeRef emailFolderRef = getOrCreateEmailFolder(applicationRef);
 
         //setting filename
-        String fileName = null;
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS");  //todo: Hvad vil vi have filen til at hedde?
-            fileName = sdf.format(mimeMessage.getSentDate()) + ".txt";
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS");  //todo: Hvad vil vi have filen til at hedde?
+        String fileName = sdf.format(mimeMessage.getSentDate()) + ".txt";
 
         //creating the file
         Map<QName, Serializable> properties = new HashMap<>();
@@ -1334,7 +1339,7 @@ public class FoundationBean {
             printWriter.println();
             printWriter.println(mimeMessage.getContent());
         } catch (IOException | MessagingException e) {
-            e.printStackTrace();
+            throw e;
         }
 
     }
@@ -1364,13 +1369,8 @@ public class FoundationBean {
      * @param applicationRef The NodeRef for the Application
      * @return A List of email NodeRefs
      */
-    public List<NodeRef> getApplicationEmails(NodeRef applicationRef) {
-        NodeRef emailFolder = null;
-        try {
-            emailFolder = getOrCreateEmailFolder(applicationRef);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public List<NodeRef> getApplicationEmails(NodeRef applicationRef) throws Exception {
+        NodeRef emailFolder = getOrCreateEmailFolder(applicationRef);
 
         List<NodeRef> emailRefs = new ArrayList<>();
 
@@ -1391,7 +1391,7 @@ public class FoundationBean {
      * application.
      */
     public NodeRef getOrCreateEmailFolder(NodeRef applicationRef) throws Exception {
-        NodeRef emailFolderRef = null;
+        NodeRef emailFolderRef;
 
         List<ChildAssociationRef> childAssociationRefs = serviceRegistry.getNodeService().getChildAssocs(applicationRef, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
 

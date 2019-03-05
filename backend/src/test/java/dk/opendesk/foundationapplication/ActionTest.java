@@ -1,8 +1,6 @@
 package dk.opendesk.foundationapplication;
 
-import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.FoundationAction;
-import dk.opendesk.foundationapplication.DAO.StateReference;
+import dk.opendesk.foundationapplication.DAO.*;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;

@@ -22,7 +22,8 @@ import java.util.*;
 import org.alfresco.error.AlfrescoRuntimeException;
 
 public class EmailAction extends MailActionExecuter {
-    public static final String EXCEPTION_SEND_EMAIL_FAIL = "email.action.exception";
+    public static final String EXCEPTION_SEND_EMAIL_FAIL = "email.action.send.exception";
+    public static final String EXCEPTION_SAVE_EMAIL_FAIL = "email.action.save.exception";
 
     private static final String RECIPIENT = "recipient";
     private static final String EMAIL_TYPE = "emailTemplateType";
@@ -82,7 +83,7 @@ public class EmailAction extends MailActionExecuter {
         try {
             foundationBean.saveEmailCopy((MimeMessage) message.getFirst(), (NodeRef) message.getSecond());
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new AlfrescoRuntimeException(EXCEPTION_SAVE_EMAIL_FAIL);
         }
         super.onSend();
     }

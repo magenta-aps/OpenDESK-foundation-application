@@ -50,6 +50,7 @@ public class VersionTest extends AbstractTestClass {
 
         NodeRef appRef = TestUtils.application1;
         String origMail = foundationBean.getApplication(appRef).emailTo().getValue();
+        String origStateTitle = foundationBean.getApplication(appRef).getState().getTitle();
 
         assertEquals(1,versionService.getVersionHistory(appRef).getAllVersions().size());
 
@@ -60,17 +61,17 @@ public class VersionTest extends AbstractTestClass {
         // --- FIRST CHANGE --- //
         if (logger.isDebugEnabled()) logger.debug("\nChange #1: Changing the 'description' property\n");
 
-        Application change1 = new Application();
-        change1.parseRef(appRef);
-        change1.emailTo().setValue("First change");
+        Application change1 = TestUtils.buildChange(foundationBean.getApplication(appRef))
+                .changeField("8").setValue("First change").done()
+                .build();
         foundationBean.updateApplication(change1);
 
         //There should now be two versions in the history
+        if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
         Application headVersion = foundationBean.getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(2, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals("First change", headVersion.emailTo().getValue());
 
-        if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
 
 
         // --- SECOND CHANGE --- //
@@ -95,12 +96,12 @@ public class VersionTest extends AbstractTestClass {
         // --- THIRD CHANGE --- //
         if (logger.isDebugEnabled()) logger.debug("\nChange #3: Changing both state and description\n");
 
-        Application change3 = new Application();
-        change3.parseRef(appRef);
+        Application change3 = TestUtils.buildChange(foundationBean.getApplication(appRef))
+                .changeField("8").setValue("Third change").done()
+                .build();
         StateReference stateAccepted = new StateReference();
         stateAccepted.parseRef(TestUtils.stateAcceptedRef);
         change3.setState(stateAccepted);
-        change3.emailTo().setValue("Third change");
         foundationBean.updateApplication(change3);
 
         //There should now be three versions and the newest one should be on state 'accepted' and have description = 'Third change'
@@ -132,25 +133,36 @@ public class VersionTest extends AbstractTestClass {
         ApplicationChange appChange3 = appChanges.get(1);
         ApplicationChange appChange0 = appChanges.get(4);
 
-        assertEquals(appChange4.getChangeType(), APPLICATION_CHANGE_DELETED);
-        assertEquals(appChange4.getChanges().size(), 1);
-        assertEquals(appChange4.getChanges().get(0).getChangedField(), STATE_PARAM_TITLE);
-        assertEquals(appChange4.getChanges().get(0).getChangeType(), APPLICATION_CHANGE_DELETED);
+        assertEquals(APPLICATION_CHANGE_DELETED, appChange4.getChangeType());
+        assertEquals(4, appChange4.getChanges().size());
+        assertEquals("Branch", appChange4.getChanges().get(0).getChangedField());
+        assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, appChange4.getChanges().get(0).getChangeType());
 
-        assertEquals(appChange3.getChangeType(), APPLICATION_CHANGE_UPDATE);
-        assertEquals(appChange3.getChanges().size(), 2);
-        assertEquals(appChange3.getChanges().get(0).getChangedField(), STATE_PARAM_TITLE);
-        assertEquals(appChange3.getChanges().get(0).getChangeType(), APPLICATION_CHANGE_UPDATE_ASSOCIATION);
+        assertEquals(APPLICATION_CHANGE_UPDATE, appChange3.getChangeType());
+        assertEquals(2, appChange3.getChanges().size());
+        assertEquals("State", appChange3.getChanges().get(1).getChangedField());
+        assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, appChange3.getChanges().get(1).getChangeType());
 
         assertEquals(appChange0.getChangeType(), APPLICATION_CHANGE_CREATED);
-        assertEquals(appChange0.getChanges().size(), 3);
-        assertEquals(appChange0.getChanges().get(0).getChangedField(), STATE_PARAM_TITLE);
-        assertEquals(appChange0.getChanges().get(0).getChangeType(), APPLICATION_CHANGE_CREATED);
 
-
-        for (ApplicationChange change : appChanges) {
-            System.out.println(change);
+        ApplicationChangeUnit stateChange = null;
+        ApplicationChangeUnit emailChange = null;
+        for (ApplicationChangeUnit unit : appChange0.getChanges()) {
+            if (unit.getChangedField().equals("State")) {
+                stateChange = unit;
+            }
+            if (unit.getChangedField().equals("Email")) {
+                emailChange = unit;
+            }
         }
+        assertNotNull(stateChange);
+        assertEquals(origStateTitle, stateChange.getNewValue());
+        assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, stateChange.getChangeType());
+
+        assertNotNull(emailChange);
+        assertEquals("lars@larsen.org", emailChange.getNewValue());
+        assertEquals(APPLICATION_CHANGE_UPDATE_PROP, emailChange.getChangeType());
+
 
         //todo : print ogsaa emailchanges og faa dem med i testen
 
