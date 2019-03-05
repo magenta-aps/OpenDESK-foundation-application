@@ -1302,18 +1302,13 @@ public class FoundationBean {
         }
     }
 
-    public NodeRef getOrCreateFolder(NodeRef applicationRef, String folderName){
-        NodeRef folder = null;
-        try {
-            folder = serviceRegistry.getNodeService().getChildByName(applicationRef, getODFName(folderName), "cm:" + folderName);
-            if (folder == null) {
-                ChildAssociationRef childRef = serviceRegistry.getNodeService().createNode(applicationRef, getODFName(folderName), getCMName(folderName), getCMName("Folder"));
-                folder = childRef.getChildRef();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+    public NodeRef getOrCreateFolder(NodeRef applicationRef, String folderName) throws Exception {
+        NodeRef folder = serviceRegistry.getNodeService().getChildByName(applicationRef, getODFName(folderName), "cm:" + folderName);
+        if (folder == null) {
+            ChildAssociationRef childRef = serviceRegistry.getNodeService().createNode(applicationRef, getODFName(folderName), getCMName(folderName), getCMName("Folder"));
+            folder = childRef.getChildRef();
         }
+
         return folder;
     }
 
@@ -1323,23 +1318,13 @@ public class FoundationBean {
      * @param mimeMessage The message to be saved
      * @param applicationRef NodeRef to the application that the email shall be saved on
      */
-    public void saveEmailCopy(MimeMessage mimeMessage, NodeRef applicationRef) {
+    public void saveEmailCopy(MimeMessage mimeMessage, NodeRef applicationRef) throws Exception {
 
-        NodeRef emailFolderRef = null;
-        try {
-            emailFolderRef = getOrCreateEmailFolder(applicationRef);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        NodeRef emailFolderRef = getOrCreateEmailFolder(applicationRef);
 
         //setting filename
-        String fileName = null;
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS");  //todo: Hvad vil vi have filen til at hedde?
-            fileName = sdf.format(mimeMessage.getSentDate()) + ".txt";
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS");  //todo: Hvad vil vi have filen til at hedde?
+        String fileName = sdf.format(mimeMessage.getSentDate()) + ".txt";
 
         //creating the file
         Map<QName, Serializable> properties = new HashMap<>();
@@ -1360,7 +1345,7 @@ public class FoundationBean {
             printWriter.println();
             printWriter.println(mimeMessage.getContent());
         } catch (IOException | MessagingException e) {
-            e.printStackTrace();
+            throw e;
         }
 
     }
@@ -1389,13 +1374,8 @@ public class FoundationBean {
      * @param applicationRef The NodeRef for the Application
      * @return A List of email NodeRefs
      */
-    public List<NodeRef> getApplicationEmails(NodeRef applicationRef) {
-        NodeRef emailFolder = null;
-        try {
-            emailFolder = getOrCreateEmailFolder(applicationRef);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public List<NodeRef> getApplicationEmails(NodeRef applicationRef) throws Exception {
+        NodeRef emailFolder = getOrCreateEmailFolder(applicationRef);
 
         List<NodeRef> emailRefs = new ArrayList<>();
 
@@ -1414,7 +1394,7 @@ public class FoundationBean {
      * @throws Exception if there are more than one email folder on the application.
      */
     public NodeRef getOrCreateEmailFolder(NodeRef applicationRef) throws Exception {
-        NodeRef emailFolderRef = null;
+        NodeRef emailFolderRef;
 
         List<ChildAssociationRef> childAssociationRefs = serviceRegistry.getNodeService().getChildAssocs(applicationRef, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
 
