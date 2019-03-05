@@ -17,6 +17,7 @@ import java.util.List;
 public class AddBlocksToApplicationAction extends ActionExecuterAbstractBase {
 
     public static final String EXCEPTION_ADD_BLOCKS_FAIL = "addBlocks.action.exception";
+    public static final String EXCEPTION_BLOCK_OVERLAP = "Block with same id already exists";
     public static final String PARAM_BLOCKS = "blockList";
 
     private FoundationBean foundationBean;
@@ -30,9 +31,19 @@ public class AddBlocksToApplicationAction extends ActionExecuterAbstractBase {
 
         try {
             ApplicationSummary application = foundationBean.getApplicationSummary(actionedUponNodeRef);
+            List<ApplicationPropertiesContainer> oldBlocks = application.getBlocks();
             List<ApplicationPropertiesContainer> newBlocks = (List<ApplicationPropertiesContainer>) action.getParameterValue(PARAM_BLOCKS);
-            newBlocks.addAll(application.getBlocks());
 
+            //checking if the new blocks already exists
+            for (ApplicationPropertiesContainer oldBlock : oldBlocks) {
+                for (ApplicationPropertiesContainer newBlock : newBlocks) {
+                    if (oldBlock.getId() == newBlock.getId()) {
+                        throw new AlfrescoRuntimeException(EXCEPTION_BLOCK_OVERLAP);
+                    }
+                }
+            }
+
+            //adding the new blocks
             Application change = new Application();
             change.parseRef(actionedUponNodeRef);
             change.setBlocks(newBlocks);
