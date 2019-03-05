@@ -317,7 +317,7 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals("Short Description", description.getLabel());
         assertEquals("Give me money", description.getValue());
         
-        Application change = TestUtils.buildChange(beforeChange).changeField(description.getId()).setValue(newDescription).done().build();
+        Application change = Utilities.buildChange(beforeChange).changeField(description.getId()).setValue(newDescription).done().build();
         foundationBean.updateApplication(change);
         
         Application afterChange = foundationBean.getApplication(TestUtils.application1);
@@ -367,7 +367,7 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals("Short Description", description.getLabel());
         assertEquals("Give me money", description.getValue());
 
-        Application change = TestUtils.buildChange(beforeChange).changeField(description.getId()).setValue(newDescription).done().build();
+        Application change = Utilities.buildChange(beforeChange).changeField(description.getId()).setValue(newDescription).done().build();
         post(change, TestUtils.application1.getId());
 
         Application afterChange = get(Application.class, TestUtils.application1.getId());
