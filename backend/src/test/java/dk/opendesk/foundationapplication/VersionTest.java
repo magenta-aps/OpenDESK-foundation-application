@@ -59,7 +59,7 @@ public class VersionTest extends AbstractTestClass {
         // --- FIRST CHANGE --- //
         if (logger.isDebugEnabled()) logger.debug("\nChange #1: Changing the 'description' property\n");
 
-        Application change1 = TestUtils.buildChange(getApplicationBean().getApplication(appRef))
+        Application change1 = Utilities.buildChange(getApplicationBean().getApplication(appRef))
                 .changeField("8").setValue("First change").done()
                 .build();
         getApplicationBean().updateApplication(change1);
@@ -94,7 +94,7 @@ public class VersionTest extends AbstractTestClass {
         // --- THIRD CHANGE --- //
         if (logger.isDebugEnabled()) logger.debug("\nChange #3: Changing both state and description\n");
 
-        Application change3 = TestUtils.buildChange(getApplicationBean().getApplication(appRef))
+        Application change3 = Utilities.buildChange(getApplicationBean().getApplication(appRef))
                 .changeField("8").setValue("Third change").done()
                 .build();
         StateReference stateAccepted = new StateReference();

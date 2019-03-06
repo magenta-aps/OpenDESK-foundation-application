@@ -26,7 +26,7 @@ public class TestAction extends ActionExecuterAbstractBase {
     protected void executeImpl(Action action, NodeRef actionedUponNodeRef) {
 
         try {
-            Application change = TestUtils.buildChange(applicationBean.getApplication(actionedUponNodeRef))
+            Application change = Utilities.buildChange(applicationBean.getApplication(actionedUponNodeRef))
                     .changeField("8").setValue(action.getParameterValue("executionMessage")).done()
                     .build();
             applicationBean.updateApplication(change);

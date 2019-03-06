@@ -47,7 +47,10 @@ public class EmailTest extends AbstractTestClass {
         TestUtils.wipeData(getServiceRegistry());
         TestUtils.setupSimpleFlow(getServiceRegistry());
 
-        Application change = TestUtils.buildChange(getApplicationBean().getApplication(TestUtils.application1)).changeField("8").setValue(TEST_ADDRESSEE).done().build();
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
+
+        Application change = Utilities.buildChange(getApplicationBean().getApplication(TestUtils.application1)).changeField("8").setValue(TEST_ADDRESSEE).done().build();
         getApplicationBean().updateApplication(change);
     }
 
