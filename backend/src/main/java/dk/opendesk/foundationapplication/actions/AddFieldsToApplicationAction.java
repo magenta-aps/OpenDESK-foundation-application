@@ -1,5 +1,6 @@
 package dk.opendesk.foundationapplication.actions;
 
+import com.benfante.jslideshare.App;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
@@ -33,50 +34,59 @@ public class AddFieldsToApplicationAction extends ActionExecuterAbstractBase {
     @Override
     protected void executeImpl(Action action, NodeRef actionedUponNodeRef) {
 
+        Application application;
         try {
-            Application application = foundationBean.getApplication(actionedUponNodeRef);
-            String blockId = (String) action.getParameterValue(PARAM_BLOCK_ID);
-
-            //finding the block
-            ApplicationPropertiesContainer oldBlock = null;
-            for (ApplicationPropertiesContainer b : application.getBlocks()) {
-                if (blockId.equals(b.getId())) {
-                    oldBlock = b;
-                }
-            }
-            if (oldBlock == null) {
-                throw new AlfrescoRuntimeException(EXCEPTION_BLOCK_NOT_FOUND);
-            }
-
-            //checking if the fields already exists
-            List<ApplicationPropertyValue> newFields = (List<ApplicationPropertyValue>) action.getParameterValue(PARAM_FIELDS);
-            List<ApplicationPropertyValue> oldFields = oldBlock.getFields();
-            for (ApplicationPropertyValue field : newFields) {
-                if (oldFields.contains(field)) {
-                    throw new AlfrescoRuntimeException(EXCEPTION_FIELD_OVERLAP);
-                }
-            }
-
-            //adding the fields
-            ApplicationPropertiesContainer newBlock = new ApplicationPropertiesContainer();
-            newBlock.setId(blockId);
-            newBlock.setFields(newFields);
-
-            Application change = new Application();
-            change.parseRef(actionedUponNodeRef);
-            change.setBlocks(Collections.singletonList(newBlock));
-            foundationBean.getApplication(actionedUponNodeRef);
-
-
+            application = foundationBean.getApplication(actionedUponNodeRef);
         } catch (Exception e) {
-            throw new AlfrescoRuntimeException(EXCEPTION_ADD_FIELDS_FAIL);
+            throw new AlfrescoRuntimeException(EXCEPTION_ADD_FIELDS_FAIL, e);
         }
+        String blockId = (String) action.getParameterValue(PARAM_BLOCK_ID);
+
+        //finding the block
+        ApplicationPropertiesContainer oldBlock = null;
+        for (ApplicationPropertiesContainer b : application.getBlocks()) {
+            if (blockId.equals(b.getId())) {
+                oldBlock = b;
+            }
+        }
+        if (oldBlock == null) {
+            throw new AlfrescoRuntimeException(EXCEPTION_BLOCK_NOT_FOUND);
+        }
+
+        //checking if the fields already exists
+        List<ApplicationPropertyValue> newFields = (List<ApplicationPropertyValue>) action.getParameterValue(PARAM_FIELDS);
+        List<ApplicationPropertyValue> oldFields = oldBlock.getFields();
+
+        if (oldFields != null) {
+            for (ApplicationPropertyValue newField : newFields) {
+                for (ApplicationPropertyValue oldField : oldFields) {
+                    if (newField.getId().equals(oldField.getId())) {
+                        throw new AlfrescoRuntimeException(EXCEPTION_FIELD_OVERLAP);
+                    }
+                }
+            }
+        }
+
+        //adding the fields
+        ApplicationPropertiesContainer newBlock = new ApplicationPropertiesContainer();
+        newBlock.setId(blockId);
+        newBlock.setFields(newFields);
+
+        Application change = new Application();
+        change.parseRef(actionedUponNodeRef);
+        change.setBlocks(Collections.singletonList(newBlock));
+        try {
+            foundationBean.updateApplication(change);
+        } catch (Exception e) {
+            throw new AlfrescoRuntimeException(EXCEPTION_ADD_FIELDS_FAIL, e);
+        }
+
 
     }
 
     @Override
     protected void addParameterDefinitions(List<ParameterDefinition> paramList) {
-        paramList.add(new ParameterDefinitionImpl(PARAM_BLOCK_ID, DataTypeDefinition.TEXT, false, getParamDisplayLabel(PARAM_BLOCK_ID)));
-        paramList.add(new ParameterDefinitionImpl(PARAM_FIELDS, DataTypeDefinition.ANY, false, getParamDisplayLabel(PARAM_FIELDS)));
+        paramList.add(new ParameterDefinitionImpl(PARAM_BLOCK_ID, DataTypeDefinition.TEXT, true, getParamDisplayLabel(PARAM_BLOCK_ID)));
+        paramList.add(new ParameterDefinitionImpl(PARAM_FIELDS, DataTypeDefinition.ANY, true, getParamDisplayLabel(PARAM_FIELDS)));
     }
 }
