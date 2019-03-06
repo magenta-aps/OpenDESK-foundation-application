@@ -118,8 +118,7 @@ public final class Utilities {
 
     public static final String ACTION_NAME_ADD_BLOCKS = "addBlocks";
     public static final String ACTION_NAME_ADD_FIELDS = "addFields";
-    public static final String ACTION_NAME_EMAIL = "email";
-    public static final String ACTION_BEAN_NAME_EMAIL = "foundationMail";
+    public static final String ACTION_NAME_EMAIL = "foundationMail";
 
     public static final String ASPECT_ON_CREATE = "onCreate";
     public static final String ASPECT_BEFORE_DELETE = "beforeDelete";

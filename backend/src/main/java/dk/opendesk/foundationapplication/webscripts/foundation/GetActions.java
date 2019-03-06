@@ -18,7 +18,7 @@ public class GetActions extends JacksonBackedWebscript {
     protected List<FoundationAction> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         List<FoundationAction> actions = new ArrayList<>();
 
-        actions.add(new FoundationAction(ACTION_NAME_EMAIL, getActionBean().getActionParameters(ACTION_BEAN_NAME_EMAIL)));
+        actions.add(new FoundationAction(ACTION_NAME_EMAIL, getActionBean().getActionParameters(ACTION_NAME_EMAIL)));
         actions.add(new FoundationAction(ACTION_NAME_ADD_BLOCKS, getActionBean().getActionParameters(ACTION_NAME_ADD_BLOCKS)));
         actions.add(new FoundationAction(ACTION_NAME_ADD_FIELDS, getActionBean().getActionParameters(ACTION_NAME_ADD_FIELDS)));
 

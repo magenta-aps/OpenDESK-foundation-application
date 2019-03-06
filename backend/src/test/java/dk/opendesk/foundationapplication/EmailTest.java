@@ -12,10 +12,12 @@ import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.json.JSONObject;
 
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -67,7 +69,7 @@ public class EmailTest extends AbstractTestClass {
     //todo this test is not finished, currently only works on astrid@localhost
     public void testEmailAction() throws Exception {
         assertTrue(mailServer.getMails().isEmpty());
-        Action action = getServiceRegistry().getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
+        Action action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
@@ -78,7 +80,7 @@ public class EmailTest extends AbstractTestClass {
     //todo this test is not finished, currently only works on astrid@localhost
     public void testEmailCopying() throws Exception {
         assertTrue(mailServer.getMails().isEmpty());
-        Action action = getServiceRegistry().getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
+        Action action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
         action.setParameterValue(PARAM_FROM, TEST_ADDRESSEE);
@@ -134,14 +136,14 @@ public class EmailTest extends AbstractTestClass {
     public void testSendEmail() throws Exception {
         assertEquals(0, mailServer.getMails().size());
         //sending two emails
-        Action action = getServiceRegistry().getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
+        Action action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
         assertEquals(1, mailServer.getMails().size());
         assertEquals("hallo hallo", mailServer.getMails().get(0).getSubject());
         Thread.sleep(2000);
-        action = getServiceRegistry().getActionService().createAction(ACTION_BEAN_NAME_EMAIL);
+        action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
@@ -250,25 +252,31 @@ public class EmailTest extends AbstractTestClass {
         assertTrue(getServiceRegistry().getNodeService().exists(emailTemplateFolder));
     }
 
-    /*
 
     public void testEmailSavedToHistory() throws Exception {
-        foundationBean.saveAction("foundationMail", TestUtils.stateAccessRef, getODFName(ASPECT_ON_CREATE), null);
+        //System.out.println(getServiceRegistry().getActionService().getActions(TestUtils.stateAccessRef));
+        //getActionBean().saveAction("foundationMail", TestUtils.stateAccessRef, getODFName(ASPECT_ON_CREATE), Collections.singletonMap("subject", "testEmailSavedToHistory"));
+
+        //System.out.println(getServiceRegistry().getActionService().getActions(TestUtils.stateAccessRef));
+
 
         JSONObject data = new JSONObject();
         data.put("stateRef", TestUtils.stateAccessRef);
         data.put("aspect", ASPECT_ON_CREATE);
+        data.put("subject", "testEmailSavedToHistory");
+
+        data.put(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         post(data, "/action/" + ACTION_NAME_EMAIL);
-        System.out.println(foundationBean.getApplicationHistory(TestUtils.application1));
+        //System.out.println(getApplicationBean().getApplicationHistory(TestUtils.application1));
+
+        //System.out.println(getServiceRegistry().getActionService().getActions(TestUtils.stateAccessRef));
 
         Application change = new Application();
         change.parseRef(TestUtils.application1);
         StateReference stateRef = new StateReference();
         stateRef.parseRef(TestUtils.stateAccessRef);
         change.setState(stateRef);
-        foundationBean.updateApplication(change);
-
-        foundationBean.getApplicationHistory(TestUtils.application1);
+        getApplicationBean().updateApplication(change);
+        //getApplicationBean().getApplicationHistory(TestUtils.application1);
     }
-     */
 }
