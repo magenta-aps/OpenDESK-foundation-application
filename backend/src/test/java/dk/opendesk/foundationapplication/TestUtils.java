@@ -91,8 +91,6 @@ public final class TestUtils {
     ;
     
     public synchronized static void wipeData(ServiceRegistry serviceRegistry) throws Exception {
-        NodeService nodeService = serviceRegistry.getNodeService();
-
         Utilities.wipeData(serviceRegistry);
 
         isInitiated = false;
