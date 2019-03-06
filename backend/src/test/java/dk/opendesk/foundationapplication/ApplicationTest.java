@@ -38,8 +38,6 @@ import org.alfresco.service.cmr.repository.NodeService;
  * @author martin
  */
 public class ApplicationTest extends AbstractTestClass{
-    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public ApplicationTest() {
         super("/foundation/application");
@@ -49,17 +47,17 @@ public class ApplicationTest extends AbstractTestClass{
     protected void setUp() throws Exception {
         super.setUp();
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        TestUtils.wipeData(serviceRegistry);
-        TestUtils.setupSimpleFlow(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtils.wipeData(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
     }
     
     public void testAddApplication() throws Exception{
-        assertEquals(3, foundationBean.getApplicationSummaries().size());
+        assertEquals(3, getApplicationBean().getApplicationSummaries().size());
         
         String applicationTitle = "More cats for dogs";
         
@@ -101,11 +99,11 @@ public class ApplicationTest extends AbstractTestClass{
         assertNotNull(reference);
         assertEquals(applicationTitle, reference.getTitle());
         
-        assertEquals(4, foundationBean.getApplicationSummaries().size());
+        assertEquals(4, getApplicationBean().getApplicationSummaries().size());
     }
     
     public void testAddTestApplication() throws Exception{
-        assertEquals(3, foundationBean.getApplicationSummaries().size());
+        assertEquals(3, getApplicationBean().getApplicationSummaries().size());
         
         ApplicationReference input = new ApplicationReference();
         input.setTitle("Hello");
@@ -114,17 +112,17 @@ public class ApplicationTest extends AbstractTestClass{
         assertNotNull(reference);
         assertEquals("Hello", reference.getTitle());
         
-        assertEquals(4, foundationBean.getApplicationSummaries().size());
+        assertEquals(4, getApplicationBean().getApplicationSummaries().size());
     }
     
     public void testGetApplicationFromSummary() throws Exception{
-        for(ApplicationSummary summary : foundationBean.getApplicationSummaries()){
+        for(ApplicationSummary summary : getApplicationBean().getApplicationSummaries()){
             Application application = get(Application.class, summary.getNodeID());
             assertEquals(summary.getTitle(), application.getTitle());
         }
     }
     public void testGetApplicationState() throws Exception{
-        Application application = foundationBean.getApplication(TestUtils.application1);
+        Application application = getApplicationBean().getApplication(TestUtils.application1);
         assertEquals(TestUtils.stateRecievedRef,application.getState().asNodeRef());
         assertEquals(TestUtils.workFlowRef,application.getWorkflow().asNodeRef());
     }
@@ -135,8 +133,8 @@ public class ApplicationTest extends AbstractTestClass{
         NodeRef newBudgetRef = TestUtils.budgetRef2;
         NodeRef app2Ref = TestUtils.application2;
         
-        Budget currentBudget = foundationBean.getBudget(currentBudgetRef);
-        Budget newBudget = foundationBean.getBudget(newBudgetRef);
+        Budget currentBudget = getBudgetBean().getBudget(currentBudgetRef);
+        Budget newBudget = getBudgetBean().getBudget(newBudgetRef);
         
         Long expectedAmount = TestUtils.APPLICATION1_AMOUNT+TestUtils.APPLICATION2_AMOUNT;
         assertEquals(TestUtils.BUDGET1_AMOUNT, currentBudget.getAmountAvailable());
@@ -155,8 +153,8 @@ public class ApplicationTest extends AbstractTestClass{
         Application app = get(Application.class, app2Ref.getId());
         assertEquals(currentBudgetRef, app.getBudget().asNodeRef());
         assertEquals(stateAccessRef, app.getState().asNodeRef());
-        currentBudget = foundationBean.getBudget(currentBudgetRef);
-        newBudget = foundationBean.getBudget(newBudgetRef);
+        currentBudget = getBudgetBean().getBudget(currentBudgetRef);
+        newBudget = getBudgetBean().getBudget(newBudgetRef);
         
         expectedAmount = TestUtils.BUDGET1_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
         assertEquals(expectedAmount, currentBudget.getAmountAvailable());
@@ -173,8 +171,8 @@ public class ApplicationTest extends AbstractTestClass{
 
         app = get(Application.class, app2Ref.getId());
         assertEquals(newBudgetRef, app.getBudget().asNodeRef());
-        currentBudget = foundationBean.getBudget(currentBudgetRef);
-        newBudget = foundationBean.getBudget(newBudgetRef);
+        currentBudget = getBudgetBean().getBudget(currentBudgetRef);
+        newBudget = getBudgetBean().getBudget(newBudgetRef);
         
         assertEquals(TestUtils.BUDGET1_AMOUNT, currentBudget.getAmountAvailable());
         expectedAmount = TestUtils.BUDGET2_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
@@ -266,11 +264,11 @@ public class ApplicationTest extends AbstractTestClass{
     }
 
     public void testDeleteApplication() throws Exception {
-        NodeService ns = serviceRegistry.getNodeService();
+        NodeService ns = getServiceRegistry().getNodeService();
 
         //before delete
-        List<ChildAssociationRef> applications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
-        List<ChildAssociationRef> deletedApplications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
+        List<ChildAssociationRef> applications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
+        List<ChildAssociationRef> deletedApplications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
 
         assertEquals(3, applications.size());
         assertEquals(0, deletedApplications.size());
@@ -280,11 +278,11 @@ public class ApplicationTest extends AbstractTestClass{
         assertFalse(ns.getTargetAssocs(applicationToRemove,qname -> true).size() == 0); //the application has associations (branch, budget, state)
 
         //removing application with foundationBean method
-        foundationBean.deleteApplication(applicationToRemove);
+        getApplicationBean().deleteApplication(applicationToRemove);
 
         //after delete
-        applications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
-        deletedApplications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
+        applications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
+        deletedApplications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
 
         assertEquals(2, applications.size());
         assertEquals(1, deletedApplications.size());
@@ -299,8 +297,8 @@ public class ApplicationTest extends AbstractTestClass{
         delete(String.class, applicationToRemove.getId());
 
         //after delete
-        applications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
-        deletedApplications = ns.getChildAssocs(foundationBean.getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
+        applications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
+        deletedApplications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
 
         assertEquals(1, applications.size());
         assertEquals(2, deletedApplications.size());
@@ -310,7 +308,7 @@ public class ApplicationTest extends AbstractTestClass{
     
     public void testUpdateApplication() throws Exception{
         String newDescription = "new description";
-        Application beforeChange = foundationBean.getApplication(TestUtils.application1);
+        Application beforeChange = getApplicationBean().getApplication(TestUtils.application1);
         ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
         ApplicationPropertyValue description = overview.getFields().get(1);
         assertEquals("Overview", overview.getLabel());
@@ -318,9 +316,9 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals("Give me money", description.getValue());
         
         Application change = TestUtils.buildChange(beforeChange).changeField(description.getId()).setValue(newDescription).done().build();
-        foundationBean.updateApplication(change);
+        getApplicationBean().updateApplication(change);
         
-        Application afterChange = foundationBean.getApplication(TestUtils.application1);
+        Application afterChange = getApplicationBean().getApplication(TestUtils.application1);
         assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
         
         for(int blk = 0 ; blk<beforeChange.getBlocks().size() ; blk++){
@@ -336,7 +334,7 @@ public class ApplicationTest extends AbstractTestClass{
         
     public void testUpdateFullApplication() throws Exception{
         String newDescription = "new description";
-        Application beforeChange = foundationBean.getApplication(TestUtils.application1);
+        Application beforeChange = getApplicationBean().getApplication(TestUtils.application1);
         ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
         ApplicationPropertyValue description = overview.getFields().get(1);
         assertEquals("Overview", overview.getLabel());
@@ -344,9 +342,9 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals("Give me money", description.getValue());
         
         description.setValue(newDescription);
-        foundationBean.updateApplication(beforeChange);
+        getApplicationBean().updateApplication(beforeChange);
         
-        Application afterChange = foundationBean.getApplication(TestUtils.application1);
+        Application afterChange = getApplicationBean().getApplication(TestUtils.application1);
         assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
         for(int blk = 0 ; blk<beforeChange.getBlocks().size() ; blk++){
             for(int fld = 0 ; fld<beforeChange.getBlocks().get(blk).getFields().size() ; fld++){

@@ -21,7 +21,7 @@ public class AddApplication extends JacksonBackedWebscript{
     @Override
     protected ApplicationReference doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         Application application = getRequestAs(Application.class);
-        return getFoundationBean().addNewApplication(application);
+        return getApplicationBean().addNewApplication(application);
     }
     
     

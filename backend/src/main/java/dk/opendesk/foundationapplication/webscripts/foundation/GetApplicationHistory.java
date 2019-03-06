@@ -11,6 +11,6 @@ public class GetApplicationHistory extends JacksonBackedWebscript {
     @Override
     protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         NodeRef appRef = new NodeRef(getUrlParams().get("applicationID"));
-        return getFoundationBean().getApplicationHistory(appRef);
+        return getApplicationBean().getApplicationHistory(appRef);
     }
 }

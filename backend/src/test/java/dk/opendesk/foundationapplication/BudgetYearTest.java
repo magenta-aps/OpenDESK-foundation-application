@@ -22,8 +22,6 @@ import org.alfresco.service.ServiceRegistry;
  * @author martin
  */
 public class BudgetYearTest extends AbstractTestClass{
-    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public BudgetYearTest() {
         super("/foundation/budgetYear");
@@ -33,18 +31,18 @@ public class BudgetYearTest extends AbstractTestClass{
     protected void setUp() throws Exception {
         super.setUp();
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        TestUtils.wipeData(serviceRegistry);
-        TestUtils.setupSimpleFlow(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtils.wipeData(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
     }
     
     public void testGetBudgetYears() throws Exception{
         List<BudgetYearSummary> summariesRest = get(List.class, BudgetYearSummary.class);
-        List<BudgetYearSummary> summaries = foundationBean.getBudgetYearSummaries();
+        List<BudgetYearSummary> summaries = getBudgetBean().getBudgetYearSummaries();
 
         containsSameElements(summaries, summariesRest);
         assertEquals(1, summariesRest.size());
@@ -105,7 +103,7 @@ public class BudgetYearTest extends AbstractTestClass{
         List<BudgetSummary> summaries = get(List.class, BudgetSummary.class, TestUtils.budgetYearRef1.getId()+"/budget");
         
          for(BudgetSummary summary : summaries){
-             Budget budget = foundationBean.getBudget(summary.asNodeRef());
+             Budget budget = getBudgetBean().getBudget(summary.asNodeRef());
             assertEquals(summary.getNodeRef(), budget.getNodeRef());
             assertEquals(summary.getAmountTotal(), budget.getAmountTotal());
             assertEquals(summary.getTitle(), budget.getTitle());

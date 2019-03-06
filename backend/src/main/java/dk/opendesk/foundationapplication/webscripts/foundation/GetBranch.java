@@ -22,7 +22,7 @@ public class GetBranch extends JacksonBackedWebscript{
         String branchID = getUrlParams().get("branchID");
         Reference ref = new Reference();
         ref.setNodeID(branchID);
-        return getFoundationBean().getBranch(ref.asNodeRef());
+        return getBranchBean().getBranch(ref.asNodeRef());
     }
     
 }

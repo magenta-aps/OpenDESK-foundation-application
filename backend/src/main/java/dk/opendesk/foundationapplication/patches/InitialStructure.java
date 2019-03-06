@@ -30,6 +30,7 @@ public class InitialStructure extends AbstractPatch {
     
     public static final String FOUNDATION_TAG = "odf";
     public static final String DATA_PATH = DICTIONARY_PATH+"/"+FOUNDATION_TAG+":"+DATA_NAME;
+    public static final String MAIL_TEMPLATE_PATH = DICTIONARY_PATH+"/cm:extensionwebscripts/cm:OpenDesk/cm:Templates/cm:Emails";
     
     public static final String STATE_RECIEVED_NAME = "recieved";
     public static final String STATE_ASSESS_NAME = "assesment";

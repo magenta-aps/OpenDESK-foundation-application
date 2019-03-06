@@ -25,7 +25,7 @@ public class UpdateBudget extends JacksonBackedWebscript {
         
         resolveNodeRef(budget, branchID);
         
-        getFoundationBean().updateBudget(budget);
+        getBudgetBean().updateBudget(budget);
         return new JSONObject().put("status", "OK");
     }
     

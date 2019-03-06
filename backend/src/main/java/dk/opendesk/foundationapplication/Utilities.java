@@ -5,12 +5,22 @@
  */
 package dk.opendesk.foundationapplication;
 
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.jmx.JmxReporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.JSON.ApplicationPropertyDeserializer;
 import dk.opendesk.foundationapplication.JSON.ApplicationPropertySerializer;
+import dk.opendesk.foundationapplication.beans.ActionBean;
+import dk.opendesk.foundationapplication.beans.ApplicationBean;
+import dk.opendesk.foundationapplication.beans.BranchBean;
+import dk.opendesk.foundationapplication.beans.BudgetBean;
+import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import dk.opendesk.foundationapplication.patches.InitialStructure;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +46,8 @@ import org.w3c.dom.Document;
  */
 public final class Utilities {
     private Utilities(){};
+    
+    private final static MetricRegistry METRICS = new MetricRegistry();
     
     public static final String FOUNDATION_MODEL_LOCATION="/alfresco/module/foundationapplication/model/foundation-model.xml";
     
@@ -108,11 +120,16 @@ public final class Utilities {
 
     public static final String APPLICATION_PARAM_BLOCKS = "applicationBlocks";
 
-    
     private static String foundationNameSpace = null;
+
+    static{
+        final JmxReporter reporter = JmxReporter.forRegistry(METRICS).build();
+        reporter.start();
+    }
     
-    
-    
+    public static MetricRegistry getMetrics(){
+        return METRICS;
+    }
     
     public static String getFoundationModelNameSpace() throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -147,6 +164,76 @@ public final class Utilities {
         return refs.get(0);
     }
     
+    public static void wipeData(ServiceRegistry serviceRegistry) throws Exception {
+        NodeService nodeService = serviceRegistry.getNodeService();
+
+        ActionBean actionBean = new ActionBean();
+        actionBean.setServiceRegistry(serviceRegistry);
+        ApplicationBean applicationBean = new ApplicationBean();
+        applicationBean.setServiceRegistry(serviceRegistry);
+        BranchBean branchBean = new BranchBean();
+        branchBean.setServiceRegistry(serviceRegistry);
+        BudgetBean budgetBean = new BudgetBean();
+        budgetBean.setServiceRegistry(serviceRegistry);
+        WorkflowBean workflowBean = new WorkflowBean();
+        workflowBean.setServiceRegistry(serviceRegistry);
+        
+        actionBean.setApplicationBean(applicationBean);
+        
+        applicationBean.setActionBean(actionBean);
+        applicationBean.setBranchBean(branchBean);
+        applicationBean.setBudgetBean(budgetBean);
+        applicationBean.setWorkflowBean(workflowBean);
+        
+        branchBean.setApplicationBean(applicationBean);
+        branchBean.setBudgetBean(budgetBean);
+        
+        budgetBean.setApplicationBean(applicationBean);
+        budgetBean.setWorkflowBean(workflowBean);
+        
+        workflowBean.setApplicationBean(applicationBean);
+        
+        
+        NodeRef dataRef = applicationBean.getDataHome();
+
+        for (NodeRef workflow : workflowBean.getWorkflows()) {
+            nodeService.removeChild(dataRef, workflow);
+        }
+
+        for (NodeRef budget : budgetBean.getBudgetYearRefs()) {
+            nodeService.removeChild(dataRef, budget);
+        }
+
+        for (NodeRef branch : branchBean.getBranches()) {
+            nodeService.removeChild(dataRef, branch);
+        }
+
+        for (ApplicationSummary application : applicationBean.getApplicationSummaries()) {
+            nodeService.removeChild(dataRef, application.asNodeRef());
+        }
+        for (ApplicationSummary application : applicationBean.getDeletedApplicationSummaries()) {
+            nodeService.removeChild(dataRef, application.asNodeRef());
+        }
+    }
+    
+    public static NodeRef getEmailTemplateDir(ServiceRegistry sr){
+        return getEmailTemplateDir(sr.getNodeService(), sr.getSearchService(), sr.getNamespaceService());
+    }
+    
+    public static NodeRef getEmailTemplateDir(NodeService nodeService, SearchService searchService, NamespaceService namespaceService){
+        NodeRef rootRef = nodeService.getRootNode(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
+        
+        List<NodeRef> refs = searchService.selectNodes(rootRef, InitialStructure.MAIL_TEMPLATE_PATH, null, namespaceService, false);
+        if (refs.size() > 1) {
+            throw new AlfrescoRuntimeException("Failed to create structure: Returned multiple refs for " + InitialStructure.DATA_PATH);
+        }
+        if (refs.size() == 0) {
+            throw new  AlfrescoRuntimeException("Failed to create structure: No refs returned for " + InitialStructure.MAIL_TEMPLATE_PATH);
+        }
+        
+        return refs.get(0);
+    }
+    
     public static synchronized QName getODFName(String name) throws Exception{
         if(foundationNameSpace == null){
             foundationNameSpace = getFoundationModelNameSpace();
@@ -161,6 +248,14 @@ public final class Utilities {
     public static boolean stringExists(String s){
         return s != null && !s.isEmpty();
     }
+    
+    public static synchronized Integer getCurrentApplicationID(ServiceRegistry sr) throws Exception{
+        NodeRef dataNode = getDataNode(sr);
+        Integer currentID = (Integer)sr.getNodeService().getProperty(dataNode, getODFName(DATA_PARAM_LASTID));
+        return currentID;
+    }
+    
+    
     
     public static synchronized Integer getNextApplicationID(ServiceRegistry sr) throws Exception{
         NodeRef dataNode = getDataNode(sr);

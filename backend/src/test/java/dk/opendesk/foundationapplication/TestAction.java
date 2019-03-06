@@ -2,6 +2,7 @@ package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.action.executer.ActionExecuterAbstractBase;
@@ -15,20 +16,20 @@ public class TestAction extends ActionExecuterAbstractBase {
 
     private static final String EXCEPTION_MESSAGE = "TestAction not properly executed";
 
-    private FoundationBean foundationBean;
+    private ApplicationBean applicationBean;
 
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
+    public void setApplicationBean(ApplicationBean applicationBean) {
+        this.applicationBean = applicationBean;
     }
 
     @Override
     protected void executeImpl(Action action, NodeRef actionedUponNodeRef) {
 
         try {
-            Application change = TestUtils.buildChange(foundationBean.getApplication(actionedUponNodeRef))
+            Application change = TestUtils.buildChange(applicationBean.getApplication(actionedUponNodeRef))
                     .changeField("8").setValue(action.getParameterValue("executionMessage")).done()
                     .build();
-            foundationBean.updateApplication(change);
+            applicationBean.updateApplication(change);
         } catch (Exception e) {
             throw new AlfrescoRuntimeException(EXCEPTION_MESSAGE);
         }

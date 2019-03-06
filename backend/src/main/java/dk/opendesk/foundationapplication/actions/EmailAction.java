@@ -3,7 +3,8 @@ package dk.opendesk.foundationapplication.actions;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.beans.ActionBean;
+import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.enums.Functional;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
 
@@ -29,10 +30,15 @@ public class EmailAction extends MailActionExecuter {
     private static final String EMAIL_TYPE = "emailTemplateType";
     private static ThreadLocal<Pair<MimeMessage,NodeRef>> threadLocal = new ThreadLocal<>();
 
-    private FoundationBean foundationBean;
+    private ApplicationBean applicationBean;
+    private ActionBean actionBean;
 
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
+    public void setApplicationBean(ApplicationBean applicationBean) {
+        this.applicationBean = applicationBean;
+    }
+
+    public void setActionBean(ActionBean actionBean) {
+        this.actionBean = actionBean;
     }
 
 
@@ -45,7 +51,7 @@ public class EmailAction extends MailActionExecuter {
     protected void executeImpl(final Action ruleAction, final NodeRef actionedUponNodeRef) {
 
         try {
-            Application application = foundationBean.getApplication(actionedUponNodeRef);
+            Application application = applicationBean.getApplication(actionedUponNodeRef);
 
             Map<String, Serializable> model = new HashMap<>();
             for(ApplicationPropertiesContainer block : application.getBlocks()){
@@ -81,7 +87,7 @@ public class EmailAction extends MailActionExecuter {
     protected void onSend() {
         Pair message = threadLocal.get();
         try {
-            foundationBean.saveEmailCopy((MimeMessage) message.getFirst(), (NodeRef) message.getSecond());
+            actionBean.saveEmailCopy((MimeMessage) message.getFirst(), (NodeRef) message.getSecond());
         } catch (Exception e) {
             throw new AlfrescoRuntimeException(EXCEPTION_SAVE_EMAIL_FAIL);
         }

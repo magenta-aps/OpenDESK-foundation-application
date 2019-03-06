@@ -19,7 +19,7 @@ public class GetEmails extends JacksonBackedWebscript {
         Reference appRef = new Reference();
         appRef.setNodeID(applicationId);
         List<String> emailRefs= new ArrayList<>();
-        for (NodeRef ref : getFoundationBean().getApplicationEmails(appRef.asNodeRef())) {
+        for (NodeRef ref : getApplicationBean().getApplicationEmails(appRef.asNodeRef())) {
             emailRefs.add(ref.getId());
         }
         return emailRefs;

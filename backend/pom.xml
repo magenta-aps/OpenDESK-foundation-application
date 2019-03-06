@@ -30,6 +30,7 @@
         <jdk>1.8</jdk>
         <alfresco.version>5.1.g</alfresco.version>
         <jackson.version>2.9.7</jackson.version>
+        <metrics.version>4.0.5</metrics.version>
         <!-- This control the root logging level for all apps uncomment and change, defaults to WARN
             <app.log.root.level>WARN</app.log.root.level>
         -->
@@ -97,6 +98,17 @@
             <artifactId>repo</artifactId>
             <version>1.3.4</version>
             <type>jar</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>${metrics.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jmx</artifactId>
+            <version>${metrics.version}</version>
         </dependency>
         
         <dependency>

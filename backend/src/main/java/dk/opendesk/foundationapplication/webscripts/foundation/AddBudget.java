@@ -24,7 +24,7 @@ public class AddBudget extends JacksonBackedWebscript {
         BudgetYearReference budgetYear = new BudgetYearReference();
         budgetYear.setNodeID(budgetYearID);
         Budget budget = getRequestAs(Budget.class);
-        return Reference.from(getFoundationBean().addNewBudget(budgetYear.asNodeRef(), budget.getTitle(), budget.getTitle(), budget.getAmountTotal()));
+        return Reference.from(getBudgetBean().addNewBudget(budgetYear.asNodeRef(), budget.getTitle(), budget.getTitle(), budget.getAmountTotal()));
     }
     
     

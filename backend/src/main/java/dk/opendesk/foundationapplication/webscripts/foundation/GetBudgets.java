@@ -23,7 +23,7 @@ public class GetBudgets extends JacksonBackedWebscript{
         String budgetYearID = getUrlParams().get("budgetYearID");
         BudgetYearReference budgetYear = new BudgetYearReference();
         budgetYear.setNodeID(budgetYearID);
-        List<BudgetSummary> budgets = getFoundationBean().getBudgetSummaries(budgetYear);
+        List<BudgetSummary> budgets = getBudgetBean().getBudgetSummaries(budgetYear);
         return budgets;
     }
     

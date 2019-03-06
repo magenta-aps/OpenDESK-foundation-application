@@ -18,8 +18,6 @@ import org.alfresco.service.ServiceRegistry;
  * @author martin
  */
 public class ActiveWorkflowsTest extends AbstractTestClass{
-    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public ActiveWorkflowsTest() {
         super("/foundation/activeworkflow");
@@ -29,17 +27,17 @@ public class ActiveWorkflowsTest extends AbstractTestClass{
     protected void setUp() throws Exception {
         super.setUp();
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        TestUtils.wipeData(serviceRegistry);
-        TestUtils.setupSimpleFlow(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtils.wipeData(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
     }
     
     public void testActiveWorkflows() throws Exception{
-        List<WorkflowSummary> beanSummaries = foundationBean.getWorkflowSummaries();
+        List<WorkflowSummary> beanSummaries = getWorkflowBean().getWorkflowSummaries();
         assertEquals(1, beanSummaries.size());
         assertEquals(TestUtils.WORKFLOW_NAME+TestUtils.TITLE_POSTFIX, beanSummaries.get(0).getTitle());
         

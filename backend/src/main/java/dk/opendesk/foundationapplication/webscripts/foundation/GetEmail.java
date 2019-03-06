@@ -16,6 +16,6 @@ public class GetEmail extends JacksonBackedWebscript {
         Reference emailRef = new Reference();
         appRef.setNodeID(applicationId);
         emailRef.setNodeID(emailId);
-        return getFoundationBean().getEmail(appRef.asNodeRef(), emailRef.asNodeRef());
+        return getActionBean().getEmail(appRef.asNodeRef(), emailRef.asNodeRef());
     }
 }

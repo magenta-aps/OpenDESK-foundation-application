@@ -9,7 +9,12 @@ import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
+import dk.opendesk.foundationapplication.beans.ActionBean;
+import dk.opendesk.foundationapplication.beans.ApplicationBean;
+import dk.opendesk.foundationapplication.beans.BranchBean;
+import dk.opendesk.foundationapplication.beans.BudgetBean;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
@@ -88,29 +93,7 @@ public final class TestUtils {
     public synchronized static void wipeData(ServiceRegistry serviceRegistry) throws Exception {
         NodeService nodeService = serviceRegistry.getNodeService();
 
-        FoundationBean foundationBean = new FoundationBean();
-        foundationBean.setServiceRegistry(serviceRegistry);
-        NodeRef dataRef = foundationBean.getDataHome();
-
-        for (NodeRef workflow : foundationBean.getWorkflows()) {
-            nodeService.removeChild(dataRef, workflow);
-        }
-
-        for (NodeRef budgetYear : foundationBean.getBudgetYearRefs()) {
-            nodeService.removeChild(dataRef, budgetYear);
-        }
-
-        for (NodeRef branch : foundationBean.getBranches()) {
-            nodeService.removeChild(dataRef, branch);
-        }
-
-        for (ApplicationSummary application : foundationBean.getApplicationSummaries()) {
-            nodeService.removeChild(dataRef, application.asNodeRef());
-        }
-
-        for (ApplicationSummary application : foundationBean.getDeletedApplicationSummaries()) {
-            nodeService.removeChild(dataRef, application.asNodeRef());
-        }
+        Utilities.wipeData(serviceRegistry);
 
         isInitiated = false;
 
@@ -121,45 +104,68 @@ public final class TestUtils {
         if (isInitiated) {
             throw new RuntimeException("Test has already been initiated. Did you remember to call WipeData?");
         }
-        FoundationBean foundationBean = new FoundationBean();
-        foundationBean.setServiceRegistry(serviceRegistry);
+        ActionBean actionBean = new ActionBean();
+        actionBean.setServiceRegistry(serviceRegistry);
+        ApplicationBean applicationBean = new ApplicationBean();
+        applicationBean.setServiceRegistry(serviceRegistry);
+        BranchBean branchBean = new BranchBean();
+        branchBean.setServiceRegistry(serviceRegistry);
+        BudgetBean budgetBean = new BudgetBean();
+        budgetBean.setServiceRegistry(serviceRegistry);
+        WorkflowBean workflowBean = new WorkflowBean();
+        workflowBean.setServiceRegistry(serviceRegistry);
+        
+        actionBean.setApplicationBean(applicationBean);
+        
+        applicationBean.setActionBean(actionBean);
+        applicationBean.setBranchBean(branchBean);
+        applicationBean.setBudgetBean(budgetBean);
+        applicationBean.setWorkflowBean(workflowBean);
+        
+        branchBean.setApplicationBean(applicationBean);
+        branchBean.setBudgetBean(budgetBean);
+        
+        budgetBean.setApplicationBean(applicationBean);
+        budgetBean.setWorkflowBean(workflowBean);
+        
+        workflowBean.setApplicationBean(applicationBean);
 
         //Create workflow
-        workFlowRef = foundationBean.addNewWorkflow(WORKFLOW_NAME, WORKFLOW_NAME + TITLE_POSTFIX);
+        workFlowRef = workflowBean.addNewWorkflow(WORKFLOW_NAME, WORKFLOW_NAME + TITLE_POSTFIX);
 
         //Create workflow states
-        stateRecievedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
-        stateAccessRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, StateCategory.ACCEPTED);
-        stateDeniedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_DENIED_NAME, STATE_DENIED_NAME + TITLE_POSTFIX, StateCategory.REJECTED);
-        stateAcceptedRef = foundationBean.addNewWorkflowState(workFlowRef, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
-        foundationBean.setWorkflowEntryPoint(workFlowRef, stateRecievedRef);
+        stateRecievedRef = workflowBean.addNewWorkflowState(workFlowRef, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
+        stateAccessRef = workflowBean.addNewWorkflowState(workFlowRef, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, StateCategory.ACCEPTED);
+        stateDeniedRef = workflowBean.addNewWorkflowState(workFlowRef, STATE_DENIED_NAME, STATE_DENIED_NAME + TITLE_POSTFIX, StateCategory.REJECTED);
+        stateAcceptedRef = workflowBean.addNewWorkflowState(workFlowRef, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
+        workflowBean.setWorkflowEntryPoint(workFlowRef, stateRecievedRef);
 
         //Create associations
-        foundationBean.createWorkflowTransition(stateRecievedRef, stateAccessRef);
-        foundationBean.createWorkflowTransition(stateRecievedRef, stateDeniedRef);
+        workflowBean.createWorkflowTransition(stateRecievedRef, stateAccessRef);
+        workflowBean.createWorkflowTransition(stateRecievedRef, stateDeniedRef);
 
-        foundationBean.createWorkflowTransition(stateAccessRef, stateAcceptedRef);
-        foundationBean.createWorkflowTransition(stateAccessRef, stateDeniedRef);
+        workflowBean.createWorkflowTransition(stateAccessRef, stateAcceptedRef);
+        workflowBean.createWorkflowTransition(stateAccessRef, stateDeniedRef);
 
         //Create branch and associate it with the workflow
-        branchRef = foundationBean.addNewBranch(BRANCH_NAME, BRANCH_NAME + TITLE_POSTFIX);
-        foundationBean.addBranchWorkflow(branchRef, workFlowRef);
+        branchRef = branchBean.addNewBranch(BRANCH_NAME, BRANCH_NAME + TITLE_POSTFIX);
+        branchBean.addBranchWorkflow(branchRef, workFlowRef);
 
         //Create budgets and associate it with a branch
         Date startDate = Date.from(Instant.now().minus(Duration.ofDays(1)));
         Date endDate = Date.from(Instant.now().plus(300, ChronoUnit.DAYS));
 
-        budgetYearRef1 = foundationBean.addNewBudgetYear(BUDGETYEAR1_NAME, BUDGETYEAR1_NAME + TITLE_POSTFIX, startDate, endDate);
+        budgetYearRef1 = budgetBean.addNewBudgetYear(BUDGETYEAR1_NAME, BUDGETYEAR1_NAME + TITLE_POSTFIX, startDate, endDate);
 
-        budgetRef1 = foundationBean.addNewBudget(budgetYearRef1, BUDGET1_NAME, BUDGET1_NAME + TITLE_POSTFIX, BUDGET1_AMOUNT);
-        budgetRef2 = foundationBean.addNewBudget(budgetYearRef1, BUDGET2_NAME, BUDGET2_NAME + TITLE_POSTFIX, BUDGET2_AMOUNT);
-        foundationBean.addBranchBudget(branchRef, budgetRef1);
-        foundationBean.addBranchBudget(branchRef, budgetRef2);
+        budgetRef1 = budgetBean.addNewBudget(budgetYearRef1, BUDGET1_NAME, BUDGET1_NAME + TITLE_POSTFIX, BUDGET1_AMOUNT);
+        budgetRef2 = budgetBean.addNewBudget(budgetYearRef1, BUDGET2_NAME, BUDGET2_NAME + TITLE_POSTFIX, BUDGET2_AMOUNT);
+        branchBean.addBranchBudget(branchRef, budgetRef1);
+        branchBean.addBranchBudget(branchRef, budgetRef2);
 
         ArrayList<ApplicationPropertyValue> fields;
         Application app1 = new Application();
-        app1.setBranchSummary(foundationBean.getBranchSummary(branchRef));
-        app1.setBudget(foundationBean.getBudgetReference(budgetRef1));
+        app1.setBranchSummary(branchBean.getBranchSummary(branchRef));
+        app1.setBudget(budgetBean.getBudgetReference(budgetRef1));
         app1.setTitle(APPLICATION1_NAME);
         ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
         app1blockRecipient.setId("1");
@@ -196,12 +202,12 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
         app1Details.setFields(fields);
         app1.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1Details}));
-        application1 = foundationBean.addNewApplication(app1).asNodeRef();
+        application1 = applicationBean.addNewApplication(app1).asNodeRef();
 
         //application1 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION1_NAME, APPLICATION1_NAME + TITLE_POSTFIX,, "", "", , "", "", "", "", "", "", "", , , , "", "");
         Application app2 = new Application();
-        app2.setBranchSummary(foundationBean.getBranchSummary(branchRef));
-        app2.setBudget(foundationBean.getBudgetReference(budgetRef1));
+        app2.setBranchSummary(branchBean.getBranchSummary(branchRef));
+        app2.setBudget(budgetBean.getBudgetReference(budgetRef1));
         app2.setTitle(APPLICATION2_NAME);
         ApplicationPropertiesContainer app2blockRecipient = new ApplicationPropertiesContainer();
         app2blockRecipient.setId("1");
@@ -239,7 +245,7 @@ public final class TestUtils {
         app2details.setFields(fields);
 
         app2.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app2blockRecipient, app2blockOverview, app2details}));
-        application2 = foundationBean.addNewApplication(app2).asNodeRef();
+        application2 = applicationBean.addNewApplication(app2).asNodeRef();
 
         //application2 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION2_NAME, APPLICATION2_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
         Application app3 = new Application();
@@ -280,7 +286,7 @@ public final class TestUtils {
         app3details.setFields(fields);
 
         app3.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app3blockRecipient, app3blockOverview, app3details}));
-        application3 = foundationBean.addNewApplication(app3).asNodeRef();
+        application3 = applicationBean.addNewApplication(app3).asNodeRef();
         //application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
         isInitiated = true;
     }

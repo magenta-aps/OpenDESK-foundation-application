@@ -14,7 +14,7 @@ public class DeleteApplication extends JacksonBackedWebscript {
         String applicationID = getUrlParams().get("applicationId");
         Reference ref = new Reference();
         ref.setNodeID(applicationID);
-        getFoundationBean().deleteApplication(ref.asNodeRef());
+        getApplicationBean().deleteApplication(ref.asNodeRef());
         return new JSONObject().put("status", "OK");
     }
 }

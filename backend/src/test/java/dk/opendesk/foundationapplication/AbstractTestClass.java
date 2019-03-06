@@ -15,9 +15,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import com.fasterxml.jackson.databind.type.MapType;
+import dk.opendesk.foundationapplication.beans.ActionBean;
+import dk.opendesk.foundationapplication.beans.ApplicationBean;
+import dk.opendesk.foundationapplication.beans.BranchBean;
+import dk.opendesk.foundationapplication.beans.BudgetBean;
+import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import java.util.Map;
 import junit.framework.Assert;
 import org.alfresco.repo.web.scripts.BaseWebScriptTest;
+import org.alfresco.service.ServiceRegistry;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +36,43 @@ import org.springframework.extensions.webscripts.TestWebScriptServer;
  * @author martin
  */
 public class AbstractTestClass extends BaseWebScriptTest {
+    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
+    private final ActionBean actionBean = (ActionBean) getServer().getApplicationContext().getBean("actionBean");
+    private final ApplicationBean applicationBean = (ApplicationBean) getServer().getApplicationContext().getBean("applicationBean");
+    private final BranchBean branchBean = (BranchBean) getServer().getApplicationContext().getBean("branchBean");
+    private final BudgetBean budgetBean = (BudgetBean) getServer().getApplicationContext().getBean("budgetBean");
+    private final WorkflowBean workflowBean = (WorkflowBean) getServer().getApplicationContext().getBean("workflowBean");
+
+    public ServiceRegistry getServiceRegistry() {
+        return serviceRegistry;
+    }
+
+    public ActionBean getActionBean() {
+        return actionBean;
+    }
+
+    public ApplicationBean getApplicationBean() {
+        return applicationBean;
+    }
+
+    public BranchBean getBranchBean() {
+        return branchBean;
+    }
+
+    public BudgetBean getBudgetBean() {
+        return budgetBean;
+    }
+
+    public WorkflowBean getWorkflowBean() {
+        return workflowBean;
+    }
+
+    public String getBasePath() {
+        return basePath;
+    }
+    
+    
+    
     public static final String DELIMITER = "/";
     
     private final String basePath;

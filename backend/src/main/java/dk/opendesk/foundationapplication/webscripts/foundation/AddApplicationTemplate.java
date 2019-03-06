@@ -57,7 +57,7 @@ public class AddApplicationTemplate extends JacksonBackedWebscript{
 //        newApplication.setEndDate(Date.from(Instant.now().plus(Duration.ofDays(30))));
         
         
-        return getFoundationBean().addNewApplication(newApplication);
+        return getApplicationBean().addNewApplication(newApplication);
     }
     
     String randomNumbers(int length){

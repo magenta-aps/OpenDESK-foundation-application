@@ -19,8 +19,6 @@ import java.util.Set;
 import static dk.opendesk.foundationapplication.Utilities.*;
 
 public class ActionTest extends AbstractTestClass {
-    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public ActionTest() {
         super("/foundation/action");
@@ -30,13 +28,13 @@ public class ActionTest extends AbstractTestClass {
     protected void setUp() throws Exception {
         super.setUp();
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        TestUtils.wipeData(serviceRegistry);
-        TestUtils.setupSimpleFlow(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtils.wipeData(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
     }
 
 
@@ -58,12 +56,12 @@ public class ActionTest extends AbstractTestClass {
         data.put("cc", "test@test.dk"); //TODO make sure only real email adresses can be set as parameters
         post(data, ACTION_NAME_EMAIL);
 
-        List<Action> actions = serviceRegistry.getActionService().getActions(TestUtils.stateRecievedRef);
+        List<Action> actions = getServiceRegistry().getActionService().getActions(TestUtils.stateRecievedRef);
         for (Action act : actions) {
             if (act.getActionDefinitionName().equals(ACTION_NAME_EMAIL)) {
 
                 //testing the aspect is set on the action
-                Set<QName> aspects = serviceRegistry.getNodeService().getAspects(act.getNodeRef());
+                Set<QName> aspects = getServiceRegistry().getNodeService().getAspects(act.getNodeRef());
                 assertTrue(aspects.contains(Utilities.getODFName(ASPECT_ON_CREATE)));
 
                 //testing the parameter is set on the action
@@ -107,8 +105,8 @@ public class ActionTest extends AbstractTestClass {
         StateReference ref = new StateReference();
         ref.parseRef(TestUtils.stateAccessRef);
         change.setState(ref);
-        foundationBean.updateApplication(change);
-        Application app = foundationBean.getApplication(appRef);
+        getApplicationBean().updateApplication(change);
+        Application app = getApplicationBean().getApplication(appRef);
 
         //testing that enterStateAction got executed
         assertEquals("enterAction executed",app.emailTo().getValue());
@@ -116,8 +114,8 @@ public class ActionTest extends AbstractTestClass {
         //changing the application out of the assessment state
         ref.parseRef(TestUtils.stateAcceptedRef);
         change.setState(ref);
-        foundationBean.updateApplication(change);
-        app = foundationBean.getApplication(appRef);
+        getApplicationBean().updateApplication(change);
+        app = getApplicationBean().getApplication(appRef);
 
         //testing that enterStateAction got executed
         assertEquals("exitAction executed",app.emailTo().getValue());

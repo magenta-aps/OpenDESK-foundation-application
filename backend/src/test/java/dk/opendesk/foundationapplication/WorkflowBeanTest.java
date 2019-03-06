@@ -10,33 +10,31 @@ import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.StateSummary;
 import dk.opendesk.foundationapplication.DAO.Workflow;
-import static dk.opendesk.foundationapplication.TestUtils.APPLICATION1_AMOUNT;
-import static dk.opendesk.foundationapplication.TestUtils.APPLICATION1_NAME;
 import static dk.opendesk.foundationapplication.TestUtils.STATE_ACCEPTED_NAME;
 import static dk.opendesk.foundationapplication.TestUtils.STATE_ASSESS_NAME;
 import static dk.opendesk.foundationapplication.TestUtils.STATE_DENIED_NAME;
 import static dk.opendesk.foundationapplication.TestUtils.STATE_RECIEVED_NAME;
 import static dk.opendesk.foundationapplication.TestUtils.TITLE_POSTFIX;
-import static dk.opendesk.foundationapplication.TestUtils.branchRef;
-import static dk.opendesk.foundationapplication.TestUtils.budgetRef1;
 import dk.opendesk.foundationapplication.patches.InitialStructure;
 import static dk.opendesk.foundationapplication.Utilities.*;
+import dk.opendesk.foundationapplication.beans.ActionBean;
+import dk.opendesk.foundationapplication.beans.ApplicationBean;
+import dk.opendesk.foundationapplication.beans.BranchBean;
+import dk.opendesk.foundationapplication.beans.BudgetBean;
 import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import dk.opendesk.foundationapplication.enums.Functional;
 import static dk.opendesk.foundationapplication.patches.InitialStructure.DICTIONARY_PATH;
 import static dk.opendesk.foundationapplication.patches.InitialStructure.FOUNDATION_TAG;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import java.io.IOException;
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -46,7 +44,6 @@ import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.StoreRef;
-import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,7 +57,11 @@ import org.springframework.extensions.webscripts.TestWebScriptServer;
 public class WorkflowBeanTest extends BaseWebScriptTest {
 
     private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
+    private final ActionBean actionBean = (ActionBean) getServer().getApplicationContext().getBean("actionBean");
+    private final ApplicationBean applicationBean = (ApplicationBean) getServer().getApplicationContext().getBean("applicationBean");
+    private final BranchBean branchBean = (BranchBean) getServer().getApplicationContext().getBean("branchBean");
+    private final BudgetBean budgetBean = (BudgetBean) getServer().getApplicationContext().getBean("budgetBean");
+    private final WorkflowBean workflowBean = (WorkflowBean) getServer().getApplicationContext().getBean("workflowBean");
 
     @Override
     protected void setUp() throws Exception {
@@ -113,7 +114,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         stateNames.add(STATE_DENIED_NAME+TITLE_POSTFIX);
         stateNames.add(STATE_ACCEPTED_NAME+TITLE_POSTFIX);
         
-        Workflow workflow = foundationBean.getWorkflow(workflowRefs.get(0));
+        Workflow workflow = workflowBean.getWorkflow(workflowRefs.get(0));
         for(StateSummary state : workflow.getStates()){
             stateNames.remove(state.getTitle());
         }
@@ -130,7 +131,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         List<AssociationRef> branchBudgets = serviceRegistry.getNodeService().getTargetAssocs(getBranchRef(), getODFName(BRANCH_ASSOC_BUDGETS));
 
         NodeRef budgetRef = branchBudgets.get(0).getTargetRef();
-        Budget budget = foundationBean.getBudget(budgetRef);
+        Budget budget = budgetBean.getBudget(budgetRef);
         Long expectedAmount = TestUtils.APPLICATION1_AMOUNT+TestUtils.APPLICATION2_AMOUNT;
         assertEquals(expectedAmount, budget.getAmountNominated());
         assertEquals(TestUtils.BUDGET1_AMOUNT, budget.getAmountAvailable());
@@ -142,8 +143,8 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
 
         
         Application app1 = new Application();
-        app1.setBranchSummary(foundationBean.getBranchSummary(getBranchRef()));
-        app1.setBudget(foundationBean.getBudgetReference(budgetRef));
+        app1.setBranchSummary(branchBean.getBranchSummary(getBranchRef()));
+        app1.setBudget(budgetBean.getBudgetReference(budgetRef));
         app1.setTitle(APPLICATION_NAME);
         ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
         app1blockRecipient.setId("1");
@@ -177,11 +178,11 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "1234"));
         app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00123456"));
         app1.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1details}));
-        foundationBean.addNewApplication(app1);
+        applicationBean.addNewApplication(app1);
         //foundationBean.addNewApplication(getBranchRef(), budgetRef, APPLICATION_NAME, "NewApplication", "Category1", "Dansk Dræbersnegls Bevaringsforbund", "Sneglesporet", 3, "2", "1445", "Svend", "Svendsen", "ikkedraebesneglen@gmail.com", "12345678",
         //        "Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr.", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(2))), appliedAmount, "1234", "00123456");
 
-        budget = foundationBean.getBudget(budgetRef);
+        budget = budgetBean.getBudget(budgetRef);
         
         expectedAmount += appliedAmount;
         assertEquals(expectedAmount, budget.getAmountNominated());

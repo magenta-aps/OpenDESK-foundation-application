@@ -17,8 +17,6 @@ import org.alfresco.service.ServiceRegistry;
  * @author martin
  */
 public class WorkflowTest extends AbstractTestClass{
-    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public WorkflowTest() {
         super("/foundation/workflow");
@@ -28,17 +26,17 @@ public class WorkflowTest extends AbstractTestClass{
     protected void setUp() throws Exception {
         super.setUp();
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        TestUtils.wipeData(serviceRegistry);
-        TestUtils.setupSimpleFlow(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtils.wipeData(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
     }
     
     public List<WorkflowSummary> testGetWorkflows() throws Exception{
-        List<WorkflowSummary> beanSummaries = foundationBean.getWorkflowSummaries();
+        List<WorkflowSummary> beanSummaries = getWorkflowBean().getWorkflowSummaries();
         assertEquals(1, beanSummaries.size());
         assertEquals(TestUtils.WORKFLOW_NAME+TestUtils.TITLE_POSTFIX, beanSummaries.get(0).getTitle());
         
@@ -53,7 +51,7 @@ public class WorkflowTest extends AbstractTestClass{
     public void testGetWorkflow() throws Exception {
         List<WorkflowSummary> summaries = testGetWorkflows();
         WorkflowSummary testSummary = summaries.get(0);
-        Workflow beanWorkflow = foundationBean.getWorkflow(testSummary.asNodeRef());
+        Workflow beanWorkflow = getWorkflowBean().getWorkflow(testSummary.asNodeRef());
         assertEquals(testSummary.getNodeRef(), beanWorkflow.getNodeRef());
         assertEquals(testSummary.getTitle(), beanWorkflow.getTitle());
 

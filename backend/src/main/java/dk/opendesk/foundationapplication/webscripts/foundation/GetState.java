@@ -22,7 +22,7 @@ public class GetState extends JacksonBackedWebscript{
         String stateID = getUrlParams().get("stateID");
         Reference reference = new Reference();
         reference.setNodeID(stateID);
-        return getFoundationBean().getState(reference.asNodeRef());
+        return getWorkflowBean().getState(reference.asNodeRef());
     }
 
     

@@ -50,7 +50,7 @@ public class SaveAction extends JacksonBackedWebscript {
         if (stateRef == null || aspect == null) {
             throw new Exception("'stateRef' and 'aspect' has to be set");
         } else {
-            getFoundationBean().saveAction(actionName, stateRef, aspect, params);
+            getActionBean().saveAction(actionName, stateRef, aspect, params);
             return new JSONObject().put("status", "OK");
         }
 

@@ -21,11 +21,9 @@ import static dk.opendesk.foundationapplication.Utilities.*;
 
 
 public class VersionTest extends AbstractTestClass {
-    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
     private final NodeBean nodeBean = (NodeBean) getServer().getApplicationContext().getBean("nodeBean");
 
-    VersionService versionService = serviceRegistry.getVersionService();
+    VersionService versionService = getServiceRegistry().getVersionService();
 
     public VersionTest() {
         super("foundation/application");
@@ -37,20 +35,20 @@ public class VersionTest extends AbstractTestClass {
     protected void setUp() throws Exception {
         super.setUp();
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        TestUtils.wipeData(serviceRegistry);
-        TestUtils.setupSimpleFlow(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtils.wipeData(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
     }
 
     public void testVersioning() throws Exception {
 
         NodeRef appRef = TestUtils.application1;
-        String origMail = foundationBean.getApplication(appRef).emailTo().getValue();
-        String origStateTitle = foundationBean.getApplication(appRef).getState().getTitle();
+        String origMail = getApplicationBean().getApplication(appRef).emailTo().getValue();
+        String origStateTitle = getApplicationBean().getApplication(appRef).getState().getTitle();
 
         assertEquals(1,versionService.getVersionHistory(appRef).getAllVersions().size());
 
@@ -61,14 +59,14 @@ public class VersionTest extends AbstractTestClass {
         // --- FIRST CHANGE --- //
         if (logger.isDebugEnabled()) logger.debug("\nChange #1: Changing the 'description' property\n");
 
-        Application change1 = TestUtils.buildChange(foundationBean.getApplication(appRef))
+        Application change1 = TestUtils.buildChange(getApplicationBean().getApplication(appRef))
                 .changeField("8").setValue("First change").done()
                 .build();
-        foundationBean.updateApplication(change1);
+        getApplicationBean().updateApplication(change1);
 
         //There should now be two versions in the history
         if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
-        Application headVersion = foundationBean.getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
+        Application headVersion = getApplicationBean().getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(2, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals("First change", headVersion.emailTo().getValue());
 
@@ -82,10 +80,10 @@ public class VersionTest extends AbstractTestClass {
         StateReference stateAssess = new StateReference();
         stateAssess.parseRef(TestUtils.stateAccessRef);
         change2.setState(stateAssess);
-        foundationBean.updateApplication(change2);
+        getApplicationBean().updateApplication(change2);
 
         //There should now be two versions in the history and the newest on should be on state 'assess' and with desc = 'First change'
-        headVersion = foundationBean.getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
+        headVersion = getApplicationBean().getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(3, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals(TestUtils.stateAccessRef, headVersion.getState().asNodeRef());
         assertEquals("First change", headVersion.emailTo().getValue());
@@ -96,22 +94,22 @@ public class VersionTest extends AbstractTestClass {
         // --- THIRD CHANGE --- //
         if (logger.isDebugEnabled()) logger.debug("\nChange #3: Changing both state and description\n");
 
-        Application change3 = TestUtils.buildChange(foundationBean.getApplication(appRef))
+        Application change3 = TestUtils.buildChange(getApplicationBean().getApplication(appRef))
                 .changeField("8").setValue("Third change").done()
                 .build();
         StateReference stateAccepted = new StateReference();
         stateAccepted.parseRef(TestUtils.stateAcceptedRef);
         change3.setState(stateAccepted);
-        foundationBean.updateApplication(change3);
+        getApplicationBean().updateApplication(change3);
 
         //There should now be three versions and the newest one should be on state 'accepted' and have description = 'Third change'
-        headVersion = foundationBean.getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
+        headVersion = getApplicationBean().getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(4, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals(TestUtils.stateAcceptedRef, headVersion.getState().asNodeRef());
         assertEquals("Third change", headVersion.emailTo().getValue());
 
         //Current version should be on state 'accepted' and have description = 'Third change'
-        Application currentVersion = foundationBean.getApplication(appRef);
+        Application currentVersion = getApplicationBean().getApplication(appRef);
         assertEquals(TestUtils.stateAcceptedRef, currentVersion.getState().asNodeRef());
         assertEquals("Third change", currentVersion.emailTo().getValue());
 
@@ -121,14 +119,14 @@ public class VersionTest extends AbstractTestClass {
         // --- FOURTH CHANGE --- //
         if (logger.isDebugEnabled()) logger.debug("\nChange #4: Application deleted\n");
 
-        foundationBean.deleteApplication(appRef);
+        getApplicationBean().deleteApplication(appRef);
 
         if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
 
 
         // --- CALLING foundationBean.getApplicationHistory --- //
 
-        List<ApplicationChange> appChanges = foundationBean.getApplicationHistory(appRef);
+        List<ApplicationChange> appChanges = getApplicationBean().getApplicationHistory(appRef);
         ApplicationChange appChange4 = appChanges.get(0);
         ApplicationChange appChange3 = appChanges.get(1);
         ApplicationChange appChange0 = appChanges.get(4);
@@ -218,13 +216,13 @@ public class VersionTest extends AbstractTestClass {
         builder.append("\n--------- Version history -------")
                 .append("\nCurrent version (also in version history):\n")
                 .append("\n\tNodeRef:                        ").append(application);
-        Application app = foundationBean.getApplication(application);
+        Application app = getApplicationBean().getApplication(application);
         if (app.getState() != null) {
             builder.append("\n\tState:                          ").append(app.getState().getTitle());
         }
         builder.append("\n\temail:                          ").append(app.emailTo().getValue());
 
-        VersionHistory history = serviceRegistry.getVersionService().getVersionHistory(application);
+        VersionHistory history = versionService.getVersionHistory(application);
         if (history != null) {
             Collection<Version> versions = history.getAllVersions();
             builder.append("\n\n\nVersions in version history (").append(versions.size()).append("):");
@@ -238,7 +236,7 @@ public class VersionTest extends AbstractTestClass {
                         .append("\n\tname (Props):                                           ").append(ver.getVersionProperties().get("name"))
                         .append("\n");
 
-                app = foundationBean.getApplication(ver.getFrozenStateNodeRef());
+                app = getApplicationBean().getApplication(ver.getFrozenStateNodeRef());
                 if (app.getState() != null) {
                     builder.append("\n\tState:                          ").append(app.getState().getTitle());
                 }

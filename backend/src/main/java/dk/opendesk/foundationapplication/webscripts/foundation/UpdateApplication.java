@@ -23,7 +23,7 @@ public class UpdateApplication extends JacksonBackedWebscript{
         Application application = getRequestAs(Application.class);
         resolveNodeRef(application, applicationID);
         
-        getFoundationBean().updateApplication(application);
+        getApplicationBean().updateApplication(application);
         return new JSONObject().put("status", "OK");
     }
 }

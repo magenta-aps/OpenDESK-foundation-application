@@ -17,9 +17,6 @@ import org.json.JSONObject;
  * @author martin
  */
 public class TestDemoData extends AbstractTestClass{
-    
-    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public TestDemoData() {
         super("/foundation/demodata");
@@ -31,30 +28,30 @@ public class TestDemoData extends AbstractTestClass{
     protected void setUp() throws Exception {
         super.setUp();
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        TestUtils.wipeData(serviceRegistry);
-        TestUtils.setupSimpleFlow(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtils.wipeData(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
     }
     
     public void testSetupDemoData() throws Exception {
         post(new JSONObject().append("doesnt", "matter"));
         
-        assertEquals(4, foundationBean.getBranchSummaries().size());
-        assertEquals(2, foundationBean.getBudgetYearSummaries().size());
-        for(BudgetYearSummary budgetYear : foundationBean.getBudgetYearSummaries()){
+        assertEquals(4, getBranchBean().getBranchSummaries().size());
+        assertEquals(2, getBudgetBean().getBudgetYearSummaries().size());
+        for(BudgetYearSummary budgetYear : getBudgetBean().getBudgetYearSummaries()){
             if(budgetYear.getTitle().equals(ResetDemoData.BUDGETYEAR1_TITLE)){
-                assertEquals(6, foundationBean.getBudgetSummaries(budgetYear));
+                assertEquals(6, getBudgetBean().getBudgetSummaries(budgetYear));
             }else if (budgetYear.getTitle().equals(ResetDemoData.BUDGETYEAR2_TITLE)){
-                assertEquals(0, foundationBean.getBudgetSummaries(budgetYear));
+                assertEquals(0, getBudgetBean().getBudgetSummaries(budgetYear));
             }
         }
         
-        assertEquals(3, foundationBean.getWorkflowSummaries().size());
-        assertEquals(16, foundationBean.getApplicationSummaries().size());
+        assertEquals(3, getWorkflowBean().getWorkflowSummaries().size());
+        assertEquals(16, getApplicationBean().getApplicationSummaries().size());
     }
     
 }

@@ -1,0 +1,201 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package dk.opendesk.foundationapplication.beans;
+
+import dk.opendesk.foundationapplication.DAO.ApplicationReference;
+import dk.opendesk.foundationapplication.DAO.State;
+import dk.opendesk.foundationapplication.DAO.StateReference;
+import dk.opendesk.foundationapplication.DAO.StateSummary;
+import dk.opendesk.foundationapplication.DAO.Workflow;
+import dk.opendesk.foundationapplication.DAO.WorkflowReference;
+import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
+import static dk.opendesk.foundationapplication.Utilities.APPLICATION_ASSOC_STATE;
+import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_WORKFLOW;
+import static dk.opendesk.foundationapplication.Utilities.STATE_ASSOC_TRANSITIONS;
+import static dk.opendesk.foundationapplication.Utilities.STATE_PARAM_CATEGORY;
+import static dk.opendesk.foundationapplication.Utilities.STATE_PARAM_TITLE;
+import static dk.opendesk.foundationapplication.Utilities.STATE_TYPE_NAME;
+import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_ASSOC_ENTRY;
+import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_ASSOC_STATES;
+import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_PARAM_TITLE;
+import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_TYPE_NAME;
+import static dk.opendesk.foundationapplication.Utilities.getODFName;
+import dk.opendesk.foundationapplication.enums.StateCategory;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.alfresco.service.cmr.repository.AssociationRef;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.namespace.QName;
+
+/**
+ *
+ * @author martin
+ */
+public class WorkflowBean extends FoundationBean{
+    private ApplicationBean applicationBean;
+
+    public void setApplicationBean(ApplicationBean applicationBean) {
+        this.applicationBean = applicationBean;
+    }
+    
+    public WorkflowReference getWorkflowReference(NodeRef reference) throws Exception {
+        ensureType(getODFName(WORKFLOW_TYPE_NAME), reference);
+
+        WorkflowReference ref = new WorkflowReference();
+        ref.parseRef(reference);
+        ref.setTitle(getProperty(reference, WORKFLOW_PARAM_TITLE, String.class));
+        return ref;
+    }
+
+    public NodeRef addNewWorkflow(String localName, String title) throws Exception {
+        NodeRef dataHome = getDataHome();
+        QName dataWorkflowsQname = getODFName(DATA_ASSOC_WORKFLOW);
+        QName workFlowTypeQname = getODFName(WORKFLOW_TYPE_NAME);
+        QName workFlowQname = getODFName(localName);
+
+        QName workflowTitle = getODFName(WORKFLOW_PARAM_TITLE);
+        Map<QName, Serializable> workflowParams = new HashMap<>();
+        workflowParams.put(workflowTitle, title);
+
+        return getServiceRegistry().getNodeService().createNode(dataHome, dataWorkflowsQname, workFlowQname, workFlowTypeQname, workflowParams).getChildRef();
+    }
+
+    public void setWorkflowEntryPoint(NodeRef workFlowRef, NodeRef workflowStateRef) throws Exception {
+        getServiceRegistry().getNodeService().setAssociations(workFlowRef, getODFName(WORKFLOW_ASSOC_ENTRY), Collections.singletonList(workflowStateRef));
+    }
+
+    public NodeRef addNewWorkflowState(NodeRef workFlowRef, String localName, String title, StateCategory category) throws Exception {
+        QName workFlowStatesQname = getODFName(WORKFLOW_ASSOC_STATES);
+        QName stateTypeQname = getODFName(STATE_TYPE_NAME);
+        QName stateQName = getODFName(localName);
+        QName stateTitle = getODFName(STATE_PARAM_TITLE);
+        QName stateCategory = getODFName(STATE_PARAM_CATEGORY);
+        Map<QName, Serializable> stateParams = new HashMap<>();
+        stateParams.put(stateTitle, title);
+        if (category != null) {
+            stateParams.put(stateCategory, category.getCategoryName());
+        }
+        return getServiceRegistry().getNodeService().createNode(workFlowRef, workFlowStatesQname, stateQName, stateTypeQname, stateParams).getChildRef();
+
+        /*
+        NodeRef newWorkflowState = serviceRegistry.getNodeService().createNode(workFlowRef, workFlowStatesQname, stateQName, stateTypeQname, stateParams).getChildRef();
+
+        ChildAssociationRef createStateActionsNode = serviceRegistry.getNodeService().createNode(newWorkflowState, getODFName(STATE_ASSOC_ACTIONS), QName.createQName(CONTENT_NAME_SPACE,"createStateActionsNode"), QName.createQName(CONTENT_NAME_SPACE,"cmobject"));
+        ChildAssociationRef deleteStateActionsNode = serviceRegistry.getNodeService().createNode(newWorkflowState, getODFName(STATE_ASSOC_ACTIONS), QName.createQName(CONTENT_NAME_SPACE,"deleteStateActionsNode"), QName.createQName(CONTENT_NAME_SPACE,"cmobject"));
+
+        return newWorkflowState;
+         */
+    }
+
+    public AssociationRef createWorkflowTransition(NodeRef stateFrom, NodeRef stateTo) throws Exception {
+        QName stateTransitionsQname = getODFName(STATE_ASSOC_TRANSITIONS);
+        return getServiceRegistry().getNodeService().createAssociation(stateFrom, stateTo, stateTransitionsQname);
+    }
+
+    public List<NodeRef> getWorkflows() throws Exception {
+        QName dataWorkflowsQname = getODFName(DATA_ASSOC_WORKFLOW);
+        NodeRef dataHome = getDataHome();
+        List<ChildAssociationRef> workflowAssocs = getServiceRegistry().getNodeService().getChildAssocs(dataHome, dataWorkflowsQname, null);
+        List<NodeRef> workflows = new ArrayList<>(workflowAssocs.size());
+        for (ChildAssociationRef ref : workflowAssocs) {
+            workflows.add(ref.getChildRef());
+        }
+        return workflows;
+    }
+    
+        public List<WorkflowSummary> getWorkflowSummaries() throws Exception {
+        NodeService ns = getServiceRegistry().getNodeService();
+        List<WorkflowSummary> summaries = new ArrayList<>();
+        for (ChildAssociationRef ref : ns.getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_WORKFLOW), null)) {
+            summaries.add(getWorkflowSummary(ref.getChildRef()));
+        }
+        return summaries;
+    }
+
+    public WorkflowSummary getWorkflowSummary(NodeRef workflowRef) throws Exception {
+        NodeService ns = getServiceRegistry().getNodeService();
+        WorkflowSummary summary = new WorkflowSummary();
+        summary.parseRef(workflowRef);
+        summary.setTitle(getProperty(workflowRef, WORKFLOW_PARAM_TITLE, String.class));
+        NodeRef stateRef = getSingleTargetAssoc(workflowRef, WORKFLOW_ASSOC_ENTRY);
+        if (stateRef != null) {
+            summary.setEntry(getStateReference(stateRef));
+        }
+
+        List<StateReference> stateReferences = new ArrayList<>();
+        for (ChildAssociationRef state : ns.getChildAssocs(workflowRef, getODFName(WORKFLOW_ASSOC_STATES), null)) {
+            stateReferences.add(getStateReference(state.getChildRef()));
+        }
+        summary.setStates(stateReferences);
+        return summary;
+    }
+
+    public Workflow getWorkflow(NodeRef workflowRef) throws Exception {
+        NodeService ns = getServiceRegistry().getNodeService();
+        Workflow workflow = new Workflow();
+        workflow.parseRef(workflowRef);
+        workflow.setTitle(getProperty(workflowRef, WORKFLOW_PARAM_TITLE, String.class));
+
+        NodeRef entryRef = getSingleTargetAssoc(workflowRef, WORKFLOW_ASSOC_ENTRY);
+        workflow.setEntry(getStateReference(entryRef));
+
+        List<StateSummary> states = new ArrayList<>();
+        for (ChildAssociationRef stateRef : ns.getChildAssocs(workflowRef, getODFName(WORKFLOW_ASSOC_STATES), null)) {
+            states.add(getStateSummary(stateRef.getChildRef()));
+        }
+        workflow.setStates(states);
+
+        return workflow;
+
+    }
+    
+        public State getState(NodeRef stateRef) throws Exception {
+        NodeService ns = getServiceRegistry().getNodeService();
+        State state = new State();
+        state.parseRef(stateRef);
+        state.setTitle(getProperty(stateRef, STATE_PARAM_TITLE, String.class));
+        List<StateReference> transitions = new ArrayList<>();
+        for (AssociationRef transitionRef : ns.getTargetAssocs(stateRef, getODFName(STATE_ASSOC_TRANSITIONS))) {
+            transitions.add(getStateReference(transitionRef.getTargetRef()));
+        }
+        state.setReferences(transitions);
+        List<ApplicationReference> applications = new ArrayList<>();
+        for (AssociationRef applicationRef : ns.getSourceAssocs(stateRef, getODFName(APPLICATION_ASSOC_STATE))) {
+            applications.add(applicationBean.getApplicationReference(applicationRef.getSourceRef()));
+        }
+        state.setApplications(applications);
+        state.setCategory(StateCategory.getFromName(getProperty(stateRef, STATE_PARAM_CATEGORY, String.class)));
+        return state;
+    }
+
+    public StateSummary getStateSummary(NodeRef stateRef) throws Exception {
+        NodeService ns = getServiceRegistry().getNodeService();
+        StateSummary summary = new StateSummary();
+        summary.parseRef(stateRef);
+        summary.setTitle(getProperty(stateRef, STATE_PARAM_TITLE, String.class));
+        List<StateReference> transitions = new ArrayList<>();
+        for (AssociationRef transitionRef : ns.getTargetAssocs(stateRef, getODFName(STATE_ASSOC_TRANSITIONS))) {
+            transitions.add(getStateReference(transitionRef.getTargetRef()));
+        }
+        summary.setReferences(transitions);
+        summary.setCategory(StateCategory.getFromName(getProperty(stateRef, STATE_PARAM_CATEGORY, String.class)));
+        return summary;
+    }
+
+    public StateReference getStateReference(NodeRef stateRef) throws Exception {
+        StateReference reference = new StateReference();
+        reference.parseRef(stateRef);
+        reference.setTitle(getProperty(stateRef, STATE_PARAM_TITLE, String.class));
+        return reference;
+    }
+    
+}
