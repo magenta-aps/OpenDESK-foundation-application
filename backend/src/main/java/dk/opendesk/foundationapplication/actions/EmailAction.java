@@ -19,7 +19,11 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 
 public class EmailAction extends MailActionExecuter {

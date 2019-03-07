@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static dk.opendesk.foundationapplication.Utilities.DATE_FORMAT_STRING;
+
 public class ApplicationChangeUnit {
 
     private String changedField;
@@ -62,7 +64,7 @@ public class ApplicationChangeUnit {
 
     @JsonIgnore
     public ApplicationChangeUnit setNewValue(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
         this.newValue = sdf.format(date);
         return this;
     }
@@ -74,7 +76,7 @@ public class ApplicationChangeUnit {
 
     @JsonIgnore
     public ApplicationChangeUnit setOldValue(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
         this.oldValue = sdf.format(date);
         return this;
     }

@@ -20,34 +20,10 @@ import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.DAO.WorkflowReference;
 import dk.opendesk.foundationapplication.Utilities;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_ASSOC_BRANCH;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_ASSOC_BUDGET;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_ASSOC_STATE;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_CHANGE;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_CHANGE_CREATED;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_CHANGE_DELETED;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_CHANGE_UPDATE;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_CHANGE_UPDATE_ASSOCIATION;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_CHANGE_UPDATE_EMAIL;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_CHANGE_UPDATE_PROP;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_PARAM_BLOCKS;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_PARAM_ID;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_PARAM_SEEN_BY;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_PARAM_TITLE;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_TYPE_NAME;
-import static dk.opendesk.foundationapplication.Utilities.BRANCH_ASSOC_BUDGETS;
-import static dk.opendesk.foundationapplication.Utilities.BRANCH_ASSOC_WORKFLOW;
-import static dk.opendesk.foundationapplication.Utilities.BRANCH_TYPE_NAME;
-import static dk.opendesk.foundationapplication.Utilities.BUDGET_TYPE_NAME;
-import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_APPLICATIONS;
-import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_DELETED_APPLICATION;
-import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_NEW_APPLICATIONS;
-import static dk.opendesk.foundationapplication.Utilities.STATE_ASSOC_TRANSITIONS;
-import static dk.opendesk.foundationapplication.Utilities.STATE_TYPE_NAME;
-import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_ASSOC_ENTRY;
-import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_ASSOC_STATES;
-import static dk.opendesk.foundationapplication.Utilities.getODFName;
+
 import java.io.Serializable;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -66,6 +43,8 @@ import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.namespace.QName;
+
+import static dk.opendesk.foundationapplication.Utilities.*;
 
 /**
  *
@@ -644,6 +623,7 @@ public class ApplicationBean extends FoundationBean{
     public List<ApplicationChange> getApplicationHistory(NodeRef appRef) throws Exception {
         List<ApplicationChange> changes = new ArrayList<>();
 
+        //getting versions
         VersionHistory history = getServiceRegistry().getVersionService().getVersionHistory(appRef);
         Version current = history.getHeadVersion();
 
@@ -653,14 +633,23 @@ public class ApplicationBean extends FoundationBean{
             current = predecessor;
         }
 
+        //getting emails
         for (NodeRef ref : getApplicationEmails(appRef)) {
             ApplicationChangeUnit unit = new ApplicationChangeUnit()
                     .setNewValue(ref)
                     .setChangeType(APPLICATION_CHANGE_UPDATE_EMAIL)
                     .setNewValueLink("/foundation/application/" + appRef.getId() + "/email/" + ref.getId()); //TODO er dette det rigtige link?
             Date timeStamp = getServiceRegistry().getFileFolderService().getFileInfo(ref).getCreatedDate();
-            changes.add(new ApplicationChange().setTimeStamp(timeStamp).setChangeList(Collections.singletonList(unit)));
+            changes.add(new ApplicationChange().setChangeType(APPLICATION_CHANGE_UPDATE_EMAIL).setTimeStamp(timeStamp).setChangeList(Collections.singletonList(unit)));
         }
+
+        //sort oldest first
+        changes.sort((o1, o2) -> {
+            SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
+            Date date1 = sdf.parse((String)o1.getTimesStamp(),new ParsePosition(0));
+            Date date2 = sdf.parse((String)o2.getTimesStamp(),new ParsePosition(0));
+            return date1.compareTo(date2);
+        });
 
         return changes;
     }

@@ -3,10 +3,8 @@ package dk.opendesk.foundationapplication;
 import com.github.sleroy.fakesmtp.core.ServerConfiguration;
 import com.github.sleroy.junit.mail.server.MailServer;
 import dk.opendesk.foundationapplication.DAO.*;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentReader;
@@ -17,7 +15,6 @@ import org.json.JSONObject;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -254,29 +251,25 @@ public class EmailTest extends AbstractTestClass {
 
 
     public void testEmailSavedToHistory() throws Exception {
-        //System.out.println(getServiceRegistry().getActionService().getActions(TestUtils.stateAccessRef));
-        //getActionBean().saveAction("foundationMail", TestUtils.stateAccessRef, getODFName(ASPECT_ON_CREATE), Collections.singletonMap("subject", "testEmailSavedToHistory"));
 
-        //System.out.println(getServiceRegistry().getActionService().getActions(TestUtils.stateAccessRef));
-
-
+        //saving action
         JSONObject data = new JSONObject();
         data.put("stateRef", TestUtils.stateAccessRef);
         data.put("aspect", ASPECT_ON_CREATE);
         data.put("subject", "testEmailSavedToHistory");
-
         data.put(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         post(data, "/action/" + ACTION_NAME_EMAIL);
-        //System.out.println(getApplicationBean().getApplicationHistory(TestUtils.application1));
 
-        //System.out.println(getServiceRegistry().getActionService().getActions(TestUtils.stateAccessRef));
-
+        //updating application
         Application change = new Application();
         change.parseRef(TestUtils.application1);
         StateReference stateRef = new StateReference();
         stateRef.parseRef(TestUtils.stateAccessRef);
         change.setState(stateRef);
         getApplicationBean().updateApplication(change);
-        //getApplicationBean().getApplicationHistory(TestUtils.application1);
+
+        //last ApplicationChange is a send email
+        List<ApplicationChange> changes = getApplicationBean().getApplicationHistory(TestUtils.application1);
+        assertEquals(APPLICATION_CHANGE_UPDATE_EMAIL, changes.get(changes.size() - 1).getChangeType());
     }
 }

@@ -4,10 +4,8 @@ import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationChange;
 import dk.opendesk.foundationapplication.DAO.ApplicationChangeUnit;
 import dk.opendesk.foundationapplication.DAO.StateReference;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.repo.beans.NodeBean;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionHistory;
@@ -53,7 +51,7 @@ public class VersionTest extends AbstractTestClass {
         assertEquals(1,versionService.getVersionHistory(appRef).getAllVersions().size());
 
         if (logger.isDebugEnabled()) logger.debug("\nChange #0: Application created\n");
-        if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
+        if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
 
 
         // --- FIRST CHANGE --- //
@@ -65,7 +63,7 @@ public class VersionTest extends AbstractTestClass {
         getApplicationBean().updateApplication(change1);
 
         //There should now be two versions in the history
-        if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
+        if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
         Application headVersion = getApplicationBean().getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(2, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals("First change", headVersion.emailTo().getValue());
@@ -88,7 +86,7 @@ public class VersionTest extends AbstractTestClass {
         assertEquals(TestUtils.stateAccessRef, headVersion.getState().asNodeRef());
         assertEquals("First change", headVersion.emailTo().getValue());
 
-        if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
+        if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
 
 
         // --- THIRD CHANGE --- //
@@ -113,7 +111,7 @@ public class VersionTest extends AbstractTestClass {
         assertEquals(TestUtils.stateAcceptedRef, currentVersion.getState().asNodeRef());
         assertEquals("Third change", currentVersion.emailTo().getValue());
 
-        if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
+        if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
 
 
         // --- FOURTH CHANGE --- //
@@ -121,15 +119,16 @@ public class VersionTest extends AbstractTestClass {
 
         getApplicationBean().deleteApplication(appRef);
 
-        if (logger.isDebugEnabled()) logger.debug(buildVersionString(appRef));
+        if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
 
 
         // --- CALLING foundationBean.getApplicationHistory --- //
 
         List<ApplicationChange> appChanges = getApplicationBean().getApplicationHistory(appRef);
-        ApplicationChange appChange4 = appChanges.get(0);
-        ApplicationChange appChange3 = appChanges.get(1);
-        ApplicationChange appChange0 = appChanges.get(4);
+        //System.out.println(appChanges);
+        ApplicationChange appChange4 = appChanges.get(4);
+        ApplicationChange appChange3 = appChanges.get(3);
+        ApplicationChange appChange0 = appChanges.get(0);
 
         assertEquals(APPLICATION_CHANGE_DELETED, appChange4.getChangeType());
         assertEquals(4, appChange4.getChanges().size());
@@ -160,9 +159,6 @@ public class VersionTest extends AbstractTestClass {
         assertNotNull(emailChange);
         assertEquals("lars@larsen.org", emailChange.getNewValue());
         assertEquals(APPLICATION_CHANGE_UPDATE_PROP, emailChange.getChangeType());
-
-
-        //todo : print ogsaa emailchanges og faa dem med i testen
 
 
         //todo: det følgende fejler pga noget jackson
@@ -210,7 +206,7 @@ public class VersionTest extends AbstractTestClass {
     }
 
 
-    private String buildVersionString(NodeRef application) throws Exception {
+    public String buildVersionString(NodeRef application) throws Exception {
 
         StringBuilder builder = new StringBuilder();
         builder.append("\n--------- Version history -------")

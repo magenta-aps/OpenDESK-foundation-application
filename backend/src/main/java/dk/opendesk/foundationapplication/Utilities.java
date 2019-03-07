@@ -5,7 +5,6 @@
  */
 package dk.opendesk.foundationapplication;
 
-import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jmx.JmxReporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +20,6 @@ import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import dk.opendesk.foundationapplication.patches.InitialStructure;
 
@@ -66,6 +64,7 @@ public final class Utilities {
     public static final String DATA_ASSOC_DELETED_APPLICATION = "deletedApplications";
     public static final String DATA_PARAM_LASTID = "latestID";
 
+    public static final String DATE_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     
     public static final String BRANCH_TYPE_NAME = "applicationBranch"; 
     public static final String BRANCH_ASSOC_WORKFLOW = "branchWorkflow";
