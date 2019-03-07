@@ -23,7 +23,7 @@ public class UpdateBranch extends JacksonBackedWebscript {
         Branch branch = getRequestAs(Branch.class);
         resolveNodeRef(branch, branchID);
         
-        getFoundationBean().updateBranch(branch);
+        getBranchBean().updateBranch(branch);
         return new JSONObject().put("status", "OK");
     }
 

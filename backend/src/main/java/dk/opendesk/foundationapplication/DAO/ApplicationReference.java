@@ -14,7 +14,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @author martin
  */
 public class ApplicationReference extends Reference{
-    private Optional<String> title;
     private Optional<String> id;
     
     public ApplicationReference() {
@@ -31,18 +30,7 @@ public class ApplicationReference extends Reference{
     public void setId(String id) {
         this.id = optional(id);
     }
-    
-    public String getTitle() {
-        return get(title);
-    }
-    
-    public boolean wasTitleSet(){
-        return wasSet(title);
-    }
 
-    public void setTitle(String title) {
-        this.title = optional(title);
-    }
 
     @Override
     public int hashCode() {

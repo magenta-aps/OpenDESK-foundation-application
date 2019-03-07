@@ -19,7 +19,7 @@ public class GetNewApplications extends JacksonBackedWebscript{
     
     @Override
     protected List<ApplicationSummary> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        return getFoundationBean().getNewApplicationSummaries();
+        return getApplicationBean().getNewApplicationSummaries();
     }
     
 }

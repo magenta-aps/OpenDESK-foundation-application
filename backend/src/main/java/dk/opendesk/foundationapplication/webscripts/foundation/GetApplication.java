@@ -22,7 +22,7 @@ public class GetApplication extends JacksonBackedWebscript{
         String applicationID = getUrlParams().get("applicationID");
         Reference ref = new Reference();
         ref.setNodeID(applicationID);
-        return getFoundationBean().getApplication(ref.asNodeRef());
+        return getApplicationBean().getApplication(ref.asNodeRef());
     }
     
     

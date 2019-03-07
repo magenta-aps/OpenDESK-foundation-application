@@ -5,13 +5,22 @@
  */
 package dk.opendesk.foundationapplication.webscripts;
 
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.stringExists;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
+import dk.opendesk.foundationapplication.beans.ActionBean;
+import dk.opendesk.foundationapplication.beans.ApplicationBean;
+import dk.opendesk.foundationapplication.beans.BranchBean;
+import dk.opendesk.foundationapplication.beans.BudgetBean;
+import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import static dk.opendesk.foundationapplication.webscripts.foundation.UpdateBudget.BUDGET_DID_NOT_MATCH;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +35,6 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
 import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.ServiceRegistry;
@@ -50,9 +58,15 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
     private WebScriptResponse res;
     private Map<String, String> urlParams;
     private Map<String, String> urlQueryParams;
+    
+    private final Histogram responseTimes = Utilities.getMetrics().histogram(MetricRegistry.name(getClass(), "response-times"));
 
     private ServiceRegistry serviceRegistry;
-    private FoundationBean foundationBean;
+    private ActionBean actionBean;
+    private ApplicationBean applicationBean;
+    private BranchBean branchBean;
+    private BudgetBean budgetBean;
+    private WorkflowBean workflowBean;
 
     protected ServiceRegistry getServiceRegistry() {
         return serviceRegistry;
@@ -62,13 +76,47 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
         this.serviceRegistry = serviceRegistry;
     }
 
-    protected FoundationBean getFoundationBean() {
-        return foundationBean;
+    public ActionBean getActionBean() {
+        return actionBean;
     }
 
-    public void setFoundationBean(FoundationBean foundationBean) {
-        this.foundationBean = foundationBean;
+    public void setActionBean(ActionBean actionBean) {
+        this.actionBean = actionBean;
     }
+
+    public ApplicationBean getApplicationBean() {
+        return applicationBean;
+    }
+
+    public void setApplicationBean(ApplicationBean applicationBean) {
+        this.applicationBean = applicationBean;
+    }
+
+    public BranchBean getBranchBean() {
+        return branchBean;
+    }
+
+    public void setBranchBean(BranchBean branchBean) {
+        this.branchBean = branchBean;
+    }
+
+    public BudgetBean getBudgetBean() {
+        return budgetBean;
+    }
+
+    public void setBudgetBean(BudgetBean budgetBean) {
+        this.budgetBean = budgetBean;
+    }
+
+    public WorkflowBean getWorkflowBean() {
+        return workflowBean;
+    }
+
+    public void setWorkflowBean(WorkflowBean workflowBean) {
+        this.workflowBean = workflowBean;
+    }
+    
+    
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
@@ -89,7 +137,9 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
         urlParams = req.getServiceMatch().getTemplateVars();
         urlQueryParams = parseUrlParams(req.getURL());
         try {
+            Long startTime = System.currentTimeMillis();
             Object returnData = doAction(req, res);
+            responseTimes.update(System.currentTimeMillis()-startTime);
             if (returnData != null) {
                 if (returnData instanceof JSONObject) {
                     ((JSONObject) returnData).write(res.getWriter());

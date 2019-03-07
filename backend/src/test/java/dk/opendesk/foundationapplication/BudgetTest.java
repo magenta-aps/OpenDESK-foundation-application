@@ -6,17 +6,13 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Budget;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
 
 /**
  *
  * @author martin
  */
 public class BudgetTest extends AbstractTestClass{
-    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public BudgetTest() {
         super("/foundation/budget");
@@ -26,13 +22,13 @@ public class BudgetTest extends AbstractTestClass{
     protected void setUp() throws Exception {
         super.setUp();
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        TestUtils.wipeData(serviceRegistry);
-        TestUtils.setupSimpleFlow(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtils.wipeData(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
     }
     
     public void testGetBudget() throws Exception{

@@ -21,8 +21,7 @@ import java.util.logging.Logger;
  *
  * @author martin
  */
-public class ApplicationPropertyDeserializer extends JsonDeserializer<ApplicationPropertyValue>{
-
+public class ApplicationPropertyDeserializer extends JsonDeserializer<ApplicationPropertyValue> {
 
     @Override
     public ApplicationPropertyValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
@@ -30,25 +29,39 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
         try {
             ApplicationPropertyValue toReturn = new ApplicationPropertyValue();
             JsonNode node = jp.getCodec().readTree(jp);
-            toReturn.setId(node.get("id").asText());
-            toReturn.setType(node.get("type").asText());
-            toReturn.setLabel(node.get("label").asText());
-            toReturn.setLayout(node.get("layout").asText());
-            toReturn.setDescribes(node.get("describes").asText());
-            String typeString = node.get("javaType").asText();
-            Class type = Class.forName(typeString);
-            toReturn.setJavaType(type);
-            //String valueString = node.get("value").toString();
-            if(type.isAssignableFrom(String.class)){
-                toReturn.setValue(node.get("value").asText());
-            }else if(type.isAssignableFrom(Date.class)){
-                toReturn.setValue(ctxt.parseDate(node.get("value").asText()));
-            }else{
-                Object value = newMapper.readValue(node.get("value").toString(), type);
-                toReturn.setValue(value);
+            if (node.has("id")) {
+                toReturn.setId(node.get("id").asText());
             }
+            if (node.has("type")) {
+                toReturn.setType(node.get("type").asText());
+            }
+            if (node.has("label")) {
+                toReturn.setLabel(node.get("label").asText());
+            }
+            if (node.has("layout")) {
+                toReturn.setLayout(node.get("layout").asText());
+            }
+            if (node.has("describes")) {
+                toReturn.setDescribes(node.get("describes").asText());
+            }
+            if (node.has("javaType")) {
+                String typeString = node.get("javaType").asText();
+                Class type = Class.forName(typeString);
+                toReturn.setJavaType(type);
+                if (node.has("value")) {
+                    if (type.isAssignableFrom(String.class)) {
+                        toReturn.setValue(node.get("value").asText());
+                    } else if (type.isAssignableFrom(Date.class)) {
+                        toReturn.setValue(ctxt.parseDate(node.get("value").asText()));
+                    } else {
+                        Object value = newMapper.readValue(node.get("value").toString(), type);
+                        toReturn.setValue(value);
+                    }
+                }
+            }
+
             return toReturn;
-            
+
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ApplicationPropertyDeserializer.class.getName()).log(Level.SEVERE, null, ex);
             return null;
@@ -60,9 +73,4 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
         return ApplicationPropertyValue.class;
     }
 
-    
-    
-    
-    
-    
 }

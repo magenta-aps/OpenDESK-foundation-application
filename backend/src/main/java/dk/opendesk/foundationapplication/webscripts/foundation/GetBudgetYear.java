@@ -20,7 +20,7 @@ public class GetBudgetYear extends JacksonBackedWebscript{
     @Override
     protected BudgetYear doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         String budgetYearID = getUrlParams().get("budgetYearID");
-        BudgetYear budgetYear = getFoundationBean().getBudgetYear(Reference.refFromID(budgetYearID));
+        BudgetYear budgetYear = getBudgetBean().getBudgetYear(Reference.refFromID(budgetYearID));
         return budgetYear;
     }
     

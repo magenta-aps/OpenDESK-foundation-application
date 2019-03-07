@@ -6,7 +6,6 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
-import java.util.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -14,22 +13,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @author martin
  */
 public class WorkflowReference extends Reference{
-    private Optional<String> title;
 
     public WorkflowReference() {
-    }
-
-
-    public String getTitle() {
-        return get(title);
-    }    
-    
-    public boolean wasTitleSet(){
-        return wasSet(title);
-    }
-
-    public void setTitle(String title) {
-        this.title = optional(title);
     }
 
     @Override
@@ -63,7 +48,7 @@ public class WorkflowReference extends Reference{
 
     @Override
     public ToStringBuilder toStringBuilder() {
-        return super.toStringBuilder().append("title", title);
+        return super.toStringBuilder().append("title", getTitle());
     }
 
     

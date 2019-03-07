@@ -22,7 +22,7 @@ public class GetWorkflow extends JacksonBackedWebscript{
         String workflowID = getUrlParams().get("workflowID");
         Reference reference = new Reference();
         reference.setNodeID(workflowID);
-        return getFoundationBean().getWorkflow(reference.asNodeRef());
+        return getWorkflowBean().getWorkflow(reference.asNodeRef());
     }
     
     

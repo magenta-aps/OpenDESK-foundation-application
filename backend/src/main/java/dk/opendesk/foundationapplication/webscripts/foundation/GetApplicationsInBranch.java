@@ -30,13 +30,13 @@ public class GetApplicationsInBranch extends JacksonBackedWebscript{
         Reference ref = new Reference();
         ref.setNodeID(branchID);   
         
-        List<ApplicationSummary> branchSummaries = getFoundationBean().getBranchApplications(ref.asNodeRef());
+        List<ApplicationSummary> branchSummaries = getBranchBean().getBranchApplications(ref.asNodeRef());
         if(budgetID == null){
             return branchSummaries;
         }else{
             Reference budgetReference = new Reference();
             budgetReference.setNodeID(budgetID);
-            Budget budget = getFoundationBean().getBudget(budgetReference.asNodeRef());
+            Budget budget = getBudgetBean().getBudget(budgetReference.asNodeRef());
             Set<NodeRef> budgetApplicationNodeRefs = new HashSet<>();
             for(ApplicationReference budgetAppRef : budget.getApplications()){
                 budgetApplicationNodeRefs.add(budgetAppRef.asNodeRef());

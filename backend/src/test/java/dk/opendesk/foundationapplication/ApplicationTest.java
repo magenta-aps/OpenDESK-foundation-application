@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
+import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
@@ -14,7 +15,6 @@ import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import static dk.opendesk.foundationapplication.TestUtils.stateAccessRef;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import java.time.Duration;
@@ -22,17 +22,18 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 
 /**
  *
  * @author martin
  */
 public class ApplicationTest extends AbstractTestClass{
-    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public ApplicationTest() {
         super("/foundation/application");
@@ -42,25 +43,31 @@ public class ApplicationTest extends AbstractTestClass{
     protected void setUp() throws Exception {
         super.setUp();
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        TestUtils.wipeData(serviceRegistry);
-        TestUtils.setupSimpleFlow(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtils.wipeData(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
     }
     
     public void testAddApplication() throws Exception{
-        assertEquals(3, foundationBean.getApplicationSummaries().size());
+        assertEquals(3, getApplicationBean().getApplicationSummaries().size());
         
         String applicationTitle = "More cats for dogs";
         
         Application newApplication = new Application();
         newApplication.setTitle(applicationTitle);
         ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        app1blockRecipient.setId("1");
+        app1blockRecipient.setLabel("Recipients");
         ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        app1blockOverview.setId("2");
+        app1blockOverview.setLabel("Overview");
         ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        app1details.setId("3");
+        app1details.setLabel("Details");
         app1blockRecipient.setFields(new ArrayList<>());
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Cats4Dogs"));
         app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Testgade"));
@@ -88,11 +95,11 @@ public class ApplicationTest extends AbstractTestClass{
         assertNotNull(reference);
         assertEquals(applicationTitle, reference.getTitle());
         
-        assertEquals(4, foundationBean.getApplicationSummaries().size());
+        assertEquals(4, getApplicationBean().getApplicationSummaries().size());
     }
     
     public void testAddTestApplication() throws Exception{
-        assertEquals(3, foundationBean.getApplicationSummaries().size());
+        assertEquals(3, getApplicationBean().getApplicationSummaries().size());
         
         ApplicationReference input = new ApplicationReference();
         input.setTitle("Hello");
@@ -101,17 +108,17 @@ public class ApplicationTest extends AbstractTestClass{
         assertNotNull(reference);
         assertEquals("Hello", reference.getTitle());
         
-        assertEquals(4, foundationBean.getApplicationSummaries().size());
+        assertEquals(4, getApplicationBean().getApplicationSummaries().size());
     }
     
     public void testGetApplicationFromSummary() throws Exception{
-        for(ApplicationSummary summary : foundationBean.getApplicationSummaries()){
+        for(ApplicationSummary summary : getApplicationBean().getApplicationSummaries()){
             Application application = get(Application.class, summary.getNodeID());
             assertEquals(summary.getTitle(), application.getTitle());
         }
     }
     public void testGetApplicationState() throws Exception{
-        Application application = foundationBean.getApplication(TestUtils.application1);
+        Application application = getApplicationBean().getApplication(TestUtils.application1);
         assertEquals(TestUtils.stateRecievedRef,application.getState().asNodeRef());
         assertEquals(TestUtils.workFlowRef,application.getWorkflow().asNodeRef());
     }
@@ -122,8 +129,8 @@ public class ApplicationTest extends AbstractTestClass{
         NodeRef newBudgetRef = TestUtils.budgetRef2;
         NodeRef app2Ref = TestUtils.application2;
         
-        Budget currentBudget = foundationBean.getBudget(currentBudgetRef);
-        Budget newBudget = foundationBean.getBudget(newBudgetRef);
+        Budget currentBudget = getBudgetBean().getBudget(currentBudgetRef);
+        Budget newBudget = getBudgetBean().getBudget(newBudgetRef);
         
         Long expectedAmount = TestUtils.APPLICATION1_AMOUNT+TestUtils.APPLICATION2_AMOUNT;
         assertEquals(TestUtils.BUDGET1_AMOUNT, currentBudget.getAmountAvailable());
@@ -142,8 +149,8 @@ public class ApplicationTest extends AbstractTestClass{
         Application app = get(Application.class, app2Ref.getId());
         assertEquals(currentBudgetRef, app.getBudget().asNodeRef());
         assertEquals(stateAccessRef, app.getState().asNodeRef());
-        currentBudget = foundationBean.getBudget(currentBudgetRef);
-        newBudget = foundationBean.getBudget(newBudgetRef);
+        currentBudget = getBudgetBean().getBudget(currentBudgetRef);
+        newBudget = getBudgetBean().getBudget(newBudgetRef);
         
         expectedAmount = TestUtils.BUDGET1_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
         assertEquals(expectedAmount, currentBudget.getAmountAvailable());
@@ -160,8 +167,8 @@ public class ApplicationTest extends AbstractTestClass{
 
         app = get(Application.class, app2Ref.getId());
         assertEquals(newBudgetRef, app.getBudget().asNodeRef());
-        currentBudget = foundationBean.getBudget(currentBudgetRef);
-        newBudget = foundationBean.getBudget(newBudgetRef);
+        currentBudget = getBudgetBean().getBudget(currentBudgetRef);
+        newBudget = getBudgetBean().getBudget(newBudgetRef);
         
         assertEquals(TestUtils.BUDGET1_AMOUNT, currentBudget.getAmountAvailable());
         expectedAmount = TestUtils.BUDGET2_AMOUNT-TestUtils.APPLICATION2_AMOUNT;
@@ -205,6 +212,221 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals(TestUtils.stateAccessRef, app.getState().asNodeRef());
     }
     
+
+    public void testSeenByList() throws Exception {
+        NodeRef appRef = TestUtils.application2;
+
+        //isSeen is initially false
+        Application app = get(Application.class, appRef.getId());
+        assertFalse(app.getIsSeen());
+
+        //from isSeen=false to isSeen=false
+        Application change = new Application();
+        change.parseRef(appRef);
+        change.setIsSeen(false);
+        post(change,appRef.getId());
+
+        app = get(Application.class, appRef.getId());
+        assertFalse(app.getIsSeen());
+
+        //from isSeen=false to isSeen=true
+        change = new Application();
+        change.parseRef(appRef);
+        change.setIsSeen(true);
+        post(change,appRef.getId());
+
+        app = get(Application.class, appRef.getId());
+        assertTrue(app.getIsSeen());
+
+        //from isSeen=true to isSeen=true
+        change = new Application();
+        change.parseRef(appRef);
+        change.setIsSeen(true);
+        post(change,appRef.getId());
+
+        app = get(Application.class, appRef.getId());
+        assertTrue(app.getIsSeen());
+
+        //from isSeen=true to isSeen=false
+        change = new Application();
+        change.parseRef(appRef);
+        change.setIsSeen(false);
+        post(change,appRef.getId());
+
+        app = get(Application.class, appRef.getId());
+        assertFalse(app.getIsSeen());
+
+        //todo Test with two different users as well
+    }
+
+    public void testDeleteApplication() throws Exception {
+        NodeService ns = getServiceRegistry().getNodeService();
+
+        //before delete
+        List<ChildAssociationRef> applications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
+        List<ChildAssociationRef> deletedApplications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
+
+        assertEquals(3, applications.size());
+        assertEquals(0, deletedApplications.size());
+
+        //choosing application to remove
+        NodeRef applicationToRemove = applications.get(0).getChildRef();
+        assertFalse(ns.getTargetAssocs(applicationToRemove,qname -> true).size() == 0); //the application has associations (branch, budget, state)
+
+        //removing application with foundationBean method
+        getApplicationBean().deleteApplication(applicationToRemove);
+
+        //after delete
+        applications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
+        deletedApplications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
+
+        assertEquals(2, applications.size());
+        assertEquals(1, deletedApplications.size());
+
+        assertEquals(deletedApplications.get(0).getChildRef(), applicationToRemove); //the deleted application is the intended one
+        assertTrue(ns.getTargetAssocs(applicationToRemove,qname -> true).size() == 0); //the associations of the application has been removed
+
+        //choosing application to remove
+        applicationToRemove = applications.get(0).getChildRef();
+
+        //removing application with webscript
+        delete(String.class, applicationToRemove.getId());
+
+        //after delete
+        applications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_APPLICATIONS), null);
+        deletedApplications = ns.getChildAssocs(getApplicationBean().getDataHome(), Utilities.getODFName(Utilities.DATA_ASSOC_DELETED_APPLICATION), null);
+
+        assertEquals(1, applications.size());
+        assertEquals(2, deletedApplications.size());
+
+
+    }
+    
+    public void testUpdateApplication() throws Exception{
+        String newDescription = "new description";
+        Application beforeChange = getApplicationBean().getApplication(TestUtils.application1);
+        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
+        ApplicationPropertyValue description = overview.getFields().get(1);
+        assertEquals("Overview", overview.getLabel());
+        assertEquals("Short Description", description.getLabel());
+        assertEquals("Give me money", description.getValue());
+        
+        Application change = Utilities.buildChange(beforeChange).changeField(description.getId()).setValue(newDescription).done().build();
+        getApplicationBean().updateApplication(change);
+        
+        Application afterChange = getApplicationBean().getApplication(TestUtils.application1);
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+        
+        for(int blk = 0 ; blk<beforeChange.getBlocks().size() ; blk++){
+            for(int fld = 0 ; fld<beforeChange.getBlocks().get(blk).getFields().size() ; fld++){
+                if(!(blk == 1 && fld == 1)){
+                    assertEquals(beforeChange.getBlocks().get(blk).getFields().get(fld), afterChange.getBlocks().get(blk).getFields().get(fld));
+                }
+                
+            }
+        }
+    }
+    
+        
+    public void testUpdateFullApplication() throws Exception{
+        String newDescription = "new description";
+        Application beforeChange = getApplicationBean().getApplication(TestUtils.application1);
+        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
+        ApplicationPropertyValue description = overview.getFields().get(1);
+        assertEquals("Overview", overview.getLabel());
+        assertEquals("Short Description", description.getLabel());
+        assertEquals("Give me money", description.getValue());
+        
+        description.setValue(newDescription);
+        getApplicationBean().updateApplication(beforeChange);
+        
+        Application afterChange = getApplicationBean().getApplication(TestUtils.application1);
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+        for(int blk = 0 ; blk<beforeChange.getBlocks().size() ; blk++){
+            for(int fld = 0 ; fld<beforeChange.getBlocks().get(blk).getFields().size() ; fld++){
+                if(!(blk == 1 && fld == 1)){
+                    assertEquals(beforeChange.getBlocks().get(blk).getFields().get(fld), afterChange.getBlocks().get(blk).getFields().get(fld));
+                }
+                
+            }
+        }
+    }
+    
+    public void testRestUpdateApplication() throws Exception {
+        String newDescription = "changed description";
+        Application beforeChange = get(Application.class, TestUtils.application1.getId());
+        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
+        ApplicationPropertyValue description = overview.getFields().get(1);
+        assertEquals("Overview", overview.getLabel());
+        assertEquals("Short Description", description.getLabel());
+        assertEquals("Give me money", description.getValue());
+
+        Application change = Utilities.buildChange(beforeChange).changeField(description.getId()).setValue(newDescription).done().build();
+        post(change, TestUtils.application1.getId());
+
+        Application afterChange = get(Application.class, TestUtils.application1.getId());
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+
+        for (int blk = 0; blk < beforeChange.getBlocks().size(); blk++) {
+            for (int fld = 0; fld < beforeChange.getBlocks().get(blk).getFields().size(); fld++) {
+                if (!(blk == 1 && fld == 1)) {
+                    assertEquals(beforeChange.getBlocks().get(blk).getFields().get(fld), afterChange.getBlocks().get(blk).getFields().get(fld));
+                }
+            }
+        }
+    }
+    
+    public void testRestUpdateFullApplication() throws Exception {
+        String newDescription = "changed description";
+        Application beforeChange = get(Application.class, TestUtils.application1.getId());
+        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
+        ApplicationPropertyValue description = overview.getFields().get(1);
+        assertEquals("Overview", overview.getLabel());
+        assertEquals("Short Description", description.getLabel());
+        assertEquals("Give me money", description.getValue());
+        description.setValue(newDescription);
+        
+        post(beforeChange, TestUtils.application1.getId());
+
+        Application afterChange = get(Application.class, TestUtils.application1.getId());
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+
+        for (int blk = 0; blk < beforeChange.getBlocks().size(); blk++) {
+            for (int fld = 0; fld < beforeChange.getBlocks().get(blk).getFields().size(); fld++) {
+                if (!(blk == 1 && fld == 1)) {
+                    assertEquals(beforeChange.getBlocks().get(blk).getFields().get(fld), afterChange.getBlocks().get(blk).getFields().get(fld));
+                }
+            }
+        }
+    }
+    
+    public void testGetApplications() throws Exception {
+        List<ApplicationSummary> allApplications = get(List.class, ApplicationSummary.class);
+        assertEquals(3, allApplications.size());
+        List<ApplicationSummary> branchApplications = get(List.class, ApplicationSummary.class, "?branchID="+TestUtils.branchRef.getId());
+        assertEquals(2, branchApplications.size());
+        List<ApplicationSummary> budget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId());
+        assertEquals(2, budget1Applications.size());
+        List<ApplicationSummary> budget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId());
+        assertEquals(0, budget2Applications.size());
+        List<ApplicationSummary> branchbudget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId()+"&branchID="+TestUtils.branchRef.getId());
+        assertEquals(2, branchbudget1Applications.size());
+        List<ApplicationSummary> branchbudget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId()+"&branchID="+TestUtils.branchRef.getId());
+        assertEquals(0, branchbudget2Applications.size());
+        
+        Application change = Utilities.buildChange(getApplicationBean().getApplication(TestUtils.application1)).setBudget(TestUtils.budgetRef2).build();
+        getApplicationBean().updateApplication(change);
+        
+        budget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId());
+        assertEquals(1, budget1Applications.size());
+        budget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId());
+        assertEquals(1, budget2Applications.size());
+        branchbudget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId()+"&branchID="+TestUtils.branchRef.getId());
+        assertEquals(1, branchbudget1Applications.size());
+        branchbudget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId()+"&branchID="+TestUtils.branchRef.getId());
+        assertEquals(1, branchbudget2Applications.size());
+        
+    }
     
     
     

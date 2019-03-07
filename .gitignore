@@ -13,4 +13,5 @@ buildNumber.properties
 
 # Keep IDE specific files out
 -idea/
+.idea/
 nbactions.xml

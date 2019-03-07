@@ -122,6 +122,17 @@
                  </property>
              </properties>
             <associations>
+                <association name="odf:newApplications">
+                    <source>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>odf:application</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
                  <child-association name="odf:workflows">
                      <source>
                          <mandatory>true</mandatory>
@@ -170,17 +181,20 @@
                      </target>
                      <duplicate>true</duplicate>
                 </child-association>
-                <association name="odf:newApplications">
-                     <source>
-                         <mandatory>true</mandatory>
-                         <many>false</many>
-                     </source>
-                     <target>
-                         <class>odf:application</class>
-                         <mandatory>false</mandatory>
-                         <many>true</many>
-                     </target>
-                </association>
+                <child-association name="odf:deletedApplications">
+                    <source>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>odf:application</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                    <duplicate>true</duplicate>
+                </child-association>
+
+
 
              </associations>
         </type> 
@@ -250,6 +264,18 @@
                         <many>true</many>
                     </target>
                 </association>
+                <child-association name="odf:stateActions">
+                     <source>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
+                     </source>
+                     <target>
+                         <class>cm:cmobject</class>
+                         <mandatory>false</mandatory>
+                         <many>true</many>
+                     </target>
+                     <duplicate>false</duplicate>
+                 </child-association>
             </associations>           
         </type>
         
@@ -354,6 +380,13 @@
                     <type>d:text</type>
                     <multiple>true</multiple>
                 </property>
+
+                <property name="odf:applicationSeenBy">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                    <multiple>true</multiple>
+                </property>
+
             </properties>
             <associations>
                 <association name="odf:applicationBudget">
@@ -405,12 +438,29 @@
                     </target>
                     <duplicate>false</duplicate>
                 </child-association>
-            </associations> 
+                <child-association name="odf:emailFolder">
+                    <title>Email Folder</title>
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>cm:folder</class>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </target>
+                    <duplicate>false</duplicate>
+                </child-association>
+            </associations>
+            <!-- <mandatory-aspects>
+                <aspect>cm:versionable</aspect>
+            </mandatory-aspects> -->
         </type>
 
     </types>
 
-<!--    <aspects>
+    <aspects>
+        <!--
         <aspect name="od:notifications">
             <title>Notifications related to a specific user</title>
                 <properties>
@@ -429,9 +479,17 @@
                 </child-association>
             </associations>
         </aspect>
+        -->
 
-  
-    </aspects>-->
+        <aspect name="odf:onCreate">
+            <title>Event on creation of a state</title>
+        </aspect>
+
+        <aspect name="odf:beforeDelete">
+            <title>Event on deletion of a state</title>
+        </aspect>
+
+    </aspects>
 
     
 

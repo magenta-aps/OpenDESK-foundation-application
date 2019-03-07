@@ -19,7 +19,7 @@ public class GetBudgetYears extends JacksonBackedWebscript{
 
     @Override
     protected List<BudgetYearSummary> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        List<BudgetYearSummary> budgetYears = getFoundationBean().getBudgetYearSummaries();
+        List<BudgetYearSummary> budgetYears = getBudgetBean().getBudgetYearSummaries();
         return budgetYears;
     }
     

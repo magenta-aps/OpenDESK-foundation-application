@@ -20,7 +20,7 @@ public class AddBudgetYear extends JacksonBackedWebscript {
     @Override
     protected Reference doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         BudgetYearSummary budgetYear = getRequestAs(BudgetYearSummary.class);
-        return Reference.from(getFoundationBean().addNewBudgetYear(budgetYear.getTitle(), budgetYear.getTitle(), budgetYear.getStartDate(), budgetYear.getEndDate()));
+        return Reference.from(getBudgetBean().addNewBudgetYear(budgetYear.getTitle(), budgetYear.getTitle(), budgetYear.getStartDate(), budgetYear.getEndDate()));
     }
     
     

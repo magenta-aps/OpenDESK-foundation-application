@@ -53,7 +53,7 @@ public class Application extends ApplicationSummary{
     public void setBudget(BudgetReference budget) {
         this.budget = optional(budget);
     }
-    
+
 
     @Override
     public int hashCode() {

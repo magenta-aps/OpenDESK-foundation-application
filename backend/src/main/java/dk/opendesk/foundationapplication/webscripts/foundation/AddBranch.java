@@ -20,7 +20,7 @@ public class AddBranch extends JacksonBackedWebscript {
     @Override
     protected Reference doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         Branch branch = getRequestAs(Branch.class);    
-        return Reference.from(getFoundationBean().addNewBranch(branch.getTitle(), branch.getTitle()));
+        return Reference.from(getBranchBean().addNewBranch(branch.getTitle(), branch.getTitle()));
     }
     
 }

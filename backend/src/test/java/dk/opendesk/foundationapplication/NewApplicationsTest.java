@@ -6,18 +6,14 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import java.util.List;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
 
 /**
  *
  * @author martin
  */
 public class NewApplicationsTest extends AbstractTestClass{
-    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public NewApplicationsTest(){
         super("/foundation/incomming");
@@ -27,17 +23,17 @@ public class NewApplicationsTest extends AbstractTestClass{
     protected void setUp() throws Exception {
         super.setUp();
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        TestUtils.wipeData(serviceRegistry);
-        TestUtils.setupSimpleFlow(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtils.wipeData(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
     }
     
     public void testGetNewApplications() throws Exception{
-        List<ApplicationSummary> newApplications = foundationBean.getNewApplicationSummaries();
+        List<ApplicationSummary> newApplications = getApplicationBean().getNewApplicationSummaries();
         List<ApplicationSummary> newApplicationsRest = get(List.class, ApplicationSummary.class);
         
         assertEquals(1, newApplications.size());

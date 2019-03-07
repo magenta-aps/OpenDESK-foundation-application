@@ -19,7 +19,7 @@ public class GetWorkflows extends JacksonBackedWebscript{
 
     @Override
     protected List<WorkflowSummary> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        return getFoundationBean().getWorkflowSummaries();
+        return getWorkflowBean().getWorkflowSummaries();
     }
     
 }

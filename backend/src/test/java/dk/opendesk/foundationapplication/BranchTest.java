@@ -11,14 +11,12 @@ import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.DAO.WorkflowReference;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import junit.framework.AssertionFailedError;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,8 +26,6 @@ import org.json.JSONObject;
  * @author martin
  */
 public class BranchTest extends AbstractTestClass {
-    private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
-    private final FoundationBean foundationBean = (FoundationBean) getServer().getApplicationContext().getBean("foundationBean");
 
     public BranchTest() {
         super("/foundation/branch");
@@ -39,28 +35,28 @@ public class BranchTest extends AbstractTestClass {
     protected void setUp() throws Exception {
         super.setUp();
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        TestUtils.wipeData(serviceRegistry);
-        TestUtils.setupSimpleFlow(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
+        TestUtils.setupSimpleFlow(getServiceRegistry());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        TestUtils.wipeData(serviceRegistry);
+        TestUtils.wipeData(getServiceRegistry());
     }
     
     public Reference testAddBranchWebScript() throws Exception{
-        assertEquals(1, foundationBean.getBranches().size());
-        assertEquals(TestUtils.BRANCH_NAME+TestUtils.TITLE_POSTFIX, foundationBean.getBranchSummaries().get(0).getTitle());
+        assertEquals(1, getBranchBean().getBranches().size());
+        assertEquals(TestUtils.BRANCH_NAME+TestUtils.TITLE_POSTFIX, getBranchBean().getBranchSummaries().get(0).getTitle());
         JSONObject requestData = new JSONObject();
         requestData.put("title", "My new branch");
         Reference ref = post(requestData, Reference.class);
-        assertEquals(2, foundationBean.getBranches().size());
+        assertEquals(2, getBranchBean().getBranches().size());
         return ref;
     }
     
     public void testGetBranches() throws Exception{
         List<BranchSummary> restSummaries = get(List.class, BranchSummary.class);
-        List<BranchSummary> beanSummaries = foundationBean.getBranchSummaries();
+        List<BranchSummary> beanSummaries = getBranchBean().getBranchSummaries();
         
         containsSameElements(restSummaries, beanSummaries);
         assertEquals(1, restSummaries.size());
@@ -85,13 +81,13 @@ public class BranchTest extends AbstractTestClass {
     public void testAddWorkflowToBranch() throws Exception{
         String workflowTitle = "TestWorkFlow";
         Reference ref = testAddBranchWebScript();
-        BranchSummary branch = foundationBean.getBranch(ref.asNodeRef());
+        BranchSummary branch = getBranchBean().getBranch(ref.asNodeRef());
         assertNull(branch.getWorkflowRef());
         
         
         BranchSummary summary = new BranchSummary();
         summary.parseRef(ref.asNodeRef());
-        NodeRef newWorkflowRef = foundationBean.addNewWorkflow(workflowTitle, workflowTitle);
+        NodeRef newWorkflowRef = getWorkflowBean().addNewWorkflow(workflowTitle, workflowTitle);
         WorkflowReference workflow = new WorkflowReference();
         workflow.parseRef(newWorkflowRef);
         summary.setWorkflowRef(workflow);
@@ -99,8 +95,8 @@ public class BranchTest extends AbstractTestClass {
         
         
         
-        branch = foundationBean.getBranch(ref.asNodeRef());
-        assertEquals(foundationBean.getWorkflowReference(newWorkflowRef), branch.getWorkflowRef());
+        branch = getBranchBean().getBranch(ref.asNodeRef());
+        assertEquals(getWorkflowBean().getWorkflowReference(newWorkflowRef), branch.getWorkflowRef());
     }
     
     public void testGetBranchApplications() throws Exception{
@@ -128,7 +124,7 @@ public class BranchTest extends AbstractTestClass {
         BudgetReference newBudget = new BudgetReference();
         newBudget.parseRef(TestUtils.budgetRef2);
         change.setBudget(newBudget);
-        foundationBean.updateApplication(change);
+        getApplicationBean().updateApplication(change);
         
         applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications?budgetID="+TestUtils.budgetRef1.getId());
         assertEquals(1, applications.size());

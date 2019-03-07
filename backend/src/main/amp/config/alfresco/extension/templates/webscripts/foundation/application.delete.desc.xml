@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Delete Application</shortname>
+    <description>Deletes the specified application</description>
+    <url>/foundation/application/{applicationId}</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

@@ -19,7 +19,7 @@ public class GetBranches extends JacksonBackedWebscript{
 
     @Override
     protected List<BranchSummary> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        return getFoundationBean().getBranchSummaries();
+        return getBranchBean().getBranchSummaries();
     }
     
 }

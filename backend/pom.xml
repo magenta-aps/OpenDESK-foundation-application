@@ -30,6 +30,7 @@
         <jdk>1.8</jdk>
         <alfresco.version>5.1.g</alfresco.version>
         <jackson.version>2.9.7</jackson.version>
+        <metrics.version>4.0.5</metrics.version>
         <!-- This control the root logging level for all apps uncomment and change, defaults to WARN
             <app.log.root.level>WARN</app.log.root.level>
         -->
@@ -100,9 +101,28 @@
         </dependency>
         
         <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>${metrics.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jmx</artifactId>
+            <version>${metrics.version}</version>
+        </dependency>
+        
+        <dependency>
            <groupId>com.fasterxml.jackson.core</groupId>
            <artifactId>jackson-core</artifactId>
            <version>${jackson.version}</version>
+        </dependency>
+        
+        <!-- Email testing dependencies -->
+        <dependency>
+            <groupId>com.github.sleroy</groupId>
+            <artifactId>fakesmtp-junit-runner</artifactId>
+            <version>0.1.1</version>
+            <scope>test</scope>
         </dependency>
         
         <!-- Webscripts testing dependencies -->
@@ -200,6 +220,14 @@
                     </overlays>
                 </configuration>
             </plugin>
+            <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-surefire-plugin</artifactId>
+	<version>${maven.surefire.version}</version>
+	<configuration>
+		<trimStackTrace>false</trimStackTrace>
+	</configuration>
+        </plugin>
         </plugins>
     </build>
 

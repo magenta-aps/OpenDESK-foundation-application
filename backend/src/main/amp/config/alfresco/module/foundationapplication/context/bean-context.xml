@@ -17,14 +17,65 @@
         limitations under the License.
 -->
 <beans>
-    <bean id="foundationBean" class="dk.opendesk.foundationapplication.beans.FoundationBean">
+    <bean id="foundationBean" class="dk.opendesk.foundationapplication.beans.FoundationBean" abstract="true">
         <property name="serviceRegistry" ref="ServiceRegistry"/>
     </bean>
-    
+    <bean id="branchBean" class="dk.opendesk.foundationapplication.beans.BranchBean" parent="foundationBean">
+        <property name="budgetBean" ref="budgetBean"/>
+        <property name="applicationBean" ref="applicationBean"/>
+    </bean>
+    <bean id="budgetBean" class="dk.opendesk.foundationapplication.beans.BudgetBean" parent="foundationBean">
+        <property name="applicationBean" ref="applicationBean"/>
+        <property name="workflowBean" ref="workflowBean"/>
+    </bean>
+    <bean id="workflowBean" class="dk.opendesk.foundationapplication.beans.WorkflowBean" parent="foundationBean">
+        <property name="applicationBean" ref="applicationBean"/>
+        <property name="branchBean" ref="branchBean"/>
+    </bean>
+    <bean id="actionBean" class="dk.opendesk.foundationapplication.beans.ActionBean" parent="foundationBean">
+        <property name="applicationBean" ref="applicationBean"/>
+    </bean>
+    <bean id="applicationBean" class="dk.opendesk.foundationapplication.beans.ApplicationBean" parent="foundationBean">
+        <property name="workflowBean" ref="workflowBean"/>
+        <property name="actionBean" ref="actionBean"/>
+        <property name="branchBean" ref="branchBean"/>
+        <property name="budgetBean" ref="budgetBean"/>
+    </bean>
+    <bean id="foundationMail" class="dk.opendesk.foundationapplication.actions.EmailAction">
+        <property name="applicationBean" ref="applicationBean"/>
+        <property name="actionBean" ref="actionBean"/>
+        <property name="nodeService" ref="nodeService"/>
+        <property name="tenantService" ref="tenantService"/>
+        <property name="personService" ref="personService"/>
+        <property name="authenticationService" ref="authenticationService"/>
+        <property name="preferenceService" ref="preferenceService"/>
+        <property name="mailService" ref="mailService"/>
+        <property name="serviceRegistry" ref="ServiceRegistry"/>
+        <property name="templateService" ref="templateService"/>
+        <property name="authorityService" ref="authorityService"/>
+        <property name="sysAdminParams" ref="sysAdminParams"/>
+    </bean>
+
+    <bean id="test" class="dk.opendesk.foundationapplication.TestAction">
+        <property name="applicationBean" ref="applicationBean"/>
+    </bean>
+
+    <bean id="addBlocks" class="dk.opendesk.foundationapplication.actions.AddBlocksToApplicationAction">
+        <property name="applicationBean" ref="applicationBean"/>
+    </bean>
+
+    <bean id="addFields" class="dk.opendesk.foundationapplication.actions.AddFieldsToApplicationAction">
+        <property name="applicationBean" ref="applicationBean"/>
+    </bean>
+
     <bean id="webscript.foundation"
           class="dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript"
           parent="webscript" abstract="true">
         <property name="serviceRegistry" ref="ServiceRegistry"/>
-        <property name="foundationBean" ref="foundationBean"/>
+        <property name="applicationBean" ref="applicationBean"/>
+        <property name="workflowBean" ref="workflowBean"/>
+        <property name="actionBean" ref="actionBean"/>
+        <property name="branchBean" ref="branchBean"/>
+        <property name="budgetBean" ref="budgetBean"/>
     </bean>
 </beans>

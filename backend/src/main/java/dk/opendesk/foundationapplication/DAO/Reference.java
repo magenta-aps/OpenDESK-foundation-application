@@ -20,6 +20,7 @@ public class Reference extends DAOType{
     
     private Optional<String> nodeID = null;
     private Optional<String> storeID = null;
+    private Optional<String> title;
 
     public Reference() {
     }
@@ -46,6 +47,18 @@ public class Reference extends DAOType{
 
     public void setStoreID(String storeID) {
         this.storeID = optional(storeID);
+    }
+    
+    public String getTitle() {
+        return get(title);
+    }    
+    
+    public boolean wasTitleSet(){
+        return wasSet(title);
+    }
+
+    public void setTitle(String title) {
+        this.title = optional(title);
     }
 
     public String getNodeRef() {

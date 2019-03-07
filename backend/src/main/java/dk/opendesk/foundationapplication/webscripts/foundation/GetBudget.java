@@ -20,7 +20,7 @@ public class GetBudget extends JacksonBackedWebscript{
     @Override
     protected Budget doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
         String budgetID = getUrlParams().get("budgetID");
-        Budget budget = getFoundationBean().getBudget(Reference.refFromID(budgetID));
+        Budget budget = getBudgetBean().getBudget(Reference.refFromID(budgetID));
         return budget;
     }
     

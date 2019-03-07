@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Email</shortname>
+    <description>Gets the specified email from the specified application</description>
+    <url>/foundation/application/{applicationId}/email/{emailId}</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

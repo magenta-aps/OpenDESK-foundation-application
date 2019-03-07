@@ -32,6 +32,11 @@
           class="dk.opendesk.foundationapplication.webscripts.foundation.AddApplication"
           parent="webscript.foundation">
     </bean>
+
+    <bean id="webscript.foundation.applicationHistory.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplicationHistory"
+          parent="webscript.foundation">
+    </bean>
     
     <bean id="webscript.foundation.applicationtemplate.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.AddApplicationTemplate"
@@ -43,6 +48,17 @@
           parent="webscript.foundation">
     </bean>
     
+        
+    <bean id="webscript.foundation.applications.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplications"
+          parent="webscript.foundation">
+    </bean>
+
+    <bean id="webscript.foundation.application.delete"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.DeleteApplication"
+          parent="webscript.foundation">
+    </bean>
+
     <bean id="webscript.foundation.applicationUpdate.post"
           class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateApplication"
           parent="webscript.foundation">
@@ -112,7 +128,17 @@
               class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateBranch"
               parent="webscript.foundation">
     </bean>
-    
+
+    <bean id="webscript.foundation.email.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetEmail"
+          parent="webscript.foundation">
+    </bean>
+
+    <bean id="webscript.foundation.emails.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetEmails"
+          parent="webscript.foundation">
+    </bean>
+
     <bean id="webscript.foundation.workflows.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetWorkflows"
               parent="webscript.foundation">
@@ -130,5 +156,20 @@
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetState"
               parent="webscript.foundation">
     </bean>
-    
+
+    <bean id="webscript.foundation.stateactions.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetStateActions"
+          parent="webscript.foundation">
+    </bean>
+
+    <bean id="webscript.foundation.actions.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetActions"
+          parent="webscript.foundation">
+    </bean>
+
+    <bean id="webscript.foundation.actions.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.SaveAction"
+          parent="webscript.foundation">
+    </bean>
+
 </beans>
