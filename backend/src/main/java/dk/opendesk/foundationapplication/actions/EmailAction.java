@@ -19,7 +19,11 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 
 public class EmailAction extends MailActionExecuter {
@@ -89,7 +93,7 @@ public class EmailAction extends MailActionExecuter {
         try {
             actionBean.saveEmailCopy((MimeMessage) message.getFirst(), (NodeRef) message.getSecond());
         } catch (Exception e) {
-            throw new AlfrescoRuntimeException(EXCEPTION_SAVE_EMAIL_FAIL);
+            throw new AlfrescoRuntimeException(EXCEPTION_SAVE_EMAIL_FAIL, e);
         }
         super.onSend();
     }
@@ -109,7 +113,7 @@ public class EmailAction extends MailActionExecuter {
         paramList.add(new ParameterDefinitionImpl(PARAM_SUBJECT, DataTypeDefinition.TEXT, true, getParamDisplayLabel(PARAM_SUBJECT)));
         paramList.add(new ParameterDefinitionImpl(PARAM_TEXT, DataTypeDefinition.TEXT, false, getParamDisplayLabel(PARAM_TEXT)));
         paramList.add(new ParameterDefinitionImpl(PARAM_FROM, DataTypeDefinition.TEXT, false, getParamDisplayLabel(PARAM_FROM)));
-        paramList.add(new ParameterDefinitionImpl(PARAM_TEMPLATE, DataTypeDefinition.NODE_REF, false, getParamDisplayLabel(PARAM_TEMPLATE), false, "ac-email-templates"));
+        paramList.add(new ParameterDefinitionImpl(PARAM_TEMPLATE, DataTypeDefinition.NODE_REF, true, getParamDisplayLabel(PARAM_TEMPLATE), false, "ac-email-templates"));
         //paramList.add(new ParameterDefinitionImpl(PARAM_TEMPLATE_MODEL, DataTypeDefinition.ANY, false, getParamDisplayLabel(PARAM_TEMPLATE_MODEL), true));
         paramList.add(new ParameterDefinitionImpl(PARAM_IGNORE_SEND_FAILURE, DataTypeDefinition.BOOLEAN, false, getParamDisplayLabel(PARAM_IGNORE_SEND_FAILURE)));
     }

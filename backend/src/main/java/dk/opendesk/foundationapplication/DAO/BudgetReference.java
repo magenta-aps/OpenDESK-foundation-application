@@ -6,7 +6,6 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import java.util.Objects;
-import java.util.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**

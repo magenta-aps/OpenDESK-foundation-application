@@ -71,8 +71,8 @@ public class ApplicationStateChange implements NodeServicePolicies.OnCreateAssoc
                 }
             }
 
-        } catch (Exception ex) {
-            throw new AlfrescoRuntimeException(EXCEPTION_MESSAGE_ON_CREATION);
+        } catch (Exception e) {
+            throw new AlfrescoRuntimeException(EXCEPTION_MESSAGE_ON_CREATION, e);
         }
 
     }
@@ -90,7 +90,7 @@ public class ApplicationStateChange implements NodeServicePolicies.OnCreateAssoc
                 }
             }
         } catch (Exception e) {
-            throw new AlfrescoRuntimeException(EXCEPTION_MESSAGE_BEFORE_DELETE);
+            throw new AlfrescoRuntimeException(EXCEPTION_MESSAGE_BEFORE_DELETE, e);
         }
 
     }

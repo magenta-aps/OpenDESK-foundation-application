@@ -5,55 +5,16 @@
  */
 package dk.opendesk.foundationapplication.beans;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import dk.opendesk.foundationapplication.DAO.*;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.*;
-import static org.alfresco.model.ContentModel.*;
-import static org.alfresco.repo.action.executer.MailActionExecuter.*;
-
-import dk.opendesk.foundationapplication.enums.StateCategory;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import dk.opendesk.repo.model.OpenDeskModel;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import org.alfresco.error.AlfrescoRuntimeException;
-import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.service.ServiceRegistry;
-import org.alfresco.service.cmr.action.Action;
-import org.alfresco.service.cmr.action.ActionDefinition;
-import org.alfresco.service.cmr.action.ParameterDefinition;
-import org.alfresco.service.cmr.search.ResultSet;
-import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.version.Version;
-import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.collections.map.SingletonMap;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.ContentReader;
-import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.repository.StoreRef;
-import org.alfresco.service.cmr.search.QueryParameter;
 import org.alfresco.service.namespace.QNamePattern;
 import org.apache.log4j.Logger;
 

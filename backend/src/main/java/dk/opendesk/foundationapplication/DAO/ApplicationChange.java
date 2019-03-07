@@ -9,6 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static dk.opendesk.foundationapplication.Utilities.DATE_FORMAT_STRING;
+
 public class ApplicationChange extends ApplicationReference {
 
     private String changeType;
@@ -67,7 +69,7 @@ public class ApplicationChange extends ApplicationReference {
 
     @JsonIgnore
     public ApplicationChange setTimeStamp(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
         this.timesStamp = sdf.format(date);
         return this;
     }

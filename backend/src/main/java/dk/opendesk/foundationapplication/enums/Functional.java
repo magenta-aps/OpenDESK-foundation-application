@@ -24,6 +24,9 @@ public class Functional<E>{
         Map<String, Functional> newFunctionals = new HashMap<>();
         put(newFunctionals, "amount", Number.class);
         put(newFunctionals, "email_to", String.class);
+        put(newFunctionals, "first_name", String.class);
+        put(newFunctionals, "last_name", String.class);
+        put(newFunctionals, "phone_number", String.class);
         functionals = Collections.unmodifiableMap(newFunctionals);
         
         
@@ -45,16 +48,25 @@ public class Functional<E>{
     public String getFriendlyName() {
         return friendlyName;
     }
-    
+
     public static Functional getFromName(String name){
         return functionals.get(name);
     }
-    
+
     public static Functional<Long> amount(){
         return getFromName("amount");
     }
     public static Functional<String> email_to(){
         return getFromName("email_to");
     }
-    
+    public static Functional<String> first_name(){
+        return getFromName("first_name");
+    }
+    public static Functional<String> last_name(){
+        return getFromName("last_name");
+    }
+    public static Functional<String> phone_number(){
+        return getFromName("phone_number");
+    }
+
 }

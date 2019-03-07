@@ -9,13 +9,11 @@ import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetYear;
 import dk.opendesk.foundationapplication.DAO.BudgetYearSummary;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
 
 /**
  *
