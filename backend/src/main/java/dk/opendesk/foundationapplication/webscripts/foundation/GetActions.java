@@ -1,7 +1,6 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.FoundationAction;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;

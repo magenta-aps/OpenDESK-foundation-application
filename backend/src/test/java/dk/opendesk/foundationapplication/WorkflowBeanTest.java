@@ -21,7 +21,6 @@ import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import dk.opendesk.foundationapplication.enums.Functional;
 import static dk.opendesk.foundationapplication.patches.InitialStructure.DICTIONARY_PATH;

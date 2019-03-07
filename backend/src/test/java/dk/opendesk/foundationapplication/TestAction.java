@@ -1,9 +1,7 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.action.executer.ActionExecuterAbstractBase;
 import org.alfresco.service.cmr.action.Action;

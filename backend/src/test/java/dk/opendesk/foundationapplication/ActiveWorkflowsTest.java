@@ -6,12 +6,8 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
-import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import java.util.List;
-import static junit.framework.TestCase.assertEquals;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
 
 /**
  *

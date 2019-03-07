@@ -8,12 +8,10 @@ package dk.opendesk.foundationapplication;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
-import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.StateCategory;
@@ -26,7 +24,6 @@ import java.util.Arrays;
 import java.util.Date;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
 import org.apache.log4j.Logger;
 
 /**

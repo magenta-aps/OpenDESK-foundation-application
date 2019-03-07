@@ -9,7 +9,6 @@ import dk.opendesk.foundationapplication.DAO.JSONAction;
 import dk.opendesk.foundationapplication.DAO.State;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
-import dk.opendesk.foundationapplication.beans.FoundationBean;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 
