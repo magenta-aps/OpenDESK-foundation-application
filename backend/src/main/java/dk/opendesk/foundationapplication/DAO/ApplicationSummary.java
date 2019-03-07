@@ -79,7 +79,19 @@ public class ApplicationSummary extends ApplicationReference {
     public final ApplicationPropertyValue<String> emailTo(){
         return getFunctionalField(Functional.email_to());
     }
-    
+
+    public final ApplicationPropertyValue<String> firstName(){
+        return getFunctionalField(Functional.first_name());
+    }
+
+    public final ApplicationPropertyValue<String> lastName(){
+        return getFunctionalField(Functional.last_name());
+    }
+
+    public final ApplicationPropertyValue<String> phoneNumber(){
+        return getFunctionalField(Functional.phone_number());
+    }
+
     @Override
     public int hashCode() {
         int hash = 3;

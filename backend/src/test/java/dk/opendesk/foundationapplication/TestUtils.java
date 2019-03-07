@@ -175,10 +175,10 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 9));
         fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2 th"));
         fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "1234"));
-        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, "Lars"));
-        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, "Larsen"));
+        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, Functional.first_name(), "Lars"));
+        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, Functional.last_name(), "Larsen"));
         fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), "lars@larsen.org"));
-        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "004512345678"));
+        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, Functional.phone_number(), "004512345678"));
         app1blockRecipient.setFields(fields);
 
         fields = new ArrayList<>();
@@ -217,10 +217,10 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 9));
         fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2"));
         fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "1234"));
-        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, "Lars"));
-        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, "Larsen"));
+        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, Functional.first_name(), "Lars"));
+        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, Functional.last_name(), "Larsen"));
         fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), "lars@larsen.org"));
-        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "004512345678"));
+        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, Functional.phone_number(), "004512345678"));
         app2blockRecipient.setFields(fields);
 
         fields = new ArrayList<>();
@@ -258,10 +258,10 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 9));
         fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2"));
         fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "1234"));
-        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, "Lars"));
-        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, "Larsen"));
+        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, Functional.first_name(), "Lars"));
+        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, Functional.last_name(), "Larsen"));
         fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), "lars@larsen.org"));
-        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "004512345678"));
+        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, Functional.phone_number(), "004512345678"));
         app3blockRecipient.setFields(fields);
 
         fields = new ArrayList<>();
