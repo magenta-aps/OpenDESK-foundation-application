@@ -67,6 +67,13 @@
         <property name="applicationBean" ref="applicationBean"/>
     </bean>
 
+    <bean id="createApplicant" class="dk.opendesk.foundationapplication.actions.CreateNewApplicant">
+        <property name="applicationBean" ref="applicationBean"/>
+        <property name="actionBean" ref="actionBean"/>
+        <property name="personBean" ref="personBean"/>
+        <property name="serviceRegistry" ref="ServiceRegistry"/>
+    </bean>
+
     <bean id="webscript.foundation"
           class="dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript"
           parent="webscript" abstract="true">

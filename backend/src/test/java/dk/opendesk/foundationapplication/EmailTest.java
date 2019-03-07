@@ -32,8 +32,8 @@ public class EmailTest extends AbstractTestClass {
         super("/foundation");
     }
 
-    private static String TEST_TEMPLATE_NAME = "email.html.ftl";
-    private static String TEST_ADDRESSEE = "astrid@testmail.dk";
+    public static String TEST_TEMPLATE_NAME = "email.html.ftl";
+    public static String TEST_ADDRESSEE = "astrid@testmail.dk";
 
     @Override
     protected void setUp() throws Exception {
