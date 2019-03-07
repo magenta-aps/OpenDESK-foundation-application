@@ -29,7 +29,7 @@ public class TestAction extends ActionExecuterAbstractBase {
                     .build();
             applicationBean.updateApplication(change);
         } catch (Exception e) {
-            throw new AlfrescoRuntimeException(EXCEPTION_MESSAGE);
+            throw new AlfrescoRuntimeException(EXCEPTION_MESSAGE, e);
         }
     }
 

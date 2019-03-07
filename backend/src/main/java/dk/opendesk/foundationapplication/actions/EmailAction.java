@@ -93,7 +93,7 @@ public class EmailAction extends MailActionExecuter {
         try {
             actionBean.saveEmailCopy((MimeMessage) message.getFirst(), (NodeRef) message.getSecond());
         } catch (Exception e) {
-            throw new AlfrescoRuntimeException(EXCEPTION_SAVE_EMAIL_FAIL);
+            throw new AlfrescoRuntimeException(EXCEPTION_SAVE_EMAIL_FAIL, e);
         }
         super.onSend();
     }
