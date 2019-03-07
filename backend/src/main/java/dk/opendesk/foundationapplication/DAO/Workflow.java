@@ -17,6 +17,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class Workflow extends WorkflowReference{
     private Optional<StateReference> entry;
     private Optional<List<StateSummary>> states;
+    private Optional<List<BranchReference>> usedByBranches;
 
     public Workflow() {
     }
@@ -43,6 +44,18 @@ public class Workflow extends WorkflowReference{
 
     public void setStates(List<StateSummary> states) {
         this.states = optional(states);
+    }
+
+    public List<BranchReference> getUsedByBranches() {
+        return get(usedByBranches);
+    }
+    
+    public boolean wasUsedByBranches(){
+        return wasSet(usedByBranches);
+    }
+
+    public void setUsedByBranches(List<BranchReference> branches) {
+        this.usedByBranches = optional(branches);
     }
 
     @Override
