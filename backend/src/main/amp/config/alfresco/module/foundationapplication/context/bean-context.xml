@@ -70,7 +70,6 @@
 
     <bean id="createApplicant" class="dk.opendesk.foundationapplication.actions.CreateNewApplicant">
         <property name="applicationBean" ref="applicationBean"/>
-        <property name="actionBean" ref="actionBean"/>
         <property name="personBean" ref="personBean"/>
         <property name="serviceRegistry" ref="ServiceRegistry"/>
     </bean>

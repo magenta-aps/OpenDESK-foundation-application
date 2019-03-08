@@ -54,28 +54,34 @@ public class EmailAction extends MailActionExecuter {
     @Override
     protected void executeImpl(final Action ruleAction, final NodeRef actionedUponNodeRef) {
 
+        Application application;
         try {
-            Application application = applicationBean.getApplication(actionedUponNodeRef);
-
-            Map<String, Serializable> model = new HashMap<>();
-            for(ApplicationPropertiesContainer block : application.getBlocks()){
-                for(ApplicationPropertyValue field : block.getFields()){
-                    model.put(block.getLabel()+":"+field.getLabel(), field.getValue().toString());//Parse instead of tostring
-                    model.put(field.getId(), field.getValue().toString());
-                }
-            }
-            model.put("subject", ruleAction.getParameterValue(PARAM_SUBJECT)); //todo temp subject for temp template
-            model.put("body", "Bye bye" ); //todo temp body for temp template
-            ruleAction.setParameterValue(PARAM_TEMPLATE_MODEL, (Serializable) model);
-
-            ruleAction.setParameterValue(PARAM_TO, application.getFunctionalField(Functional.email_to()).getValue());
-
-            //TODO skal det tjekkes at template, subject og from er blevet sat inden eksekvering
-            super.executeImpl(ruleAction,actionedUponNodeRef);
-
+            application = applicationBean.getApplication(actionedUponNodeRef);
         } catch (Exception e) {
             throw new AlfrescoRuntimeException(EXCEPTION_SEND_EMAIL_FAIL, e);
         }
+
+        Map<String, Serializable> model = (HashMap) ruleAction.getParameterValue(PARAM_TEMPLATE_MODEL);
+        if (model == null) {
+            model = new HashMap<>();
+        }
+        for(ApplicationPropertiesContainer block : application.getBlocks()){
+            for(ApplicationPropertyValue field : block.getFields()){
+                model.put(block.getLabel()+"_"+field.getLabel(), field.getValue().toString());//todo Parse instead of tostring
+                model.put("id"+field.getId(), field.getValue().toString());
+            }
+        }
+        model.put("subject", ruleAction.getParameterValue(PARAM_SUBJECT));
+        model.put("body", "Bye bye" ); //todo temp body for temp template
+
+
+        ruleAction.setParameterValue(PARAM_TEMPLATE_MODEL, (Serializable) model);
+        ruleAction.setParameterValue(PARAM_TO, application.getFunctionalField(Functional.email_to()).getValue());
+
+        //todo Hvad med alle de andre parametre?
+
+        super.executeImpl(ruleAction,actionedUponNodeRef);
+
 
     }
 
@@ -114,7 +120,7 @@ public class EmailAction extends MailActionExecuter {
         paramList.add(new ParameterDefinitionImpl(PARAM_TEXT, DataTypeDefinition.TEXT, false, getParamDisplayLabel(PARAM_TEXT)));
         paramList.add(new ParameterDefinitionImpl(PARAM_FROM, DataTypeDefinition.TEXT, false, getParamDisplayLabel(PARAM_FROM)));
         paramList.add(new ParameterDefinitionImpl(PARAM_TEMPLATE, DataTypeDefinition.NODE_REF, true, getParamDisplayLabel(PARAM_TEMPLATE), false, "ac-email-templates"));
-        //paramList.add(new ParameterDefinitionImpl(PARAM_TEMPLATE_MODEL, DataTypeDefinition.ANY, false, getParamDisplayLabel(PARAM_TEMPLATE_MODEL), true));
+        paramList.add(new ParameterDefinitionImpl(PARAM_TEMPLATE_MODEL, DataTypeDefinition.ANY, false, getParamDisplayLabel(PARAM_TEMPLATE_MODEL), true));
         paramList.add(new ParameterDefinitionImpl(PARAM_IGNORE_SEND_FAILURE, DataTypeDefinition.BOOLEAN, false, getParamDisplayLabel(PARAM_IGNORE_SEND_FAILURE)));
     }
 }

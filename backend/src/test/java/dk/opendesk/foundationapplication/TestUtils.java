@@ -83,7 +83,7 @@ public final class TestUtils {
     }
 
     ;
-    
+
     public synchronized static void wipeData(ServiceRegistry serviceRegistry) throws Exception {
         Utilities.wipeData(serviceRegistry);
 

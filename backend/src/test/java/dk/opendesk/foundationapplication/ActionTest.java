@@ -38,9 +38,9 @@ public class ActionTest extends AbstractTestClass {
 
         List<FoundationAction> actions = get(List.class, FoundationAction.class, "");
 
-        assertEquals(3, actions.size());
+        assertEquals(4, actions.size());
         assertEquals(ACTION_NAME_EMAIL, actions.get(0).getName());
-        assertEquals(8,actions.get(0).getParams().size());
+        assertEquals(9,actions.get(0).getParams().size());
     }
 
 
