@@ -30,6 +30,7 @@
     </bean>
     <bean id="workflowBean" class="dk.opendesk.foundationapplication.beans.WorkflowBean" parent="foundationBean">
         <property name="applicationBean" ref="applicationBean"/>
+        <property name="branchBean" ref="branchBean"/>
     </bean>
     <bean id="actionBean" class="dk.opendesk.foundationapplication.beans.ActionBean" parent="foundationBean">
         <property name="applicationBean" ref="applicationBean"/>

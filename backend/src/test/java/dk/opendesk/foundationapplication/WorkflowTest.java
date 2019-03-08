@@ -7,6 +7,8 @@ package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Workflow;
 import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
+import static dk.opendesk.foundationapplication.TestUtils.TITLE_POSTFIX;
+import dk.opendesk.foundationapplication.beans.FoundationBean;
 import java.util.List;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 
@@ -46,7 +48,7 @@ public class WorkflowTest extends AbstractTestClass{
         
     }
     
-    public void testGetWorkflow() throws Exception {
+    public void testGetWorkflowSummaries() throws Exception {
         List<WorkflowSummary> summaries = testGetWorkflows();
         WorkflowSummary testSummary = summaries.get(0);
         Workflow beanWorkflow = getWorkflowBean().getWorkflow(testSummary.asNodeRef());
@@ -56,5 +58,12 @@ public class WorkflowTest extends AbstractTestClass{
         Workflow restWorkflow = get(Workflow.class, beanWorkflow.getNodeID());
         assertEquals(beanWorkflow, restWorkflow);
         
+    }
+    
+    public void testGetWorkflow() throws Exception {
+        Workflow workflow = get(Workflow.class, TestUtils.workFlowRef.getId());
+        assertEquals(1, workflow.getUsedByBranches().size());
+        assertEquals(TestUtils.BRANCH_NAME+TITLE_POSTFIX, workflow.getUsedByBranches().get(0).getTitle());
+        assertEquals(TestUtils.WORKFLOW_NAME+TITLE_POSTFIX, workflow.getTitle());
     }
 }

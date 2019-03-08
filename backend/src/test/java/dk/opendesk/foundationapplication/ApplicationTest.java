@@ -400,5 +400,35 @@ public class ApplicationTest extends AbstractTestClass{
         }
     }
     
+    public void testGetApplications() throws Exception {
+        List<ApplicationSummary> allApplications = get(List.class, ApplicationSummary.class);
+        assertEquals(3, allApplications.size());
+        List<ApplicationSummary> branchApplications = get(List.class, ApplicationSummary.class, "?branchID="+TestUtils.branchRef.getId());
+        assertEquals(2, branchApplications.size());
+        List<ApplicationSummary> budget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId());
+        assertEquals(2, budget1Applications.size());
+        List<ApplicationSummary> budget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId());
+        assertEquals(0, budget2Applications.size());
+        List<ApplicationSummary> branchbudget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId()+"&branchID="+TestUtils.branchRef.getId());
+        assertEquals(2, branchbudget1Applications.size());
+        List<ApplicationSummary> branchbudget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId()+"&branchID="+TestUtils.branchRef.getId());
+        assertEquals(0, branchbudget2Applications.size());
+        
+        Application change = Utilities.buildChange(getApplicationBean().getApplication(TestUtils.application1)).setBudget(TestUtils.budgetRef2).build();
+        getApplicationBean().updateApplication(change);
+        
+        budget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId());
+        assertEquals(1, budget1Applications.size());
+        budget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId());
+        assertEquals(1, budget2Applications.size());
+        branchbudget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId()+"&branchID="+TestUtils.branchRef.getId());
+        assertEquals(1, branchbudget1Applications.size());
+        branchbudget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId()+"&branchID="+TestUtils.branchRef.getId());
+        assertEquals(1, branchbudget2Applications.size());
+        
+    }
+    
+    
+    
     
 }

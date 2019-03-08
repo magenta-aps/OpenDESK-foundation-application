@@ -6,23 +6,14 @@
 package dk.opendesk.foundationapplication.beans;
 
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
+import dk.opendesk.foundationapplication.DAO.BranchReference;
 import dk.opendesk.foundationapplication.DAO.State;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.DAO.StateSummary;
 import dk.opendesk.foundationapplication.DAO.Workflow;
 import dk.opendesk.foundationapplication.DAO.WorkflowReference;
 import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_ASSOC_STATE;
-import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_WORKFLOW;
-import static dk.opendesk.foundationapplication.Utilities.STATE_ASSOC_TRANSITIONS;
-import static dk.opendesk.foundationapplication.Utilities.STATE_PARAM_CATEGORY;
-import static dk.opendesk.foundationapplication.Utilities.STATE_PARAM_TITLE;
-import static dk.opendesk.foundationapplication.Utilities.STATE_TYPE_NAME;
-import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_ASSOC_ENTRY;
-import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_ASSOC_STATES;
-import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_PARAM_TITLE;
-import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_TYPE_NAME;
-import static dk.opendesk.foundationapplication.Utilities.getODFName;
+import static dk.opendesk.foundationapplication.Utilities.*;
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -42,9 +33,14 @@ import org.alfresco.service.namespace.QName;
  */
 public class WorkflowBean extends FoundationBean{
     private ApplicationBean applicationBean;
+    private BranchBean branchBean;
 
     public void setApplicationBean(ApplicationBean applicationBean) {
         this.applicationBean = applicationBean;
+    }
+    
+    public void setBranchBean(BranchBean branchBean) {
+        this.branchBean = branchBean;
     }
     
     public WorkflowReference getWorkflowReference(NodeRef reference) throws Exception {
@@ -153,12 +149,18 @@ public class WorkflowBean extends FoundationBean{
             states.add(getStateSummary(stateRef.getChildRef()));
         }
         workflow.setStates(states);
+        
+        List<BranchReference> branches = new ArrayList<>();
+        for(AssociationRef branchRef : ns.getSourceAssocs(workflowRef, getODFName(BRANCH_ASSOC_WORKFLOW))){
+            branches.add(branchBean.getBranchReference(branchRef.getSourceRef()));
+        }
+        workflow.setUsedByBranches(branches);
 
         return workflow;
 
     }
     
-        public State getState(NodeRef stateRef) throws Exception {
+    public State getState(NodeRef stateRef) throws Exception {
         NodeService ns = getServiceRegistry().getNodeService();
         State state = new State();
         state.parseRef(stateRef);

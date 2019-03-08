@@ -221,9 +221,14 @@ public class AbstractTestClass extends BaseWebScriptTest {
             toReturn = basePath;
         }
         if(pathSuffix != null && !pathSuffix.isEmpty()){
-            int beginIndex = pathSuffix.startsWith("/") ? 1 : 0;
-            int endIndex = pathSuffix.endsWith("/") ? pathSuffix.length()-1 : pathSuffix.length();
-            toReturn = toReturn + DELIMITER + pathSuffix.substring(beginIndex, endIndex);
+            if(pathSuffix.startsWith("?")){
+                toReturn = toReturn + pathSuffix;
+            }else{
+                int beginIndex = pathSuffix.startsWith("/") ? 1 : 0;
+                int endIndex = pathSuffix.endsWith("/") ? pathSuffix.length()-1 : pathSuffix.length();
+                toReturn = toReturn + DELIMITER + pathSuffix.substring(beginIndex, endIndex);
+            }
+            
         }
         return toReturn;
     }

@@ -14,6 +14,9 @@ import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
+import dk.opendesk.foundationapplication.DAO.BranchSummary;
+import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.JSON.ApplicationPropertyDeserializer;
 import dk.opendesk.foundationapplication.JSON.ApplicationPropertySerializer;
 import dk.opendesk.foundationapplication.beans.ActionBean;
@@ -302,6 +305,43 @@ public final class Utilities {
         public FieldChangeBuilder changeField(String fieldId) {
             return new FieldChangeBuilder(fieldId);
         }
+        
+        public ApplicationChangeBuilder setBudget(NodeRef budget){
+            BudgetReference budgetRef = new BudgetReference();
+            budgetRef.parseRef(budget);
+            return setBudget(budgetRef);
+        }
+        
+        public ApplicationChangeBuilder setBudget(BudgetReference budget){
+            change.setBudget(budget);
+            return this;
+        }
+        
+        public ApplicationChangeBuilder setState(NodeRef state){
+            StateReference stateRef = new StateReference();
+            stateRef.parseRef(state);
+            return setState(stateRef);
+        }
+        
+        public ApplicationChangeBuilder setState(StateReference state){
+            change.setState(state);
+            return this;
+        }
+        
+        
+        
+        public ApplicationChangeBuilder setBranch(NodeRef branch){
+            BranchSummary branchRef = new BranchSummary();
+            branchRef.parseRef(branch);
+            return setBranch(branchRef);
+        }
+        
+        public ApplicationChangeBuilder setBranch(BranchSummary branch){
+            change.setBranchSummary(branch);
+            return this;
+        }
+        
+        
 
         public Application build() {
             return change;

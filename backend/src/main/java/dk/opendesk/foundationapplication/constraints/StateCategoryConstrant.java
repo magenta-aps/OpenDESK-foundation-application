@@ -2,7 +2,6 @@ package dk.opendesk.foundationapplication.constraints;
 
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 
