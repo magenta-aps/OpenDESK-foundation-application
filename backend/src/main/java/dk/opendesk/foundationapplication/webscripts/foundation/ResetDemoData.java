@@ -40,18 +40,21 @@ public class ResetDemoData extends JacksonBackedWebscript {
     public static final AtomicInteger COUNTER = new AtomicInteger();
     public static final String BUDGETYEAR1_TITLE = "BudgetYearCurrent";
     public static final String BUDGETYEAR2_TITLE = "BudgetYearNext";
-    private static final List<String> COMPANYNAMES = Arrays.asList(new String[]{"Fuglevennerne", "Fluefiskerforeningen", "Natteravnene", "Lones Kattehjem", "Fies Kattehjem", "Peters Kattehjem"});
-    private static final List<String> FIRSTNAMES = Arrays.asList(new String[]{"Anders", "Anne", "Bjarne", "Børge", "Belinda", "Charlotte", "Casper", "Dorthe", "Mikkel", "Martin", "Mads", "Maja"});
-    private static final List<String> LASTNAMES = Arrays.asList(new String[]{"Andersen", "Brandshøj", "Carlsen", "Svendsen", "Pedersen", "Sørensen", "Nielsen", "Fisker", "Smed"});
-    private static final List<String> STREETNAMES = Arrays.asList(new String[]{"Nørregade", "Søndergade", "Østergade", "Vestergade"});
-    private static final List<String> FLOORS = Arrays.asList(new String[]{"", "1th", "1tv", "2tv", "10th"});
-    private static final String LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vitae iaculis mi. "
-            + "Aenean enim lorem, fringilla eget convallis et, euismod eget nisi. Sed consectetur magna nisl, id congue orci tincidunt et. "
-            + "Quisque id hendrerit lectus. Nullam porttitor massa nec enim rhoncus gravida. Aenean finibus quis augue id placerat. "
-            + "Fusce enim nibh, elementum non viverra non, convallis id est. Morbi nunc leo, eleifend eu eleifend non, vehicula ac libero. "
-            + "Donec justo sapien, convallis vitae erat et, pulvinar elementum velit.";
+    public static final List<String> COMPANYNAMES = Arrays.asList(new String[]{"Fuglevennerne", "Fluefiskerforeningen", "Natteravnene", "Lones Kattehjem", "Fies Kattehjem", "Peters Kattehjem"});
+    public static final List<String> FIRSTNAMES = Arrays.asList(new String[]{"Anders", "Anne", "Bjarne", "Børge", "Belinda", "Charlotte", "Casper", "Dorthe", "Mikkel", "Martin", "Mads", "Maja"});
+    public static final List<String> LASTNAMES = Arrays.asList(new String[]{"Andersen", "Brandshøj", "Carlsen", "Svendsen", "Pedersen", "Sørensen", "Nielsen", "Fisker", "Smed"});
+    public static final List<String> STREETNAMES = Arrays.asList(new String[]{"Nørregade", "Søndergade", "Østergade", "Vestergade"});
+    public static final List<String> FLOORS = Arrays.asList(new String[]{"", "1th", "1tv", "2tv", "10th"});
+    public static final String LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam efficitur nunc quis lectus venenatis condimentum."
+            + " Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean lobortis massa ac magna vestibulum lobortis. "
+            + "Nulla ante enim, tempor ut gravida quis, iaculis eget nibh. Aenean in eros posuere, tempus nibh nec, malesuada erat. Pellentesque ullamcorper tellus id efficitur elementum. "
+            + "Praesent a sollicitudin mauris. Vivamus enim lorem, cursus vestibulum magna id, vehicula cursus augue. Ut ullamcorper posuere odio a tincidunt. "
+            + "Curabitur vestibulum nunc sed elementum tempor. Integer non purus purus. Pellentesque pharetra mi accumsan metus eleifend, vel semper dui efficitur. "
+            + "Ut at placerat mi. Integer hendrerit viverra maximus.\n" 
+            + "Sed at gravida erat, ut suscipit eros. Nullam porta id mi vel mattis. Pellentesque venenatis cursus erat vel efficitur. "
+            + "Mauris fermentum, nibh nec vestibulum sollicitudin, enim dui semper dolor, nec efficitur nisi nisi nec ligula. Ut eu iaculis ipsum. In ornare turpis. ";
 
-    private static final Random RANDOM = new Random();
+    public static final Random RANDOM = new Random();
 
     @Override
     protected JSONObject doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
@@ -172,7 +175,7 @@ public class ResetDemoData extends JacksonBackedWebscript {
         return app.asNodeRef();
     }
     
-    public static Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) {
+    public Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) {
         String recipient = random(COMPANYNAMES);
         String firstName = random(FIRSTNAMES);
         String lastName = random(LASTNAMES);
@@ -190,16 +193,16 @@ public class ResetDemoData extends JacksonBackedWebscript {
         fields.add(buildValue("3", "Vejnavn", "display:block;", "text", String.class, null, steetName));
         fields.add(buildValue("4", "Etage", "display:block;", "text", String.class, null, floor));
         fields.add(buildValue("5", "Postnr", "display:block;", "text", String.class, null, numberString(4)));
-        fields.add(buildValue("6", "Fornavn", "display:block;", "text", String.class, null, firstName));
-        fields.add(buildValue("7", "Efternavn", "display:block;", "text", String.class, null, lastName));
+        fields.add(buildValue("6", "Fornavn", "display:block;", "text", String.class, Functional.first_name(), firstName));
+        fields.add(buildValue("7", "Efternavn", "display:block;", "text", String.class, Functional.last_name(), lastName));
         fields.add(buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), firstName + "@mail.dk"));
-        fields.add(buildValue("9", "Telefonnummer", "display:block;", "text", String.class, null, phoneNumber()));
-        fields.add(buildValue("10", "Kort beskrivelse", "display:block;", "text", String.class, null, LOREM));
+        fields.add(buildValue("9", "Telefonnummer", "display:block;", "text", String.class, Functional.phone_number(), phoneNumber()));
+        fields.add(buildValue("10", "Kort beskrivelse", "display:block;", "text", String.class, null, lorem(50)));
         fields.add(buildValue("11", "Startdato", "display:block;", "text", Date.class, null, startDate));
         fields.add(buildValue("12", "EndDate", "display:block;", "text", Date.class, null, endDate));
         fields.add(buildValue("13", "Beløb", "display:block;", "text", Long.class, Functional.amount(), requiredAmount));
-        fields.add(buildValue("14", "Registreringsnummer", "display:block;", "text", String.class, Functional.amount(), numberString(4)));
-        fields.add(buildValue("15", "Kontonummer", "display:block;", "text", String.class, Functional.amount(), "000" + numberString(5)));
+        fields.add(buildValue("14", "Registreringsnummer", "display:block;", "text", String.class, null, numberString(4)));
+        fields.add(buildValue("15", "Kontonummer", "display:block;", "text", String.class, null, "000" + numberString(5)));
 
         block1.setFields(fields);
 
@@ -293,6 +296,22 @@ public class ResetDemoData extends JacksonBackedWebscript {
             number.append(RANDOM.nextInt(9));
         }
         return number.toString();
+    }
+    
+    public static String lorem(int wordcount){
+        int i = 0;
+        int index = 0;
+        while(i<wordcount && index < LOREM.length()){
+            i++;
+            int newIndex = LOREM.indexOf(" ", index+1);
+            if(newIndex >= 0){
+                index = newIndex;
+            }else{
+                return LOREM;
+            }
+            
+        }
+        return LOREM.substring(0, index);
     }
 
 }

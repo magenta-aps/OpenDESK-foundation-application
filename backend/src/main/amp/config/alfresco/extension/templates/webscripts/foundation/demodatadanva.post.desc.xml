@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Reset Demo Data to Danva</shortname>
+    <description>Reset the demo data to standard</description>
+    <url>/foundation/demodata/danva</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

@@ -52,4 +52,17 @@ public class TestDemoData extends AbstractTestClass{
         assertEquals(16, getApplicationBean().getApplicationSummaries().size());
     }
     
+    
+    
+    public void testSetupDemoDataDanva() throws Exception {
+        post(new JSONObject().append("doesnt", "matter"), "danva");
+        
+        assertEquals(1, getBranchBean().getBranchSummaries().size());
+        assertEquals(0, getBudgetBean().getBudgetYearSummaries().size());
+        
+        
+        assertEquals(1, getWorkflowBean().getWorkflowSummaries().size());
+        assertEquals(2, getApplicationBean().getApplicationSummaries().size());
+    }
+    
 }
