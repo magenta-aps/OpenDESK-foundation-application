@@ -341,6 +341,10 @@ public final class Utilities {
             return this;
         }
         
+        public ApplicationChangeBuilder setTitle(String title){
+            change.setTitle(title);
+            return this;
+        }
         
 
         public Application build() {

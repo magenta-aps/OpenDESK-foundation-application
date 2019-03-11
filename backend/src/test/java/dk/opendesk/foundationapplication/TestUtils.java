@@ -22,8 +22,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.security.AuthorityType;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.apache.log4j.Logger;
 
 /**
@@ -34,6 +39,10 @@ public final class TestUtils {
 
     private static final Logger LOGGER = Logger.getLogger(TestUtils.class);
 
+    public static final String TEST_USER = "testuser";
+    public static final String TEST_USER_FIRST_NAME = "Lars";
+    public static final String TEST_AUTHORITY = "testority";
+    
     public static final String ADMIN_USER = "admin";
 
     public static final String WORKFLOW_NAME = "defaultWorkFlow";
@@ -86,7 +95,13 @@ public final class TestUtils {
     
     public synchronized static void wipeData(ServiceRegistry serviceRegistry) throws Exception {
         Utilities.wipeData(serviceRegistry);
-
+        if(serviceRegistry.getPersonService().personExists(TEST_USER)){
+            serviceRegistry.getPersonService().deletePerson(TEST_USER);
+        }
+        if(serviceRegistry.getAuthorityService().authorityExists(serviceRegistry.getAuthorityService().getName(AuthorityType.GROUP, TEST_AUTHORITY))){
+            serviceRegistry.getAuthorityService().deleteAuthority(AuthorityType.GROUP.getPrefixString()+TEST_AUTHORITY, true);
+        }
+        //serviceRegistry.getAuthenticationService().deleteAuthentication(TEST_USER);
         isInitiated = false;
 
     }
@@ -106,21 +121,38 @@ public final class TestUtils {
         budgetBean.setServiceRegistry(serviceRegistry);
         WorkflowBean workflowBean = new WorkflowBean();
         workflowBean.setServiceRegistry(serviceRegistry);
-        
+
         actionBean.setApplicationBean(applicationBean);
-        
+
         applicationBean.setActionBean(actionBean);
         applicationBean.setBranchBean(branchBean);
         applicationBean.setBudgetBean(budgetBean);
         applicationBean.setWorkflowBean(workflowBean);
-        
+
         branchBean.setApplicationBean(applicationBean);
         branchBean.setBudgetBean(budgetBean);
-        
+
         budgetBean.setApplicationBean(applicationBean);
         budgetBean.setWorkflowBean(workflowBean);
-        
+
         workflowBean.setApplicationBean(applicationBean);
+
+        //Create test user
+        String password = "testpass";
+        serviceRegistry.getAuthenticationService().createAuthentication(TEST_USER, password.toCharArray());
+
+        Map user = new HashMap();
+        user.put(ContentModel.PROP_USERNAME, TEST_USER);
+        user.put(ContentModel.PROP_FIRSTNAME, TEST_USER_FIRST_NAME);
+        user.put(ContentModel.PROP_LASTNAME, "lastName");
+        user.put(ContentModel.PROP_EMAIL, TEST_USER_FIRST_NAME + "@example.com");
+        user.put(ContentModel.PROP_JOBTITLE, "jobTitle");
+
+        NodeRef person = serviceRegistry.getPersonService().createPerson(user);
+        
+        
+        
+        
 
         //Create workflow
         workFlowRef = workflowBean.addNewWorkflow(WORKFLOW_NAME, WORKFLOW_NAME + TITLE_POSTFIX);
@@ -251,7 +283,7 @@ public final class TestUtils {
         ApplicationPropertiesContainer app3details = new ApplicationPropertiesContainer();
         app3details.setLabel("Details");
         app3details.setId("3");
-        
+
         fields = new ArrayList<>();
         fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
         fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Tværstrede"));
@@ -280,6 +312,15 @@ public final class TestUtils {
         app3.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app3blockRecipient, app3blockOverview, app3details}));
         application3 = applicationBean.addNewApplication(app3).asNodeRef();
         //application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
+
+
+        String auth_name = serviceRegistry.getAuthorityService().createAuthority(AuthorityType.GROUP, TEST_AUTHORITY);
+
+        
+        serviceRegistry.getAuthorityService().addAuthority(auth_name, TEST_USER);
+        serviceRegistry.getPermissionService().setPermission(application1, auth_name, PermissionService.READ, true);
+        
+        
         isInitiated = true;
     }
 }

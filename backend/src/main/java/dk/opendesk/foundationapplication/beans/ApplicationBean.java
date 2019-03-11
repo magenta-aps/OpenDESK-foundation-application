@@ -220,9 +220,10 @@ public class ApplicationBean extends FoundationBean{
             }
         }
 
-        List<ApplicationPropertiesContainer> oldBlocks = getApplication(app.asNodeRef()).getBlocks();
+        
 
         if (app.wasBlocksSet() && app.getBlocks() != null) {
+            List<ApplicationPropertiesContainer> oldBlocks = getApplication(app.asNodeRef()).getBlocks();
             for (ApplicationPropertiesContainer block : app.getBlocks()) {
                 if (block.getId() != null) {
                     ApplicationPropertiesContainer oldBlock = getBlockByID(block.getId(), oldBlocks);
