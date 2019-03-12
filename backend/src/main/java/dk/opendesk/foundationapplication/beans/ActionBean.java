@@ -10,7 +10,8 @@ import dk.opendesk.foundationapplication.DAO.ApplicationChange;
 import dk.opendesk.foundationapplication.DAO.JSONAction;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.APPLICATION_CHANGE;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_EMAILFOLDER;
+import static dk.opendesk.foundationapplication.Utilities.APPLICATION_FOLDER_DOCUMENT;
+import static dk.opendesk.foundationapplication.Utilities.APPLICATION_FOLDER_EMAIL;
 import static dk.opendesk.foundationapplication.Utilities.getCMName;
 import static dk.opendesk.foundationapplication.Utilities.getODFName;
 import dk.opendesk.repo.model.OpenDeskModel;
@@ -119,7 +120,7 @@ public class ActionBean extends FoundationBean{
         return new ApplicationChange().setChangeType(changeType).setTimeStamp(timeStamp).setModifier(modifier).setModifierId(modifierId).setChangeList(applicationBean.getApplicationDifference(oldApp, newApp));
     }
     
-        /**
+    /**
      * Saves a email message on the given application
      *
      * @param mimeMessage The message to be saved
@@ -177,7 +178,7 @@ public class ActionBean extends FoundationBean{
         throw new Exception("The requested email was not found");
     }
     
-        /**
+    /**
      * Gets the email folder for an application or creates it if it does not
      * exists.
      *
@@ -187,19 +188,50 @@ public class ActionBean extends FoundationBean{
      * application.
      */
     public NodeRef getOrCreateEmailFolder(NodeRef applicationRef) throws Exception {
-        NodeRef emailFolderRef;
+        return getOrCreateSingleFolder(applicationRef, "email");
+    }
 
-        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(applicationRef, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
 
-        if (childAssociationRefs.size() == 0) {
-            emailFolderRef = getServiceRegistry().getNodeService().createNode(applicationRef, getODFName(APPLICATION_EMAILFOLDER), getCMName(APPLICATION_EMAILFOLDER), TYPE_FOLDER).getChildRef();
-        } else if (childAssociationRefs.size() == 1) {
-            emailFolderRef = childAssociationRefs.get(0).getChildRef();
-        } else {
-            throw new Exception("More than one email folder created on application " + applicationRef);
+    /**
+     * Gets the document folder for an application or creates it if it does not
+     * exists.
+     *
+     * @param applicationRef Application nodeRef
+     * @return Document folder nodeRef
+     * @throws Exception if there are more than one document folder on the
+     * application.
+     */
+    public NodeRef getOrCreateDocumentFolder(NodeRef applicationRef) throws Exception {
+        return getOrCreateSingleFolder(applicationRef, "doc");
+    }
+
+    private NodeRef getOrCreateSingleFolder(NodeRef parentRef, String folderType) throws Exception {
+        NodeRef folderRef;
+        String folderName;
+
+        switch (folderType) {
+            case "email":
+                folderName = APPLICATION_FOLDER_EMAIL;
+                break;
+            case "doc":
+                folderName = APPLICATION_FOLDER_DOCUMENT;
+                break;
+            default:
+                throw new Exception("folderType " + folderType + " not valid");
         }
 
-        return emailFolderRef;
+        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(parentRef, Utilities.getODFName(folderName), null);
+
+        if (childAssociationRefs.size() == 0) {
+            folderRef = getServiceRegistry().getNodeService().createNode(parentRef, getODFName(folderName), getCMName(folderName), TYPE_FOLDER).getChildRef();
+        } else if (childAssociationRefs.size() == 1) {
+            folderRef = childAssociationRefs.get(0).getChildRef();
+        } else {
+            throw new Exception("More than one folder of type " + folderName + " created on application " + parentRef);
+        }
+
+        return folderRef;
+
     }
     
 }

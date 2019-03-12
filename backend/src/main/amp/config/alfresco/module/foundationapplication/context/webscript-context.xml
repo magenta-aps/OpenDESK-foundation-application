@@ -47,8 +47,13 @@
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplication"
           parent="webscript.foundation">
     </bean>
-    
-        
+
+    <bean id="webscript.foundation.applicationDocumentFolder.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplicationDocumentFolder"
+          parent="webscript.foundation">
+    </bean>
+
+
     <bean id="webscript.foundation.applications.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplications"
           parent="webscript.foundation">

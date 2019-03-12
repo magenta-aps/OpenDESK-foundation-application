@@ -15,8 +15,11 @@ import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import static dk.opendesk.foundationapplication.TestUtils.stateAccessRef;
+import static dk.opendesk.foundationapplication.Utilities.APPLICATION_FOLDER_DOCUMENT;
+
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -56,7 +59,7 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals(3, getApplicationBean().getApplicationSummaries().size());
         
         String applicationTitle = "More cats for dogs";
-        
+
         Application newApplication = new Application();
         newApplication.setTitle(applicationTitle);
         ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
@@ -427,8 +430,45 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals(1, branchbudget2Applications.size());
         
     }
-    
-    
-    
+
+
+    public void testGetOrCreateDocumentFolder() throws Exception {
+        //no document folder
+        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_DOCUMENT), null);
+        assertEquals(0, childAssociationRefs.size());
+
+        //one document folder
+        NodeRef folderRefFirstTime = getActionBean().getOrCreateDocumentFolder(TestUtils.application1);
+        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_DOCUMENT), null);
+        assertEquals(1, childAssociationRefs.size());
+
+        //still one document folder
+        NodeRef folderRefSecondTime = getActionBean().getOrCreateDocumentFolder(TestUtils.application1);
+        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_DOCUMENT), null);
+        assertEquals(1, childAssociationRefs.size());
+
+        assertEquals(folderRefFirstTime, folderRefSecondTime);
+    }
+
+    public void testGetApplicationDocumentFolderScript() throws Exception {
+        String appId = TestUtils.application1.getId();
+
+        //no document folder
+        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_DOCUMENT), null);
+        assertEquals(0, childAssociationRefs.size());
+
+        //one document folder
+        String folderIdFirstTime = get(String.class, appId + "/documentfolder");
+        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_DOCUMENT), null);
+        assertEquals(1, childAssociationRefs.size());
+
+        //still one document folder
+        String folderIdSecondTime = get(String.class, appId + "/documentfolder");
+        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_DOCUMENT), null);
+        assertEquals(1, childAssociationRefs.size());
+
+        assertEquals(folderIdFirstTime, folderIdSecondTime);
+    }
+
     
 }
