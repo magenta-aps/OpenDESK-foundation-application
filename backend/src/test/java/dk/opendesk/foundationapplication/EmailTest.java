@@ -14,8 +14,10 @@ import org.json.JSONObject;
 
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -32,12 +34,17 @@ public class EmailTest extends AbstractTestClass {
         super("/foundation");
     }
 
-    public static String TEST_TEMPLATE_NAME = "email.html.ftl";
+    public static String TEST_TEMPLATE_NAME = "testEmailTemplate.html"; //"email.html.ftl";
     public static String TEST_ADDRESSEE = "astrid@testmail.dk";
+    private HashMap<String, Serializable> emptyStringModel = new HashMap<>();
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
+        emptyStringModel.put("subject","");
+        emptyStringModel.put("userName", "");
+        emptyStringModel.put("password","");
 
         mailServer = new MailServer(ServerConfiguration.create().port(2525).charset("UTF-8").relayDomains("testmail.dk"));
         mailServer.start();
@@ -63,29 +70,31 @@ public class EmailTest extends AbstractTestClass {
         TestUtils.wipeData(getServiceRegistry());
     }
 
-    //todo this test is not finished, currently only works on astrid@localhost
     public void testEmailAction() throws Exception {
         assertTrue(mailServer.getMails().isEmpty());
         Action action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
+        action.setParameterValue(PARAM_TEMPLATE_MODEL, emptyStringModel);
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
         assertEquals(1, mailServer.getMails().size());
         assertEquals("hallo hallo", mailServer.getMails().get(0).getSubject());
     }
 
-    //todo this test is not finished, currently only works on astrid@localhost
     public void testEmailCopying() throws Exception {
+        String subject1 = "subject1";
+        String subject2 = "subject2";
         assertTrue(mailServer.getMails().isEmpty());
         Action action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
-        action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
+        action.setParameterValue(PARAM_SUBJECT, subject1);
         action.setParameterValue(PARAM_FROM, TEST_ADDRESSEE);
+        action.setParameterValue(PARAM_TEMPLATE_MODEL, emptyStringModel);
 
         //sending the email
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
         assertEquals(1, mailServer.getMails().size());
-        assertEquals("hallo hallo", mailServer.getMails().get(0).getSubject());
+        assertEquals(subject1, mailServer.getMails().get(0).getSubject());
 
         //getting the email folder from the application
         List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName("emailFolder"), null);
@@ -97,16 +106,24 @@ public class EmailTest extends AbstractTestClass {
         assertEquals(1, childrenRefs.size()); //there should be one email in the folder
 
         ContentReader reader = getServiceRegistry().getFileFolderService().getReader(childrenRefs.get(0).getChildRef());
+        System.out.println(reader.getContentString());
         String[] lines = reader.getContentString().split("\n");
+        String fromLine = null;
+        String subjectLine = null;
         for (String s : lines) {
             if (s.startsWith("From:")) {
-                assertEquals("From: " + TEST_ADDRESSEE, s);
+                fromLine = s;
+            }
+            if (s.startsWith("subject =")) {
+                subjectLine = s;
             }
         }
-        assertEquals("<html>", lines[9]);
+        assertEquals("From: " + TEST_ADDRESSEE, fromLine);
+        assertEquals("subject = " + subject1, subjectLine);
 
         //sending one more email
         Thread.sleep(2000); //avoid duplicate filenames
+        action.setParameterValue(PARAM_SUBJECT, subject2);
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
 
         //getting the email folder from the application
@@ -120,12 +137,18 @@ public class EmailTest extends AbstractTestClass {
 
         reader = getServiceRegistry().getFileFolderService().getReader(childrenRefs.get(1).getChildRef());
         lines = reader.getContentString().split("\n");
+        fromLine = null;
+        subjectLine = null;
         for (String s : lines) {
             if (s.startsWith("From:")) {
-                assertEquals("From: " + TEST_ADDRESSEE, s);
+                fromLine = s;
+            }
+            if (s.startsWith("subject =")) {
+                subjectLine = s;
             }
         }
-        assertEquals("<html>", lines[9]);
+        assertEquals("From: " + TEST_ADDRESSEE, fromLine);
+        assertEquals("subject = " + subject2, subjectLine);
 
     }
 

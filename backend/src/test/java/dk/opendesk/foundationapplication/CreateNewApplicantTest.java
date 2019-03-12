@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static dk.opendesk.foundationapplication.EmailTest.TEST_ADDRESSEE;
+import static dk.opendesk.foundationapplication.EmailTest.TEST_TEMPLATE_NAME;
 import static dk.opendesk.foundationapplication.Utilities.ACTION_NAME_CREATE_APPLICANT;
 import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_SUBJECT;
 import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_TEMPLATE;
@@ -88,7 +89,7 @@ public class CreateNewApplicantTest extends AbstractTestClass{
 
         Action action = getServiceRegistry().getActionService().createAction(ACTION_NAME_CREATE_APPLICANT);
         action.setParameterValue(PARAM_SUBJECT, "testSubject");
-        action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate("testEmailTemplate.html"));
+        action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_TEMPLATE_MODEL, emptyStringModel);
         getServiceRegistry().getActionService().executeAction(action, appRef);
 
