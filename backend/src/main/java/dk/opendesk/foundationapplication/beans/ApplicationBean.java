@@ -653,5 +653,5 @@ public class ApplicationBean extends FoundationBean{
 
         return changes;
     }
-    
+
 }

@@ -186,17 +186,17 @@ public class EmailTest extends AbstractTestClass {
 
     public void testGetOrCreateEmailFolder() throws Exception {
         //no email folder
-        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
+        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_EMAIL), null);
         assertEquals(0, childAssociationRefs.size());
 
         //one email folder
         getActionBean().getOrCreateEmailFolder(TestUtils.application1);
-        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
+        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_EMAIL), null);
         assertEquals(1, childAssociationRefs.size());
 
         //still one email folder
         getActionBean().getOrCreateEmailFolder(TestUtils.application1);
-        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
+        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_EMAIL), null);
         assertEquals(1, childAssociationRefs.size());
 
     }

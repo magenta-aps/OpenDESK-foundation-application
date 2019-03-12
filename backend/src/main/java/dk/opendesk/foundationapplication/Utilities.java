@@ -116,7 +116,8 @@ public final class Utilities {
 //    public static final String APPLICATION_CHANGE_UPDATE_BUDGET = "budgetChange";
 //    public static final String APPLICATION_CHANGE_UPDATE_BRANCH = "branchChange";
 
-    public static final String APPLICATION_EMAILFOLDER = "emailFolder";
+    public static final String APPLICATION_FOLDER_EMAIL = "emailFolder";
+    public static final String APPLICATION_FOLDER_DOCUMENT = "documentFolder";
 
     public static final String ACTION_NAME_ADD_BLOCKS = "addBlocks";
     public static final String ACTION_NAME_ADD_FIELDS = "addFields";
