@@ -3,6 +3,7 @@ package dk.opendesk.foundationapplication;
 import com.github.sleroy.fakesmtp.core.ServerConfiguration;
 import com.github.sleroy.junit.mail.server.MailServer;
 import dk.opendesk.foundationapplication.DAO.*;
+import dk.opendesk.foundationapplication.patches.InitialStructure;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.Action;
@@ -22,6 +23,7 @@ import java.util.Properties;
 import static dk.opendesk.foundationapplication.Utilities.*;
 import static org.alfresco.model.ContentModel.ASSOC_CONTAINS;
 import static org.alfresco.model.ContentModel.TYPE_CONTENT;
+import static org.alfresco.model.ContentModel.TYPE_FOLDER;
 import static org.alfresco.repo.action.executer.MailActionExecuter.*;
 
 public class EmailTest extends AbstractTestClass {
@@ -271,5 +273,12 @@ public class EmailTest extends AbstractTestClass {
         //last ApplicationChange is a send email
         List<ApplicationChange> changes = getApplicationBean().getApplicationHistory(TestUtils.application1);
         assertEquals(APPLICATION_CHANGE_UPDATE_EMAIL, changes.get(changes.size() - 1).getChangeType());
+    }
+
+    public void testGetEmailTemplateFolder() throws Exception {
+        NodeRef folderRef = Utilities.getOdfEmailTemplateFolder(getServiceRegistry());
+
+        assertEquals(TYPE_FOLDER, getServiceRegistry().getNodeService().getType(folderRef));
+        assertEquals(getCMName(InitialStructure.MAIL_TEMPLATE_FOLDER_NAME), getServiceRegistry().getNodeService().getPrimaryParent(folderRef).getQName());
     }
 }

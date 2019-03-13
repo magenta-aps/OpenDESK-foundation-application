@@ -35,6 +35,11 @@
         <property name="targetSchema">
             <value>99999</value>
         </property>
+        <property name="dependsOn" >
+            <list>
+                <ref bean="dk.opendesk.bootstrap.patch.textTemplateLoader"/>
+            </list>
+        </property>
 <!--        <property name="dependsOn" >
         <list>
             <ref bean="alfresco.odf.dictionaryBootstrap" />
