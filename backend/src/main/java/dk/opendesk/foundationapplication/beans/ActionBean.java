@@ -205,7 +205,8 @@ public class ActionBean extends FoundationBean{
         return getOrCreateSingleFolder(applicationRef, "doc");
     }
 
-    private NodeRef getOrCreateSingleFolder(NodeRef parentRef, String folderType) throws Exception {
+
+    public NodeRef getOrCreateSingleFolder(NodeRef parentRef, String folderType) throws Exception {
         NodeRef folderRef;
         String folderName;
 
