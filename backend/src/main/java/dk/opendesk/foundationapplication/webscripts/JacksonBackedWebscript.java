@@ -16,6 +16,7 @@ import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
+import dk.opendesk.foundationapplication.beans.HealthCheckBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import static dk.opendesk.foundationapplication.webscripts.foundation.UpdateBudget.BUDGET_DID_NOT_MATCH;
 
@@ -66,6 +67,7 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
     private ApplicationBean applicationBean;
     private BranchBean branchBean;
     private BudgetBean budgetBean;
+    private HealthCheckBean healthCheckBean;
     private WorkflowBean workflowBean;
 
     protected ServiceRegistry getServiceRegistry() {
@@ -106,6 +108,14 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
 
     public void setBudgetBean(BudgetBean budgetBean) {
         this.budgetBean = budgetBean;
+    }
+
+    public HealthCheckBean getHealthCheckBean() {
+        return healthCheckBean;
+    }
+
+    public void setHealthCheckBean(HealthCheckBean healthCheckBean) {
+        this.healthCheckBean = healthCheckBean;
     }
 
     public WorkflowBean getWorkflowBean() {

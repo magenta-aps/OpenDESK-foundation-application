@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Health Check</shortname>
+    <description>Runs a health check</description>
+    <url>/foundation/healthcheck</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>
+

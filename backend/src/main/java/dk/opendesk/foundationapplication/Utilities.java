@@ -133,6 +133,8 @@ public final class Utilities {
 
     public static final String APPLICATION_PARAM_BLOCKS = "applicationBlocks";
 
+    public static final String HEALTH_CHECK_STRUCTURE = "structure";
+
     public static final String EXCEPTION_EMAIL_TEMPLATE_FOLDER = "utilities.getOdfEmailTemplateFolder.exception";
 
     private static String foundationNameSpace = null;
@@ -141,11 +143,11 @@ public final class Utilities {
         final JmxReporter reporter = JmxReporter.forRegistry(METRICS).build();
         reporter.start();
     }
-    
+
     public static MetricRegistry getMetrics(){
         return METRICS;
     }
-    
+
     public static String getFoundationModelNameSpace() throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
