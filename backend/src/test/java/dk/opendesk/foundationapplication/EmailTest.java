@@ -34,7 +34,7 @@ public class EmailTest extends AbstractTestClass {
         super("/foundation");
     }
 
-    public static String TEST_TEMPLATE_NAME = "testEmailTemplate.html"; //"email.html.ftl";
+    public static String TEST_TEMPLATE_NAME = "emailTestTemplate.html";
     public static String TEST_ADDRESSEE = "astrid@testmail.dk";
     private HashMap<String, Serializable> emptyStringModel = new HashMap<>();
 
@@ -106,7 +106,6 @@ public class EmailTest extends AbstractTestClass {
         assertEquals(1, childrenRefs.size()); //there should be one email in the folder
 
         ContentReader reader = getServiceRegistry().getFileFolderService().getReader(childrenRefs.get(0).getChildRef());
-        System.out.println(reader.getContentString());
         String[] lines = reader.getContentString().split("\n");
         String fromLine = null;
         String subjectLine = null;
@@ -159,6 +158,7 @@ public class EmailTest extends AbstractTestClass {
         Action action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
+        action.setParameterValue(PARAM_TEMPLATE_MODEL, emptyStringModel);
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
         assertEquals(1, mailServer.getMails().size());
         assertEquals("hallo hallo", mailServer.getMails().get(0).getSubject());
@@ -166,6 +166,7 @@ public class EmailTest extends AbstractTestClass {
         action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
+        action.setParameterValue(PARAM_TEMPLATE_MODEL, emptyStringModel);
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
         assertEquals(2, mailServer.getMails().size());
         assertEquals("hallo hallo", mailServer.getMails().get(1).getSubject());
@@ -178,12 +179,21 @@ public class EmailTest extends AbstractTestClass {
         String email = get(String.class, "/application/" + TestUtils.application1.getId() + "/email/" + emailRefs.get(0));
 
         String[] lines = email.split("\n");
+        String headerSubjectLine = null;
+        String bodySubjectLine = null;
         for (String s : lines) {
             if (s.startsWith("Subject:")) {
-                assertEquals("Subject: " + "hallo hallo", s);
+                headerSubjectLine = s;
             }
+            if (s.startsWith("subject =")) {
+                bodySubjectLine = s;
+            }
+
         }
-        assertEquals("<html>", lines[9]);
+        assertNotNull(headerSubjectLine);
+        assertNotNull(bodySubjectLine);
+        assertEquals("Subject: " + "hallo hallo", headerSubjectLine);
+        assertEquals("subject = " + "hallo hallo", bodySubjectLine);
     }
 
     public void testSaveEmailCopy() throws Exception {
@@ -281,6 +291,8 @@ public class EmailTest extends AbstractTestClass {
         data.put("aspect", ASPECT_ON_CREATE);
         data.put("subject", "testEmailSavedToHistory");
         data.put(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
+        data.put(PARAM_TEMPLATE_MODEL, emptyStringModel);
+        System.out.println(data.toString());
         post(data, "/action/" + ACTION_NAME_EMAIL);
 
         //updating application

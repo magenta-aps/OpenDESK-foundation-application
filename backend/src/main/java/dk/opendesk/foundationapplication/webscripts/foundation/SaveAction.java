@@ -42,7 +42,7 @@ public class SaveAction extends JacksonBackedWebscript {
                 }
             }
             else {
-                params.put(param,(String) body.get(param));
+                params.put(param,(Serializable) body.get(param));
             }
         }
 

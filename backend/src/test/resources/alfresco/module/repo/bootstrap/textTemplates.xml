@@ -36,7 +36,7 @@
                                 </view:properties>
                                 <view:associations></view:associations>
                             </cm:content>
-                            <cm:content view:childName="cm:testEmailTemplate.html">
+                            <cm:content view:childName="cm:emailTestTemplate.html">
                                 <view:aspects>
                                     <cm:author />
                                 </view:aspects>
@@ -44,7 +44,7 @@
                                     <cm:description>This file contains the test email template.</cm:description>
                                     <cm:author>admin</cm:author>
                                     <cm:name>testEmailTemplate.html</cm:name>
-                                    <cm:content>contentUrl=classpath:alfresco/module/repo/bootstrap/files/testEmailTemplate.html|mimetype=text/html|size=2428|encoding=UTF-8|locale=da_DK_</cm:content>
+                                    <cm:content>contentUrl=classpath:alfresco/module/repo/bootstrap/files/emailTestTemplate.html|mimetype=text/html|size=2428|encoding=UTF-8|locale=da_DK_</cm:content>
                                 </view:properties>
                                 <view:associations></view:associations>
                             </cm:content>
