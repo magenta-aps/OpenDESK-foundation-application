@@ -57,10 +57,14 @@ public class FoundationAction {
         this.params = params;
     }
 
+    /*
     @Override
     public String toString() {
         return "FoundationAction\n" +
                 "\tname   = '" + name + "'\n'" +
-                "\tparams =\n" + params;
+                "\tstateIdParam   =\n " + stateIdParam + "\n" +
+                "\taspectParam   =\n " + aspectParam + "\n" +
+                "\totherParams (list) =\n" + params;
     }
+    */
 }

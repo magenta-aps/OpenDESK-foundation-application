@@ -9,6 +9,7 @@ public class FoundationActionParameterValue extends FoundationActionParameter {
     private Serializable value;
 
     public FoundationActionParameterValue() {
+        super();
     }
 
     public FoundationActionParameterValue(ParameterDefinition parameterDefinition, String value) {
@@ -36,7 +37,7 @@ public class FoundationActionParameterValue extends FoundationActionParameter {
         this.value = value;
     }
 
-
+    /*
     @Override
     public String toString() {
         return "\tFoundationActionParameterValue\n" +
@@ -48,4 +49,5 @@ public class FoundationActionParameterValue extends FoundationActionParameter {
                 "\t\tparameterConstraintName='" + getParameterConstraintName() + "'\n" +
                 "\t\tvalue='" + value + "'\n";
     }
+    */
 }

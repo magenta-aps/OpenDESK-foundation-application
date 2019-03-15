@@ -13,6 +13,13 @@ public class FoundationActionValue {
 
     }
 
+    public FoundationActionValue(String name, FoundationActionParameterValue stateIdParam, FoundationActionParameterValue aspectParam, List<FoundationActionParameterValue> params) {
+        this.name = name;
+        this.stateIdParam = stateIdParam;
+        this.aspectParam = aspectParam;
+        this.params = params;
+    }
+
     public String getName() {
         return name;
     }

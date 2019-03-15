@@ -1,18 +1,26 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.*;
+import org.alfresco.repo.action.ParameterDefinitionImpl;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.Action;
+import org.alfresco.service.cmr.action.ParameterDefinition;
+import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.Status;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
 import static dk.opendesk.foundationapplication.Utilities.*;
+import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_CC;
 
 public class ActionTest extends AbstractTestClass {
 
@@ -38,6 +46,7 @@ public class ActionTest extends AbstractTestClass {
 
         List<FoundationAction> actions = get(List.class, FoundationAction.class, "");
 
+        System.out.println(actions);
         assertEquals(4, actions.size());
         assertEquals(ACTION_NAME_EMAIL, actions.get(0).getName());
         assertEquals(9,actions.get(0).getParams().size());
@@ -46,10 +55,26 @@ public class ActionTest extends AbstractTestClass {
 
     public void testSaveAction() throws Exception {
 
+        /*
         JSONObject data = new JSONObject();
-        data.put("stateRef", TestUtils.stateRecievedRef);
-        data.put("aspect", ASPECT_ON_CREATE);
-        data.put("cc", "test@test.dk"); //TODO make sure only real email adresses can be set as parameters
+        ParameterDefinition stateIdParam = new ParameterDefinitionImpl(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, true, null);
+        ParameterDefinition aspectParam = new ParameterDefinitionImpl(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, true, null);
+        //data.put("stateIdParam", TestUtils.stateRecievedRef);
+        data.put("stateIdParam", new FoundationActionParameterValue(stateIdParam, TestUtils.stateRecievedRef.getId()));
+        //data.put("aspectParam", ASPECT_ON_CREATE);
+        data.put("aspectParam", new FoundationActionParameterValue(aspectParam, ASPECT_ON_CREATE));
+        HashMap<String, Serializable> params = new HashMap<>();
+        params.put("cc", "test@test.dk"); //TODO make sure only real email adresses can be set as parameters
+        data.put("params", params);
+        */
+        ParameterDefinition stateIdParam = new ParameterDefinitionImpl(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, true, null);
+        ParameterDefinition aspectParam = new ParameterDefinitionImpl(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, true, null);
+        ParameterDefinition ccParam = new ParameterDefinitionImpl(PARAM_CC, DataTypeDefinition.TEXT, false, null);
+
+        List<FoundationActionParameterValue> params = new ArrayList<>();
+        params.add(new FoundationActionParameterValue(ccParam, "test@test.dk"));
+
+        FoundationActionValue foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParam, aspectParam, params);
         post(data, ACTION_NAME_EMAIL);
 
         List<Action> actions = getServiceRegistry().getActionService().getActions(TestUtils.stateRecievedRef);
