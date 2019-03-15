@@ -21,6 +21,7 @@ import dk.opendesk.foundationapplication.JSON.ApplicationPropertyDeserializer;
 import dk.opendesk.foundationapplication.JSON.ApplicationPropertySerializer;
 import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
+import dk.opendesk.foundationapplication.beans.AuthorityBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
@@ -180,6 +181,8 @@ public final class Utilities {
         actionBean.setServiceRegistry(serviceRegistry);
         ApplicationBean applicationBean = new ApplicationBean();
         applicationBean.setServiceRegistry(serviceRegistry);
+        AuthorityBean authBean = new AuthorityBean();
+        authBean.setServiceRegistry(serviceRegistry);
         BranchBean branchBean = new BranchBean();
         branchBean.setServiceRegistry(serviceRegistry);
         BudgetBean budgetBean = new BudgetBean();
@@ -190,17 +193,22 @@ public final class Utilities {
         actionBean.setApplicationBean(applicationBean);
         
         applicationBean.setActionBean(actionBean);
+        applicationBean.setAuthBean(authBean);
         applicationBean.setBranchBean(branchBean);
         applicationBean.setBudgetBean(budgetBean);
         applicationBean.setWorkflowBean(workflowBean);
         
         branchBean.setApplicationBean(applicationBean);
+        branchBean.setAuthBean(authBean);
         branchBean.setBudgetBean(budgetBean);
+        branchBean.setWorkflowBean(workflowBean);
         
         budgetBean.setApplicationBean(applicationBean);
+        budgetBean.setAuthBean(authBean);
         budgetBean.setWorkflowBean(workflowBean);
         
         workflowBean.setApplicationBean(applicationBean);
+        workflowBean.setAuthBean(authBean);
         
         
         NodeRef dataRef = applicationBean.getDataHome();

@@ -10,6 +10,7 @@ import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
+import dk.opendesk.foundationapplication.beans.AuthorityBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
@@ -115,6 +116,8 @@ public final class TestUtils {
         actionBean.setServiceRegistry(serviceRegistry);
         ApplicationBean applicationBean = new ApplicationBean();
         applicationBean.setServiceRegistry(serviceRegistry);
+        AuthorityBean authBean = new AuthorityBean();
+        authBean.setServiceRegistry(serviceRegistry);
         BranchBean branchBean = new BranchBean();
         branchBean.setServiceRegistry(serviceRegistry);
         BudgetBean budgetBean = new BudgetBean();
@@ -125,17 +128,22 @@ public final class TestUtils {
         actionBean.setApplicationBean(applicationBean);
 
         applicationBean.setActionBean(actionBean);
+        applicationBean.setAuthBean(authBean);
         applicationBean.setBranchBean(branchBean);
         applicationBean.setBudgetBean(budgetBean);
         applicationBean.setWorkflowBean(workflowBean);
 
         branchBean.setApplicationBean(applicationBean);
+        branchBean.setAuthBean(authBean);
         branchBean.setBudgetBean(budgetBean);
+        branchBean.setWorkflowBean(workflowBean);
 
         budgetBean.setApplicationBean(applicationBean);
+        budgetBean.setAuthBean(authBean);
         budgetBean.setWorkflowBean(workflowBean);
 
         workflowBean.setApplicationBean(applicationBean);
+        workflowBean.setAuthBean(authBean);
 
         //Create test user
         String password = "testpass";
@@ -173,7 +181,7 @@ public final class TestUtils {
 
         //Create branch and associate it with the workflow
         branchRef = branchBean.addNewBranch(BRANCH_NAME, BRANCH_NAME + TITLE_POSTFIX);
-        branchBean.addBranchWorkflow(branchRef, workFlowRef);
+        branchBean.setBranchWorkflow(branchRef, workFlowRef);
 
         //Create budgets and associate it with a branch
         Date startDate = Date.from(Instant.now().minus(Duration.ofDays(1)));

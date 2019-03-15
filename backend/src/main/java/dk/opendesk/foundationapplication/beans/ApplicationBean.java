@@ -45,6 +45,7 @@ import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.namespace.QName;
 
 import static dk.opendesk.foundationapplication.Utilities.*;
+import dk.opendesk.foundationapplication.enums.PermissionGroup;
 
 /**
  *
@@ -53,12 +54,17 @@ import static dk.opendesk.foundationapplication.Utilities.*;
 public class ApplicationBean extends FoundationBean{
     
     private ActionBean actionBean;
+    private AuthorityBean authBean;
     private BranchBean branchBean;
     private BudgetBean budgetBean;
     private WorkflowBean workflowBean;
 
     public void setActionBean(ActionBean actionBean) {
         this.actionBean = actionBean;
+    }
+
+    public void setAuthBean(AuthorityBean authBean) {
+        this.authBean = authBean;
     }
 
     public void setBranchBean(BranchBean branchBean) {
@@ -124,6 +130,7 @@ public class ApplicationBean extends FoundationBean{
         NodeRef applicationRef = getServiceRegistry().getNodeService().createNode(getDataHome(), dataAssocApplication, applicationQname, applicationTypeQname, properties).getChildRef();
         if (application.getBudget() != null) {
             getServiceRegistry().getNodeService().createAssociation(applicationRef, application.getBudget().asNodeRef(), getODFName(APPLICATION_ASSOC_BUDGET));
+            authBean.addFullPermission(applicationRef, PermissionGroup.BUDGET, application.getBudget());
         }
         if (application.getBranchSummary() != null) {
             NodeRef workFlowRef = getServiceRegistry().getNodeService().getTargetAssocs(application.getBranchSummary().asNodeRef(), getODFName(BRANCH_ASSOC_WORKFLOW)).get(0).getTargetRef();
@@ -133,6 +140,7 @@ public class ApplicationBean extends FoundationBean{
             }
             getServiceRegistry().getNodeService().createAssociation(applicationRef, application.getBranchSummary().asNodeRef(), getODFName(APPLICATION_ASSOC_BRANCH));
             getServiceRegistry().getNodeService().createAssociation(applicationRef, workflowEntryRefs.get(0).getTargetRef(), getODFName(APPLICATION_ASSOC_STATE));
+            authBean.addFullPermission(applicationRef, PermissionGroup.WORKFLOW, application.getBranchSummary().getWorkflowRef());
         } else {
             getServiceRegistry().getNodeService().createAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
         }
@@ -169,14 +177,19 @@ public class ApplicationBean extends FoundationBean{
 
             if (!newBranchRef.equals(currentBranchRef)) {
                 NodeRef newBranchWorkflow = getSingleTargetAssoc(newBranchRef, BRANCH_ASSOC_WORKFLOW);
-                NodeRef currentBranchWorkflow = getSingleTargetAssoc(currentBranchRef, BRANCH_ASSOC_WORKFLOW);
-
-                changedWorkflow = !newBranchWorkflow.equals(currentBranchWorkflow);
+                if(currentBranchRef != null){
+                    NodeRef currentBranchWorkflow = getSingleTargetAssoc(currentBranchRef, BRANCH_ASSOC_WORKFLOW);
+                    changedWorkflow = !newBranchWorkflow.equals(currentBranchWorkflow);
+                    authBean.removeFullPermission(currentBranchRef, PermissionGroup.BRANCH, branchBean.getBranchReference(currentBranchRef));
+                }else{
+                    changedWorkflow = true;
+                }
+                
 
                 if (changedWorkflow && app.getState() == null) {
                     throw new AlfrescoRuntimeException(MUST_SPECIFY_STATE);
                 }
-
+                authBean.addFullPermission(newBranchRef, PermissionGroup.BRANCH, branchBean.getBranchReference(newBranchRef));
                 ns.setAssociations(app.asNodeRef(), getODFName(APPLICATION_ASSOC_BRANCH), Collections.singletonList(newBranchRef));
             }
 
@@ -198,8 +211,8 @@ public class ApplicationBean extends FoundationBean{
             NodeRef currentBudget = getSingleTargetAssoc(app.asNodeRef(), APPLICATION_ASSOC_BUDGET);
             NodeRef currentBranch = getSingleTargetAssoc(app.asNodeRef(), APPLICATION_ASSOC_BRANCH);
             List<AssociationRef> branchBudgets = ns.getTargetAssocs(currentBranch, getODFName(BRANCH_ASSOC_BUDGETS));
+            authBean.removeFullPermission(app.asNodeRef(), PermissionGroup.BUDGET, budgetBean.getBudgetReference(currentBudget));
             if (app.getBudget() == null) {
-
                 ns.removeAssociation(app.asNodeRef(), currentBudget, getODFName(APPLICATION_ASSOC_BUDGET));
             } else {
                 NodeRef newBudget = app.getBudget().asNodeRef();
@@ -215,6 +228,7 @@ public class ApplicationBean extends FoundationBean{
                         throw new AlfrescoRuntimeException(INVALID_BRANCH);
                     }
                     ns.setAssociations(app.asNodeRef(), getODFName(APPLICATION_ASSOC_BUDGET), Collections.singletonList(newBudget));
+                    authBean.addFullPermission(app.asNodeRef(), PermissionGroup.BUDGET, budgetBean.getBudgetReference(newBudget));
                 }
 
             }

@@ -50,7 +50,7 @@ public class CreateDanvaData extends ResetDemoData {
         createWorkflowStateTransitions(expanded, meeting2);
         createWorkflowStateTransitions(meeting2, approved, rejected);
         
-        getBranchBean().addBranchWorkflow(central, centralWorkflow);
+        getBranchBean().setBranchWorkflow(central, centralWorkflow);
         
         NodeRef app1 = createApplication(premeeting1, null, central, "Ansøgning 1", 60000);
         NodeRef app2 = createApplication(premeeting1, null, central, "Ansøgning 2", 120000);

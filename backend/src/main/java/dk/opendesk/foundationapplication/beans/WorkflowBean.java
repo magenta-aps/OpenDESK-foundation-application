@@ -14,6 +14,7 @@ import dk.opendesk.foundationapplication.DAO.Workflow;
 import dk.opendesk.foundationapplication.DAO.WorkflowReference;
 import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
 import static dk.opendesk.foundationapplication.Utilities.*;
+import dk.opendesk.foundationapplication.enums.PermissionGroup;
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,10 +34,15 @@ import org.alfresco.service.namespace.QName;
  */
 public class WorkflowBean extends FoundationBean{
     private ApplicationBean applicationBean;
+    private AuthorityBean authBean;
     private BranchBean branchBean;
 
     public void setApplicationBean(ApplicationBean applicationBean) {
         this.applicationBean = applicationBean;
+    }
+
+    public void setAuthBean(AuthorityBean authBean) {
+        this.authBean = authBean;
     }
     
     public void setBranchBean(BranchBean branchBean) {
@@ -62,7 +68,10 @@ public class WorkflowBean extends FoundationBean{
         Map<QName, Serializable> workflowParams = new HashMap<>();
         workflowParams.put(workflowTitle, title);
 
-        return getServiceRegistry().getNodeService().createNode(dataHome, dataWorkflowsQname, workFlowQname, workFlowTypeQname, workflowParams).getChildRef();
+        NodeRef newWorkflow = getServiceRegistry().getNodeService().createNode(dataHome, dataWorkflowsQname, workFlowQname, workFlowTypeQname, workflowParams).getChildRef();
+        authBean.addFullPermission(newWorkflow, PermissionGroup.WORKFLOW, title);
+        authBean.disableInheritPermissions(newWorkflow);
+        return newWorkflow;
     }
 
     public void setWorkflowEntryPoint(NodeRef workFlowRef, NodeRef workflowStateRef) throws Exception {

@@ -26,6 +26,7 @@ import static dk.opendesk.foundationapplication.Utilities.BUDGET_PARAM_TITLE;
 import static dk.opendesk.foundationapplication.Utilities.BUDGET_TYPE_NAME;
 import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_BUDGETYEARS;
 import static dk.opendesk.foundationapplication.Utilities.getODFName;
+import dk.opendesk.foundationapplication.enums.PermissionGroup;
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import java.io.Serializable;
 import java.time.Instant;
@@ -46,10 +47,15 @@ import org.alfresco.service.namespace.QName;
  */
 public class BudgetBean extends FoundationBean{
     private ApplicationBean applicationBean;
+    private AuthorityBean authBean;
     private WorkflowBean workflowBean;
 
     public void setApplicationBean(ApplicationBean applicationBean) {
         this.applicationBean = applicationBean;
+    }
+
+    public void setAuthBean(AuthorityBean authBean) {
+        this.authBean = authBean;
     }
 
     public void setWorkflowBean(WorkflowBean workflowBean) {
@@ -82,7 +88,11 @@ public class BudgetBean extends FoundationBean{
         budgetParams.put(getODFName(BUDGETYEAR_PARAM_STARTDATE), startDate);
         budgetParams.put(getODFName(BUDGETYEAR_PARAM_ENDDATE), endDate);
 
-        return getServiceRegistry().getNodeService().createNode(getDataHome(), budgetYearsQname, budgetYearQname, budgetYearTypeQname, budgetParams).getChildRef();
+        NodeRef newBudgetYear = getServiceRegistry().getNodeService().createNode(getDataHome(), budgetYearsQname, budgetYearQname, budgetYearTypeQname, budgetParams).getChildRef();
+        authBean.addFullPermission(newBudgetYear, PermissionGroup.BUDGET_YEAR, title);
+        authBean.disableInheritPermissions(newBudgetYear);
+        
+        return newBudgetYear;
 
     }
     
@@ -94,8 +104,12 @@ public class BudgetBean extends FoundationBean{
         Map<QName, Serializable> budgetParams = new HashMap<>();
         budgetParams.put(getODFName(BUDGET_PARAM_TITLE), title);
         budgetParams.put(getODFName(BUDGET_PARAM_AMOUNT), amount);
-
-        return getServiceRegistry().getNodeService().createNode(budgetYear, budgetYearBudgetsQname, budgetQname, budgetTypeQname, budgetParams).getChildRef();
+        
+        NodeRef newBudget = getServiceRegistry().getNodeService().createNode(budgetYear, budgetYearBudgetsQname, budgetQname, budgetTypeQname, budgetParams).getChildRef();
+        authBean.addFullPermission(newBudget, PermissionGroup.BUDGET, title);
+        authBean.disableInheritPermissions(newBudget);
+        
+        return newBudget;
 
     }
     

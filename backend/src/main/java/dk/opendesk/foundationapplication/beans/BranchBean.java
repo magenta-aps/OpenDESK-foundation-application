@@ -12,6 +12,7 @@ import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.WorkflowReference;
 import static dk.opendesk.foundationapplication.Utilities.*;
+import dk.opendesk.foundationapplication.enums.PermissionGroup;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +32,8 @@ import org.alfresco.service.namespace.QName;
 public class BranchBean extends FoundationBean {
     private BudgetBean budgetBean;
     private ApplicationBean applicationBean;
+    private AuthorityBean authBean;
+    private WorkflowBean workflowBean;
 
     public void setBudgetBean(BudgetBean budgetBean) {
         this.budgetBean = budgetBean;
@@ -40,6 +43,16 @@ public class BranchBean extends FoundationBean {
         this.applicationBean = applicationBean;
     }
 
+    public void setAuthBean(AuthorityBean authBean) {
+        this.authBean = authBean;
+    }
+
+    public void setWorkflowBean(WorkflowBean workflowBean) {
+        this.workflowBean = workflowBean;
+    }
+    
+    
+
     public NodeRef addNewBranch(String localName, String title) throws Exception {
         NodeRef dataHome = getDataHome();
         QName dataBranchesQname = getODFName(DATA_ASSOC_BRANCHES);
@@ -48,18 +61,43 @@ public class BranchBean extends FoundationBean {
         QName branchTitle = getODFName(BRANCH_PARAM_TITLE);
         Map<QName, Serializable> branchParams = new HashMap<>();
         branchParams.put(branchTitle, title);
+        
+        NodeRef newBranch = getServiceRegistry().getNodeService().createNode(dataHome, dataBranchesQname, branchQname, branchTypeQname, branchParams).getChildRef();
+        authBean.addFullPermission(dataHome, PermissionGroup.BRANCH, title);
+        authBean.disableInheritPermissions(newBranch);
 
-        return getServiceRegistry().getNodeService().createNode(dataHome, dataBranchesQname, branchQname, branchTypeQname, branchParams).getChildRef();
-    }
-
-    public AssociationRef addBranchBudget(NodeRef branchRef, NodeRef budgetRef) throws Exception {
-        QName branchBudgetsQname = getODFName(BRANCH_ASSOC_BUDGETS);
-        return getServiceRegistry().getNodeService().createAssociation(branchRef, budgetRef, branchBudgetsQname);
+        return newBranch;
     }
     
-    public AssociationRef addBranchWorkflow(NodeRef branchRef, NodeRef workflowRef) throws Exception {
+     public AssociationRef addBranchBudget(NodeRef branchRef, NodeRef budgetRef) throws Exception {
+         ensureType(getODFName(BRANCH_TYPE_NAME), branchRef);
+         ensureType(getODFName(BUDGET_TYPE_NAME), budgetRef);
+         return addBranchBudget(getBranchReference(branchRef), budgetBean.getBudgetReference(budgetRef));
+     }
+
+    public AssociationRef addBranchBudget(BranchReference branchRef, BudgetReference budgetRef) throws Exception {
+        QName branchBudgetsQname = getODFName(BRANCH_ASSOC_BUDGETS);
+        authBean.linkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, true), authBean.getGroup(PermissionGroup.BUDGET, budgetRef, false));
+        authBean.linkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, false), authBean.getGroup(PermissionGroup.BUDGET, budgetRef, false));
+        return getServiceRegistry().getNodeService().createAssociation(branchRef.asNodeRef(), budgetRef.asNodeRef(), branchBudgetsQname);
+    }
+    
+    public NodeRef setBranchWorkflow(NodeRef branchRef, NodeRef workflowRef) throws Exception {
+        ensureType(getODFName(BRANCH_TYPE_NAME), branchRef);
+        ensureType(getODFName(WORKFLOW_TYPE_NAME), workflowRef);
+        return setBranchWorkflow(getBranchReference(branchRef), workflowBean.getWorkflowReference(workflowRef));
+    }
+    
+    public NodeRef setBranchWorkflow(BranchReference branchRef, WorkflowReference workflowRef) throws Exception {
         QName branchWorkflowQname = getODFName(BRANCH_ASSOC_WORKFLOW);
-        return getServiceRegistry().getNodeService().createAssociation(branchRef, workflowRef, branchWorkflowQname);
+        BranchSummary currentBranch = getBranchSummary(branchRef.asNodeRef());
+        authBean.unlinkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, true), authBean.getGroup(PermissionGroup.WORKFLOW, currentBranch.getWorkflowRef(), false));
+        authBean.unlinkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, false), authBean.getGroup(PermissionGroup.WORKFLOW, currentBranch.getWorkflowRef(), false));
+        authBean.linkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, true), authBean.getGroup(PermissionGroup.WORKFLOW, workflowRef, false));
+        authBean.linkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, false), authBean.getGroup(PermissionGroup.WORKFLOW, workflowRef, false));
+        
+        getServiceRegistry().getNodeService().setAssociations(branchRef.asNodeRef(), branchWorkflowQname, Collections.singletonList(workflowRef.asNodeRef()));
+        return workflowRef.asNodeRef();
     }
     
      public NodeRef getBranchWorkflow(NodeRef branchRef) throws Exception {
@@ -83,7 +121,6 @@ public class BranchBean extends FoundationBean {
     public List<BranchSummary> getBranchSummaries() throws Exception {
         List<NodeRef> refs = getBranches();
         List<BranchSummary> branches = new ArrayList<>();
-        NodeService ns = getServiceRegistry().getNodeService();
         for (NodeRef branchRef : refs) {
             branches.add(getBranchSummary(branchRef));
         }
@@ -159,7 +196,7 @@ public class BranchBean extends FoundationBean {
         }
         ns.addProperties(branch.asNodeRef(), properties);
         if (branch.getWorkflowRef() != null) {
-            ns.setAssociations(branch.asNodeRef(), getODFName(BRANCH_ASSOC_WORKFLOW), Collections.singletonList(branch.getWorkflowRef().asNodeRef()));
+            setBranchWorkflow(branch, branch.getWorkflowRef());
         }
     }
 

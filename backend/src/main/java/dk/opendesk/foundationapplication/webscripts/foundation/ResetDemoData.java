@@ -132,10 +132,10 @@ public class ResetDemoData extends JacksonBackedWebscript {
         createWorkflowStateTransitions(lCSReview, lPayout);
         createWorkflowStateTransitions(lPayout, lClosed);
         
-        getBranchBean().addBranchWorkflow(central, centralWorkflow);
-        getBranchBean().addBranchWorkflow(local1, localWorkflow);
-        getBranchBean().addBranchWorkflow(local2, localWorkflow);
-        getBranchBean().addBranchWorkflow(local3, localWorkflow);
+        getBranchBean().setBranchWorkflow(central, centralWorkflow);
+        getBranchBean().setBranchWorkflow(local1, localWorkflow);
+        getBranchBean().setBranchWorkflow(local2, localWorkflow);
+        getBranchBean().setBranchWorkflow(local3, localWorkflow);
         
         //Create Applications
         NodeRef appc1 = createApplication(cHandleApplication, budgetCentral, central, "Ansøgning central 1", 60000);

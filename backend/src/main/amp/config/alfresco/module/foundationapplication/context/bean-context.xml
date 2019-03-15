@@ -20,16 +20,23 @@
     <bean id="foundationBean" class="dk.opendesk.foundationapplication.beans.FoundationBean" abstract="true">
         <property name="serviceRegistry" ref="ServiceRegistry"/>
     </bean>
+    <bean id="odfAuthBean" class="dk.opendesk.foundationapplication.beans.AuthorityBean" parent="foundationBean">
+        
+    </bean>
     <bean id="branchBean" class="dk.opendesk.foundationapplication.beans.BranchBean" parent="foundationBean">
+        <property name="authBean" ref="odfAuthBean"/>
         <property name="budgetBean" ref="budgetBean"/>
         <property name="applicationBean" ref="applicationBean"/>
+        <property name="workflowBean" ref="workflowBean"/>
     </bean>
     <bean id="budgetBean" class="dk.opendesk.foundationapplication.beans.BudgetBean" parent="foundationBean">
+        <property name="authBean" ref="odfAuthBean"/>
         <property name="applicationBean" ref="applicationBean"/>
         <property name="workflowBean" ref="workflowBean"/>
     </bean>
     <bean id="workflowBean" class="dk.opendesk.foundationapplication.beans.WorkflowBean" parent="foundationBean">
         <property name="applicationBean" ref="applicationBean"/>
+        <property name="authBean" ref="odfAuthBean"/>
         <property name="branchBean" ref="branchBean"/>
     </bean>
     <bean id="actionBean" class="dk.opendesk.foundationapplication.beans.ActionBean" parent="foundationBean">
@@ -38,6 +45,7 @@
     <bean id="applicationBean" class="dk.opendesk.foundationapplication.beans.ApplicationBean" parent="foundationBean">
         <property name="workflowBean" ref="workflowBean"/>
         <property name="actionBean" ref="actionBean"/>
+        <property name="authBean" ref="odfAuthBean"/>
         <property name="branchBean" ref="branchBean"/>
         <property name="budgetBean" ref="budgetBean"/>
     </bean>
