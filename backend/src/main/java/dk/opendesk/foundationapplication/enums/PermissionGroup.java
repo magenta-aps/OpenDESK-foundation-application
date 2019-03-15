@@ -18,7 +18,8 @@ import dk.opendesk.foundationapplication.DAO.WorkflowReference;
  */
 public enum PermissionGroup {
     BRANCH("Branch", BranchReference.class), WORKFLOW("Workflow", WorkflowReference.class), BUDGET_YEAR("BudgetYear", BudgetYear.class),
-    BUDGET("Budget", BudgetReference.class), APPLICATION("Application", ApplicationReference.class), NEW_APPLICATION("NewApplication", ApplicationReference.class);    
+    BUDGET("Budget", BudgetReference.class), APPLICATION("Application", ApplicationReference.class), NEW_APPLICATION("NewApplication", ApplicationReference.class),
+    SUPER("Super", null);    
     private final String shortName;
     private final Class<? extends Reference> requiredType;
 

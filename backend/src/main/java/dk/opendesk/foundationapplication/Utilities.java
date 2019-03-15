@@ -210,6 +210,7 @@ public final class Utilities {
         workflowBean.setApplicationBean(applicationBean);
         workflowBean.setAuthBean(authBean);
         
+        authBean.getAllCreatedGroups();
         
         NodeRef dataRef = applicationBean.getDataHome();
 

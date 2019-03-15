@@ -91,8 +91,10 @@ public class BranchBean extends FoundationBean {
     public NodeRef setBranchWorkflow(BranchReference branchRef, WorkflowReference workflowRef) throws Exception {
         QName branchWorkflowQname = getODFName(BRANCH_ASSOC_WORKFLOW);
         BranchSummary currentBranch = getBranchSummary(branchRef.asNodeRef());
-        authBean.unlinkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, true), authBean.getGroup(PermissionGroup.WORKFLOW, currentBranch.getWorkflowRef(), false));
-        authBean.unlinkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, false), authBean.getGroup(PermissionGroup.WORKFLOW, currentBranch.getWorkflowRef(), false));
+        if(currentBranch.getWorkflowRef() != null){
+            authBean.unlinkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, true), authBean.getGroup(PermissionGroup.WORKFLOW, currentBranch.getWorkflowRef(), false));
+            authBean.unlinkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, false), authBean.getGroup(PermissionGroup.WORKFLOW, currentBranch.getWorkflowRef(), false));
+        }
         authBean.linkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, true), authBean.getGroup(PermissionGroup.WORKFLOW, workflowRef, false));
         authBean.linkAuthorities(authBean.getGroup(PermissionGroup.BRANCH, branchRef, false), authBean.getGroup(PermissionGroup.WORKFLOW, workflowRef, false));
         

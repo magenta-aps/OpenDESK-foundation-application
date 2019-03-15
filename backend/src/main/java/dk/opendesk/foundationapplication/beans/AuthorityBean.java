@@ -7,6 +7,8 @@ package dk.opendesk.foundationapplication.beans;
 
 import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.enums.PermissionGroup;
+import java.util.ArrayList;
+import java.util.List;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -19,6 +21,24 @@ import org.alfresco.service.cmr.security.PermissionService;
  */
 public class AuthorityBean extends FoundationBean{
     public static final String ERROR_GROUP_NOT_FOUND = "odf.group.not.found";
+    
+    public List<String> getAllCreatedGroups(){
+        AuthorityService as = getServiceRegistry().getAuthorityService();
+        List<String> toReturn = new ArrayList<>();
+        try{
+            for(String group : as.findAuthorities(AuthorityType.GROUP, getGroup(PermissionGroup.SUPER, (String)null, true), false, null, null)){
+                System.out.println("\n-----------------------GROUP--------------------\n"+group);
+                toReturn.add(group);
+            }
+        }catch(AlfrescoRuntimeException ex){
+            //If the group doesn't exist, just skip. But if it is another exception, rethrow.
+            if(!ex.getMsgId().equals(ERROR_GROUP_NOT_FOUND)){
+                throw ex;
+            }
+        }
+        
+        return toReturn;
+    }
     
     public void addFullPermission(NodeRef target, PermissionGroup group, Reference subName){
         verifyType(group, subName);
@@ -122,6 +142,10 @@ public class AuthorityBean extends FoundationBean{
                 //This is a subgroup, and should be added to the supergroup.
                 String superGroup = getOrCreateGroup(group, null, write);
                 linkAuthorities(superGroup, groupName);
+            }else if(!PermissionGroup.SUPER.equals(group)){
+                //This is a supergroup, add it so superadmin group
+                String superAdminGroup = getOrCreateGroup(PermissionGroup.SUPER, null, write);
+                linkAuthorities(superAdminGroup, groupName);
             }
         }
         return groupName;
@@ -145,6 +169,9 @@ public class AuthorityBean extends FoundationBean{
     }
     
     public void verifyType(PermissionGroup group, Reference subName){
+        if(subName != null && group.getRequiredType() == null){
+            throw new RuntimeException("PermissionGroup "+group+" cannot be used with a subName");
+        }
         if(!group.getRequiredType().isAssignableFrom(subName.getClass())){
             throw new RuntimeException("PermissionGroup "+group+" cannot be used with Reference of class "+subName.getClass()+" must be used with "+group.getRequiredType());
         }
