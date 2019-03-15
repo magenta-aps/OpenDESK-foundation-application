@@ -1,5 +1,8 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
+import dk.opendesk.foundationapplication.DAO.FoundationActionParameterValue;
+import dk.opendesk.foundationapplication.DAO.FoundationActionValue;
+import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.Utilities;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -11,23 +14,30 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static dk.opendesk.foundationapplication.Utilities.ASPECT_BEFORE_DELETE;
 import static dk.opendesk.foundationapplication.Utilities.ASPECT_ON_CREATE;
+import static dk.opendesk.foundationapplication.Utilities.getODFName;
 
 public class SaveAction extends JacksonBackedWebscript {
     @Override
     protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
 
         String actionName = getUrlParams().get("action");
-        JSONObject body = new JSONObject(req.getContent().getContent());
+        FoundationActionValue foundationAction = getRequestAs(FoundationActionValue.class);
 
-        NodeRef stateRef = null;
-        QName aspect = null;
+        if (foundationAction.getStateIdParam() == null || foundationAction.getAspectParam() == null) {
+            throw new Exception("'stateRef' and 'aspect' has to be set");
+        }
 
-        Map<String, Serializable> params = new HashMap<>();
+        NodeRef stateRef = Reference.refFromID((String) foundationAction.getStateIdParam().getValue());
+        QName aspect = getODFName((String) foundationAction.getAspectParam().getValue());
 
+        List<FoundationActionParameterValue> params = foundationAction.getParams();
+
+        /*
         for (Iterator it = body.keys(); it.hasNext(); ) {
             String param = (String) it.next();
 
@@ -45,13 +55,10 @@ public class SaveAction extends JacksonBackedWebscript {
                 params.put(param,(Serializable) body.get(param));
             }
         }
+        */
 
-        if (stateRef == null || aspect == null) {
-            throw new Exception("'stateRef' and 'aspect' has to be set");
-        } else {
-            getActionBean().saveAction(actionName, stateRef, aspect, params);
-            return new JSONObject().put("status", "OK");
-        }
+        getActionBean().saveAction(actionName, stateRef, aspect, params);
+        return new JSONObject().put("status", "OK");
 
     }
 }

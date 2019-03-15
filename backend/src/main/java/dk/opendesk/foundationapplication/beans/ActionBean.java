@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication.beans;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationChange;
+import dk.opendesk.foundationapplication.DAO.FoundationActionParameterValue;
 import dk.opendesk.foundationapplication.DAO.JSONAction;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.APPLICATION_CHANGE;
@@ -65,6 +66,14 @@ public class ActionBean extends FoundationBean{
 
     public ActionDefinition getAction(String actionName) {
         return getServiceRegistry().getActionService().getActionDefinition(actionName);
+    }
+
+    public void saveAction(String actionName, NodeRef stateRef, QName aspect, List<FoundationActionParameterValue> params) {
+        HashMap<String, Serializable> paramMap = new HashMap<>();
+        for (FoundationActionParameterValue param : params) {
+            paramMap.put(param.getName(), param.getValue());
+        }
+        saveAction(actionName, stateRef, aspect, paramMap);
     }
 
     public void saveAction(String actionName, NodeRef stateRef, QName aspect, Map<String, Serializable> params) {

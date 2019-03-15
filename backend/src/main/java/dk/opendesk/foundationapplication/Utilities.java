@@ -122,6 +122,8 @@ public final class Utilities {
     public static final String ACTION_NAME_ADD_FIELDS = "addFields";
     public static final String ACTION_NAME_EMAIL = "foundationMail";
     public static final String ACTION_NAME_CREATE_APPLICANT = "createApplicant";
+    public static final String ACTION_PARAM_STATE = "stateRef";
+    public static final String ACTION_PARAM_ASPECT = "aspect";
 
     public static final String ASPECT_ON_CREATE = "onCreate";
     public static final String ASPECT_BEFORE_DELETE = "beforeDelete";

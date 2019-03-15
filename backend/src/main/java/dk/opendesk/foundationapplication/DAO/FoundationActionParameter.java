@@ -23,6 +23,15 @@ public class FoundationActionParameter {
         parameterConstraintName = parameterDef.getParameterConstraintName();
     }
 
+    public FoundationActionParameter(String name, String type, boolean isMultivalued, boolean isMandatory, String displayLabel, String parameterConstraintName) {
+        this.name = name;
+        this.type = type;
+        this.isMultivalued = isMultivalued;
+        this.isMandatory = isMandatory;
+        this.displayLabel = displayLabel;
+        this.parameterConstraintName = parameterConstraintName;
+    }
+
     public String getName() {
         return name;
     }
