@@ -28,6 +28,7 @@ import java.util.Map;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.apache.log4j.Logger;
@@ -101,6 +102,13 @@ public final class TestUtils {
         }
         if(serviceRegistry.getAuthorityService().authorityExists(serviceRegistry.getAuthorityService().getName(AuthorityType.GROUP, TEST_AUTHORITY))){
             serviceRegistry.getAuthorityService().deleteAuthority(AuthorityType.GROUP.getPrefixString()+TEST_AUTHORITY, true);
+        }
+        AuthorityService as = serviceRegistry.getAuthorityService();
+        for(String group : AuthorityBean.getAllCreatedGroups(as)){
+            if(as.authorityExists(group)){
+                System.out.println("\n-----------------------DELETING GROUP--------------------\n"+group);
+                as.deleteAuthority(group, true);
+            }
         }
         //serviceRegistry.getAuthenticationService().deleteAuthentication(TEST_USER);
         isInitiated = false;

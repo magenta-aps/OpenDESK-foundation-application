@@ -8,7 +8,9 @@ package dk.opendesk.foundationapplication.beans;
 import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.enums.PermissionGroup;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -22,12 +24,21 @@ import org.alfresco.service.cmr.security.PermissionService;
 public class AuthorityBean extends FoundationBean{
     public static final String ERROR_GROUP_NOT_FOUND = "odf.group.not.found";
     
-    public List<String> getAllCreatedGroups(){
-        AuthorityService as = getServiceRegistry().getAuthorityService();
-        List<String> toReturn = new ArrayList<>();
+    public Set<String> getAllCreatedGroups(){
+         AuthorityService as = getServiceRegistry().getAuthorityService();
+         return getAllCreatedGroups(as);
+    }
+    
+    public static Set<String> getAllCreatedGroups(AuthorityService as){
+        
+        Set<String> toReturn = new HashSet<>();
         try{
-            for(String group : as.findAuthorities(AuthorityType.GROUP, getGroup(PermissionGroup.SUPER, (String)null, true), false, null, null)){
-                System.out.println("\n-----------------------GROUP--------------------\n"+group);
+            for(String group : as.findAuthorities(AuthorityType.GROUP, getGroup(PermissionGroup.SUPER, (String)null, true, as), false, null, null)){
+                System.out.println("\n-----------------------WRITE GROUP--------------------\n"+group);
+                toReturn.add(group);
+            }
+            for(String group : as.findAuthorities(AuthorityType.GROUP, getGroup(PermissionGroup.SUPER, (String)null, false, as), false, null, null)){
+                System.out.println("\n-----------------------READ GROUP--------------------\n"+group);
                 toReturn.add(group);
             }
         }catch(AlfrescoRuntimeException ex){
@@ -39,6 +50,7 @@ public class AuthorityBean extends FoundationBean{
         
         return toReturn;
     }
+    
     
     public void addFullPermission(NodeRef target, PermissionGroup group, Reference subName){
         verifyType(group, subName);
@@ -120,6 +132,10 @@ public class AuthorityBean extends FoundationBean{
     
     public String getGroup(PermissionGroup group, String subName, boolean write){
         AuthorityService as = getServiceRegistry().getAuthorityService();
+        return getGroup(group, subName, write, as);
+    }
+    
+    public static String getGroup(PermissionGroup group, String subName, boolean write, AuthorityService as){
         String shortName = group.getShortName(subName)+(!write ? "_Read" : "");
         String groupName = as.getName(AuthorityType.GROUP, shortName);
         if(!as.authorityExists(groupName)){
@@ -134,6 +150,7 @@ public class AuthorityBean extends FoundationBean{
         String groupName = as.getName(AuthorityType.GROUP, shortName);
         if(!as.authorityExists(groupName)){
             String newGroupName = as.createAuthority(AuthorityType.GROUP, shortName);
+            System.out.println("\n-----------------------CREATED GROUP--------------------\n"+newGroupName);
             if(!newGroupName.equals(groupName)){
                 //If this happens, group names are not created as we expect.
                 throw new RuntimeException("A group was created with an unexpected name");
@@ -142,10 +159,12 @@ public class AuthorityBean extends FoundationBean{
                 //This is a subgroup, and should be added to the supergroup.
                 String superGroup = getOrCreateGroup(group, null, write);
                 linkAuthorities(superGroup, groupName);
+                System.out.println("\n-----------------------LINKED GROUP--------------------\n"+superGroup+" "+groupName);
             }else if(!PermissionGroup.SUPER.equals(group)){
                 //This is a supergroup, add it so superadmin group
                 String superAdminGroup = getOrCreateGroup(PermissionGroup.SUPER, null, write);
                 linkAuthorities(superAdminGroup, groupName);
+                System.out.println("\n-----------------------LINKED GROUP--------------------\n"+superAdminGroup+" "+groupName);
             }
         }
         return groupName;
