@@ -1,6 +1,8 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import org.alfresco.service.cmr.action.ParameterDefinition;
+import org.alfresco.service.namespace.QName;
+
 
 public class FoundationActionParameter {
 
@@ -23,12 +25,19 @@ public class FoundationActionParameter {
         parameterConstraintName = parameterDef.getParameterConstraintName();
     }
 
-    public FoundationActionParameter(String name, String type, boolean isMultivalued, boolean isMandatory, String displayLabel, String parameterConstraintName) {
+    public FoundationActionParameter(String name, QName type, boolean isMandatory, String displayLabel) {
         this.name = name;
-        this.type = type;
-        this.isMultivalued = isMultivalued;
+        this.type = type.getLocalName();
         this.isMandatory = isMandatory;
         this.displayLabel = displayLabel;
+        this.isMultivalued = false;
+    }
+    public FoundationActionParameter(String name, QName type, boolean isMandatory, String displayLabel, boolean isMultivalued, String parameterConstraintName) {
+        this.name = name;
+        this.type = type.getLocalName();
+        this.isMandatory = isMandatory;
+        this.displayLabel = displayLabel;
+        this.isMultivalued = isMultivalued;
         this.parameterConstraintName = parameterConstraintName;
     }
 

@@ -54,17 +54,17 @@ public class ActionTest extends AbstractTestClass {
 
 
     public void testSaveAction() throws Exception {
-        ParameterDefinition stateIdParamDef = new ParameterDefinitionImpl(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, true, null);
-        ParameterDefinition aspectParemDef = new ParameterDefinitionImpl(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, true, null);
-        ParameterDefinition ccParam = new ParameterDefinitionImpl(PARAM_CC, DataTypeDefinition.TEXT, false, null);
+        FoundationActionParameter stateIdParam = new FoundationActionParameter(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, true, null);
+        FoundationActionParameter aspectParam = new FoundationActionParameter(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, true, null);
+        FoundationActionParameter ccParam = new FoundationActionParameter(PARAM_CC, DataTypeDefinition.TEXT, false, null);
 
-        FoundationActionParameterValue stateIdParam = new FoundationActionParameterValue(stateIdParamDef, TestUtils.stateRecievedRef.getId());
-        FoundationActionParameterValue aspectParam = new FoundationActionParameterValue(aspectParemDef, ASPECT_ON_CREATE);
+        FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue(stateIdParam, TestUtils.stateRecievedRef.getId());
+        FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue(aspectParam, ASPECT_ON_CREATE);
 
         List<FoundationActionParameterValue> params = new ArrayList<>();
         params.add(new FoundationActionParameterValue(ccParam, "test@test.dk"));
 
-        FoundationActionValue foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParam, aspectParam, params);
+        FoundationActionValue foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, ACTION_NAME_EMAIL); //todo dobbelt konfekt at man skal skrive navnet
 
         List<Action> actions = getServiceRegistry().getActionService().getActions(TestUtils.stateRecievedRef);
@@ -85,22 +85,22 @@ public class ActionTest extends AbstractTestClass {
 
 
         //testing wrong/missing state NodeRef
-        stateIdParam = new FoundationActionParameterValue(stateIdParamDef, "wrong state id");
-        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParam, aspectParam, params);
+        stateIdParamVal = new FoundationActionParameterValue(stateIdParam, "wrong state id");
+        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
 
-        stateIdParam = new FoundationActionParameterValue(stateIdParamDef, null);
-        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParam, aspectParam, params);
+        stateIdParamVal = new FoundationActionParameterValue(stateIdParam, null);
+        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
 
         //testing wrong/missing aspect name
-        stateIdParam = new FoundationActionParameterValue(stateIdParamDef, TestUtils.stateRecievedRef.getId());
-        aspectParam = new FoundationActionParameterValue(aspectParemDef, "wrong aspect");
-        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParam, aspectParam, params);
+        stateIdParamVal = new FoundationActionParameterValue(stateIdParam, TestUtils.stateRecievedRef.getId());
+        aspectParamVal = new FoundationActionParameterValue(aspectParam, "wrong aspect");
+        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
 
-        aspectParam = new FoundationActionParameterValue(aspectParemDef, null);
-        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParam, aspectParam, params);
+        aspectParamVal = new FoundationActionParameterValue(aspectParam, null);
+        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
     }
 
@@ -109,19 +109,30 @@ public class ActionTest extends AbstractTestClass {
 
     public void testActionExecutingOnStateChange() throws Exception {
 
-        //saving actions to state 'received'
-        JSONObject dataForEnterAction = new JSONObject();
-        dataForEnterAction.put("stateRef", TestUtils.stateAccessRef);
-        dataForEnterAction.put("aspect", ASPECT_ON_CREATE);
-        dataForEnterAction.put("executionMessage", "enterAction executed");
+        //saving on-create-action to state 'assess'
+        FoundationActionParameter stateIdParam = new FoundationActionParameter(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, true, null);
+        FoundationActionParameter aspectParam = new FoundationActionParameter(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, true, null);
+        FoundationActionParameter msgParam = new FoundationActionParameter("executionMessage", DataTypeDefinition.TEXT, false, null);
 
-        JSONObject dataForExitAction = new JSONObject();
-        dataForExitAction.put("stateRef", TestUtils.stateAccessRef);
-        dataForExitAction.put("aspect", ASPECT_BEFORE_DELETE);
-        dataForExitAction.put("executionMessage", "exitAction executed");
+        FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue(stateIdParam, TestUtils.stateAccessRef.getId());
+        FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue(aspectParam, ASPECT_ON_CREATE);
 
-        post(dataForEnterAction,"test");
-        post(dataForExitAction,"test");
+        List<FoundationActionParameterValue> params = new ArrayList<>();
+        params.add(new FoundationActionParameterValue(msgParam, "enterAction executed"));
+
+        FoundationActionValue foundationActionValue = new FoundationActionValue("test", stateIdParamVal, aspectParamVal, params);
+        post(foundationActionValue, "test");
+
+
+        //saving before-delete-action to state 'assess'
+        aspectParamVal = new FoundationActionParameterValue(aspectParam, ASPECT_BEFORE_DELETE);
+
+        params = new ArrayList<>();
+        params.add(new FoundationActionParameterValue(msgParam, "exitAction executed"));
+
+        foundationActionValue = new FoundationActionValue("test", stateIdParamVal, aspectParamVal, params);
+        post(foundationActionValue, "test");
+
 
         //changing the application into the assessment state
         NodeRef appRef = TestUtils.application1;

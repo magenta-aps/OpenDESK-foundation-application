@@ -1,5 +1,6 @@
 package dk.opendesk.foundationapplication.DAO;
 
+import dk.opendesk.foundationapplication.Utilities;
 import org.alfresco.service.cmr.action.ParameterDefinition;
 
 import java.io.Serializable;
@@ -17,13 +18,13 @@ public class FoundationActionParameterValue extends FoundationActionParameter {
         this.value = value;
     }
 
-    public FoundationActionParameterValue(FoundationActionParameter foundActParam, String value) {
+    public FoundationActionParameterValue(FoundationActionParameter foundActParam, String value) throws Exception {
         super(
                 foundActParam.getName(),
-                foundActParam.getType(),
-                foundActParam.isMultivalued(),
+                Utilities.getODFName(foundActParam.getType()),
                 foundActParam.isMandatory(),
                 foundActParam.getDisplayLabel(),
+                foundActParam.isMultivalued(),
                 foundActParam.getParameterConstraintName()
         );
         this.value = value;
