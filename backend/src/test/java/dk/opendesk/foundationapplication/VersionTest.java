@@ -169,10 +169,10 @@ public class VersionTest extends AbstractTestClass {
         //Testing the changes made when creating the original version
         ApplicationChange changeList = changeLists.get(3);
         assertEquals("admin", changeList.getModifier());
-        assertEquals(serviceRegistry.getPersonService().getPerson("admin").toString(), changeList.getModifierId());
-        List<ApplicationChangeUnit> appChanges = changeList.getChanges();
-        assertEquals(APPLICATION_CHANGE_CREATED, appChanges.get(0).getChangeType());
-        assertEquals(null, appChanges.get(0).getOldValue());
+        assertEquals(getServiceRegistry().getPersonService().getPerson("admin").toString(), changeList.getModifierId());
+        List<ApplicationChangeUnit> appChangesWeb = changeList.getChanges();
+        assertEquals(APPLICATION_CHANGE_CREATED, appChangesWeb.get(0).getChangeType());
+        assertEquals(null, appChangesWeb.get(0).getOldValue());
 
         //Testing the first change
         List<ApplicationChangeUnit> changeUnits = changeLists.get(2).getChanges();
@@ -201,7 +201,6 @@ public class VersionTest extends AbstractTestClass {
         assertEquals("First change", changeUnits.get(1).getOldValue());
         assertEquals("Third change", changeUnits.get(1).getNewValue());
         assertEquals(APPLICATION_CHANGE_UPDATE_PROP, changeUnits.get(1).getChangeType());
-
         */
     }
 
