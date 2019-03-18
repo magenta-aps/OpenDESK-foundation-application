@@ -6,6 +6,7 @@ import dk.opendesk.foundationapplication.DAO.*;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.Action;
+import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentWriter;
@@ -16,6 +17,7 @@ import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -286,6 +288,22 @@ public class EmailTest extends AbstractTestClass {
     public void testEmailSavedToHistory() throws Exception {
 
         //saving action
+        FoundationActionParameter stateIdParam = new FoundationActionParameter(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, true, null);
+        FoundationActionParameter aspectParam = new FoundationActionParameter(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, true, null);
+        FoundationActionParameter msgParam = new FoundationActionParameter(PARAM_SUBJECT, DataTypeDefinition.TEXT, true, null);
+        FoundationActionParameter templateParam = new FoundationActionParameter(PARAM_TEMPLATE, DataTypeDefinition.TEXT, true, null);
+
+        FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue(stateIdParam, TestUtils.stateAccessRef.getId());
+        FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue(aspectParam, ASPECT_ON_CREATE);
+
+        List<FoundationActionParameterValue> params = new ArrayList<>();
+        params.add(new FoundationActionParameterValue(msgParam, "testEmailSavedToHistory"));
+        params.add(new FoundationActionParameterValue(templateParam, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME)));
+
+        FoundationActionValue foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
+        post(foundationActionValue, "/action/" + ACTION_NAME_EMAIL);
+
+        /*
         JSONObject data = new JSONObject();
         data.put("stateRef", TestUtils.stateAccessRef);
         data.put("aspect", ASPECT_ON_CREATE);
@@ -293,7 +311,7 @@ public class EmailTest extends AbstractTestClass {
         data.put(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         data.put(PARAM_TEMPLATE_MODEL, emptyStringModel);
         System.out.println(data.toString());
-        post(data, "/action/" + ACTION_NAME_EMAIL);
+        */
 
         //updating application
         Application change = new Application();

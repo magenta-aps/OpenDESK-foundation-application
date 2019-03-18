@@ -18,7 +18,7 @@ public class FoundationActionParameterValue extends FoundationActionParameter {
         this.value = value;
     }
 
-    public FoundationActionParameterValue(FoundationActionParameter foundActParam, String value) throws Exception {
+    public FoundationActionParameterValue(FoundationActionParameter foundActParam, Serializable value) throws Exception {
         super(
                 foundActParam.getName(),
                 Utilities.getODFName(foundActParam.getType()),
