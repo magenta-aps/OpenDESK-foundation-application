@@ -54,50 +54,54 @@ public class ActionTest extends AbstractTestClass {
 
 
     public void testSaveAction() throws Exception {
-
-        /*
-        JSONObject data = new JSONObject();
-        ParameterDefinition stateIdParam = new ParameterDefinitionImpl(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, true, null);
-        ParameterDefinition aspectParam = new ParameterDefinitionImpl(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, true, null);
-        //data.put("stateIdParam", TestUtils.stateRecievedRef);
-        data.put("stateIdParam", new FoundationActionParameterValue(stateIdParam, TestUtils.stateRecievedRef.getId()));
-        //data.put("aspectParam", ASPECT_ON_CREATE);
-        data.put("aspectParam", new FoundationActionParameterValue(aspectParam, ASPECT_ON_CREATE));
-        HashMap<String, Serializable> params = new HashMap<>();
-        params.put("cc", "test@test.dk"); //TODO make sure only real email adresses can be set as parameters
-        data.put("params", params);
-        */
-        ParameterDefinition stateIdParam = new ParameterDefinitionImpl(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, true, null);
-        ParameterDefinition aspectParam = new ParameterDefinitionImpl(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, true, null);
+        ParameterDefinition stateIdParamDef = new ParameterDefinitionImpl(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, true, null);
+        ParameterDefinition aspectParemDef = new ParameterDefinitionImpl(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, true, null);
         ParameterDefinition ccParam = new ParameterDefinitionImpl(PARAM_CC, DataTypeDefinition.TEXT, false, null);
+
+        FoundationActionParameterValue stateIdParam = new FoundationActionParameterValue(stateIdParamDef, TestUtils.stateRecievedRef.getId());
+        FoundationActionParameterValue aspectParam = new FoundationActionParameterValue(aspectParemDef, ASPECT_ON_CREATE);
 
         List<FoundationActionParameterValue> params = new ArrayList<>();
         params.add(new FoundationActionParameterValue(ccParam, "test@test.dk"));
 
         FoundationActionValue foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParam, aspectParam, params);
-        post(data, ACTION_NAME_EMAIL);
+        post(foundationActionValue, ACTION_NAME_EMAIL); //todo dobbelt konfekt at man skal skrive navnet
 
         List<Action> actions = getServiceRegistry().getActionService().getActions(TestUtils.stateRecievedRef);
+        Action savedEmailAction = null;
         for (Action act : actions) {
             if (act.getActionDefinitionName().equals(ACTION_NAME_EMAIL)) {
-
-                //testing the aspect is set on the action
-                Set<QName> aspects = getServiceRegistry().getNodeService().getAspects(act.getNodeRef());
-                assertTrue(aspects.contains(Utilities.getODFName(ASPECT_ON_CREATE)));
-
-                //testing the parameter is set on the action
-                assertEquals(act.getParameterValue("cc"), "test@test.dk");
+                savedEmailAction = act;
             }
         }
 
-        //testing missing state NodeRef
-        data.remove("stateRef");
-        post(data, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
+        //testing the aspect is set on the action
+        assertNotNull(savedEmailAction);
+        Set<QName> aspects = getServiceRegistry().getNodeService().getAspects(savedEmailAction.getNodeRef());
+        assertTrue(aspects.contains(Utilities.getODFName(ASPECT_ON_CREATE)));
 
-        //testing wrong aspect name
-        data.put("stateRef", TestUtils.stateRecievedRef);
-        data.put("aspect", "totallyWrongAspect");
-        post(data, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
+        //testing the parameter is set on the action
+        assertEquals(savedEmailAction.getParameterValue("cc"), "test@test.dk");
+
+
+        //testing wrong/missing state NodeRef
+        stateIdParam = new FoundationActionParameterValue(stateIdParamDef, "wrong state id");
+        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParam, aspectParam, params);
+        post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
+
+        stateIdParam = new FoundationActionParameterValue(stateIdParamDef, null);
+        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParam, aspectParam, params);
+        post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
+
+        //testing wrong/missing aspect name
+        stateIdParam = new FoundationActionParameterValue(stateIdParamDef, TestUtils.stateRecievedRef.getId());
+        aspectParam = new FoundationActionParameterValue(aspectParemDef, "wrong aspect");
+        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParam, aspectParam, params);
+        post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
+
+        aspectParam = new FoundationActionParameterValue(aspectParemDef, null);
+        foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParam, aspectParam, params);
+        post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
     }
 
 
