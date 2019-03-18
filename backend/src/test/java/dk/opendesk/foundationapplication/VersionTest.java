@@ -125,7 +125,6 @@ public class VersionTest extends AbstractTestClass {
         // --- CALLING foundationBean.getApplicationHistory --- //
 
         List<ApplicationChange> appChanges = getApplicationBean().getApplicationHistory(appRef);
-        //System.out.println(appChanges);
         ApplicationChange appChange4 = appChanges.get(4);
         ApplicationChange appChange3 = appChanges.get(3);
         ApplicationChange appChange0 = appChanges.get(0);

@@ -15,6 +15,7 @@ import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import dk.opendesk.foundationapplication.enums.Functional;
+import dk.opendesk.foundationapplication.enums.PermissionGroup;
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import java.time.Duration;
@@ -41,9 +42,17 @@ public final class TestUtils {
 
     private static final Logger LOGGER = Logger.getLogger(TestUtils.class);
 
-    public static final String TEST_USER = "testuser";
-    public static final String TEST_USER_FIRST_NAME = "Lars";
-    public static final String TEST_AUTHORITY = "testority";
+    public static final String USER_ALL_PERMISSIONS = "allperms";
+    public static final String USER_ALL_READ_PERMISSIONS = "allreadperms";
+    public static final String USER_BRANCH_READ = "branchread";
+    public static final String USER_BRANCH_WRITE = "branchwrite";
+    public static final String USER_WORKFLOW_READ = "workflowread";
+    public static final String USER_WORKFLOW_WRITE = "workflowwrite";
+    public static final String USER_BUDGET_READ = "budgetread";
+    public static final String USER_BUDGET_WRITE = "budgetwrite";
+    public static final String USER_BUDGETYEAR_READ = "budgetyearread";
+    public static final String USER_BUDGETYEAR_WRITE = "budgetyearwrite";
+    public static final String USER_SINGLE_APPLICATION_WRITE = "singleapplication";
     
     public static final String ADMIN_USER = "admin";
 
@@ -88,6 +97,16 @@ public final class TestUtils {
     public static NodeRef application2;
     public static NodeRef application3;
 
+    public static NodeRef user_all_permission;
+    public static NodeRef user_all_read_permission;
+    public static NodeRef user_branch_read;
+    public static NodeRef user_branch_write;
+    public static NodeRef user_workflow_read;
+    public static NodeRef user_workflow_write;
+    public static NodeRef user_budget_read;
+    public static NodeRef user_budget_write;
+    public static NodeRef user_single_application_read;
+    
     private static boolean isInitiated = false;
 
     private TestUtils() {
@@ -97,20 +116,51 @@ public final class TestUtils {
     
     public synchronized static void wipeData(ServiceRegistry serviceRegistry) throws Exception {
         Utilities.wipeData(serviceRegistry);
-        if(serviceRegistry.getPersonService().personExists(TEST_USER)){
-            serviceRegistry.getPersonService().deletePerson(TEST_USER);
+        
+        
+        
+        if(serviceRegistry.getPersonService().personExists(USER_ALL_PERMISSIONS)){
+            serviceRegistry.getPersonService().deletePerson(USER_ALL_PERMISSIONS);
         }
-        if(serviceRegistry.getAuthorityService().authorityExists(serviceRegistry.getAuthorityService().getName(AuthorityType.GROUP, TEST_AUTHORITY))){
-            serviceRegistry.getAuthorityService().deleteAuthority(AuthorityType.GROUP.getPrefixString()+TEST_AUTHORITY, true);
+        if(serviceRegistry.getPersonService().personExists(USER_ALL_READ_PERMISSIONS)){
+            serviceRegistry.getPersonService().deletePerson(USER_ALL_READ_PERMISSIONS);
         }
+        if(serviceRegistry.getPersonService().personExists(USER_BRANCH_READ)){
+            serviceRegistry.getPersonService().deletePerson(USER_BRANCH_READ);
+        }
+        if(serviceRegistry.getPersonService().personExists(USER_BRANCH_WRITE)){
+            serviceRegistry.getPersonService().deletePerson(USER_BRANCH_WRITE);
+        }
+        if(serviceRegistry.getPersonService().personExists(USER_WORKFLOW_READ)){
+            serviceRegistry.getPersonService().deletePerson(USER_WORKFLOW_READ);
+        }
+        if(serviceRegistry.getPersonService().personExists(USER_WORKFLOW_WRITE)){
+            serviceRegistry.getPersonService().deletePerson(USER_WORKFLOW_WRITE);
+        }
+        if(serviceRegistry.getPersonService().personExists(USER_BUDGET_READ)){
+            serviceRegistry.getPersonService().deletePerson(USER_BUDGET_READ);
+        }
+        if(serviceRegistry.getPersonService().personExists(USER_BUDGET_WRITE)){
+            serviceRegistry.getPersonService().deletePerson(USER_BUDGET_WRITE);
+        }
+        if(serviceRegistry.getPersonService().personExists(USER_BUDGETYEAR_READ)){
+            serviceRegistry.getPersonService().deletePerson(USER_BUDGETYEAR_READ);
+        }
+        if(serviceRegistry.getPersonService().personExists(USER_BUDGETYEAR_WRITE)){
+            serviceRegistry.getPersonService().deletePerson(USER_BUDGETYEAR_WRITE);
+        }
+        if(serviceRegistry.getPersonService().personExists(USER_SINGLE_APPLICATION_WRITE)){
+            serviceRegistry.getPersonService().deletePerson(USER_SINGLE_APPLICATION_WRITE);
+        }
+        
+        
+        
         AuthorityService as = serviceRegistry.getAuthorityService();
         for(String group : AuthorityBean.getAllCreatedGroups(as)){
             if(as.authorityExists(group)){
-                System.out.println("\n-----------------------DELETING GROUP--------------------\n"+group);
                 as.deleteAuthority(group, true);
             }
         }
-        //serviceRegistry.getAuthenticationService().deleteAuthentication(TEST_USER);
         isInitiated = false;
 
     }
@@ -154,17 +204,18 @@ public final class TestUtils {
         workflowBean.setAuthBean(authBean);
 
         //Create test user
-        String password = "testpass";
-        serviceRegistry.getAuthenticationService().createAuthentication(TEST_USER, password.toCharArray());
+        user_all_permission = createUser(USER_ALL_PERMISSIONS, serviceRegistry);
+        user_all_read_permission = createUser(USER_ALL_READ_PERMISSIONS, serviceRegistry);
+        user_branch_read = createUser(USER_BRANCH_READ, serviceRegistry);
+        user_branch_write = createUser(USER_BRANCH_WRITE, serviceRegistry);
+        user_workflow_read = createUser(USER_WORKFLOW_READ, serviceRegistry);
+        user_workflow_write = createUser(USER_WORKFLOW_WRITE, serviceRegistry);
+        user_budget_read = createUser(USER_BUDGET_READ, serviceRegistry);
+        user_budget_write = createUser(USER_BUDGET_WRITE, serviceRegistry);
+        user_budget_read = createUser(USER_BUDGETYEAR_READ, serviceRegistry);
+        user_budget_write = createUser(USER_BUDGETYEAR_WRITE, serviceRegistry);
+        user_single_application_read = createUser(USER_SINGLE_APPLICATION_WRITE, serviceRegistry);
 
-        Map user = new HashMap();
-        user.put(ContentModel.PROP_USERNAME, TEST_USER);
-        user.put(ContentModel.PROP_FIRSTNAME, TEST_USER_FIRST_NAME);
-        user.put(ContentModel.PROP_LASTNAME, "lastName");
-        user.put(ContentModel.PROP_EMAIL, TEST_USER_FIRST_NAME + "@example.com");
-        user.put(ContentModel.PROP_JOBTITLE, "jobTitle");
-
-        NodeRef person = serviceRegistry.getPersonService().createPerson(user);
         
         
         
@@ -330,13 +381,24 @@ public final class TestUtils {
         //application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
 
 
-        String auth_name = serviceRegistry.getAuthorityService().createAuthority(AuthorityType.GROUP, TEST_AUTHORITY);
-
-        
-        serviceRegistry.getAuthorityService().addAuthority(auth_name, TEST_USER);
-        serviceRegistry.getPermissionService().setPermission(application1, auth_name, PermissionService.READ, true);
+        authBean.addUser(USER_ALL_PERMISSIONS, authBean.getGroup(PermissionGroup.SUPER, true));
+        authBean.addUser(USER_ALL_READ_PERMISSIONS, authBean.getGroup(PermissionGroup.SUPER, false));
         
         
         isInitiated = true;
+    }
+    
+    private static NodeRef createUser(String username, ServiceRegistry serviceRegistry){
+        String password = "testpass";
+        serviceRegistry.getAuthenticationService().createAuthentication(username, password.toCharArray());
+
+        Map user = new HashMap();
+        user.put(ContentModel.PROP_USERNAME, username);
+        user.put(ContentModel.PROP_FIRSTNAME, username);
+        user.put(ContentModel.PROP_LASTNAME, "Testuser");
+        user.put(ContentModel.PROP_EMAIL, username + "@example.com");
+        user.put(ContentModel.PROP_JOBTITLE, "Peon½");
+
+        return serviceRegistry.getPersonService().createPerson(user);
     }
 }

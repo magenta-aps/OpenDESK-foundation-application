@@ -34,11 +34,9 @@ public class AuthorityBean extends FoundationBean{
         Set<String> toReturn = new HashSet<>();
         try{
             for(String group : as.findAuthorities(AuthorityType.GROUP, getGroup(PermissionGroup.SUPER, (String)null, true, as), false, null, null)){
-                System.out.println("\n-----------------------WRITE GROUP--------------------\n"+group);
                 toReturn.add(group);
             }
             for(String group : as.findAuthorities(AuthorityType.GROUP, getGroup(PermissionGroup.SUPER, (String)null, false, as), false, null, null)){
-                System.out.println("\n-----------------------READ GROUP--------------------\n"+group);
                 toReturn.add(group);
             }
         }catch(AlfrescoRuntimeException ex){
@@ -125,6 +123,10 @@ public class AuthorityBean extends FoundationBean{
         ps.deletePermission(target, readPermissionGroup, PermissionService.WRITE);
     }
     
+    public String getGroup(PermissionGroup group, boolean write){
+        return getGroup(group, (String)null, write);
+    }
+    
     public String getGroup(PermissionGroup group, Reference subName, boolean write){
         verifyType(group, subName);
         return getGroup(group, subName.getTitle(), write);
@@ -150,7 +152,7 @@ public class AuthorityBean extends FoundationBean{
         String groupName = as.getName(AuthorityType.GROUP, shortName);
         if(!as.authorityExists(groupName)){
             String newGroupName = as.createAuthority(AuthorityType.GROUP, shortName);
-            System.out.println("\n-----------------------CREATED GROUP--------------------\n"+newGroupName);
+            getLogger().info("Created new group: "+newGroupName);
             if(!newGroupName.equals(groupName)){
                 //If this happens, group names are not created as we expect.
                 throw new RuntimeException("A group was created with an unexpected name");
@@ -159,12 +161,10 @@ public class AuthorityBean extends FoundationBean{
                 //This is a subgroup, and should be added to the supergroup.
                 String superGroup = getOrCreateGroup(group, null, write);
                 linkAuthorities(superGroup, groupName);
-                System.out.println("\n-----------------------LINKED GROUP--------------------\n"+superGroup+" "+groupName);
             }else if(!PermissionGroup.SUPER.equals(group)){
                 //This is a supergroup, add it so superadmin group
                 String superAdminGroup = getOrCreateGroup(PermissionGroup.SUPER, null, write);
                 linkAuthorities(superAdminGroup, groupName);
-                System.out.println("\n-----------------------LINKED GROUP--------------------\n"+superAdminGroup+" "+groupName);
             }
         }
         return groupName;
@@ -178,6 +178,16 @@ public class AuthorityBean extends FoundationBean{
     public void unlinkAuthorities(String inherits, String from){
         AuthorityService as = getServiceRegistry().getAuthorityService();
         as.removeAuthority(inherits, from);
+    }
+    
+    public void addUser(String userName, String group){
+        AuthorityService as = getServiceRegistry().getAuthorityService();
+        as.addAuthority(group, userName);
+    }
+    
+    public void removeUser(String userName, String group){
+        AuthorityService as = getServiceRegistry().getAuthorityService();
+        as.removeAuthority(group, userName);
     }
     
     public void enableInheritPermissions(NodeRef ref){

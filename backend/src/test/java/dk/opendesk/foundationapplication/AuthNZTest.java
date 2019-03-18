@@ -6,7 +6,6 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import static dk.opendesk.foundationapplication.TestUtils.TEST_USER;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -38,15 +37,15 @@ public class AuthNZTest extends AbstractTestClass {
 
     public void testUserCreated() {
         PersonService ps = getServiceRegistry().getPersonService();
-        NodeRef testUserRef = ps.getPerson(TEST_USER);
+        NodeRef testUserRef = ps.getPerson(TestUtils.USER_ALL_PERMISSIONS);
         PersonService.PersonInfo testUser = ps.getPerson(testUserRef);
-        assertEquals(TestUtils.TEST_USER, testUser.getUserName());
-        assertEquals(TestUtils.TEST_USER_FIRST_NAME, testUser.getFirstName());
+        assertEquals(TestUtils.USER_ALL_PERMISSIONS, testUser.getUserName());
+        assertEquals(TestUtils.USER_ALL_PERMISSIONS, testUser.getFirstName());
     }
 
     public void testPermissionApplication1() throws Exception {
         Application change = Utilities.buildChange(getApplicationBean().getApplication(TestUtils.application1)).setTitle("my new title").build();
-        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.TEST_USER);
+        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_ALL_PERMISSIONS);
         assertEquals(TestUtils.application1, getApplicationBean().getApplicationReference(TestUtils.application1).asNodeRef());
 
         try {
