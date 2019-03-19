@@ -8,8 +8,8 @@ public class FoundationActionParameter {
 
     private String name;
     private String type;
-    private boolean isMultivalued;
-    private boolean isMandatory;
+    private Boolean isMultivalued;
+    private Boolean isMandatory;
     private String displayLabel;
     private String parameterConstraintName;
 
@@ -57,7 +57,7 @@ public class FoundationActionParameter {
         this.type = type;
     }
 
-    public boolean isMultivalued() {
+    public Boolean isMultivalued() {
         return isMultivalued;
     }
 
@@ -65,7 +65,7 @@ public class FoundationActionParameter {
         isMultivalued = multivalued;
     }
 
-    public boolean isMandatory() {
+    public Boolean isMandatory() {
         return isMandatory;
     }
 

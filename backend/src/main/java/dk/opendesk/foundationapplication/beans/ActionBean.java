@@ -9,6 +9,7 @@ import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationChange;
 import dk.opendesk.foundationapplication.DAO.FoundationActionParameterValue;
 import dk.opendesk.foundationapplication.DAO.JSONAction;
+import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.APPLICATION_CHANGE;
 import static dk.opendesk.foundationapplication.Utilities.APPLICATION_EMAILFOLDER;
@@ -28,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+
+
 import static org.alfresco.model.ContentModel.ASSOC_CONTAINS;
 import static org.alfresco.model.ContentModel.PROP_CONTENT;
 import static org.alfresco.model.ContentModel.TYPE_CONTENT;
@@ -36,6 +39,7 @@ import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionDefinition;
 import org.alfresco.service.cmr.action.ParameterDefinition;
+import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentWriter;
@@ -71,7 +75,11 @@ public class ActionBean extends FoundationBean{
     public void saveAction(String actionName, NodeRef stateRef, QName aspect, List<FoundationActionParameterValue> params) {
         HashMap<String, Serializable> paramMap = new HashMap<>();
         for (FoundationActionParameterValue param : params) {
-            paramMap.put(param.getName(), param.getValue());
+            if (param.getType().equals(DataTypeDefinition.NODE_REF.getLocalName())) {
+                paramMap.put(param.getName(), Reference.refFromID(param.getValue()));
+            } else {
+                paramMap.put(param.getName(), param.getValue());
+            }
         }
         saveAction(actionName, stateRef, aspect, paramMap);
     }

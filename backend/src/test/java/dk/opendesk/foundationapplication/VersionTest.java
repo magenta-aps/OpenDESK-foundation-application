@@ -162,10 +162,12 @@ public class VersionTest extends AbstractTestClass {
 
 
         //todo: det følgende fejler pga noget jackson
-        /*
         // --- TESTING THE WEBSCRIPT --- //
         List<ApplicationChange> changeLists = get(List.class, ApplicationChange.class, appRef+"/history");
 
+        System.out.println("****************************************");
+        System.out.println(changeLists);
+        /*
         //Testing the changes made when creating the original version
         ApplicationChange changeList = changeLists.get(3);
         assertEquals("admin", changeList.getModifier());

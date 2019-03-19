@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class FoundationActionParameterValue extends FoundationActionParameter {
 
-    private Serializable value;
+    private String value;
 
     public FoundationActionParameterValue() {
         super();
@@ -18,7 +18,7 @@ public class FoundationActionParameterValue extends FoundationActionParameter {
         this.value = value;
     }
 
-    public FoundationActionParameterValue(FoundationActionParameter foundActParam, Serializable value) throws Exception {
+    public FoundationActionParameterValue(FoundationActionParameter foundActParam, String value) throws Exception {
         super(
                 foundActParam.getName(),
                 Utilities.getODFName(foundActParam.getType()),
@@ -30,13 +30,14 @@ public class FoundationActionParameterValue extends FoundationActionParameter {
         this.value = value;
     }
 
-    public Serializable getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(String  value) {
         this.value = value;
     }
+
 
     /*
     @Override
