@@ -36,6 +36,8 @@ import static org.alfresco.model.ContentModel.ASSOC_CONTAINS;
 import static org.alfresco.model.ContentModel.PROP_CONTENT;
 import static org.alfresco.model.ContentModel.TYPE_CONTENT;
 import static org.alfresco.model.ContentModel.TYPE_FOLDER;
+
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionDefinition;
@@ -50,12 +52,15 @@ import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.namespace.QName;
+import org.apache.poi.ss.formula.functions.T;
 
 /**
  *
  * @author martin
  */
 public class ActionBean extends FoundationBean{
+
+    private static final String TYPE_EXCEPTION = "actionBean.saveAction.type.exception";
     private ApplicationBean applicationBean;
 
     public void setApplicationBean(ApplicationBean applicationBean) {
@@ -76,10 +81,14 @@ public class ActionBean extends FoundationBean{
     public void saveAction(String actionName, NodeRef stateRef, QName aspect, List<FoundationActionParameterValue> params) {
         HashMap<String, Serializable> paramMap = new HashMap<>();
         for (FoundationActionParameterValue param : params) {
-            if (param.getType().equals(DataTypeDefinition.NODE_REF.getLocalName())) {
-                paramMap.put(param.getName(), Reference.refFromID(param.getValue()));
+            if (param.getType().equals(DataTypeDefinition.NODE_REF)) {
+                if (param.getJavaType() == String.class) {
+                    paramMap.put(param.getName(), Reference.refFromID((String) param.getValue()));
+                } else {
+                    throw new AlfrescoRuntimeException(TYPE_EXCEPTION);
+                }
             } else {
-                paramMap.put(param.getName(), param.getValue());
+                //todo paramMap.put(param.getName(), param.getValue());
             }
         }
         saveAction(actionName, stateRef, aspect, paramMap);

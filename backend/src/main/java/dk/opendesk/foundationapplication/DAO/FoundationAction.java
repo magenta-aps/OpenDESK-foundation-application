@@ -2,27 +2,27 @@ package dk.opendesk.foundationapplication.DAO;
 
 import org.alfresco.service.cmr.action.ParameterDefinition;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FoundationAction {
 
     private String name;
-    private FoundationActionParameter stateIdParam;
-    private FoundationActionParameter aspectParam;
-    private List<FoundationActionParameter> params;
+    private FoundationActionParameterDefinition stateIdParam;
+    private FoundationActionParameterDefinition aspectParam;
+    private List<ParameterDefinition> params;
 
     public FoundationAction() {
     }
 
-    public FoundationAction(String name, FoundationActionParameter stateIdParam, FoundationActionParameter aspect, List<ParameterDefinition> parameterDefinitions) {
+    public FoundationAction(String name, FoundationActionParameterDefinition stateIdParam, FoundationActionParameterDefinition aspect, List<ParameterDefinition> params) {
         this.name = name;
         this.stateIdParam = stateIdParam;
         this.aspectParam = aspect;
-        params = new ArrayList<>();
-        for (ParameterDefinition paramDef : parameterDefinitions) {
-            params.add(new FoundationActionParameter(paramDef));
-        }
+        this.params = params;
+        //params = new ArrayList<>();
+        //for (ParameterDefinition paramDef : parameterDefinitions) {
+        //    params.add(new FoundationActionParameterDefinition(paramDef));
+        //}
     }
 
     public String getName() {
@@ -33,27 +33,27 @@ public class FoundationAction {
         this.name = name;
     }
 
-    public FoundationActionParameter getStateIdParam() {
+    public FoundationActionParameterDefinition getStateIdParam() {
         return stateIdParam;
     }
 
-    public void setStateIdParam(FoundationActionParameter stateIdParam) {
+    public void setStateIdParam(FoundationActionParameterDefinition stateIdParam) {
         this.stateIdParam = stateIdParam;
     }
 
-    public FoundationActionParameter getAspectParam() {
+    public FoundationActionParameterDefinition getAspectParam() {
         return aspectParam;
     }
 
-    public void setAspectParam(FoundationActionParameter aspectParam) {
+    public void setAspectParam(FoundationActionParameterDefinition aspectParam) {
         this.aspectParam = aspectParam;
     }
 
-    public List<FoundationActionParameter> getParams() {
+    public List<ParameterDefinition> getParams() {
         return params;
     }
 
-    public void setParams(List<FoundationActionParameter> params) {
+    public void setParams(List<ParameterDefinition> params) {
         this.params = params;
     }
 

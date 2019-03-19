@@ -1,23 +1,23 @@
 package dk.opendesk.foundationapplication.DAO;
 
-import dk.opendesk.foundationapplication.Utilities;
-import org.alfresco.service.cmr.action.ParameterDefinition;
+public class FoundationActionParameterValue<T> extends FoundationActionParameterDefinition<T> {
 
-import java.io.Serializable;
-
-public class FoundationActionParameterValue extends FoundationActionParameter {
-
-    private String value;
+    private T value;
 
     public FoundationActionParameterValue() {
-        super();
     }
 
-    public FoundationActionParameterValue(ParameterDefinition parameterDefinition, String value) {
-        super(parameterDefinition);
+    public FoundationActionParameterValue(FoundationActionParameterDefinition<T> parameterDefinition, T value) {
+        super.setName(parameterDefinition.getName());
+        super.setType(parameterDefinition.getType());
+        super.setJavaType(parameterDefinition.getJavaType());
+        super.setDisplayLabel(parameterDefinition.getDisplayLabel());
+        super.setMandatory(parameterDefinition.isMandatory());
+        super.setMultiValued(parameterDefinition.isMultiValued());
         this.value = value;
     }
 
+    /*
     public FoundationActionParameterValue(FoundationActionParameter foundActParam, String value) throws Exception {
         super(
                 foundActParam.getName(),
@@ -29,12 +29,13 @@ public class FoundationActionParameterValue extends FoundationActionParameter {
         );
         this.value = value;
     }
+    */
 
-    public String getValue() {
+    public T getValue() {
         return value;
     }
 
-    public void setValue(String  value) {
+    public void setValue(T  value) {
         this.value = value;
     }
 
