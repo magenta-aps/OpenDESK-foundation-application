@@ -23,6 +23,11 @@
           parent="webscript.foundation">
     </bean>
     
+    <bean id="webscript.foundation.demodatadanva.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.CreateDanvaData"
+          parent="webscript.foundation">
+    </bean>
+    
     <bean id="webscript.foundation.newapplications.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetNewApplications"
           parent="webscript.foundation">
