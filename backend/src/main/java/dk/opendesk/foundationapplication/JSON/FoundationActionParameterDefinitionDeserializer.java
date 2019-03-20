@@ -7,11 +7,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
 public class FoundationActionParameterDefinitionDeserializer extends JsonDeserializer<FoundationActionParameterDefinition> {
 
+    private static final Logger logger = Logger.getLogger(FoundationActionParameterDefinitionDeserializer.class);
 
     @Override
     public FoundationActionParameterDefinition deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
@@ -19,7 +21,7 @@ public class FoundationActionParameterDefinitionDeserializer extends JsonDeseria
         return getDeserializedFoundationActionParameterDefinition(node);
     }
 
-    public FoundationActionParameterDefinition getDeserializedFoundationActionParameterDefinition(JsonNode node) {
+    public static FoundationActionParameterDefinition getDeserializedFoundationActionParameterDefinition(JsonNode node) {
         try {
             FoundationActionParameterDefinition toReturn = new FoundationActionParameterDefinition<>();
             if (node.has("name")) {
@@ -47,7 +49,7 @@ public class FoundationActionParameterDefinitionDeserializer extends JsonDeseria
 
             return toReturn;
         } catch (ClassNotFoundException e) {
-            //todo Logger.getLogger(getClass()).
+            logger.error("Failed to deserialize FoundationActionParameterDefinition", e);
             return null;
         }
     }

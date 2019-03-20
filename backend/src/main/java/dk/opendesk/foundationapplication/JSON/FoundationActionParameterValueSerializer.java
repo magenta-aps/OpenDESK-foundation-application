@@ -12,28 +12,12 @@ public class FoundationActionParameterValueSerializer extends JsonSerializer<Fou
 
     @Override
     public void serialize(FoundationActionParameterValue paramVal, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-        //todo evt lave metode så jeg kan genbruge fra foundationActionParameterDefinitionSerializer
+
         jgen.writeStartObject();
-        if (paramVal.getName() != null) {
-            jgen.writeStringField("name", paramVal.getName());
-        }
-        if (paramVal.getType() != null) {
-            jgen.writeStringField("type", paramVal.getType().getLocalName());
-        }
-        if (paramVal.getDisplayLabel() != null) {
-            jgen.writeStringField("displayLabel", paramVal.getDisplayLabel());
-        }
-        if (paramVal.getParameterConstraintName() != null) {
-            jgen.writeStringField("parameterConstraintName", paramVal.getParameterConstraintName());
-        }
-        if (paramVal.getJavaType() != null) {
-            jgen.writeStringField("javaType", paramVal.getJavaType().getCanonicalName());
-        }
+        FoundationActionParameterDefinitionSerializer.writeFields(paramVal, jgen);
         if (paramVal.getValue() != null) {
             jgen.writeObjectField("value", paramVal.getValue());
         }
-        jgen.writeBooleanField("isMultiValued", paramVal.isMultiValued());
-        jgen.writeBooleanField("isMandatory", paramVal.isMandatory());
         jgen.writeEndObject();
     }
 

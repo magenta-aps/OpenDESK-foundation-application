@@ -19,29 +19,27 @@ public class FoundationActionParameterValueDeserializer extends JsonDeserializer
     public FoundationActionParameterValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         ObjectMapper mapper = Utilities.getMapper();
         JsonNode node = jp.getCodec().readTree(jp);
-        //try {
-            FoundationActionParameterDefinitionDeserializer deserializer = new FoundationActionParameterDefinitionDeserializer();
-            FoundationActionParameterDefinition parameterDefinition = deserializer.getDeserializedFoundationActionParameterDefinition(node);
 
-            FoundationActionParameterValue toReturn = new FoundationActionParameterValue<>(parameterDefinition);
+        FoundationActionParameterDefinition parameterDefinition = FoundationActionParameterDefinitionDeserializer.getDeserializedFoundationActionParameterDefinition(node);
+        FoundationActionParameterValue toReturn = new FoundationActionParameterValue<>(parameterDefinition);
 
-            if (toReturn.getJavaType() != null) {
-                Class type = toReturn.getJavaType();
-                //Class type = Class.forName(typeString);
-                toReturn.setJavaType(type);
-                if (node.has("value")) {
-                    if (type.isAssignableFrom(String.class)) {
-                        toReturn.setValue(node.get("value").asText());
-                    } else if (type.isAssignableFrom(Date.class)) {
-                        toReturn.setValue(ctxt.parseDate(node.get("value").asText()));
-                    } else {
-                        Object value = mapper.readValue(node.get("value").toString(), type);
-                        toReturn.setValue(value);
-                    }
+        if (toReturn.getJavaType() != null) {
+            Class type = toReturn.getJavaType();
+            //Class type = Class.forName(typeString);
+            toReturn.setJavaType(type);
+            if (node.has("value")) {
+                if (type.isAssignableFrom(String.class)) {
+                    toReturn.setValue(node.get("value").asText());
+                } else if (type.isAssignableFrom(Date.class)) {
+                    toReturn.setValue(ctxt.parseDate(node.get("value").asText()));
+                } else {
+                    Object value = mapper.readValue(node.get("value").toString(), type);
+                    toReturn.setValue(value);
                 }
-
             }
-            return toReturn;
+
+        }
+        return toReturn;
     }
 
     @Override

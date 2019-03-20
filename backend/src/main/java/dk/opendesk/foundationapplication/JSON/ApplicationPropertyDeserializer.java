@@ -13,17 +13,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.Utilities;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author martin
  */
 public class ApplicationPropertyDeserializer extends JsonDeserializer<ApplicationPropertyValue> {
+
+    private static final Logger logger = Logger.getLogger(ApplicationPropertyDeserializer.class);
 
     @Override
     public ApplicationPropertyValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
@@ -65,7 +66,7 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
             return toReturn;
 
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ApplicationPropertyDeserializer.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Failed to deserialize ApplicationPropertyValue", ex);
             return null;
         }
     }

@@ -13,6 +13,11 @@ public class FoundationActionParameterDefinitionSerializer extends JsonSerialize
     @Override
     public void serialize(FoundationActionParameterDefinition paramDef, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
+        writeFields(paramDef, jgen);
+        jgen.writeEndObject();
+    }
+
+    public static void writeFields(FoundationActionParameterDefinition paramDef, JsonGenerator jgen) throws IOException {
         if (paramDef.getName() != null) {
             jgen.writeStringField("name", paramDef.getName());
         }
@@ -30,9 +35,8 @@ public class FoundationActionParameterDefinitionSerializer extends JsonSerialize
         }
         jgen.writeBooleanField("isMultivalued", paramDef.isMultiValued());
         jgen.writeBooleanField("isMandatory", paramDef.isMandatory());
-        jgen.writeEndObject();
-    }
 
+    }
     @Override
     public Class<FoundationActionParameterDefinition> handledType() {
         return FoundationActionParameterDefinition.class;
