@@ -175,7 +175,7 @@ public class ResetDemoData extends JacksonBackedWebscript {
         return app.asNodeRef();
     }
     
-    public Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) {
+    public Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) throws Exception {
         String recipient = random(COMPANYNAMES);
         String firstName = random(FIRSTNAMES);
         String lastName = random(LASTNAMES);
@@ -210,18 +210,15 @@ public class ResetDemoData extends JacksonBackedWebscript {
         app.setTitle(name);
         app.setBlocks(Collections.singletonList(block1));
         if (branch != null) {
-            BranchSummary branchRef = new BranchSummary();
-            branchRef.parseRef(branch);
+            BranchSummary branchRef = getBranchBean().getBranchSummary(branch);
             app.setBranchSummary(branchRef);
         }
         if (budget != null) {
-            BudgetReference budgetRef = new BudgetReference();
-            budgetRef.parseRef(budget);
+            BudgetReference budgetRef = getBudgetBean().getBudgetReference(budget);
             app.setBudget(budgetRef);
         }
         if (state != null) {
-            StateReference stateRef = new StateReference();
-            stateRef.parseRef(state);
+            StateReference stateRef = getWorkflowBean().getStateReference(state);
             app.setState(stateRef);
         }
 

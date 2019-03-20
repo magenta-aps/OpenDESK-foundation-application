@@ -193,12 +193,12 @@ public class AuthorityBean extends FoundationBean{
         as.removeAuthority(inherits, from);
     }
     
-    public void addUser(String userName, String group){
+    public void addUserGroup(String userName, String group){
         AuthorityService as = getServiceRegistry().getAuthorityService();
         as.addAuthority(group, userName);
     }
     
-    public void removeUser(String userName, String group){
+    public void removeUserGroup(String userName, String group){
         AuthorityService as = getServiceRegistry().getAuthorityService();
         as.removeAuthority(group, userName);
     }

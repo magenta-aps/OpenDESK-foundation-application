@@ -45,12 +45,12 @@ public class BranchTest extends AbstractTestClass {
     }
     
     public Reference testAddBranchWebScript() throws Exception{
-        assertEquals(4, getBranchBean().getBranches().size());
+        assertEquals(1, getBranchBean().getBranches().size());
         assertEquals(TestUtils.BRANCH_NAME1+TestUtils.TITLE_POSTFIX, getBranchBean().getBranchSummaries().get(0).getTitle());
         JSONObject requestData = new JSONObject();
         requestData.put("title", "My new branch");
         Reference ref = post(requestData, Reference.class);
-        assertEquals(5, getBranchBean().getBranches().size());
+        assertEquals(2, getBranchBean().getBranches().size());
         return ref;
     }
     
@@ -59,20 +59,20 @@ public class BranchTest extends AbstractTestClass {
         List<BranchSummary> beanSummaries = getBranchBean().getBranchSummaries();
         
         containsSameElements(restSummaries, beanSummaries);
-        assertEquals(4, restSummaries.size());
+        assertEquals(1, restSummaries.size());
         assertEquals(TestUtils.BRANCH_NAME1+TestUtils.TITLE_POSTFIX, restSummaries.get(0).getTitle());
     }
     
     public void testUpdateBranch() throws IOException, JSONException{
         String myNewTitle = "newTitle";
         List<BranchSummary> restSummaries = get(List.class, BranchSummary.class);
-        assertEquals(4, restSummaries.size());
+        assertEquals(1, restSummaries.size());
         BranchSummary summary = restSummaries.get(0);
         assertEquals(TestUtils.BRANCH_NAME1+TestUtils.TITLE_POSTFIX, summary.getTitle());
         summary.setTitle(myNewTitle);
         post(summary, summary.getNodeID());
         restSummaries = get(List.class, BranchSummary.class);
-        assertEquals(4, restSummaries.size());
+        assertEquals(1, restSummaries.size());
         summary = restSummaries.get(0);
         assertEquals(myNewTitle, summary.getTitle());
         

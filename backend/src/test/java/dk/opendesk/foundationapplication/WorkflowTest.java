@@ -37,7 +37,7 @@ public class WorkflowTest extends AbstractTestClass{
     
     public List<WorkflowSummary> testGetWorkflows() throws Exception{
         List<WorkflowSummary> beanSummaries = getWorkflowBean().getWorkflowSummaries();
-        assertEquals(3, beanSummaries.size());
+        assertEquals(1, beanSummaries.size());
         assertEquals(TestUtils.SHARED_WORKFLOW_NAME+TestUtils.TITLE_POSTFIX, beanSummaries.get(0).getTitle());
         
         List<WorkflowSummary> restSummaries = get(List.class, WorkflowSummary.class);
@@ -62,7 +62,7 @@ public class WorkflowTest extends AbstractTestClass{
     
     public void testGetWorkflow() throws Exception {
         Workflow workflow = get(Workflow.class, TestUtils.workFlowRef1.getId());
-        assertEquals(2, workflow.getUsedByBranches().size());
+        assertEquals(1, workflow.getUsedByBranches().size());
         assertEquals(TestUtils.BRANCH_NAME1+TITLE_POSTFIX, workflow.getUsedByBranches().get(0).getTitle());
         assertEquals(TestUtils.SHARED_WORKFLOW_NAME+TITLE_POSTFIX, workflow.getTitle());
     }

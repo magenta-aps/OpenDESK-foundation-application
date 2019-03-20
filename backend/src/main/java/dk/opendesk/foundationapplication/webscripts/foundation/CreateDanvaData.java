@@ -57,7 +57,7 @@ public class CreateDanvaData extends ResetDemoData {
     }
     
     @Override
-    public Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) {
+    public Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) throws Exception {
         String recipient = random(COMPANYNAMES);
         String partner1 = random(COMPANYNAMES);
         String partner2 = random(COMPANYNAMES);
@@ -154,18 +154,15 @@ public class CreateDanvaData extends ResetDemoData {
         List<ApplicationPropertiesContainer> containers = Arrays.asList(new ApplicationPropertiesContainer[]{applicant, projektPartner1, projektPartner2, project, dateBlock, contact});
         app.setBlocks(containers);
         if (branch != null) {
-            BranchSummary branchRef = new BranchSummary();
-            branchRef.parseRef(branch);
+            BranchSummary branchRef = getBranchBean().getBranchSummary(branch);
             app.setBranchSummary(branchRef);
         }
         if (budget != null) {
-            BudgetReference budgetRef = new BudgetReference();
-            budgetRef.parseRef(budget);
+            BudgetReference budgetRef = getBudgetBean().getBudgetReference(budget);
             app.setBudget(budgetRef);
         }
         if (state != null) {
-            StateReference stateRef = new StateReference();
-            stateRef.parseRef(state);
+            StateReference stateRef = getWorkflowBean().getStateReference(state);
             app.setState(stateRef);
         }
 

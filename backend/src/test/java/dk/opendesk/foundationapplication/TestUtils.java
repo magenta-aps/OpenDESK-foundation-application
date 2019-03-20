@@ -93,6 +93,10 @@ public final class TestUtils {
     public static final Long BUDGET5_AMOUNT = 10000l;
 
     public static final String TITLE_POSTFIX = "(Title)";
+    
+    public static final Date START_DATE = Date.from(Instant.now().minus(Duration.ofDays(1)));
+    public static final Date END_DATE = Date.from(Instant.now().plus(300, ChronoUnit.DAYS));
+    public static final Date NEXT_YEAR_END_DATE = Date.from(END_DATE.toInstant().plus(300, ChronoUnit.DAYS));
 
     public static NodeRef workFlowRef1;
     public static NodeRef workFlowRef2;
@@ -189,7 +193,53 @@ public final class TestUtils {
             serviceRegistry.getPersonService().deletePerson(USER_SINGLE_APPLICATION_WRITE);
         }
         
-        
+    workFlowRef1 = null;
+    workFlowRef2 = null;
+    workFlowRef3 = null;
+
+    w1StateRecievedRef = null;
+    w1StateAccessRef = null;
+    w1StateDeniedRef = null;
+    w1StateAcceptedRef = null;
+    
+    w2StateRecievedRef = null;
+    w2StateAccessRef = null;
+    w2StateExecuteRef = null;
+    w2StateDeniedRef = null;
+    w2StateAcceptedRef = null;
+    
+    w3StateRecievedRef = null;
+    w3StateAccessRef = null;
+    w3StateExecuteRef = null;
+    w3StateAcceptedRef = null;
+
+    branchRef1 = null;
+    branchRef2 = null;
+    branchRef3 = null;
+    branchRef4 = null;
+
+    budgetYearRef1 = null;
+    budgetYearRef2 = null;
+    budgetRef1 = null;
+    budgetRef2 = null;
+    budgetRef3 = null;
+    budgetRef4 = null;
+    budgetRef5 = null;
+
+    application1 = null;
+    application2 = null;
+    application3 = null;
+
+    user_all_permission = null;
+    user_all_read_permission = null;
+    user_branch_read = null;
+    user_branch_write = null;
+    user_branch_write_all_read = null;
+    user_workflow_read = null;
+    user_workflow_write = null;
+    user_budget_read = null;
+    user_budget_write = null;
+    user_single_application_read = null;
         
         
         isInitiated = false;
@@ -201,6 +251,7 @@ public final class TestUtils {
         if (isInitiated) {
             throw new RuntimeException("Test has already been initiated. Did you remember to call WipeData?");
         }
+        long startTime = System.currentTimeMillis();
         ActionBean actionBean = new ActionBean();
         actionBean.setServiceRegistry(serviceRegistry);
         ApplicationBean applicationBean = new ApplicationBean();
@@ -237,92 +288,82 @@ public final class TestUtils {
         //Create test user
         user_all_permission = createUser(USER_ALL_PERMISSIONS, serviceRegistry);
         user_all_read_permission = createUser(USER_ALL_READ_PERMISSIONS, serviceRegistry);
-        user_branch_read = createUser(USER_BRANCH_READ, serviceRegistry);
-        user_branch_write = createUser(USER_BRANCH_WRITE, serviceRegistry);
-        user_branch_write_all_read = createUser(USER_BRANCH_WRITE_ALL_READ, serviceRegistry);
-        user_workflow_read = createUser(USER_WORKFLOW_READ, serviceRegistry);
-        user_workflow_write = createUser(USER_WORKFLOW_WRITE, serviceRegistry);
-        user_budget_read = createUser(USER_BUDGET_READ, serviceRegistry);
-        user_budget_write = createUser(USER_BUDGET_WRITE, serviceRegistry);
-        user_budget_read = createUser(USER_BUDGETYEAR_READ, serviceRegistry);
-        user_budget_write = createUser(USER_BUDGETYEAR_WRITE, serviceRegistry);
-        user_single_application_read = createUser(USER_SINGLE_APPLICATION_WRITE, serviceRegistry);
+        
 
+        setupBranch1(branchBean, workflowBean, budgetBean);
 
         //Create workflow
-       workFlowRef1 = workflowBean.addNewWorkflow(SHARED_WORKFLOW_NAME, SHARED_WORKFLOW_NAME + TITLE_POSTFIX);
-       workFlowRef2 = workflowBean.addNewWorkflow(ONE_USE_WORKFLOW_NAME, ONE_USE_WORKFLOW_NAME + TITLE_POSTFIX);
-       workFlowRef3 = workflowBean.addNewWorkflow(UNUSED_WORKFLOW, UNUSED_WORKFLOW + TITLE_POSTFIX);
+//       workFlowRef1 = workflowBean.addNewWorkflow(SHARED_WORKFLOW_NAME, SHARED_WORKFLOW_NAME + TITLE_POSTFIX);
+       //workFlowRef2 = workflowBean.addNewWorkflow(ONE_USE_WORKFLOW_NAME, ONE_USE_WORKFLOW_NAME + TITLE_POSTFIX);
+       //workFlowRef3 = workflowBean.addNewWorkflow(UNUSED_WORKFLOW, UNUSED_WORKFLOW + TITLE_POSTFIX);
 
         //Create workflow states
-        w1StateRecievedRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
-        w1StateAccessRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, StateCategory.ACCEPTED);
-        w1StateDeniedRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_DENIED_NAME, STATE_DENIED_NAME + TITLE_POSTFIX, StateCategory.REJECTED);
-        w1StateAcceptedRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
-        workflowBean.setWorkflowEntryPoint(workFlowRef1, w1StateRecievedRef);
+//        w1StateRecievedRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
+//        w1StateAccessRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, StateCategory.ACCEPTED);
+//        w1StateDeniedRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_DENIED_NAME, STATE_DENIED_NAME + TITLE_POSTFIX, StateCategory.REJECTED);
+//        w1StateAcceptedRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
+//        workflowBean.setWorkflowEntryPoint(workFlowRef1, w1StateRecievedRef);
         
-        w2StateRecievedRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, null);
-        w2StateAccessRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
-        w2StateExecuteRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_EXECUTE_NAME, STATE_EXECUTE_NAME + TITLE_POSTFIX, StateCategory.ACCEPTED);
-        w2StateDeniedRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_DENIED_NAME, STATE_DENIED_NAME + TITLE_POSTFIX, StateCategory.REJECTED);
-        w2StateAcceptedRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
-        workflowBean.setWorkflowEntryPoint(workFlowRef2, w2StateRecievedRef);
+//        w2StateRecievedRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, null);
+//        w2StateAccessRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
+//        w2StateExecuteRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_EXECUTE_NAME, STATE_EXECUTE_NAME + TITLE_POSTFIX, StateCategory.ACCEPTED);
+//        w2StateDeniedRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_DENIED_NAME, STATE_DENIED_NAME + TITLE_POSTFIX, StateCategory.REJECTED);
+//        w2StateAcceptedRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
+//        workflowBean.setWorkflowEntryPoint(workFlowRef2, w2StateRecievedRef);
         
-        w3StateRecievedRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, null);
-        w3StateAccessRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, null);
-        w3StateExecuteRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_EXECUTE_NAME, STATE_EXECUTE_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
-        w3StateAcceptedRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
-        workflowBean.setWorkflowEntryPoint(workFlowRef3, w3StateRecievedRef);
+//        w3StateRecievedRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, null);
+//        w3StateAccessRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, null);
+//        w3StateExecuteRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_EXECUTE_NAME, STATE_EXECUTE_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
+//        w3StateAcceptedRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
+//        workflowBean.setWorkflowEntryPoint(workFlowRef3, w3StateRecievedRef);
 
         //Create associations
-        workflowBean.createWorkflowTransition(w1StateRecievedRef, w1StateAccessRef);
-        workflowBean.createWorkflowTransition(w1StateRecievedRef, w1StateDeniedRef);
-
-        workflowBean.createWorkflowTransition(w1StateAccessRef, w1StateAcceptedRef);
-        workflowBean.createWorkflowTransition(w1StateAccessRef, w1StateDeniedRef);
+//        workflowBean.createWorkflowTransition(w1StateRecievedRef, w1StateAccessRef);
+//        workflowBean.createWorkflowTransition(w1StateRecievedRef, w1StateDeniedRef);
+//
+//        workflowBean.createWorkflowTransition(w1StateAccessRef, w1StateAcceptedRef);
+//        workflowBean.createWorkflowTransition(w1StateAccessRef, w1StateDeniedRef);
         
         
-        workflowBean.createWorkflowTransition(w2StateRecievedRef, w2StateAccessRef);
-        workflowBean.createWorkflowTransition(w2StateRecievedRef, w2StateDeniedRef);
+//        workflowBean.createWorkflowTransition(w2StateRecievedRef, w2StateAccessRef);
+//        workflowBean.createWorkflowTransition(w2StateRecievedRef, w2StateDeniedRef);
+//        
+//        workflowBean.createWorkflowTransition(w2StateAccessRef, w2StateExecuteRef);
+//        
+//        workflowBean.createWorkflowTransition(w2StateExecuteRef, w2StateAcceptedRef);
+//        workflowBean.createWorkflowTransition(w2StateExecuteRef, w2StateDeniedRef);
         
-        workflowBean.createWorkflowTransition(w2StateAccessRef, w2StateExecuteRef);
-        
-        workflowBean.createWorkflowTransition(w2StateExecuteRef, w2StateAcceptedRef);
-        workflowBean.createWorkflowTransition(w2StateExecuteRef, w2StateDeniedRef);
-        
-        workflowBean.createWorkflowTransition(w3StateRecievedRef, w3StateAccessRef);
-        workflowBean.createWorkflowTransition(w3StateAccessRef, w3StateExecuteRef);
-        workflowBean.createWorkflowTransition(w3StateExecuteRef, w3StateAcceptedRef);
+//        workflowBean.createWorkflowTransition(w3StateRecievedRef, w3StateAccessRef);
+//        workflowBean.createWorkflowTransition(w3StateAccessRef, w3StateExecuteRef);
+//        workflowBean.createWorkflowTransition(w3StateExecuteRef, w3StateAcceptedRef);
 
         //Create branch and associate it with the workflow
-        branchRef1 = branchBean.addNewBranch(BRANCH_NAME1, BRANCH_NAME1 + TITLE_POSTFIX);
-        branchRef2 = branchBean.addNewBranch(BRANCH_NAME2, BRANCH_NAME2 + TITLE_POSTFIX);
-        branchRef3 = branchBean.addNewBranch(BRANCH_NAME3, BRANCH_NAME3 + TITLE_POSTFIX);
-        branchRef4 = branchBean.addNewBranch(BRANCH_NAME4, BRANCH_NAME4 + TITLE_POSTFIX);
-        branchBean.setBranchWorkflow(branchRef1, workFlowRef1);
-        branchBean.setBranchWorkflow(branchRef2, workFlowRef1);
-        branchBean.setBranchWorkflow(branchRef3, workFlowRef2);
+//        branchRef1 = branchBean.addNewBranch(BRANCH_NAME1, BRANCH_NAME1 + TITLE_POSTFIX);
+        //branchRef2 = branchBean.addNewBranch(BRANCH_NAME2, BRANCH_NAME2 + TITLE_POSTFIX);
+        //branchRef3 = branchBean.addNewBranch(BRANCH_NAME3, BRANCH_NAME3 + TITLE_POSTFIX);
+        //branchRef4 = branchBean.addNewBranch(BRANCH_NAME4, BRANCH_NAME4 + TITLE_POSTFIX);
+//        branchBean.setBranchWorkflow(branchRef1, workFlowRef1);
+        //branchBean.setBranchWorkflow(branchRef2, workFlowRef1);
+        //branchBean.setBranchWorkflow(branchRef3, workFlowRef2);
 
         //Create budgets and associate it with a branch
-        Date startDate = Date.from(Instant.now().minus(Duration.ofDays(1)));
-        Date endDate = Date.from(Instant.now().plus(300, ChronoUnit.DAYS));
-        Date nextYearEndDate = Date.from(endDate.toInstant().plus(300, ChronoUnit.DAYS));
+        
 
-        budgetYearRef1 = budgetBean.addNewBudgetYear(BUDGETYEAR1_NAME, BUDGETYEAR1_NAME + TITLE_POSTFIX, startDate, endDate);
-        budgetYearRef2 = budgetBean.addNewBudgetYear(BUDGETYEAR2_NAME, BUDGETYEAR2_NAME + TITLE_POSTFIX, endDate, nextYearEndDate);
+//        budgetYearRef1 = budgetBean.addNewBudgetYear(BUDGETYEAR1_NAME, BUDGETYEAR1_NAME + TITLE_POSTFIX, START_DATE, END_DATE);
+        //budgetYearRef2 = budgetBean.addNewBudgetYear(BUDGETYEAR2_NAME, BUDGETYEAR2_NAME + TITLE_POSTFIX, endDate, nextYearEndDate);
 
-        budgetRef1 = budgetBean.addNewBudget(budgetYearRef1, BUDGET1_NAME, BUDGET1_NAME + TITLE_POSTFIX, BUDGET1_AMOUNT);
-        budgetRef2 = budgetBean.addNewBudget(budgetYearRef1, BUDGET2_NAME, BUDGET2_NAME + TITLE_POSTFIX, BUDGET2_AMOUNT);
-        budgetRef3 = budgetBean.addNewBudget(budgetYearRef1, BUDGET3_NAME, BUDGET3_NAME + TITLE_POSTFIX, BUDGET3_AMOUNT);
-        budgetRef4 = budgetBean.addNewBudget(budgetYearRef2, BUDGET4_NAME, BUDGET4_NAME + TITLE_POSTFIX, BUDGET4_AMOUNT);
-        budgetRef5 = budgetBean.addNewBudget(budgetYearRef2, BUDGET5_NAME, BUDGET5_NAME + TITLE_POSTFIX, BUDGET5_AMOUNT);
-        branchBean.addBranchBudget(branchRef1, budgetRef1);
-        branchBean.addBranchBudget(branchRef1, budgetRef2);
-        branchBean.addBranchBudget(branchRef2, budgetRef1);
-        branchBean.addBranchBudget(branchRef2, budgetRef2);
-        branchBean.addBranchBudget(branchRef3, budgetRef2);
-        branchBean.addBranchBudget(branchRef3, budgetRef3);
-        branchBean.addBranchBudget(branchRef4, budgetRef2);
+//        budgetRef1 = budgetBean.addNewBudget(budgetYearRef1, BUDGET1_NAME, BUDGET1_NAME + TITLE_POSTFIX, BUDGET1_AMOUNT);
+        //budgetRef2 = budgetBean.addNewBudget(budgetYearRef1, BUDGET2_NAME, BUDGET2_NAME + TITLE_POSTFIX, BUDGET2_AMOUNT);
+        //budgetRef3 = budgetBean.addNewBudget(budgetYearRef1, BUDGET3_NAME, BUDGET3_NAME + TITLE_POSTFIX, BUDGET3_AMOUNT);
+        //budgetRef4 = budgetBean.addNewBudget(budgetYearRef2, BUDGET4_NAME, BUDGET4_NAME + TITLE_POSTFIX, BUDGET4_AMOUNT);
+        //budgetRef5 = budgetBean.addNewBudget(budgetYearRef2, BUDGET5_NAME, BUDGET5_NAME + TITLE_POSTFIX, BUDGET5_AMOUNT);
+//        branchBean.addBranchBudget(branchRef1, budgetRef1);
+//        branchBean.addBranchBudget(branchRef1, budgetRef2);
+        //branchBean.addBranchBudget(branchRef2, budgetRef1);
+        //branchBean.addBranchBudget(branchRef2, budgetRef2);
+        //branchBean.addBranchBudget(branchRef3, budgetRef2);
+        //branchBean.addBranchBudget(branchRef3, budgetRef3);
+        //branchBean.addBranchBudget(branchRef4, budgetRef2);
         
 
         ArrayList<ApplicationPropertyValue> fields;
@@ -453,15 +494,290 @@ public final class TestUtils {
         //application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
 
 
-        authBean.addUser(USER_ALL_PERMISSIONS, authBean.getGroup(PermissionGroup.SUPER, true));
-        authBean.addUser(USER_ALL_READ_PERMISSIONS, authBean.getGroup(PermissionGroup.SUPER, false));
+        authBean.addUserGroup(USER_ALL_PERMISSIONS, authBean.getGroup(PermissionGroup.SUPER, true));
+        authBean.addUserGroup(USER_ALL_READ_PERMISSIONS, authBean.getGroup(PermissionGroup.SUPER, false));
         
-        
+        LOGGER.info("Created simple flow in "+(System.currentTimeMillis()-startTime));
         isInitiated = true;
     }
     
+    public static void setupExtendedFlow(ServiceRegistry serviceRegistry) throws Exception{
+        setupSimpleFlow(serviceRegistry);
+        long startTime = System.currentTimeMillis();
+        
+        ActionBean actionBean = new ActionBean();
+        actionBean.setServiceRegistry(serviceRegistry);
+        ApplicationBean applicationBean = new ApplicationBean();
+        applicationBean.setServiceRegistry(serviceRegistry);
+        AuthorityBean authBean = new AuthorityBean();
+        authBean.setServiceRegistry(serviceRegistry);
+        BranchBean branchBean = new BranchBean();
+        branchBean.setServiceRegistry(serviceRegistry);
+        BudgetBean budgetBean = new BudgetBean();
+        budgetBean.setServiceRegistry(serviceRegistry);
+        WorkflowBean workflowBean = new WorkflowBean();
+        workflowBean.setServiceRegistry(serviceRegistry);
+
+        actionBean.setApplicationBean(applicationBean);
+
+        applicationBean.setActionBean(actionBean);
+        applicationBean.setAuthBean(authBean);
+        applicationBean.setBranchBean(branchBean);
+        applicationBean.setBudgetBean(budgetBean);
+        applicationBean.setWorkflowBean(workflowBean);
+
+        branchBean.setApplicationBean(applicationBean);
+        branchBean.setAuthBean(authBean);
+        branchBean.setBudgetBean(budgetBean);
+        branchBean.setWorkflowBean(workflowBean);
+
+        budgetBean.setApplicationBean(applicationBean);
+        budgetBean.setAuthBean(authBean);
+        budgetBean.setWorkflowBean(workflowBean);
+
+        workflowBean.setApplicationBean(applicationBean);
+        workflowBean.setAuthBean(authBean);
+        
+        setupBranch2(branchBean, workflowBean, budgetBean);
+        setupBranch3(branchBean, workflowBean, budgetBean);
+        LOGGER.info("Created extended flow in "+(System.currentTimeMillis()-startTime));
+    }
     
+    public static void setupFullFlow(ServiceRegistry serviceRegistry) throws Exception{
+        setupExtendedFlow(serviceRegistry);
+        long startTime = System.currentTimeMillis();
+        ActionBean actionBean = new ActionBean();
+        actionBean.setServiceRegistry(serviceRegistry);
+        ApplicationBean applicationBean = new ApplicationBean();
+        applicationBean.setServiceRegistry(serviceRegistry);
+        AuthorityBean authBean = new AuthorityBean();
+        authBean.setServiceRegistry(serviceRegistry);
+        BranchBean branchBean = new BranchBean();
+        branchBean.setServiceRegistry(serviceRegistry);
+        BudgetBean budgetBean = new BudgetBean();
+        budgetBean.setServiceRegistry(serviceRegistry);
+        WorkflowBean workflowBean = new WorkflowBean();
+        workflowBean.setServiceRegistry(serviceRegistry);
+
+        actionBean.setApplicationBean(applicationBean);
+
+        applicationBean.setActionBean(actionBean);
+        applicationBean.setAuthBean(authBean);
+        applicationBean.setBranchBean(branchBean);
+        applicationBean.setBudgetBean(budgetBean);
+        applicationBean.setWorkflowBean(workflowBean);
+
+        branchBean.setApplicationBean(applicationBean);
+        branchBean.setAuthBean(authBean);
+        branchBean.setBudgetBean(budgetBean);
+        branchBean.setWorkflowBean(workflowBean);
+
+        budgetBean.setApplicationBean(applicationBean);
+        budgetBean.setAuthBean(authBean);
+        budgetBean.setWorkflowBean(workflowBean);
+
+        workflowBean.setApplicationBean(applicationBean);
+        workflowBean.setAuthBean(authBean);
+        
+        setupBranch4(branchBean, workflowBean, budgetBean);
+        LOGGER.info("Created full flow in "+(System.currentTimeMillis()-startTime));
+    }
     
+    public static void setupFullTestUsers(ServiceRegistry serviceRegistry) throws Exception{
+        setupSimpleFlow(serviceRegistry);
+        ActionBean actionBean = new ActionBean();
+        actionBean.setServiceRegistry(serviceRegistry);
+        ApplicationBean applicationBean = new ApplicationBean();
+        applicationBean.setServiceRegistry(serviceRegistry);
+        AuthorityBean authBean = new AuthorityBean();
+        authBean.setServiceRegistry(serviceRegistry);
+        BranchBean branchBean = new BranchBean();
+        branchBean.setServiceRegistry(serviceRegistry);
+        BudgetBean budgetBean = new BudgetBean();
+        budgetBean.setServiceRegistry(serviceRegistry);
+        WorkflowBean workflowBean = new WorkflowBean();
+        workflowBean.setServiceRegistry(serviceRegistry);
+
+        actionBean.setApplicationBean(applicationBean);
+
+        applicationBean.setActionBean(actionBean);
+        applicationBean.setAuthBean(authBean);
+        applicationBean.setBranchBean(branchBean);
+        applicationBean.setBudgetBean(budgetBean);
+        applicationBean.setWorkflowBean(workflowBean);
+
+        branchBean.setApplicationBean(applicationBean);
+        branchBean.setAuthBean(authBean);
+        branchBean.setBudgetBean(budgetBean);
+        branchBean.setWorkflowBean(workflowBean);
+
+        budgetBean.setApplicationBean(applicationBean);
+        budgetBean.setAuthBean(authBean);
+        budgetBean.setWorkflowBean(workflowBean);
+
+        workflowBean.setApplicationBean(applicationBean);
+        workflowBean.setAuthBean(authBean);
+        
+        user_branch_read = createUser(USER_BRANCH_READ, serviceRegistry);
+        user_branch_write = createUser(USER_BRANCH_WRITE, serviceRegistry);
+        user_branch_write_all_read = createUser(USER_BRANCH_WRITE_ALL_READ, serviceRegistry);
+        user_workflow_read = createUser(USER_WORKFLOW_READ, serviceRegistry);
+        user_workflow_write = createUser(USER_WORKFLOW_WRITE, serviceRegistry);
+        user_budget_read = createUser(USER_BUDGET_READ, serviceRegistry);
+        user_budget_write = createUser(USER_BUDGET_WRITE, serviceRegistry);
+        user_budget_read = createUser(USER_BUDGETYEAR_READ, serviceRegistry);
+        user_budget_write = createUser(USER_BUDGETYEAR_WRITE, serviceRegistry);
+        user_single_application_read = createUser(USER_SINGLE_APPLICATION_WRITE, serviceRegistry);
+        
+        authBean.addUserGroup(USER_BRANCH_READ, authBean.getGroup(PermissionGroup.BRANCH, BRANCH_NAME1 + TITLE_POSTFIX, false));
+        authBean.addUserGroup(USER_BRANCH_WRITE, authBean.getGroup(PermissionGroup.BRANCH, BRANCH_NAME1 + TITLE_POSTFIX, true));
+        
+        
+    }
+    
+    public static NodeRef setupBranch1(BranchBean branchBean, WorkflowBean workflowBean, BudgetBean budgetBean) throws Exception {
+        if (branchRef1 == null) {
+            branchRef1 = branchBean.addNewBranch(BRANCH_NAME1, BRANCH_NAME1 + TITLE_POSTFIX);
+            branchBean.setBranchWorkflow(branchRef1, setupWorkflow1(workflowBean));
+            branchBean.addBranchBudget(branchRef1, setupBudget1(budgetBean));
+            branchBean.addBranchBudget(branchRef1, setupBudget2(budgetBean));
+        }
+        return branchRef1;
+    }
+    
+    public static NodeRef setupBranch2(BranchBean branchBean, WorkflowBean workflowBean, BudgetBean budgetBean) throws Exception {
+        if (branchRef2 == null) {
+            branchRef2 = branchBean.addNewBranch(BRANCH_NAME2, BRANCH_NAME2 + TITLE_POSTFIX);
+            branchBean.setBranchWorkflow(branchRef2, setupWorkflow1(workflowBean));
+            branchBean.addBranchBudget(branchRef2, setupBudget1(budgetBean));
+            branchBean.addBranchBudget(branchRef2, setupBudget2(budgetBean));
+        }
+        return branchRef2;
+    }
+
+    public static NodeRef setupBranch3(BranchBean branchBean, WorkflowBean workflowBean, BudgetBean budgetBean) throws Exception {
+        if (branchRef3 == null) {
+            branchRef3 = branchBean.addNewBranch(BRANCH_NAME3, BRANCH_NAME3 + TITLE_POSTFIX);
+            branchBean.setBranchWorkflow(branchRef3, setupWorkflow2(workflowBean));
+            branchBean.addBranchBudget(branchRef3, setupBudget2(budgetBean));
+            branchBean.addBranchBudget(branchRef3, setupBudget3(budgetBean));
+        }
+        return branchRef3;
+    }
+
+    public static NodeRef setupBranch4(BranchBean branchBean, WorkflowBean workflowBean, BudgetBean budgetBean) throws Exception {
+        if (branchRef4 == null) {
+            branchRef4 = branchBean.addNewBranch(BRANCH_NAME4, BRANCH_NAME4 + TITLE_POSTFIX);
+            branchBean.addBranchBudget(branchRef4, setupBudget2(budgetBean));
+        }
+        return branchRef4;
+    }
+
+    public static NodeRef setupWorkflow1(WorkflowBean workflowBean) throws Exception {
+        if (workFlowRef1 == null) {
+            workFlowRef1 = workflowBean.addNewWorkflow(SHARED_WORKFLOW_NAME, SHARED_WORKFLOW_NAME + TITLE_POSTFIX);
+            w1StateRecievedRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
+            w1StateAccessRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, StateCategory.ACCEPTED);
+            w1StateDeniedRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_DENIED_NAME, STATE_DENIED_NAME + TITLE_POSTFIX, StateCategory.REJECTED);
+            w1StateAcceptedRef = workflowBean.addNewWorkflowState(workFlowRef1, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
+            workflowBean.setWorkflowEntryPoint(workFlowRef1, w1StateRecievedRef);
+
+            workflowBean.createWorkflowTransition(w1StateRecievedRef, w1StateAccessRef);
+            workflowBean.createWorkflowTransition(w1StateRecievedRef, w1StateDeniedRef);
+
+            workflowBean.createWorkflowTransition(w1StateAccessRef, w1StateAcceptedRef);
+            workflowBean.createWorkflowTransition(w1StateAccessRef, w1StateDeniedRef);
+        }
+        return workFlowRef1;
+    }
+
+    public static NodeRef setupWorkflow2(WorkflowBean workflowBean) throws Exception {
+        if (workFlowRef2 == null) {
+            workFlowRef2 = workflowBean.addNewWorkflow(ONE_USE_WORKFLOW_NAME, ONE_USE_WORKFLOW_NAME + TITLE_POSTFIX);
+            w2StateRecievedRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, null);
+            w2StateAccessRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
+            w2StateExecuteRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_EXECUTE_NAME, STATE_EXECUTE_NAME + TITLE_POSTFIX, StateCategory.ACCEPTED);
+            w2StateDeniedRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_DENIED_NAME, STATE_DENIED_NAME + TITLE_POSTFIX, StateCategory.REJECTED);
+            w2StateAcceptedRef = workflowBean.addNewWorkflowState(workFlowRef2, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
+            workflowBean.setWorkflowEntryPoint(workFlowRef2, w2StateRecievedRef);
+
+            workflowBean.createWorkflowTransition(w2StateRecievedRef, w2StateAccessRef);
+            workflowBean.createWorkflowTransition(w2StateRecievedRef, w2StateDeniedRef);
+
+            workflowBean.createWorkflowTransition(w2StateAccessRef, w2StateExecuteRef);
+
+            workflowBean.createWorkflowTransition(w2StateExecuteRef, w2StateAcceptedRef);
+            workflowBean.createWorkflowTransition(w2StateExecuteRef, w2StateDeniedRef);
+        }
+        return workFlowRef2;
+    }
+
+    public static NodeRef setupWorkflow3(WorkflowBean workflowBean) throws Exception {
+        if (workFlowRef3 == null) {
+            workFlowRef3 = workflowBean.addNewWorkflow(UNUSED_WORKFLOW, UNUSED_WORKFLOW + TITLE_POSTFIX);
+            w3StateRecievedRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_RECIEVED_NAME, STATE_RECIEVED_NAME + TITLE_POSTFIX, null);
+            w3StateAccessRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_ASSESS_NAME, STATE_ASSESS_NAME + TITLE_POSTFIX, null);
+            w3StateExecuteRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_EXECUTE_NAME, STATE_EXECUTE_NAME + TITLE_POSTFIX, StateCategory.NOMINATED);
+            w3StateAcceptedRef = workflowBean.addNewWorkflowState(workFlowRef3, STATE_ACCEPTED_NAME, STATE_ACCEPTED_NAME + TITLE_POSTFIX, StateCategory.CLOSED);
+            workflowBean.setWorkflowEntryPoint(workFlowRef3, w3StateRecievedRef);
+
+            workflowBean.createWorkflowTransition(w3StateRecievedRef, w3StateAccessRef);
+            workflowBean.createWorkflowTransition(w3StateAccessRef, w3StateExecuteRef);
+            workflowBean.createWorkflowTransition(w3StateExecuteRef, w3StateAcceptedRef);
+        }
+        return workFlowRef3;
+    }
+
+    static NodeRef setupBudget1(BudgetBean budgetBean) throws Exception {
+        if (budgetRef1 == null) {
+            budgetRef1 = budgetBean.addNewBudget(setupBudgetYear1(budgetBean), BUDGET1_NAME, BUDGET1_NAME + TITLE_POSTFIX, BUDGET1_AMOUNT);
+        }
+        return budgetRef1;
+    }
+
+    static NodeRef setupBudget2(BudgetBean budgetBean) throws Exception {
+        if (budgetRef2 == null) {
+            budgetRef2 = budgetBean.addNewBudget(setupBudgetYear1(budgetBean), BUDGET2_NAME, BUDGET2_NAME + TITLE_POSTFIX, BUDGET2_AMOUNT);
+        }
+        return budgetRef2;
+    }
+
+    static NodeRef setupBudget3(BudgetBean budgetBean) throws Exception {
+        if (budgetRef3 == null) {
+            budgetRef3 = budgetBean.addNewBudget(setupBudgetYear1(budgetBean), BUDGET3_NAME, BUDGET3_NAME + TITLE_POSTFIX, BUDGET3_AMOUNT);
+        }
+        return budgetRef3;
+    }
+
+    static NodeRef setupBudget4(BudgetBean budgetBean) throws Exception {
+        if (budgetRef4 == null) {
+            budgetRef4 = budgetBean.addNewBudget(setupBudgetYear2(budgetBean), BUDGET4_NAME, BUDGET4_NAME + TITLE_POSTFIX, BUDGET4_AMOUNT);
+        }
+        return budgetRef4;
+    }
+
+    static NodeRef setupBudget5(BudgetBean budgetBean) throws Exception {
+        if (budgetRef5 == null) {
+            budgetRef5 = budgetBean.addNewBudget(setupBudgetYear2(budgetBean), BUDGET5_NAME, BUDGET5_NAME + TITLE_POSTFIX, BUDGET5_AMOUNT);
+        }
+        return budgetRef5;
+    }
+
+    static NodeRef setupBudgetYear1(BudgetBean budgetBean) throws Exception {
+        if (budgetYearRef1 == null) {
+            budgetYearRef1 = budgetBean.addNewBudgetYear(BUDGETYEAR1_NAME, BUDGETYEAR1_NAME + TITLE_POSTFIX, START_DATE, END_DATE);
+        }
+        return budgetYearRef1;
+    }
+    
+    static NodeRef setupBudgetYear2(BudgetBean budgetBean) throws Exception {
+        if (budgetYearRef2 == null) {
+            budgetYearRef2 = budgetBean.addNewBudgetYear(BUDGETYEAR2_NAME, BUDGETYEAR2_NAME + TITLE_POSTFIX, END_DATE, NEXT_YEAR_END_DATE);
+        }
+        return budgetYearRef2;
+    }
+
+
     private static NodeRef createUser(String username, ServiceRegistry serviceRegistry){
         String password = "testpass";
         serviceRegistry.getAuthenticationService().createAuthentication(username, password.toCharArray());

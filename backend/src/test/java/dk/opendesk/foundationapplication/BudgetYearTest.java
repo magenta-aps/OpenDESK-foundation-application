@@ -43,7 +43,7 @@ public class BudgetYearTest extends AbstractTestClass{
         List<BudgetYearSummary> summaries = getBudgetBean().getBudgetYearSummaries();
 
         containsSameElements(summaries, summariesRest);
-        assertEquals(2, summariesRest.size());
+        assertEquals(1, summariesRest.size());
         assertEquals(TestUtils.BUDGETYEAR1_NAME+TestUtils.TITLE_POSTFIX, summariesRest.get(0).getTitle());
     }
     
