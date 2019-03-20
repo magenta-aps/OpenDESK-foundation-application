@@ -2,12 +2,12 @@ package dk.opendesk.foundationapplication.JSON;
 
 import dk.opendesk.foundationapplication.DAO.FoundationActionParameterDefinition;
 import org.alfresco.service.namespace.QName;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.DeserializationContext;
-import org.codehaus.jackson.map.JsonDeserializer;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
@@ -18,7 +18,7 @@ public class FoundationActionParameterDefinitionDeserializer extends JsonDeseria
     public FoundationActionParameterDefinition deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         ObjectMapper newMapper = new ObjectMapper();
         try {
-            FoundationActionParameterDefinition toReturn = new FoundationActionParameterDefinition();
+            FoundationActionParameterDefinition toReturn = new FoundationActionParameterDefinition<>();
             JsonNode node = jp.getCodec().readTree(jp);
             if (node.has("name")) {
                 toReturn.setName(node.get("name").asText());
@@ -49,4 +49,10 @@ public class FoundationActionParameterDefinitionDeserializer extends JsonDeseria
             return null;
         }
     }
+
+    @Override
+    public Class<?> handledType() {
+        return FoundationActionParameterDefinition.class;
+    }
+
 }

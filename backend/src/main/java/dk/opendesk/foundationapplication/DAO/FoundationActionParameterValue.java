@@ -7,13 +7,17 @@ public class FoundationActionParameterValue<T> extends FoundationActionParameter
     public FoundationActionParameterValue() {
     }
 
-    public FoundationActionParameterValue(FoundationActionParameterDefinition<T> parameterDefinition, T value) {
+    public FoundationActionParameterValue(FoundationActionParameterDefinition<T> parameterDefinition) {
         super.setName(parameterDefinition.getName());
         super.setType(parameterDefinition.getType());
         super.setJavaType(parameterDefinition.getJavaType());
         super.setDisplayLabel(parameterDefinition.getDisplayLabel());
         super.setMandatory(parameterDefinition.isMandatory());
         super.setMultiValued(parameterDefinition.isMultiValued());
+    }
+
+    public FoundationActionParameterValue(FoundationActionParameterDefinition<T> parameterDefinition, T value) {
+        this(parameterDefinition);
         this.value = value;
     }
 

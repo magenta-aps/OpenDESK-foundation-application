@@ -54,15 +54,15 @@ public class ActionTest extends AbstractTestClass {
 
 
     public void testSaveAction() throws Exception {
-        FoundationActionParameter stateIdParam = new FoundationActionParameter(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, true, null);
-        FoundationActionParameter aspectParam = new FoundationActionParameter(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, true, null);
-        FoundationActionParameter ccParam = new FoundationActionParameter(PARAM_CC, DataTypeDefinition.TEXT, false, null);
+        FoundationActionParameterDefinition<String> stateIdParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, String.class, true, null);
+        FoundationActionParameterDefinition<String> aspectParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, String.class, true, null);
+        FoundationActionParameterDefinition<String> ccParam = new FoundationActionParameterDefinition<>(PARAM_CC, DataTypeDefinition.TEXT, String.class, false, null);
 
-        FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue(stateIdParam, TestUtils.stateRecievedRef.getId());
-        FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue(aspectParam, ASPECT_ON_CREATE);
+        FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, TestUtils.stateRecievedRef.getId());
+        FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue<>(aspectParam, ASPECT_ON_CREATE);
 
         List<FoundationActionParameterValue> params = new ArrayList<>();
-        params.add(new FoundationActionParameterValue(ccParam, "test@test.dk"));
+        params.add(new FoundationActionParameterValue<>(ccParam, "test@test.dk"));
 
         FoundationActionValue foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, ACTION_NAME_EMAIL); //todo dobbelt konfekt at man skal skrive navnet
@@ -110,25 +110,25 @@ public class ActionTest extends AbstractTestClass {
     public void testActionExecutingOnStateChange() throws Exception {
 
         //saving on-create-action to state 'assess'
-        FoundationActionParameter stateIdParam = new FoundationActionParameter(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, true, null);
-        FoundationActionParameter aspectParam = new FoundationActionParameter(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, true, null);
-        FoundationActionParameter msgParam = new FoundationActionParameter("executionMessage", DataTypeDefinition.TEXT, false, null);
+        FoundationActionParameterDefinition<String> stateIdParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, String.class, true, null);
+        FoundationActionParameterDefinition<String> aspectParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, String.class, true, null);
+        FoundationActionParameterDefinition<String> msgParam = new FoundationActionParameterDefinition<>("executionMessage", DataTypeDefinition.TEXT, String.class, false, null);
 
-        FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue(stateIdParam, TestUtils.stateAccessRef.getId());
-        FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue(aspectParam, ASPECT_ON_CREATE);
+        FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, TestUtils.stateAccessRef.getId());
+        FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue<>(aspectParam, ASPECT_ON_CREATE);
 
         List<FoundationActionParameterValue> params = new ArrayList<>();
-        params.add(new FoundationActionParameterValue(msgParam, "enterAction executed"));
+        params.add(new FoundationActionParameterValue<>(msgParam, "enterAction executed"));
 
         FoundationActionValue foundationActionValue = new FoundationActionValue("test", stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, "test");
 
 
         //saving before-delete-action to state 'assess'
-        aspectParamVal = new FoundationActionParameterValue(aspectParam, ASPECT_BEFORE_DELETE);
+        aspectParamVal = new FoundationActionParameterValue<>(aspectParam, ASPECT_BEFORE_DELETE);
 
         params = new ArrayList<>();
-        params.add(new FoundationActionParameterValue(msgParam, "exitAction executed"));
+        params.add(new FoundationActionParameterValue<>(msgParam, "exitAction executed"));
 
         foundationActionValue = new FoundationActionValue("test", stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, "test");

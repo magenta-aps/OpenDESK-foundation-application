@@ -1,10 +1,10 @@
 package dk.opendesk.foundationapplication.JSON;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import dk.opendesk.foundationapplication.DAO.FoundationActionParameterDefinition;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
 
 import java.io.IOException;
 
@@ -28,8 +28,8 @@ public class FoundationActionParameterDefinitionSerializer extends JsonSerialize
         if (paramDef.getJavaType() != null) {
             jgen.writeStringField("javaType", paramDef.getJavaType().getCanonicalName());
         }
-        jgen.writeStringField("isMultivalued", paramDef.isMultiValued() ? "true" : "false");
-        jgen.writeStringField("isMandatory", paramDef.isMandatory() ? "true" : "false");
+        jgen.writeBooleanField("isMultivalued", paramDef.isMultiValued());
+        jgen.writeBooleanField("isMandatory", paramDef.isMandatory());
         jgen.writeEndObject();
     }
 
