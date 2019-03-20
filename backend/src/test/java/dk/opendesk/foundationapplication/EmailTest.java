@@ -12,9 +12,6 @@ import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.namespace.QName;
-import org.json.JSONObject;
-import org.alfresco.util.SerializationUtils;
 
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
@@ -315,11 +312,11 @@ public class EmailTest extends AbstractTestClass {
         StateReference stateRef = new StateReference();
         stateRef.parseRef(TestUtils.stateAccessRef);
         change.setState(stateRef);
-        //todo getApplicationBean().updateApplication(change);
+        getApplicationBean().updateApplication(change);
 
         //last ApplicationChange is a send email
-        //todo List<ApplicationChange> changes = getApplicationBean().getApplicationHistory(TestUtils.application1);
-        //todo assertEquals(APPLICATION_CHANGE_UPDATE_EMAIL, changes.get(changes.size() - 1).getChangeType());
+        List<ApplicationChange> changes = getApplicationBean().getApplicationHistory(TestUtils.application1);
+        assertEquals(APPLICATION_CHANGE_UPDATE_EMAIL, changes.get(changes.size() - 1).getChangeType());
     }
 
     public void testGetEmailTemplateFolder() throws Exception {

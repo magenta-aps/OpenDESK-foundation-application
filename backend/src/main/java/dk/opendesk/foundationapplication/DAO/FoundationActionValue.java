@@ -10,7 +10,6 @@ public class FoundationActionValue {
     private List<FoundationActionParameterValue> params;
 
     public FoundationActionValue() {
-
     }
 
     public FoundationActionValue(String name, FoundationActionParameterValue stateIdParam, FoundationActionParameterValue aspectParam, List<FoundationActionParameterValue> params) {

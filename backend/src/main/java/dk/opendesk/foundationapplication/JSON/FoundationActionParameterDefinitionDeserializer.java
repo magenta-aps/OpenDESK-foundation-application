@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
@@ -16,7 +15,6 @@ public class FoundationActionParameterDefinitionDeserializer extends JsonDeseria
 
     @Override
     public FoundationActionParameterDefinition deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-        ObjectMapper newMapper = new ObjectMapper();
         JsonNode node = jp.getCodec().readTree(jp);
         return getDeserializedFoundationActionParameterDefinition(node);
     }

@@ -1,7 +1,5 @@
 package dk.opendesk.foundationapplication.DAO;
 
-import org.alfresco.service.cmr.action.ParameterDefinition;
-
 import java.util.List;
 
 public class FoundationAction {
@@ -19,10 +17,6 @@ public class FoundationAction {
         this.stateIdParam = stateIdParam;
         this.aspectParam = aspect;
         this.params = params;
-        //params = new ArrayList<>();
-        //for (ParameterDefinition paramDef : parameterDefinitions) {
-        //    params.add(new FoundationActionParameterDefinition(paramDef));
-        //}
     }
 
     public String getName() {

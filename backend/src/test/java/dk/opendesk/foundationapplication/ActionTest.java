@@ -1,21 +1,15 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.*;
-import org.alfresco.repo.action.ParameterDefinitionImpl;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.Action;
-import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
-import org.json.JSONObject;
 import org.springframework.extensions.webscripts.Status;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -85,21 +79,21 @@ public class ActionTest extends AbstractTestClass {
 
 
         //testing wrong/missing state NodeRef
-        stateIdParamVal = new FoundationActionParameterValue(stateIdParam, "wrong state id");
+        stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, "wrong state id");
         foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
 
-        stateIdParamVal = new FoundationActionParameterValue(stateIdParam, null);
+        stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, null);
         foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
 
         //testing wrong/missing aspect name
-        stateIdParamVal = new FoundationActionParameterValue(stateIdParam, TestUtils.stateRecievedRef.getId());
-        aspectParamVal = new FoundationActionParameterValue(aspectParam, "wrong aspect");
+        stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, TestUtils.stateRecievedRef.getId());
+        aspectParamVal = new FoundationActionParameterValue<>(aspectParam, "wrong aspect");
         foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
 
-        aspectParamVal = new FoundationActionParameterValue(aspectParam, null);
+        aspectParamVal = new FoundationActionParameterValue<>(aspectParam, null);
         foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
     }

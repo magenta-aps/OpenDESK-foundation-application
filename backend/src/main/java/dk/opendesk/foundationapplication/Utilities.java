@@ -25,6 +25,8 @@ import dk.opendesk.foundationapplication.JSON.FoundationActionParameterDefinitio
 import dk.opendesk.foundationapplication.JSON.FoundationActionParameterDefinitionSerializer;
 import dk.opendesk.foundationapplication.JSON.FoundationActionParameterValueDeserializer;
 import dk.opendesk.foundationapplication.JSON.FoundationActionParameterValueSerializer;
+import dk.opendesk.foundationapplication.JSON.NodeRefDeserializer;
+import dk.opendesk.foundationapplication.JSON.NodeRefSerializer;
 import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
@@ -307,6 +309,8 @@ public final class Utilities {
         module.addDeserializer(FoundationActionParameterDefinition.class, new FoundationActionParameterDefinitionDeserializer());
         module.addSerializer(FoundationActionParameterValue.class, new FoundationActionParameterValueSerializer());
         module.addDeserializer(FoundationActionParameterValue.class, new FoundationActionParameterValueDeserializer());
+        module.addSerializer(NodeRef.class, new NodeRefSerializer());
+        module.addDeserializer(NodeRef.class, new NodeRefDeserializer());
         mapper.registerModule(module);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
