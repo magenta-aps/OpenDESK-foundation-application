@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -32,19 +33,31 @@ public class AuthorityBean extends FoundationBean{
     public static Set<String> getAllCreatedGroups(AuthorityService as){
         
         Set<String> toReturn = new HashSet<>();
-        try{
-            for(String group : as.findAuthorities(AuthorityType.GROUP, getGroup(PermissionGroup.SUPER, (String)null, true, as), false, null, null)){
+            try{
+                for(String group : as.findAuthorities(AuthorityType.GROUP, getGroup(PermissionGroup.SUPER, (String)null, true, as), false, null, null)){
                 toReturn.add(group);
             }
-            for(String group : as.findAuthorities(AuthorityType.GROUP, getGroup(PermissionGroup.SUPER, (String)null, false, as), false, null, null)){
-                toReturn.add(group);
-            }
-        }catch(AlfrescoRuntimeException ex){
+            }catch(InvalidNodeRefException ex){
+                
+            }catch(AlfrescoRuntimeException ex){
             //If the group doesn't exist, just skip. But if it is another exception, rethrow.
             if(!ex.getMsgId().equals(ERROR_GROUP_NOT_FOUND)){
                 throw ex;
             }
         }
+            try{
+                for(String group : as.findAuthorities(AuthorityType.GROUP, getGroup(PermissionGroup.SUPER, (String)null, false, as), false, null, null)){
+                toReturn.add(group);
+                }
+            }catch(InvalidNodeRefException ex){
+                
+            }catch(AlfrescoRuntimeException ex){
+            //If the group doesn't exist, just skip. But if it is another exception, rethrow.
+            if(!ex.getMsgId().equals(ERROR_GROUP_NOT_FOUND)){
+                throw ex;
+            }
+        }
+           
         
         return toReturn;
     }
@@ -152,7 +165,7 @@ public class AuthorityBean extends FoundationBean{
         String groupName = as.getName(AuthorityType.GROUP, shortName);
         if(!as.authorityExists(groupName)){
             String newGroupName = as.createAuthority(AuthorityType.GROUP, shortName);
-            getLogger().info("Created new group: "+newGroupName);
+            getLogger().debug("Created new group: "+newGroupName);
             if(!newGroupName.equals(groupName)){
                 //If this happens, group names are not created as we expect.
                 throw new RuntimeException("A group was created with an unexpected name");

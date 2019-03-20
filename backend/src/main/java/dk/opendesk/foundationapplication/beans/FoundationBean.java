@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
  */
 public class FoundationBean {
 
-    private final Logger logger = Logger.getLogger(FoundationBean.class);
+    private final Logger logger = Logger.getLogger(getClass());
 
     public final String ONLY_ONE_REFERENCE = "odf.one.ref.requred";
     public final String INVALID_STATE = "odf.bad.state";

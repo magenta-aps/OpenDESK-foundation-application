@@ -43,6 +43,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.search.SearchService;
+import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.Pair;
@@ -209,10 +210,15 @@ public final class Utilities {
         
         workflowBean.setApplicationBean(applicationBean);
         workflowBean.setAuthBean(authBean);
-        
-        authBean.getAllCreatedGroups();
-        
+                
         NodeRef dataRef = applicationBean.getDataHome();
+        
+        AuthorityService as = serviceRegistry.getAuthorityService();
+        for(String group : AuthorityBean.getAllCreatedGroups(as)){
+            if(as.authorityExists(group)){
+                as.deleteAuthority(group, true);
+            }
+        }
 
         for (NodeRef workflow : workflowBean.getWorkflows()) {
             nodeService.removeChild(dataRef, workflow);

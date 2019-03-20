@@ -54,7 +54,7 @@ public class StateTest extends AbstractTestClass{
     }
 
     public void testGetStateActions() throws Exception {
-        NodeRef stateRef = TestUtils.stateAcceptedRef;
+        NodeRef stateRef = TestUtils.w1StateAcceptedRef;
         QName aspect = Utilities.getODFName(Utilities.ASPECT_ON_CREATE);
         Map<String, Serializable> params = new HashMap<>();
         params.put("cc","te@st.com");

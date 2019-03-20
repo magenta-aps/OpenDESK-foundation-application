@@ -254,7 +254,7 @@ public class EmailTest extends AbstractTestClass {
 
         //saving action
         JSONObject data = new JSONObject();
-        data.put("stateRef", TestUtils.stateAccessRef);
+        data.put("stateRef", TestUtils.w1StateAccessRef);
         data.put("aspect", ASPECT_ON_CREATE);
         data.put("subject", "testEmailSavedToHistory");
         data.put(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
@@ -264,7 +264,7 @@ public class EmailTest extends AbstractTestClass {
         Application change = new Application();
         change.parseRef(TestUtils.application1);
         StateReference stateRef = new StateReference();
-        stateRef.parseRef(TestUtils.stateAccessRef);
+        stateRef.parseRef(TestUtils.w1StateAccessRef);
         change.setState(stateRef);
         getApplicationBean().updateApplication(change);
 

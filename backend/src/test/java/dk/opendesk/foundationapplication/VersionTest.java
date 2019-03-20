@@ -76,14 +76,14 @@ public class VersionTest extends AbstractTestClass {
         Application change2 = new Application();
         change2.parseRef(appRef);
         StateReference stateAssess = new StateReference();
-        stateAssess.parseRef(TestUtils.stateAccessRef);
+        stateAssess.parseRef(TestUtils.w1StateAccessRef);
         change2.setState(stateAssess);
         getApplicationBean().updateApplication(change2);
 
         //There should now be two versions in the history and the newest on should be on state 'assess' and with desc = 'First change'
         headVersion = getApplicationBean().getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(3, versionService.getVersionHistory(appRef).getAllVersions().size());
-        assertEquals(TestUtils.stateAccessRef, headVersion.getState().asNodeRef());
+        assertEquals(TestUtils.w1StateAccessRef, headVersion.getState().asNodeRef());
         assertEquals("First change", headVersion.emailTo().getValue());
 
         if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
@@ -96,19 +96,19 @@ public class VersionTest extends AbstractTestClass {
                 .changeField("8").setValue("Third change").done()
                 .build();
         StateReference stateAccepted = new StateReference();
-        stateAccepted.parseRef(TestUtils.stateAcceptedRef);
+        stateAccepted.parseRef(TestUtils.w1StateAcceptedRef);
         change3.setState(stateAccepted);
         getApplicationBean().updateApplication(change3);
 
         //There should now be three versions and the newest one should be on state 'accepted' and have description = 'Third change'
         headVersion = getApplicationBean().getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(4, versionService.getVersionHistory(appRef).getAllVersions().size());
-        assertEquals(TestUtils.stateAcceptedRef, headVersion.getState().asNodeRef());
+        assertEquals(TestUtils.w1StateAcceptedRef, headVersion.getState().asNodeRef());
         assertEquals("Third change", headVersion.emailTo().getValue());
 
         //Current version should be on state 'accepted' and have description = 'Third change'
         Application currentVersion = getApplicationBean().getApplication(appRef);
-        assertEquals(TestUtils.stateAcceptedRef, currentVersion.getState().asNodeRef());
+        assertEquals(TestUtils.w1StateAcceptedRef, currentVersion.getState().asNodeRef());
         assertEquals("Third change", currentVersion.emailTo().getValue());
 
         if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));

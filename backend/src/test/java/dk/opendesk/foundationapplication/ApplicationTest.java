@@ -14,7 +14,6 @@ import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
-import static dk.opendesk.foundationapplication.TestUtils.stateAccessRef;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import java.time.Duration;
@@ -28,6 +27,7 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import static dk.opendesk.foundationapplication.TestUtils.w1StateAccessRef;
 
 /**
  *
@@ -119,8 +119,8 @@ public class ApplicationTest extends AbstractTestClass{
     }
     public void testGetApplicationState() throws Exception{
         Application application = getApplicationBean().getApplication(TestUtils.application1);
-        assertEquals(TestUtils.stateRecievedRef,application.getState().asNodeRef());
-        assertEquals(TestUtils.workFlowRef,application.getWorkflow().asNodeRef());
+        assertEquals(TestUtils.w1StateRecievedRef,application.getState().asNodeRef());
+        assertEquals(TestUtils.workFlowRef1,application.getWorkflow().asNodeRef());
     }
     
     
@@ -142,13 +142,13 @@ public class ApplicationTest extends AbstractTestClass{
         Application change = new Application();
         change.parseRef(app2Ref);
         StateReference newStateRef = new StateReference();
-        newStateRef.parseRef(stateAccessRef);
+        newStateRef.parseRef(w1StateAccessRef);
         change.setState(newStateRef);
         post(change, app2Ref.getId());
         
         Application app = get(Application.class, app2Ref.getId());
         assertEquals(currentBudgetRef, app.getBudget().asNodeRef());
-        assertEquals(stateAccessRef, app.getState().asNodeRef());
+        assertEquals(w1StateAccessRef, app.getState().asNodeRef());
         currentBudget = getBudgetBean().getBudget(currentBudgetRef);
         newBudget = getBudgetBean().getBudget(newBudgetRef);
         
@@ -186,30 +186,30 @@ public class ApplicationTest extends AbstractTestClass{
         Application change = new Application();
         change.parseRef(appRef);
         BranchSummary ref = new BranchSummary();
-        ref.parseRef(TestUtils.branchRef);
+        ref.parseRef(TestUtils.branchRef1);
         change.setBranchSummary(ref);
         post(change, app.getNodeID());
         
         app = get(Application.class, appRef.getId());
-        assertEquals(TestUtils.branchRef, app.getBranchSummary().asNodeRef());
-        assertEquals(TestUtils.stateRecievedRef, app.getState().asNodeRef());
+        assertEquals(TestUtils.branchRef1, app.getBranchSummary().asNodeRef());
+        assertEquals(TestUtils.w1StateRecievedRef, app.getState().asNodeRef());
     }
     
     public void testChangeState() throws Exception {
         NodeRef appRef = TestUtils.application2;
         Application app = get(Application.class, appRef.getId());
 
-        assertEquals(TestUtils.stateRecievedRef, app.getState().asNodeRef());
+        assertEquals(TestUtils.w1StateRecievedRef, app.getState().asNodeRef());
 
         Application change = new Application();
         change.parseRef(appRef);
         StateReference ref = new StateReference();
-        ref.parseRef(TestUtils.stateAccessRef);
+        ref.parseRef(TestUtils.w1StateAccessRef);
         change.setState(ref);
         post(change, app.getNodeID());
         
         app = get(Application.class, appRef.getId());
-        assertEquals(TestUtils.stateAccessRef, app.getState().asNodeRef());
+        assertEquals(TestUtils.w1StateAccessRef, app.getState().asNodeRef());
     }
     
 
@@ -403,15 +403,15 @@ public class ApplicationTest extends AbstractTestClass{
     public void testGetApplications() throws Exception {
         List<ApplicationSummary> allApplications = get(List.class, ApplicationSummary.class);
         assertEquals(3, allApplications.size());
-        List<ApplicationSummary> branchApplications = get(List.class, ApplicationSummary.class, "?branchID="+TestUtils.branchRef.getId());
+        List<ApplicationSummary> branchApplications = get(List.class, ApplicationSummary.class, "?branchID="+TestUtils.branchRef1.getId());
         assertEquals(2, branchApplications.size());
         List<ApplicationSummary> budget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId());
         assertEquals(2, budget1Applications.size());
         List<ApplicationSummary> budget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId());
         assertEquals(0, budget2Applications.size());
-        List<ApplicationSummary> branchbudget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId()+"&branchID="+TestUtils.branchRef.getId());
+        List<ApplicationSummary> branchbudget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId()+"&branchID="+TestUtils.branchRef1.getId());
         assertEquals(2, branchbudget1Applications.size());
-        List<ApplicationSummary> branchbudget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId()+"&branchID="+TestUtils.branchRef.getId());
+        List<ApplicationSummary> branchbudget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId()+"&branchID="+TestUtils.branchRef1.getId());
         assertEquals(0, branchbudget2Applications.size());
         
         Application change = Utilities.buildChange(getApplicationBean().getApplication(TestUtils.application1)).setBudget(TestUtils.budgetRef2).build();
@@ -421,9 +421,9 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals(1, budget1Applications.size());
         budget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId());
         assertEquals(1, budget2Applications.size());
-        branchbudget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId()+"&branchID="+TestUtils.branchRef.getId());
+        branchbudget1Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef1.getId()+"&branchID="+TestUtils.branchRef1.getId());
         assertEquals(1, branchbudget1Applications.size());
-        branchbudget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId()+"&branchID="+TestUtils.branchRef.getId());
+        branchbudget2Applications = get(List.class, ApplicationSummary.class, "?budgetID="+TestUtils.budgetRef2.getId()+"&branchID="+TestUtils.branchRef1.getId());
         assertEquals(1, branchbudget2Applications.size());
         
     }

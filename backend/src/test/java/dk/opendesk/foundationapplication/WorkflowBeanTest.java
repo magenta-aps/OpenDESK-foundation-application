@@ -80,7 +80,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         assertNotNull("Data node should have been bootstrapped", dataNode);
 
         //Exactly one branch has been created
-        List<NodeRef> branchRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BRANCH_NAME, null, serviceRegistry.getNamespaceService(), false);
+        List<NodeRef> branchRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BRANCH_NAME1, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, branchRefs.size());
 
         //Exactly one budget years has been created
@@ -95,7 +95,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         assertEquals(1, budget2Refs.size());
 
         //Exactly one workflow has been created
-        List<NodeRef> workflowRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.WORKFLOW_NAME, null, serviceRegistry.getNamespaceService(), false);
+        List<NodeRef> workflowRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.SHARED_WORKFLOW_NAME, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, workflowRefs.size());
 
         List<ChildAssociationRef> applicationsRefs = serviceRegistry.getNodeService().getChildAssocs(getDataDictionaryRef(), getODFName(DATA_ASSOC_APPLICATIONS), null);
@@ -209,7 +209,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         StoreRef store = StoreRef.STORE_REF_WORKSPACE_SPACESSTORE;
         NodeRef rootRef = serviceRegistry.getNodeService().getRootNode(store);
 
-        List<NodeRef> refs = serviceRegistry.getSearchService().selectNodes(rootRef, InitialStructure.DATA_PATH + "/" + FOUNDATION_TAG + ":" + TestUtils.BRANCH_NAME, null, serviceRegistry.getNamespaceService(), false);
+        List<NodeRef> refs = serviceRegistry.getSearchService().selectNodes(rootRef, InitialStructure.DATA_PATH + "/" + FOUNDATION_TAG + ":" + TestUtils.BRANCH_NAME1, null, serviceRegistry.getNamespaceService(), false);
         if (refs.size() != 1) {
             throw new AlfrescoRuntimeException("Failed to apply patch: Returned multiple refs for " + DICTIONARY_PATH);
         }

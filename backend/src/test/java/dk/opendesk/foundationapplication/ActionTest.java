@@ -19,7 +19,7 @@ public class ActionTest extends AbstractTestClass {
     public ActionTest() {
         super("/foundation/action");
     }
-
+    
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -47,12 +47,12 @@ public class ActionTest extends AbstractTestClass {
     public void testSaveAction() throws Exception {
 
         JSONObject data = new JSONObject();
-        data.put("stateRef", TestUtils.stateRecievedRef);
+        data.put("stateRef", TestUtils.w1StateRecievedRef);
         data.put("aspect", ASPECT_ON_CREATE);
         data.put("cc", "test@test.dk"); //TODO make sure only real email adresses can be set as parameters
         post(data, ACTION_NAME_EMAIL);
 
-        List<Action> actions = getServiceRegistry().getActionService().getActions(TestUtils.stateRecievedRef);
+        List<Action> actions = getServiceRegistry().getActionService().getActions(TestUtils.w1StateRecievedRef);
         for (Action act : actions) {
             if (act.getActionDefinitionName().equals(ACTION_NAME_EMAIL)) {
 
@@ -70,7 +70,7 @@ public class ActionTest extends AbstractTestClass {
         post(data, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
 
         //testing wrong aspect name
-        data.put("stateRef", TestUtils.stateRecievedRef);
+        data.put("stateRef", TestUtils.w1StateRecievedRef);
         data.put("aspect", "totallyWrongAspect");
         post(data, ACTION_NAME_EMAIL, Status.STATUS_BAD_REQUEST);
     }
@@ -82,12 +82,12 @@ public class ActionTest extends AbstractTestClass {
 
         //saving actions to state 'received'
         JSONObject dataForEnterAction = new JSONObject();
-        dataForEnterAction.put("stateRef", TestUtils.stateAccessRef);
+        dataForEnterAction.put("stateRef", TestUtils.w1StateAccessRef);
         dataForEnterAction.put("aspect", ASPECT_ON_CREATE);
         dataForEnterAction.put("executionMessage", "enterAction executed");
 
         JSONObject dataForExitAction = new JSONObject();
-        dataForExitAction.put("stateRef", TestUtils.stateAccessRef);
+        dataForExitAction.put("stateRef", TestUtils.w1StateAccessRef);
         dataForExitAction.put("aspect", ASPECT_BEFORE_DELETE);
         dataForExitAction.put("executionMessage", "exitAction executed");
 
@@ -99,7 +99,7 @@ public class ActionTest extends AbstractTestClass {
         Application change = new Application();
         change.parseRef(appRef);
         StateReference ref = new StateReference();
-        ref.parseRef(TestUtils.stateAccessRef);
+        ref.parseRef(TestUtils.w1StateAccessRef);
         change.setState(ref);
         getApplicationBean().updateApplication(change);
         Application app = getApplicationBean().getApplication(appRef);
@@ -108,7 +108,7 @@ public class ActionTest extends AbstractTestClass {
         assertEquals("enterAction executed",app.emailTo().getValue());
 
         //changing the application out of the assessment state
-        ref.parseRef(TestUtils.stateAcceptedRef);
+        ref.parseRef(TestUtils.w1StateAcceptedRef);
         change.setState(ref);
         getApplicationBean().updateApplication(change);
         app = getApplicationBean().getApplication(appRef);
