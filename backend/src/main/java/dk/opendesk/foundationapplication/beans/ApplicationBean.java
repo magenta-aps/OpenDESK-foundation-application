@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.alfresco.model.ContentModel.TYPE_FOLDER;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -609,7 +611,7 @@ public class ApplicationBean extends FoundationBean{
      * @return A List of email NodeRefs
      */
     public List<NodeRef> getApplicationEmails(NodeRef applicationRef) throws Exception {
-        NodeRef emailFolder = actionBean.getOrCreateEmailFolder(applicationRef);
+        NodeRef emailFolder = getOrCreateEmailFolder(applicationRef);
 
         List<NodeRef> emailRefs = new ArrayList<>();
 
@@ -654,4 +656,60 @@ public class ApplicationBean extends FoundationBean{
         return changes;
     }
 
+    /**
+     * Gets the email folder for an application or creates it if it does not
+     * exists.
+     *
+     * @param applicationRef Application nodeRef
+     * @return Email folder nodeRef
+     * @throws Exception if there are more than one email folder on the
+     * application.
+     */
+    public NodeRef getOrCreateEmailFolder(NodeRef applicationRef) throws Exception {
+        return getOrCreateSingleFolder(applicationRef, "email");
+    }
+
+
+    /**
+     * Gets the document folder for an application or creates it if it does not
+     * exists.
+     *
+     * @param applicationRef Application nodeRef
+     * @return Document folder nodeRef
+     * @throws Exception if there are more than one document folder on the
+     * application.
+     */
+    public NodeRef getOrCreateDocumentFolder(NodeRef applicationRef) throws Exception {
+        return getOrCreateSingleFolder(applicationRef, "doc");
+    }
+
+
+    public NodeRef getOrCreateSingleFolder(NodeRef parentRef, String folderType) throws Exception {
+        NodeRef folderRef;
+        String folderName;
+
+        switch (folderType) {
+            case "email":
+                folderName = APPLICATION_FOLDER_EMAIL;
+                break;
+            case "doc":
+                folderName = APPLICATION_FOLDER_DOCUMENT;
+                break;
+            default:
+                throw new Exception("folderType " + folderType + " not valid");
+        }
+
+        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(parentRef, Utilities.getODFName(folderName), null);
+
+        if (childAssociationRefs.size() == 0) {
+            folderRef = getServiceRegistry().getNodeService().createNode(parentRef, getODFName(folderName), getCMName(folderName), TYPE_FOLDER).getChildRef();
+        } else if (childAssociationRefs.size() == 1) {
+            folderRef = childAssociationRefs.get(0).getChildRef();
+        } else {
+            throw new Exception("More than one folder of type " + folderName + " created on application " + parentRef);
+        }
+
+        return folderRef;
+
+    }
 }

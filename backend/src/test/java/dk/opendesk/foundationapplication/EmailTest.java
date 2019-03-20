@@ -226,12 +226,12 @@ public class EmailTest extends AbstractTestClass {
         assertEquals(0, childAssociationRefs.size());
 
         //one email folder
-        getActionBean().getOrCreateEmailFolder(TestUtils.application1);
+        getApplicationBean().getOrCreateEmailFolder(TestUtils.application1);
         childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_EMAIL), null);
         assertEquals(1, childAssociationRefs.size());
 
         //still one email folder
-        getActionBean().getOrCreateEmailFolder(TestUtils.application1);
+        getApplicationBean().getOrCreateEmailFolder(TestUtils.application1);
         childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_EMAIL), null);
         assertEquals(1, childAssociationRefs.size());
 
@@ -244,7 +244,7 @@ public class EmailTest extends AbstractTestClass {
         assertEquals(0, emails.size());
 
         //one email
-        NodeRef emailFolderRef = getActionBean().getOrCreateEmailFolder(TestUtils.application1);
+        NodeRef emailFolderRef = getApplicationBean().getOrCreateEmailFolder(TestUtils.application1);
         getServiceRegistry().getNodeService().createNode(emailFolderRef, ASSOC_CONTAINS,
                 getCMName("test"), TYPE_CONTENT).getChildRef();
         emails = getApplicationBean().getApplicationEmails(TestUtils.application1);
@@ -264,7 +264,7 @@ public class EmailTest extends AbstractTestClass {
     public void testGetEmail() throws Exception {
 
         //writing a test email
-        NodeRef emailFolderRef = getActionBean().getOrCreateEmailFolder(TestUtils.application1);
+        NodeRef emailFolderRef = getApplicationBean().getOrCreateEmailFolder(TestUtils.application1);
         NodeRef emailRef = getServiceRegistry().getNodeService().createNode(emailFolderRef, ASSOC_CONTAINS,
                 getCMName("test"), TYPE_CONTENT).getChildRef();
         ContentWriter writer = getServiceRegistry().getFileFolderService().getWriter(emailRef);

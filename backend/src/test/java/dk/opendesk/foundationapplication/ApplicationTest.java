@@ -438,12 +438,12 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals(0, childAssociationRefs.size());
 
         //one document folder
-        NodeRef folderRefFirstTime = getActionBean().getOrCreateDocumentFolder(TestUtils.application1);
+        NodeRef folderRefFirstTime = getApplicationBean().getOrCreateDocumentFolder(TestUtils.application1);
         childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_DOCUMENT), null);
         assertEquals(1, childAssociationRefs.size());
 
         //still one document folder
-        NodeRef folderRefSecondTime = getActionBean().getOrCreateDocumentFolder(TestUtils.application1);
+        NodeRef folderRefSecondTime = getApplicationBean().getOrCreateDocumentFolder(TestUtils.application1);
         childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_DOCUMENT), null);
         assertEquals(1, childAssociationRefs.size());
 

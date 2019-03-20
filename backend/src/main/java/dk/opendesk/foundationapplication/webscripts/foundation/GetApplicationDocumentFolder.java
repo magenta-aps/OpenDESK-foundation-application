@@ -12,6 +12,6 @@ public class GetApplicationDocumentFolder extends JacksonBackedWebscript {
         String applicationID = getUrlParams().get("applicationID");
         Reference ref = new Reference();
         ref.setNodeID(applicationID);
-        return getActionBean().getOrCreateDocumentFolder(ref.asNodeRef()).getId();
+        return getApplicationBean().getOrCreateDocumentFolder(ref.asNodeRef()).getId();
     }
 }
