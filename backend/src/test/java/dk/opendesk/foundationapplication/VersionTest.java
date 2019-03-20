@@ -163,19 +163,36 @@ public class VersionTest extends AbstractTestClass {
 
         //todo: det følgende fejler pga noget jackson
         // --- TESTING THE WEBSCRIPT --- //
-        List<ApplicationChange> changeLists = get(List.class, ApplicationChange.class, appRef+"/history");
+        List<ApplicationChange> changeLists = get(List.class, ApplicationChange.class, appRef+"/history");//todo rename to changeList
 
         System.out.println("****************************************");
         System.out.println(changeLists);
-        /*
-        //Testing the changes made when creating the original version
-        ApplicationChange changeList = changeLists.get(3);
-        assertEquals("admin", changeList.getModifier());
-        assertEquals(getServiceRegistry().getPersonService().getPerson("admin").toString(), changeList.getModifierId());
-        List<ApplicationChangeUnit> appChangesWeb = changeList.getChanges();
-        assertEquals(APPLICATION_CHANGE_CREATED, appChangesWeb.get(0).getChangeType());
-        assertEquals(null, appChangesWeb.get(0).getOldValue());
 
+        //Testing the changes made when creating the original version
+        ApplicationChange applicationChange = changeLists.get(0);
+        assertEquals(APPLICATION_CHANGE_CREATED, applicationChange.getChangeType());
+        assertEquals("admin", applicationChange.getModifier());
+        assertEquals(getServiceRegistry().getPersonService().getPerson("admin").toString(), applicationChange.getModifierId());
+
+        List<ApplicationChangeUnit> appChangesWeb = applicationChange.getChanges();
+        ApplicationChangeUnit descriptionChangeUnit = null;
+        ApplicationChangeUnit stateChangeUnit = null;
+        for (ApplicationChangeUnit unit : appChangesWeb) {
+            if (unit.getChangedField().equals("Short Description")) {
+                descriptionChangeUnit = unit;
+            }
+            if (unit.getChangedField().equals("State")) {
+                stateChangeUnit = unit;
+            }
+        }
+        assertNotNull(descriptionChangeUnit);
+        assertNotNull(stateChangeUnit);
+        assertEquals(null, descriptionChangeUnit.getOldValue());
+        assertEquals(null, stateChangeUnit.getOldValue());
+        assertEquals(APPLICATION_CHANGE_UPDATE_PROP, descriptionChangeUnit.getChangeType());
+        assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, stateChangeUnit.getChangeType());
+
+        /*
         //Testing the first change
         List<ApplicationChangeUnit> changeUnits = changeLists.get(2).getChanges();
         assertEquals(1, changeUnits.size());

@@ -156,7 +156,8 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
                 } else if (returnData instanceof JSONArray) {
                     ((JSONArray) returnData).writeJSONString(res.getWriter());
                 } else {
-                    mapper.writerWithDefaultPrettyPrinter().writeValue(res.getWriter(), returnData);
+                    String result = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(returnData);
+                    res.getWriter().write(result);
                 }
             }
         } catch (Exception e) {

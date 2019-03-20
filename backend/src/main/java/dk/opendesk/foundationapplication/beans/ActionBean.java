@@ -129,7 +129,7 @@ public class ActionBean extends FoundationBean{
         Application newApp = applicationBean.getApplication(newVersion.getFrozenStateNodeRef());
         Application oldApp = (oldVersion == null) ? null : applicationBean.getApplication(oldVersion.getFrozenStateNodeRef());
 
-        return new ApplicationChange().setChangeType(changeType).setTimeStamp(timeStamp).setModifier(modifier).setModifierId(modifierId).setChangeList(applicationBean.getApplicationDifference(oldApp, newApp));
+        return new ApplicationChange().setChangeType(changeType).setTimeStamp(timeStamp).setModifier(modifier).setModifierIdWithNodeRef(modifierId).setChangeList(applicationBean.getApplicationDifference(oldApp, newApp));
     }
     
     /**

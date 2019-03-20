@@ -523,10 +523,10 @@ public class ApplicationBean extends FoundationBean{
                 ApplicationPropertyValue newValueField = newVersionProperties.get(key);
                 if (newValueField != null) {
                     if (!Objects.equals(oldValueField.getValue(), newValueField.getValue())) {
-                        changes.add(new ApplicationChangeUnit().setChangedField(oldValueField.getLabel()).setOldValue(oldValueField.getValue()).setNewValue(newValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
+                        changes.add(new ApplicationChangeUnit().setChangedField(oldValueField.getLabel()).setOldValueWithObject(oldValueField.getValue()).setNewValueWithObject(newValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
                     }
                 } else {
-                    changes.add(new ApplicationChangeUnit().setChangedField(oldValueField.getLabel()).setOldValue(oldValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
+                    changes.add(new ApplicationChangeUnit().setChangedField(oldValueField.getLabel()).setOldValueWithObject(oldValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
                 }
                 newVersionProperties.remove(key);
             }
@@ -534,7 +534,7 @@ public class ApplicationBean extends FoundationBean{
 
         for (String key : newVersionProperties.keySet()) {
             ApplicationPropertyValue newValueField = newVersionProperties.get(key);
-            changes.add(new ApplicationChangeUnit().setChangedField(newValueField.getLabel()).setNewValue(newValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
+            changes.add(new ApplicationChangeUnit().setChangedField(newValueField.getLabel()).setNewValueWithObject(newValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
         }
 
         if (oldVersion != null) {
@@ -638,7 +638,7 @@ public class ApplicationBean extends FoundationBean{
         //getting emails
         for (NodeRef ref : getApplicationEmails(appRef)) {
             ApplicationChangeUnit unit = new ApplicationChangeUnit()
-                    .setNewValue(ref)
+                    .setNewValueWithObject(ref)
                     .setChangeType(APPLICATION_CHANGE_UPDATE_EMAIL)
                     .setNewValueLink("/foundation/application/" + appRef.getId() + "/email/" + ref.getId()); //TODO er dette det rigtige link?
             Date timeStamp = getServiceRegistry().getFileFolderService().getFileInfo(ref).getCreatedDate();
