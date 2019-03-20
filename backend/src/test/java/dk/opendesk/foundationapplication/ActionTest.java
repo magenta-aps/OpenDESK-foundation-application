@@ -81,7 +81,7 @@ public class ActionTest extends AbstractTestClass {
         assertTrue(aspects.contains(Utilities.getODFName(ASPECT_ON_CREATE)));
 
         //testing the parameter is set on the action
-        assertEquals(savedEmailAction.getParameterValue("cc"), "test@test.dk");
+        assertEquals("test@test.dk", savedEmailAction.getParameterValue("cc"));
 
 
         //testing wrong/missing state NodeRef

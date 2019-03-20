@@ -9,12 +9,12 @@ public class FoundationAction {
     private String name;
     private FoundationActionParameterDefinition stateIdParam;
     private FoundationActionParameterDefinition aspectParam;
-    private List<ParameterDefinition> params;
+    private List<FoundationActionParameterDefinition> params;
 
     public FoundationAction() {
     }
 
-    public FoundationAction(String name, FoundationActionParameterDefinition stateIdParam, FoundationActionParameterDefinition aspect, List<ParameterDefinition> params) {
+    public FoundationAction(String name, FoundationActionParameterDefinition stateIdParam, FoundationActionParameterDefinition aspect, List<FoundationActionParameterDefinition> params) {
         this.name = name;
         this.stateIdParam = stateIdParam;
         this.aspectParam = aspect;
@@ -49,11 +49,11 @@ public class FoundationAction {
         this.aspectParam = aspectParam;
     }
 
-    public List<ParameterDefinition> getParams() {
+    public List<FoundationActionParameterDefinition> getParams() {
         return params;
     }
 
-    public void setParams(List<ParameterDefinition> params) {
+    public void setParams(List<FoundationActionParameterDefinition> params) {
         this.params = params;
     }
 

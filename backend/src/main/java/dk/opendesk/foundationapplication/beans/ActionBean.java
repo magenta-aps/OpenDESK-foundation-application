@@ -7,6 +7,8 @@ package dk.opendesk.foundationapplication.beans;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationChange;
+import dk.opendesk.foundationapplication.DAO.FoundationAction;
+import dk.opendesk.foundationapplication.DAO.FoundationActionParameterDefinition;
 import dk.opendesk.foundationapplication.DAO.FoundationActionParameterValue;
 import dk.opendesk.foundationapplication.DAO.JSONAction;
 import dk.opendesk.foundationapplication.DAO.Reference;
@@ -69,9 +71,13 @@ public class ActionBean extends FoundationBean{
 
     
     
-    public List<ParameterDefinition> getActionParameters(String actionBeanName) {
+    public List<FoundationActionParameterDefinition> getActionParameters(String actionBeanName) {
+        List<FoundationActionParameterDefinition> toReturn = new ArrayList<>();
         ActionDefinition actionDefinition = getServiceRegistry().getActionService().getActionDefinition(actionBeanName);
-        return actionDefinition.getParameterDefinitions();
+        for (ParameterDefinition paramDef : actionDefinition.getParameterDefinitions()) {
+            toReturn.add(new FoundationActionParameterDefinition(paramDef));
+        }
+        return toReturn;
     }
 
     public ActionDefinition getAction(String actionName) {
@@ -81,15 +87,15 @@ public class ActionBean extends FoundationBean{
     public void saveAction(String actionName, NodeRef stateRef, QName aspect, List<FoundationActionParameterValue> params) {
         HashMap<String, Serializable> paramMap = new HashMap<>();
         for (FoundationActionParameterValue param : params) {
-            if (param.getType().equals(DataTypeDefinition.NODE_REF)) {
-                if (param.getJavaType() == String.class) {
-                    paramMap.put(param.getName(), Reference.refFromID((String) param.getValue()));
-                } else {
-                    throw new AlfrescoRuntimeException(TYPE_EXCEPTION);
-                }
-            } else {
-                //todo paramMap.put(param.getName(), param.getValue());
-            }
+            //if (param.getType().equals(DataTypeDefinition.NODE_REF)) {
+            //    if (param.getJavaType() == String.class) {
+            //        paramMap.put(param.getName(), Reference.refFromID((String) param.getValue()));
+            //    } else {
+            //        throw new AlfrescoRuntimeException(TYPE_EXCEPTION);
+            //    }
+            //} else {
+                paramMap.put(param.getName(), (Serializable) param.getValue());
+            //}
         }
         saveAction(actionName, stateRef, aspect, paramMap);
     }

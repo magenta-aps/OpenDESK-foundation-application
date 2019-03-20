@@ -296,7 +296,7 @@ public class EmailTest extends AbstractTestClass {
         FoundationActionParameterDefinition<String> aspectParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, String.class, true, null);
         FoundationActionParameterDefinition<String > msgParam = new FoundationActionParameterDefinition<>(PARAM_SUBJECT, DataTypeDefinition.TEXT, String.class, true, null);
         FoundationActionParameterDefinition<NodeRef> templateParam = new FoundationActionParameterDefinition<>(PARAM_TEMPLATE, DataTypeDefinition.NODE_REF, NodeRef.class, true, null);
-        FoundationActionParameterDefinition templateModel = new FoundationActionParameterDefinition<>(PARAM_TEMPLATE_MODEL, DataTypeDefinition.ANY, HashMap.class, false, null);
+        FoundationActionParameterDefinition<HashMap> templateModel = new FoundationActionParameterDefinition<>(PARAM_TEMPLATE_MODEL, DataTypeDefinition.ANY, HashMap.class, false, null);
 
         FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, TestUtils.stateAccessRef.getId());
         FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue<>(aspectParam, ASPECT_ON_CREATE);
@@ -304,7 +304,7 @@ public class EmailTest extends AbstractTestClass {
         List<FoundationActionParameterValue> params = new ArrayList<>();
         params.add(new FoundationActionParameterValue<>(msgParam, "testEmailSavedToHistory"));
         params.add(new FoundationActionParameterValue<>(templateParam, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME)));
-        //todo params.add(new FoundationActionParameterValue(templateModel, emptyStringModel));
+        params.add(new FoundationActionParameterValue<>(templateModel, emptyStringModel));
 
         FoundationActionValue foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
         post(foundationActionValue, "/action/" + ACTION_NAME_EMAIL);

@@ -9,12 +9,21 @@ public class FoundationActionParameterDefinition<T> implements ParameterDefiniti
     private String name;
     private QName type;
     private Class<T> javaType;
-    private Boolean isMultiValued;
-    private Boolean isMandatory;
+    private boolean isMultiValued;
+    private boolean isMandatory;
     private String displayLabel;
     private String parameterConstraintName;
 
     public FoundationActionParameterDefinition() {}
+
+    public FoundationActionParameterDefinition(ParameterDefinition paramDef) {
+        if (paramDef.getName() != null) this.name = paramDef.getName();
+        if (paramDef.getType() != null) this.type = paramDef.getType();
+        this.isMultiValued = paramDef.isMultiValued();
+        this.isMandatory = paramDef.isMandatory();
+        if (paramDef.getDisplayLabel() != null) this.displayLabel = paramDef.getDisplayLabel();
+        if (paramDef.getParameterConstraintName() != null) this.parameterConstraintName = paramDef.getParameterConstraintName();
+    }
 
     /**
      * Constructor
@@ -92,11 +101,11 @@ public class FoundationActionParameterDefinition<T> implements ParameterDefiniti
         this.javaType = javaType;
     }
 
-    public void setMultiValued(Boolean multiValued) {
+    public void setMultiValued(boolean multiValued) {
         isMultiValued = multiValued;
     }
 
-    public void setMandatory(Boolean mandatory) {
+    public void setMandatory(boolean mandatory) {
         isMandatory = mandatory;
     }
 

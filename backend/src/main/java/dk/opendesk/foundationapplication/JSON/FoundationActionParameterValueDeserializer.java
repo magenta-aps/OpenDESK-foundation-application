@@ -17,16 +17,16 @@ public class FoundationActionParameterValueDeserializer extends JsonDeserializer
     @Override
     public FoundationActionParameterValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         ObjectMapper newMapper = new ObjectMapper();
-        try {
+        JsonNode node = jp.getCodec().readTree(jp);
+        //try {
             FoundationActionParameterDefinitionDeserializer deserializer = new FoundationActionParameterDefinitionDeserializer();
-            FoundationActionParameterDefinition parameterDefinition = deserializer.deserialize(jp, ctxt);
+            FoundationActionParameterDefinition parameterDefinition = deserializer.getDeserializedFoundationActionParameterDefinition(node);
 
             FoundationActionParameterValue toReturn = new FoundationActionParameterValue<>(parameterDefinition);
-            JsonNode node = jp.getCodec().readTree(jp);
 
-            if (node.has("javaType")) {
-                String typeString = node.get("javaType").asText();
-                Class type = Class.forName(typeString);
+            if (toReturn.getJavaType() != null) {
+                Class type = toReturn.getJavaType();
+                //Class type = Class.forName(typeString);
                 toReturn.setJavaType(type);
                 if (node.has("value")) {
                     if (type.isAssignableFrom(String.class)) {
@@ -40,11 +40,11 @@ public class FoundationActionParameterValueDeserializer extends JsonDeserializer
                 }
 
             }
-            return null;
-        } catch (ClassNotFoundException e) {
-            //todo Logger.getLogger(getClass()).
-            return null;
-        }
+            return toReturn;
+        //} catch (ClassNotFoundException e) {
+        //    //todo Logger.getLogger(getClass()).
+        //    return null;
+        //}
     }
 
     @Override

@@ -17,9 +17,13 @@ public class FoundationActionParameterDefinitionDeserializer extends JsonDeseria
     @Override
     public FoundationActionParameterDefinition deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         ObjectMapper newMapper = new ObjectMapper();
+        JsonNode node = jp.getCodec().readTree(jp);
+        return getDeserializedFoundationActionParameterDefinition(node);
+    }
+
+    public FoundationActionParameterDefinition getDeserializedFoundationActionParameterDefinition(JsonNode node) {
         try {
             FoundationActionParameterDefinition toReturn = new FoundationActionParameterDefinition<>();
-            JsonNode node = jp.getCodec().readTree(jp);
             if (node.has("name")) {
                 toReturn.setName(node.get("name").asText());
             }
