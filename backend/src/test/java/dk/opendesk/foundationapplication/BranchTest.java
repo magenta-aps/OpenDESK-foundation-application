@@ -5,6 +5,7 @@
  */
 package dk.opendesk.foundationapplication;
 
+import com.benfante.jslideshare.App;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
@@ -77,7 +78,8 @@ public class BranchTest extends AbstractTestClass {
         assertEquals(myNewTitle, summary.getTitle());
         
     }
-    
+
+
     public void testAddWorkflowToBranch() throws Exception{
         String workflowTitle = "TestWorkFlow";
         Reference ref = testAddBranchWebScript();

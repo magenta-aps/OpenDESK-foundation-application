@@ -13,13 +13,16 @@ import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.State;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import static dk.opendesk.foundationapplication.TestUtils.stateAccessRef;
 import static dk.opendesk.foundationapplication.Utilities.APPLICATION_FOLDER_DOCUMENT;
 
+import dk.opendesk.foundationapplication.DAO.StateSummary;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -31,6 +34,7 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.json.JSONException;
 
 /**
  *
@@ -179,7 +183,7 @@ public class ApplicationTest extends AbstractTestClass{
 
     }
     
-    public void updateBranchFromNone() throws Exception {
+    public void testUpdateBranchFromNone() throws Exception {
         NodeRef appRef = TestUtils.application3;
         Application app = get(Application.class, appRef.getId());
 
@@ -197,7 +201,50 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals(TestUtils.branchRef, app.getBranchSummary().asNodeRef());
         assertEquals(TestUtils.stateRecievedRef, app.getState().asNodeRef());
     }
-    
+
+    public void testUpdateBranchAndState() throws IOException, JSONException {
+        BranchSummary ref = new BranchSummary();
+        ref.parseRef(TestUtils.branchRef); //todo add different branch
+        StateSummary deniedState = new StateSummary();
+        deniedState.parseRef(TestUtils.stateDeniedRef);
+
+        //Update branch and state on 'old' application
+        NodeRef appRef = TestUtils.application1;
+        Application app = get(Application.class, appRef.getId());
+
+        assertEquals(TestUtils.branchRef, app.getBranchSummary().asNodeRef());
+        assertEquals(TestUtils.stateRecievedRef, app.getState().asNodeRef());
+
+        Application change = new Application();
+        change.parseRef(appRef);
+        change.setBranchSummary(ref);
+        change.setState(deniedState);
+        post(change, app.getNodeID());
+
+        app = get(Application.class, appRef.getId());
+        assertEquals(TestUtils.branchRef, app.getBranchSummary().asNodeRef()); //todo test for the other branch
+        assertEquals(TestUtils.stateDeniedRef, app.getState().asNodeRef());
+
+
+        //Update branch and state on 'new' application
+        appRef = TestUtils.application3;
+        app = get(Application.class, appRef.getId());
+
+        assertNull(app.getBranchSummary().asNodeRef());
+        assertNull(app.getState().asNodeRef());
+
+        change = new Application();
+        change.parseRef(appRef);
+        change.setBranchSummary(ref);
+        change.setState(deniedState);
+        post(change, app.getNodeID());
+
+        app = get(Application.class, appRef.getId());
+        assertEquals(TestUtils.branchRef, app.getBranchSummary().asNodeRef()); //todo test for the other branch
+        assertEquals(TestUtils.stateDeniedRef, app.getState().asNodeRef());
+
+    }
+
     public void testChangeState() throws Exception {
         NodeRef appRef = TestUtils.application2;
         Application app = get(Application.class, appRef.getId());
@@ -470,5 +517,11 @@ public class ApplicationTest extends AbstractTestClass{
         assertEquals(folderIdFirstTime, folderIdSecondTime);
     }
 
+    public void testGetApplicationReference() throws Exception {
+        ApplicationReference applicationReference = getApplicationBean().getApplicationReference(TestUtils.application1);
+        assertEquals(TestUtils.APPLICATION1_NAME, applicationReference.getTitle());
+        assertNotNull(applicationReference.getId());
+        assertNotNull(applicationReference.getIsSeen());
+    }
     
 }
