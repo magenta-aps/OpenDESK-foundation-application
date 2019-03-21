@@ -631,7 +631,7 @@ public class ApplicationBean extends FoundationBean{
 
         while (current != null) {
             Version predecessor = history.getPredecessor(current);
-            changes.add(actionBean.getVersionDifference(predecessor, current));
+            changes.add(getVersionDifference(predecessor, current));
             current = predecessor;
         }
 
@@ -654,6 +654,24 @@ public class ApplicationBean extends FoundationBean{
         });
 
         return changes;
+    }
+
+
+    public ApplicationChange getVersionDifference(Version oldVersion, Version newVersion) throws Exception {
+        if (newVersion == null) {
+            throw new Exception("newVersion must not be null");
+        }
+
+        String changeType = (String) newVersion.getVersionProperty(APPLICATION_CHANGE);
+
+        Date timeStamp = newVersion.getFrozenModifiedDate();
+        String modifier = newVersion.getFrozenModifier();
+        NodeRef modifierId = getServiceRegistry().getPersonService().getPerson(modifier);
+
+        Application newApp = getApplication(newVersion.getFrozenStateNodeRef());
+        Application oldApp = (oldVersion == null) ? null : getApplication(oldVersion.getFrozenStateNodeRef());
+
+        return new ApplicationChange().setChangeType(changeType).setTimeStamp(timeStamp).setModifier(modifier).setModifierIdWithNodeRef(modifierId).setChangeList(getApplicationDifference(oldApp, newApp));
     }
 
     /**
@@ -684,7 +702,7 @@ public class ApplicationBean extends FoundationBean{
     }
 
 
-    public NodeRef getOrCreateSingleFolder(NodeRef parentRef, String folderType) throws Exception {
+    private NodeRef getOrCreateSingleFolder(NodeRef parentRef, String folderType) throws Exception {
         NodeRef folderRef;
         String folderName;
 

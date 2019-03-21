@@ -48,14 +48,20 @@ public class VersionTest extends AbstractTestClass {
         String origMail = getApplicationBean().getApplication(appRef).emailTo().getValue();
         String origStateTitle = getApplicationBean().getApplication(appRef).getState().getTitle();
 
-        assertEquals(1,versionService.getVersionHistory(appRef).getAllVersions().size());
+        makeChanges(appRef);
+        testGetApplicationHistory(appRef, origStateTitle);
+        testApplicationHistoryWebScript(appRef, origMail);
+    }
+
+    private void makeChanges(NodeRef appRef) throws Exception {
+        assertEquals(1, versionService.getVersionHistory(appRef).getAllVersions().size());
 
         if (logger.isDebugEnabled()) logger.debug("\nChange #0: Application created\n");
         if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
 
 
         // --- FIRST CHANGE --- //
-        if (logger.isDebugEnabled()) logger.debug("\nChange #1: Changing the 'description' property\n");
+        if (logger.isDebugEnabled()) logger.debug("\nChange #1: Changing the 'email' property\n");
 
         Application change1 = Utilities.buildChange(getApplicationBean().getApplication(appRef))
                 .changeField("8").setValue("First change").done()
@@ -67,7 +73,6 @@ public class VersionTest extends AbstractTestClass {
         Application headVersion = getApplicationBean().getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(2, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals("First change", headVersion.emailTo().getValue());
-
 
 
         // --- SECOND CHANGE --- //
@@ -90,7 +95,7 @@ public class VersionTest extends AbstractTestClass {
 
 
         // --- THIRD CHANGE --- //
-        if (logger.isDebugEnabled()) logger.debug("\nChange #3: Changing both state and description\n");
+        if (logger.isDebugEnabled()) logger.debug("\nChange #3: Changing both state and email\n");
 
         Application change3 = Utilities.buildChange(getApplicationBean().getApplication(appRef))
                 .changeField("8").setValue("Third change").done()
@@ -100,13 +105,13 @@ public class VersionTest extends AbstractTestClass {
         change3.setState(stateAccepted);
         getApplicationBean().updateApplication(change3);
 
-        //There should now be three versions and the newest one should be on state 'accepted' and have description = 'Third change'
+        //There should now be three versions and the newest one should be on state 'accepted' and have email = 'Third change'
         headVersion = getApplicationBean().getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(4, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals(TestUtils.stateAcceptedRef, headVersion.getState().asNodeRef());
         assertEquals("Third change", headVersion.emailTo().getValue());
 
-        //Current version should be on state 'accepted' and have description = 'Third change'
+        //Current version should be on state 'accepted' and have email = 'Third change'
         Application currentVersion = getApplicationBean().getApplication(appRef);
         assertEquals(TestUtils.stateAcceptedRef, currentVersion.getState().asNodeRef());
         assertEquals("Third change", currentVersion.emailTo().getValue());
@@ -121,30 +126,22 @@ public class VersionTest extends AbstractTestClass {
 
         if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
 
+    }
 
-        // --- CALLING foundationBean.getApplicationHistory --- //
+    private void testGetApplicationHistory(NodeRef appRef, String origStateTitle) throws Exception {
 
         List<ApplicationChange> appChanges = getApplicationBean().getApplicationHistory(appRef);
-        //System.out.println(appChanges);
-        ApplicationChange appChange4 = appChanges.get(4);
-        ApplicationChange appChange3 = appChanges.get(3);
-        ApplicationChange appChange0 = appChanges.get(0);
+        ApplicationChange applicationCreation = appChanges.get(0);
+        ApplicationChange applicationUpdate = appChanges.get(3);
+        ApplicationChange applicationDeletion = appChanges.get(4);
 
-        assertEquals(APPLICATION_CHANGE_DELETED, appChange4.getChangeType());
-        assertEquals(4, appChange4.getChanges().size());
-        assertEquals("Branch", appChange4.getChanges().get(0).getChangedField());
-        assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, appChange4.getChanges().get(0).getChangeType());
 
-        assertEquals(APPLICATION_CHANGE_UPDATE, appChange3.getChangeType());
-        assertEquals(2, appChange3.getChanges().size());
-        assertEquals("State", appChange3.getChanges().get(1).getChangedField());
-        assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, appChange3.getChanges().get(1).getChangeType());
-
-        assertEquals(appChange0.getChangeType(), APPLICATION_CHANGE_CREATED);
+        //Application creation
+        assertEquals(applicationCreation.getChangeType(), APPLICATION_CHANGE_CREATED);
 
         ApplicationChangeUnit stateChange = null;
         ApplicationChangeUnit emailChange = null;
-        for (ApplicationChangeUnit unit : appChange0.getChanges()) {
+        for (ApplicationChangeUnit unit : applicationCreation.getChanges()) {
             if (unit.getChangedField().equals("State")) {
                 stateChange = unit;
             }
@@ -160,68 +157,130 @@ public class VersionTest extends AbstractTestClass {
         assertEquals("lars@larsen.org", emailChange.getNewValue());
         assertEquals(APPLICATION_CHANGE_UPDATE_PROP, emailChange.getChangeType());
 
+        //Application update state and email
+        assertEquals(APPLICATION_CHANGE_UPDATE, applicationUpdate.getChangeType());
+        assertEquals(2, applicationUpdate.getChanges().size());
+        assertEquals("State", applicationUpdate.getChanges().get(1).getChangedField());
+        assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, applicationUpdate.getChanges().get(1).getChangeType());
+        assertEquals("Email", applicationUpdate.getChanges().get(0).getChangedField());
+        assertEquals(APPLICATION_CHANGE_UPDATE_PROP, applicationUpdate.getChanges().get(0).getChangeType());
 
-        //todo: det følgende fejler pga noget jackson
-        // --- TESTING THE WEBSCRIPT --- //
-        List<ApplicationChange> changeLists = get(List.class, ApplicationChange.class, appRef+"/history");//todo rename to changeList
+        //Application deletion
+        assertEquals(APPLICATION_CHANGE_DELETED, applicationDeletion.getChangeType());
+        assertEquals(4, applicationDeletion.getChanges().size());
+        assertEquals("Branch", applicationDeletion.getChanges().get(0).getChangedField());
+        assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, applicationDeletion.getChanges().get(0).getChangeType());
 
-        System.out.println("****************************************");
-        System.out.println(changeLists);
+    }
+
+    private void testApplicationHistoryWebScript(NodeRef appRef, String origMail) throws Exception {
+        List<ApplicationChange> changeList = get(List.class, ApplicationChange.class, appRef + "/history");
 
         //Testing the changes made when creating the original version
-        ApplicationChange applicationChange = changeLists.get(0);
+        ApplicationChange applicationChange = changeList.get(0);
         assertEquals(APPLICATION_CHANGE_CREATED, applicationChange.getChangeType());
         assertEquals("admin", applicationChange.getModifier());
         assertEquals(getServiceRegistry().getPersonService().getPerson("admin").toString(), applicationChange.getModifierId());
 
         List<ApplicationChangeUnit> appChangesWeb = applicationChange.getChanges();
-        ApplicationChangeUnit descriptionChangeUnit = null;
+        ApplicationChangeUnit emailChangeUnit = null;
         ApplicationChangeUnit stateChangeUnit = null;
         for (ApplicationChangeUnit unit : appChangesWeb) {
-            if (unit.getChangedField().equals("Short Description")) {
-                descriptionChangeUnit = unit;
+            if (unit.getChangedField().equals("Email")) {
+                emailChangeUnit = unit;
             }
             if (unit.getChangedField().equals("State")) {
                 stateChangeUnit = unit;
             }
         }
-        assertNotNull(descriptionChangeUnit);
+        assertNotNull(emailChangeUnit);
         assertNotNull(stateChangeUnit);
-        assertEquals(null, descriptionChangeUnit.getOldValue());
-        assertEquals(null, stateChangeUnit.getOldValue());
-        assertEquals(APPLICATION_CHANGE_UPDATE_PROP, descriptionChangeUnit.getChangeType());
+        assertNull(emailChangeUnit.getOldValue());
+        assertNull(stateChangeUnit.getOldValue());
+        assertEquals(APPLICATION_CHANGE_UPDATE_PROP, emailChangeUnit.getChangeType());
         assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, stateChangeUnit.getChangeType());
 
-        /*
         //Testing the first change
-        List<ApplicationChangeUnit> changeUnits = changeLists.get(2).getChanges();
+        applicationChange = changeList.get(1);
+        assertEquals(APPLICATION_CHANGE_UPDATE, applicationChange.getChangeType());
+        assertEquals("admin", applicationChange.getModifier());
+        assertEquals(getServiceRegistry().getPersonService().getPerson("admin").toString(), applicationChange.getModifierId());
+
+        List<ApplicationChangeUnit> changeUnits = applicationChange.getChanges();
         assertEquals(1, changeUnits.size());
-        assertEquals(APPLICATION_PARAM_SHORT_DESCRIPTION, changeUnits.get(0).getChangedField());
-        assertEquals(origDesc, changeUnits.get(0).getOldValue());
+        assertEquals("Email", changeUnits.get(0).getChangedField());
+        assertEquals(origMail, changeUnits.get(0).getOldValue());
         assertEquals("First change", changeUnits.get(0).getNewValue());
         assertEquals(APPLICATION_CHANGE_UPDATE_PROP, changeUnits.get(0).getChangeType());
 
         //Testing the second change
-        changeUnits = changeLists.get(1).getChanges();
+        applicationChange = changeList.get(2);
+        assertEquals(APPLICATION_CHANGE_UPDATE, applicationChange.getChangeType());
+        assertEquals("admin", applicationChange.getModifier());
+        assertEquals(getServiceRegistry().getPersonService().getPerson("admin").toString(), applicationChange.getModifierId());
+
+        changeUnits = applicationChange.getChanges();
         assertEquals(1, changeUnits.size());
-        assertEquals(STATE_PARAM_TITLE, changeUnits.get(0).getChangedField());
-        assertEquals(foundationBean.getState(TestUtils.stateRecievedRef).getTitle(), changeUnits.get(0).getOldValue());
-        assertEquals(foundationBean.getState(TestUtils.stateAccessRef).getTitle(), changeUnits.get(0).getNewValue());
-        assertEquals(APPLICATION_CHANGE_UPDATE_STATE, changeUnits.get(0).getChangeType());
+        assertEquals("State", changeUnits.get(0).getChangedField());
+        assertEquals(getWorkflowBean().getState(TestUtils.stateRecievedRef).getTitle(), changeUnits.get(0).getOldValue());
+        assertEquals(getWorkflowBean().getState(TestUtils.stateAccessRef).getTitle(), changeUnits.get(0).getNewValue());
+        assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, changeUnits.get(0).getChangeType());
 
         //Testing the third change
-        changeUnits = changeLists.get(0).getChanges();
+        applicationChange = changeList.get(3);
+        assertEquals(APPLICATION_CHANGE_UPDATE, applicationChange.getChangeType());
+        assertEquals("admin", applicationChange.getModifier());
+        assertEquals(getServiceRegistry().getPersonService().getPerson("admin").toString(), applicationChange.getModifierId());
+
+        changeUnits = applicationChange.getChanges();
         assertEquals(2, changeUnits.size());
-        assertEquals(STATE_PARAM_TITLE, changeUnits.get(0).getChangedField());
-        assertEquals(foundationBean.getState(TestUtils.stateAccessRef).getTitle(), changeUnits.get(0).getOldValue());
-        assertEquals(foundationBean.getState(TestUtils.stateAcceptedRef).getTitle(), changeUnits.get(0).getNewValue());
-        assertEquals(APPLICATION_CHANGE_UPDATE_STATE, changeUnits.get(0).getChangeType());
-        assertEquals(APPLICATION_PARAM_SHORT_DESCRIPTION, changeUnits.get(1).getChangedField());
-        assertEquals("First change", changeUnits.get(1).getOldValue());
-        assertEquals("Third change", changeUnits.get(1).getNewValue());
-        assertEquals(APPLICATION_CHANGE_UPDATE_PROP, changeUnits.get(1).getChangeType());
-        */
+        stateChangeUnit = null;
+        emailChangeUnit = null;
+        for (ApplicationChangeUnit unit : changeUnits) {
+            if (unit.getChangedField().equals("State")) {
+                stateChangeUnit = unit;
+            }
+            if (unit.getChangedField().equals("Email")) {
+                emailChangeUnit = unit;
+            }
+        }
+        assertNotNull(stateChangeUnit);
+        assertNotNull(emailChangeUnit);
+
+        assertEquals("State", stateChangeUnit.getChangedField());
+        assertEquals(getWorkflowBean().getState(TestUtils.stateAccessRef).getTitle(), stateChangeUnit.getOldValue());
+        assertEquals(getWorkflowBean().getState(TestUtils.stateAcceptedRef).getTitle(), stateChangeUnit.getNewValue());
+        assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, stateChangeUnit.getChangeType());
+        assertEquals("Email", emailChangeUnit.getChangedField());
+        assertEquals("First change", emailChangeUnit.getOldValue());
+        assertEquals("Third change", emailChangeUnit.getNewValue());
+        assertEquals(APPLICATION_CHANGE_UPDATE_PROP, emailChangeUnit.getChangeType());
+
+        //Testing the application deletion
+        applicationChange = changeList.get(4);
+        assertEquals(APPLICATION_CHANGE_DELETED, applicationChange.getChangeType());
+        assertEquals("admin", applicationChange.getModifier());
+        assertEquals(getServiceRegistry().getPersonService().getPerson("admin").toString(), applicationChange.getModifierId());
+
+        changeUnits = applicationChange.getChanges();
+        assertEquals(4, changeUnits.size());
+        stateChangeUnit = null;
+        emailChangeUnit = null;
+        for (ApplicationChangeUnit unit : changeUnits) {
+            if (unit.getChangedField().equals("State")) {
+                stateChangeUnit = unit;
+            }
+            if (unit.getChangedField().equals("Email")) {
+                emailChangeUnit = unit;
+            }
+        }
+        assertNotNull(stateChangeUnit);
+        assertNull(emailChangeUnit);
+        assertEquals(getWorkflowBean().getState(TestUtils.stateAcceptedRef).getTitle(), stateChangeUnit.getOldValue());
+        assertNull(stateChangeUnit.getNewValue());
+        assertEquals(APPLICATION_CHANGE_UPDATE_ASSOCIATION, stateChangeUnit.getChangeType());
     }
+
 
 
     public String buildVersionString(NodeRef application) throws Exception {
