@@ -81,6 +81,8 @@ public class AuthorityBean extends FoundationBean{
         return toReturn;
     }
     
+    
+    
     public void addFullPermission(NodeRef target, PermissionGroup group){
         addFullPermission(target, group, (NodeRef)null);
     }
@@ -94,20 +96,25 @@ public class AuthorityBean extends FoundationBean{
         addReadPermission(target, group, subName);
         addWritePermission(target, group, subName);
     }
-    
+      
     public void addReadPermission(NodeRef target, PermissionGroup group, Reference subName){
         verifyType(group, subName);
         addReadPermission(target, group, subName.asNodeRef());
     }
     
     public void addReadPermission(NodeRef target, PermissionGroup group, NodeRef subName){
-        PermissionService ps = getServiceRegistry().getPermissionService();
         String readPermissionGroup = getOrCreateGroup(group, subName, false);
-        ps.setPermission(target, readPermissionGroup, PermissionService.READ, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.READ_PERMISSIONS, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.READ_CONTENT, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.READ_ASSOCIATIONS, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.READ_CHILDREN, true);
+        addReadPermission(target, readPermissionGroup);
+        
+    }
+    
+    public void addReadPermission(NodeRef target, String authority){
+        PermissionService ps = getServiceRegistry().getPermissionService();
+        ps.setPermission(target, authority, PermissionService.READ, true);
+        ps.setPermission(target, authority, PermissionService.READ_PERMISSIONS, true);
+        ps.setPermission(target, authority, PermissionService.READ_CONTENT, true);
+        ps.setPermission(target, authority, PermissionService.READ_ASSOCIATIONS, true);
+        ps.setPermission(target, authority, PermissionService.READ_CHILDREN, true);
     }
     
         
@@ -117,20 +124,23 @@ public class AuthorityBean extends FoundationBean{
     }
     
     public void addWritePermission(NodeRef target, PermissionGroup group, NodeRef subName){
-        PermissionService ps = getServiceRegistry().getPermissionService();
         String readPermissionGroup = getOrCreateGroup(group, subName, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.WRITE, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.WRITE_CONTENT, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.WRITE_PROPERTIES, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.DELETE, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.DELETE_ASSOCIATIONS, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.DELETE_CHILDREN, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.DELETE_NODE, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.CREATE_ASSOCIATIONS, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.CREATE_CHILDREN, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.CHANGE_PERMISSIONS, true);
-        ps.setPermission(target, readPermissionGroup, PermissionService.ADD_CHILDREN, true);
-        
+        addWritePermission(target, readPermissionGroup);
+    }
+    
+    public void addWritePermission(NodeRef target, String authority){
+        PermissionService ps = getServiceRegistry().getPermissionService();
+        ps.setPermission(target, authority, PermissionService.WRITE, true);
+        ps.setPermission(target, authority, PermissionService.WRITE_CONTENT, true);
+        ps.setPermission(target, authority, PermissionService.WRITE_PROPERTIES, true);
+        ps.setPermission(target, authority, PermissionService.DELETE, true);
+        ps.setPermission(target, authority, PermissionService.DELETE_ASSOCIATIONS, true);
+        ps.setPermission(target, authority, PermissionService.DELETE_CHILDREN, true);
+        ps.setPermission(target, authority, PermissionService.DELETE_NODE, true);
+        ps.setPermission(target, authority, PermissionService.CREATE_ASSOCIATIONS, true);
+        ps.setPermission(target, authority, PermissionService.CREATE_CHILDREN, true);
+        ps.setPermission(target, authority, PermissionService.CHANGE_PERMISSIONS, true);
+        ps.setPermission(target, authority, PermissionService.ADD_CHILDREN, true);
     }
     
     public void removeFullPermission(NodeRef target, PermissionGroup group, Reference subName){

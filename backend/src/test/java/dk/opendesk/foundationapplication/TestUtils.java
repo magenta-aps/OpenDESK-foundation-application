@@ -564,7 +564,8 @@ public final class TestUtils {
         
         authBean.addUserGroup(USER_BRANCH_READ, authBean.getGroup(PermissionGroup.BRANCH, branchRef1, false));
         authBean.addUserGroup(USER_BRANCH_WRITE, authBean.getGroup(PermissionGroup.BRANCH, branchRef1, true));
-        
+        authBean.addReadPermission(application3, USER_SINGLE_APPLICATION_WRITE);
+        authBean.addWritePermission(application3, USER_SINGLE_APPLICATION_WRITE);
         
         
         

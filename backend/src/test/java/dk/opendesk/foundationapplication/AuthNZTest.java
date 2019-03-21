@@ -44,7 +44,7 @@ public class AuthNZTest extends AbstractTestClass {
         assertEquals(TestUtils.USER_ALL_PERMISSIONS, testUser.getFirstName());
     }
 
-    public void testPermissionApplication1() throws Exception {
+    public void testPermissionApplicationForBranch() throws Exception {
         Application change = Utilities.buildChange(getApplicationBean().getApplication(TestUtils.application1)).setTitle("my new title").build();
         Set<String> authorities1 = getServiceRegistry().getAuthorityService().getAuthorities();
         AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_BRANCH_READ);
@@ -61,6 +61,22 @@ public class AuthNZTest extends AbstractTestClass {
             fail("Exception was not thrown");
         } catch (AccessDeniedException ex) {
         }
+    }
+    
+    public void testNonBranchApplication() throws Exception{
+        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_SINGLE_APPLICATION_WRITE);
+        try {
+            getApplicationBean().getApplicationReference(TestUtils.application1);
+            fail("Exception was not thrown");
+        } catch (AccessDeniedException ex) {
+        }
+        try {
+            getApplicationBean().getApplicationReference(TestUtils.application2);
+            fail("Exception was not thrown");
+        } catch (AccessDeniedException ex) {
+        }
+        
+        assertEquals(TestUtils.application3, getApplicationBean().getApplicationReference(TestUtils.application3).asNodeRef());
     }
 
 }
