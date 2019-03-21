@@ -188,21 +188,21 @@ public class ResetDemoData extends JacksonBackedWebscript {
         block1.setLabel("Information");
         block1.setLayout("display:block;");
         List<ApplicationFieldValue> fields = new ArrayList<>();
-        fields.add(buildValue("1", "Kategori", "display:block;", "text", String.class, null, "My new Category"));
-        fields.add(buildValue("2", "Modtager", "display:block;", "text", String.class, null, recipient));
-        fields.add(buildValue("3", "Vejnavn", "display:block;", "text", String.class, null, steetName));
-        fields.add(buildValue("4", "Etage", "display:block;", "text", String.class, null, floor));
-        fields.add(buildValue("5", "Postnr", "display:block;", "text", String.class, null, numberString(4)));
-        fields.add(buildValue("6", "Fornavn", "display:block;", "text", String.class, Functional.first_name(), firstName));
-        fields.add(buildValue("7", "Efternavn", "display:block;", "text", String.class, Functional.last_name(), lastName));
-        fields.add(buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), firstName + "@mail.dk"));
-        fields.add(buildValue("9", "Telefonnummer", "display:block;", "text", String.class, Functional.phone_number(), phoneNumber()));
-        fields.add(buildValue("10", "Kort beskrivelse", "display:block;", "text", String.class, null, lorem(50)));
-        fields.add(buildValue("11", "Startdato", "display:block;", "text", Date.class, null, startDate));
-        fields.add(buildValue("12", "EndDate", "display:block;", "text", Date.class, null, endDate));
-        fields.add(buildValue("13", "Beløb", "display:block;", "text", Long.class, Functional.amount(), requiredAmount));
-        fields.add(buildValue("14", "Registreringsnummer", "display:block;", "text", String.class, null, numberString(4)));
-        fields.add(buildValue("15", "Kontonummer", "display:block;", "text", String.class, null, "000" + numberString(5)));
+        fields.add(buildValue("1", "Kategori", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"My new Category"));
+        fields.add(buildValue("2", "Modtager", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, recipient));
+        fields.add(buildValue("3", "Vejnavn", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, steetName));
+        fields.add(buildValue("4", "Etage", "display:block;", "text", String.class, null,null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, floor));
+        fields.add(buildValue("5", "Postnr", "display:block;", "text", String.class, null,null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, numberString(4)));
+        fields.add(buildValue("6", "Fornavn", "display:block;", "text", String.class, Functional.first_name(),null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, firstName));
+        fields.add(buildValue("7", "Efternavn", "display:block;", "text", String.class, Functional.last_name(),null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, lastName));
+        fields.add(buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, firstName + "@mail.dk"));
+        fields.add(buildValue("9", "Telefonnummer", "display:block;", "text", String.class, Functional.phone_number(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, phoneNumber()));
+        fields.add(buildValue("10", "Kort beskrivelse", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,lorem(50)));
+        fields.add(buildValue("11", "Startdato", "display:block;", "text", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, startDate));
+        fields.add(buildValue("12", "EndDate", "display:block;", "text", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, endDate));
+        fields.add(buildValue("13", "Beløb", "display:block;", "text", Long.class, Functional.amount(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, requiredAmount));
+        fields.add(buildValue("14", "Registreringsnummer", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, numberString(4)));
+        fields.add(buildValue("15", "Kontonummer", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"000" + numberString(5)));
 
         block1.setFields(fields);
 
@@ -228,16 +228,36 @@ public class ResetDemoData extends JacksonBackedWebscript {
         return app;
     }
     
-    public static <E> ApplicationFieldValue<E> buildValue(String id, String label, String layout, String type, Class<E> javaType, Functional function, E value){
+    public static <E> ApplicationFieldValue<E> buildValue(
+            String id,
+            String label,
+            String layout,
+            String component,
+            Class<E> type,
+            Functional function,
+            List<E> allowedValues,
+            String hint,
+            String wrapper,
+            String validation,
+            String permission,
+            Boolean readOnly,
+            E value
+    ){
         ApplicationFieldValue valueField = new ApplicationFieldValue();
         valueField.setId(id);
         valueField.setLabel(label);
         valueField.setLayout(layout);
-        valueField.setComponent(type);
-        valueField.setType(javaType);
+        valueField.setComponent(component);
+        valueField.setType(type);
         if(function != null){
             valueField.setDescribes(function.getFriendlyName());
         }
+        valueField.setAllowedValues(allowedValues);
+        valueField.setHint(hint);
+        valueField.setWrapper(wrapper);
+        valueField.setValidation(validation);
+        valueField.setPermissions(permission);
+        valueField.setReadOnly(readOnly);
         valueField.setValue(value);
         
         return valueField;

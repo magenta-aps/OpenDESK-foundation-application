@@ -43,6 +43,24 @@ public class ApplicationPropertySerializer extends JsonSerializer<ApplicationFie
         if(value.getDescribes() != null){
             jgen.writeObjectField("describes", value.getDescribes());
         }
+        if(value.getAllowedValues() != null){
+            jgen.writeObjectField("allowedValues", value.getAllowedValues());
+        }
+        if(value.getHint() != null){
+            jgen.writeStringField("hint", value.getHint());
+        }
+        if(value.getWrapper() != null){
+            jgen.writeStringField("wrapper", value.getWrapper());
+        }
+        if(value.getValidation() != null){
+            jgen.writeStringField("validation", value.getValidation());
+        }
+        if(value.getPermissions() != null){
+            jgen.writeStringField("permission", value.getPermissions());
+        }
+        if(value.getReadOnly() != null){
+            jgen.writeBooleanField("readOnly", value.getReadOnly());
+        }
         jgen.writeEndObject();
     }
 

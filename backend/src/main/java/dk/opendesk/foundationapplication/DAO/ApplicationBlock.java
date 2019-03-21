@@ -24,6 +24,9 @@ public class ApplicationBlock extends DAOType{
     private Optional<String> label;
     private Optional<String> layout;
     private Optional<List<ApplicationFieldValue>> fields;
+    private Optional<String> icon;
+    private Optional<Boolean> collapsible;
+    private Optional<Boolean> repeatable;
 
     public ApplicationBlock() {
     }
@@ -65,7 +68,43 @@ public class ApplicationBlock extends DAOType{
         this.layout = optional(layout);
     }
 
-    
+    public String getIcon() {
+        return get(icon);
+    }
+
+    public boolean wasIconSet(){
+        return wasSet(icon);
+    }
+
+    public void setIcon(String icon) {
+        this.icon = optional(icon);
+    }
+
+    public Boolean getCollapsible() {
+        return get(collapsible);
+    }
+
+    public boolean wasCollapsibleSet(){
+        return wasSet(collapsible);
+    }
+
+    public void setCollapsible(Boolean collapsible) {
+        this.collapsible = optional(collapsible);
+    }
+
+    public Boolean getRepeatable() {
+        return get(repeatable);
+    }
+
+    public boolean wasRepeatableSet(){
+        return wasSet(repeatable);
+    }
+
+    public void setRepeatable(Boolean repeatable) {
+        this.repeatable = optional(repeatable);
+    }
+
+
     public List<ApplicationFieldValue> getFields() {
         return get(fields);
     }

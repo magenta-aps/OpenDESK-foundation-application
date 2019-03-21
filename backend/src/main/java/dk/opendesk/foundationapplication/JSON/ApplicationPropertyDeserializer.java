@@ -16,7 +16,9 @@ import dk.opendesk.foundationapplication.Utilities;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -46,6 +48,24 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
             }
             if (node.has("describes")) {
                 toReturn.setDescribes(node.get("describes").asText());
+            }
+            if (node.has("hint")) {
+                toReturn.setHint(node.get("hint").asText());
+            }
+            if (node.has("wrapper")) {
+                toReturn.setWrapper(node.get("wrapper").asText());
+            }
+            if (node.has("validation")) {
+                toReturn.setValidation(node.get("validation").asText());
+            }
+            if (node.has("permission")) {
+                toReturn.setPermissions(node.get("permission").asText());
+            }
+            if (node.has("readOnly")) {
+                toReturn.setReadOnly(node.get("readOnly").asBoolean());
+            }
+            if (node.has("allowedValues")) {
+                toReturn.setAllowedValues(new ArrayList<Object>(mapper.readValue(node.get("allowedValues").toString(), List.class)));
             }
             if (node.has("type")) {
                 String typeString = node.get("type").asText();

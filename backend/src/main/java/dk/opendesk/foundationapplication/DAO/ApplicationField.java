@@ -23,6 +23,12 @@ public class ApplicationField<E> extends DAOType{
     private Optional<String> describes;
     private Optional<List<E>> allowedValues;
     private Optional<String> layout;
+    private Optional<String> hint;
+    private Optional<String> wrapper;
+    private Optional<String> validation;
+    private Optional<String> permissions;
+    private Optional<Boolean> readOnly;
+
 
     public ApplicationField() {
     }
@@ -109,10 +115,70 @@ public class ApplicationField<E> extends DAOType{
         this.allowedValues = optional(allowedValues);
     }
     
+    public String getHint() {
+        return get(hint);
+    }
+    
+    public boolean wasHintSet(){
+        return wasSet(hint);
+    }
+
+    public void setHint(String hint) {
+        this.hint = optional(hint);
+    }
+
+    public String getWrapper() {
+        return get(wrapper);
+    }
+
+    public boolean wasWrapperSet(){
+        return wasSet(wrapper);
+    }
+
+    public void setWrapper(String wrapper) {
+        this.wrapper = optional(wrapper);
+    }
+
+    public String getValidation() {
+        return get(validation);
+    }
+
+    public boolean wasValidationSet(){
+        return wasSet(validation);
+    }
+
+    public void setValidation(String validation) {
+        this.validation = optional(validation);
+    }
+
+    public String getPermissions() {
+        return get(permissions);
+    }
+
+    public boolean wasPermissionsSet(){
+        return wasSet(permissions);
+    }
+
+    public void setPermissions(String permissions) {
+        this.permissions = optional(permissions);
+    }
+
+    public Boolean getReadOnly() {
+        return get(readOnly);
+    }
+
+    public boolean wasReadOnlySet(){
+        return wasSet(readOnly);
+    }
+
+    public void setReadOnly(Boolean readOnly) {
+        this.readOnly = optional(readOnly);
+    }
+
     public String getLayout() {
         return get(layout);
     }
-    
+
     public boolean wasLayoutSet(){
         return wasSet(layout);
     }

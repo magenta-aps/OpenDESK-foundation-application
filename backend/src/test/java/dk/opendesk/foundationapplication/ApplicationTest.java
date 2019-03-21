@@ -16,6 +16,8 @@ import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import static dk.opendesk.foundationapplication.TestUtils.stateAccessRef;
 import static dk.opendesk.foundationapplication.Utilities.APPLICATION_FOLDER_DOCUMENT;
+import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.RANDOM;
+import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.lorem;
 
 import dk.opendesk.foundationapplication.DAO.StateSummary;
 import dk.opendesk.foundationapplication.enums.Functional;
@@ -75,26 +77,26 @@ public class ApplicationTest extends AbstractTestClass{
         app1details.setId("3");
         app1details.setLabel("Details");
         app1blockRecipient.setFields(new ArrayList<>());
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Cats4Dogs"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Testgade"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 1337));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "9999"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, "Test"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, "Osteron"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, "t@est.dk"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "12345678"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Cats4Dogs"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Testgade"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,1337));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"2"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"9999"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Test"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Osteron"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"t@est.dk"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"12345678"));
         
         app1blockOverview.setFields(new ArrayList<>());
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category3"));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "We want to buy a cat for every dog"));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(30)))));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Category3"));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"We want to buy a cat for every dog"));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now())));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now().plus(Duration.ofDays(30)))));
         
         app1details.setFields(new ArrayList<>());
-        app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), 10000l));
-        app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "1234"));
-        app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "12345678"));
+        app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,10000l));
+        app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"1234"));
+        app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"12345678"));
         newApplication.setBlocks(Arrays.asList(new ApplicationBlock[]{app1blockRecipient, app1blockOverview, app1details}));
         
         ApplicationReference reference = post(newApplication, ApplicationReference.class);
@@ -477,6 +479,92 @@ public class ApplicationTest extends AbstractTestClass{
         
     }
 
+    public void testBlocksAndFields() throws Exception {
+        NodeRef appRef = TestUtils.application1;
+        Application app = getApplicationBean().getApplication(appRef);
+
+        Application change = Utilities.buildChange(app)
+                .changeBlock("3")
+                .setLabel("testDetails")
+                .setLayout("testLayout")
+                .setIcon("testIcon")
+                .setCollapsible(true)
+                .setRepeatable(true)
+                .done()
+                .changeField("14")
+                .setLabel("testAmount")
+                .setAllowedValues(Arrays.asList(1,2))
+                .setHint("testHint")
+                .setWrapper("testWrapper")
+                .setPermissions("testPermission")
+                .setReadOnly(false)
+                .done()
+                .build();
+        getApplicationBean().updateApplication(change);
+
+        //does the blocks exists
+        Application newApp = getApplicationBean().getApplication(appRef);
+        List<ApplicationBlock> blocks = newApp.getBlocks();
+        assertEquals(3, blocks.size());
+
+        ApplicationBlock recipientBlock = null;
+        ApplicationBlock overviewBlock = null;
+        ApplicationBlock detailsBlock = null;
+        for (ApplicationBlock block : blocks) {
+            if (block.getLabel().equals("Recipient")) {
+                recipientBlock = block;
+            }
+            if (block.getLabel().equals("Overview")) {
+                overviewBlock = block;
+            }
+            if (block.getLabel().equals("testDetails")) {
+                detailsBlock = block;
+            }
+        }
+        assertNotNull(recipientBlock);
+        assertNotNull(overviewBlock);
+        assertNotNull(detailsBlock);
+
+        assertEquals("testLayout", detailsBlock.getLayout());
+        assertEquals("testIcon", detailsBlock.getIcon());
+        assertTrue(detailsBlock.getCollapsible());
+        assertTrue(detailsBlock.getRepeatable());
+
+        //does the fields on block 'testDetails' exist
+        List<ApplicationFieldValue> fields = detailsBlock.getFields();
+        assertEquals(3, fields.size());
+
+        ApplicationFieldValue amountField = null;
+        ApplicationFieldValue regNumField = null;
+        ApplicationFieldValue accNumField = null;
+        for (ApplicationFieldValue field : fields) {
+            if (field.getLabel().equals("testAmount")) {
+                amountField = field;
+            }
+            if (field.getLabel().equals("Registration Number")) {
+                regNumField = field;
+            }
+            if (field.getLabel().equals("Account Number")) {
+                accNumField = field;
+            }
+        }
+        assertNotNull(amountField);
+        assertNotNull(regNumField);
+        assertNotNull(accNumField);
+
+        //does all fields on field 'testAmount' exist
+        assertEquals("14", amountField.getId());
+        assertEquals(Long.class, amountField.getType());
+        assertEquals("Long", amountField.getComponent());
+        assertEquals(Functional.amount().getFriendlyName(), amountField.getDescribes());
+        assertEquals(1, amountField.getAllowedValues().get(0));
+        assertEquals("display:block;", amountField.getLayout());
+        assertEquals("testHint", amountField.getHint());
+        assertEquals("testWrapper", amountField.getWrapper());
+        assertEquals("'v-validate': 'number|max:15'",amountField.getValidation());
+        assertEquals("testPermission", amountField.getPermissions());
+        assertFalse(amountField.getReadOnly());
+    }
 
     public void testGetOrCreateDocumentFolder() throws Exception {
         //no document folder

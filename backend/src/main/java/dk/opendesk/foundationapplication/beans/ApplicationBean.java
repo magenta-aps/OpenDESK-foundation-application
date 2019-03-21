@@ -234,6 +234,19 @@ public class ApplicationBean extends FoundationBean{
                         if (block.wasLabelSet()) {
                             oldBlock.setLabel(block.getLabel());
                         }
+                        if (block.wasLayoutSet()) {
+                            oldBlock.setLayout(block.getLayout());
+                        }
+                        if (block.wasIconSet()) {
+                            oldBlock.setIcon(block.getIcon());
+                        }
+                        if (block.wasCollapsibleSet()) {
+                            oldBlock.setCollapsible(block.getCollapsible());
+                        }
+                        if (block.wasRepeatableSet()) {
+                            oldBlock.setRepeatable(block.getRepeatable());
+                        }
+                        //todo
                         if (block.wasFieldsSet()) {
                             if (block.getFields() == null) {
                                 oldBlock.setFields(null);
@@ -265,6 +278,22 @@ public class ApplicationBean extends FoundationBean{
                                             if (field.wasValueSet()) {
                                                 oldField.setValue(field.getValue());
                                             }
+                                            if (field.wasHintSet()) {
+                                                oldField.setHint(field.getHint());
+                                            }
+                                            if (field.wasWrapperSet()) {
+                                                oldField.setWrapper(field.getWrapper());
+                                            }
+                                            if (field.wasValidationSet()) {
+                                                oldField.setValidation(field.getValidation());
+                                            }
+                                            if (field.wasPermissionsSet()) {
+                                                oldField.setPermissions(field.getPermissions());
+                                            }
+                                            if (field.wasReadOnlySet()) {
+                                                oldField.setReadOnly(field.getReadOnly());
+                                            }
+                                            //todo
                                         }
                                     } else {
                                         getLogger().warn("Found field without ID: " + field + " in block: " + block);
