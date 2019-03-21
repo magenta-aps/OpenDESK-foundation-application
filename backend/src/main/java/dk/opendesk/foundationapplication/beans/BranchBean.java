@@ -63,7 +63,7 @@ public class BranchBean extends FoundationBean {
         branchParams.put(branchTitle, title);
         
         NodeRef newBranch = getServiceRegistry().getNodeService().createNode(dataHome, dataBranchesQname, branchQname, branchTypeQname, branchParams).getChildRef();
-        authBean.addFullPermission(dataHome, PermissionGroup.BRANCH, title);
+        authBean.addFullPermission(dataHome, PermissionGroup.BRANCH, newBranch);
         authBean.disableInheritPermissions(newBranch);
 
         return newBranch;

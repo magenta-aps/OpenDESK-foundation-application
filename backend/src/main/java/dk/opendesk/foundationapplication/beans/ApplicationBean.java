@@ -143,7 +143,9 @@ public class ApplicationBean extends FoundationBean{
             authBean.addFullPermission(applicationRef, PermissionGroup.WORKFLOW, application.getBranchSummary().getWorkflowRef());
         } else {
             getServiceRegistry().getNodeService().createAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
+            authBean.addFullPermission(applicationRef, PermissionGroup.NEW_APPLICATION);
         }
+        getServiceRegistry().getPermissionService().setInheritParentPermissions(applicationRef, false);
 
         getServiceRegistry().getVersionService().createVersion(applicationRef, Collections.singletonMap(APPLICATION_CHANGE, APPLICATION_CHANGE_CREATED));
 

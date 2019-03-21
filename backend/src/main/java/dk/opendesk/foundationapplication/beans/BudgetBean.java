@@ -89,7 +89,7 @@ public class BudgetBean extends FoundationBean{
         budgetParams.put(getODFName(BUDGETYEAR_PARAM_ENDDATE), endDate);
 
         NodeRef newBudgetYear = getServiceRegistry().getNodeService().createNode(getDataHome(), budgetYearsQname, budgetYearQname, budgetYearTypeQname, budgetParams).getChildRef();
-        authBean.addFullPermission(newBudgetYear, PermissionGroup.BUDGET_YEAR, title);
+        authBean.addFullPermission(newBudgetYear, PermissionGroup.BUDGET_YEAR, newBudgetYear);
         authBean.disableInheritPermissions(newBudgetYear);
         
         return newBudgetYear;
@@ -106,7 +106,7 @@ public class BudgetBean extends FoundationBean{
         budgetParams.put(getODFName(BUDGET_PARAM_AMOUNT), amount);
         
         NodeRef newBudget = getServiceRegistry().getNodeService().createNode(budgetYear, budgetYearBudgetsQname, budgetQname, budgetTypeQname, budgetParams).getChildRef();
-        authBean.addFullPermission(newBudget, PermissionGroup.BUDGET, title);
+        authBean.addFullPermission(newBudget, PermissionGroup.BUDGET, newBudget);
         authBean.disableInheritPermissions(newBudget);
         
         return newBudget;

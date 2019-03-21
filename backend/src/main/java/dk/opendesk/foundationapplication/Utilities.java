@@ -47,6 +47,7 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.Pair;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
@@ -55,6 +56,8 @@ import org.w3c.dom.Document;
  */
 public final class Utilities {
     private Utilities(){};
+    
+    private static final Logger LOGGER = Logger.getLogger(Utilities.class);
     
     private final static MetricRegistry METRICS = new MetricRegistry();
     
@@ -216,9 +219,13 @@ public final class Utilities {
         AuthorityService as = serviceRegistry.getAuthorityService();
         for(String group : AuthorityBean.getAllCreatedGroups(as)){
             if(as.authorityExists(group)){
+                LOGGER.debug("Deleting group: "+group);
                 as.deleteAuthority(group, true);
+            }else{
+                LOGGER.debug("Group missing: "+group);
             }
         }
+        
 
         for (NodeRef workflow : workflowBean.getWorkflows()) {
             nodeService.removeChild(dataRef, workflow);

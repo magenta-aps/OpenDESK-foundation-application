@@ -11,6 +11,7 @@ import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.BudgetYear;
 import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.DAO.WorkflowReference;
+import org.alfresco.service.cmr.repository.NodeRef;
 
 /**
  *
@@ -32,11 +33,11 @@ public enum PermissionGroup {
         return requiredType;
     }
 
-    public String getShortName(String subName){
-        if(subName == null || subName.isEmpty()){
+    public String getShortName(NodeRef subName){
+        if(subName == null){
             return shortName;
         }else{
-            return shortName+"_"+subName;
+            return shortName+"_"+subName.getId();
         }
     }
 

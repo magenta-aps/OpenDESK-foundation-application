@@ -69,7 +69,7 @@ public class WorkflowBean extends FoundationBean{
         workflowParams.put(workflowTitle, title);
 
         NodeRef newWorkflow = getServiceRegistry().getNodeService().createNode(dataHome, dataWorkflowsQname, workFlowQname, workFlowTypeQname, workflowParams).getChildRef();
-        authBean.addFullPermission(newWorkflow, PermissionGroup.WORKFLOW, title);
+        authBean.addFullPermission(newWorkflow, PermissionGroup.WORKFLOW, newWorkflow);
         authBean.disableInheritPermissions(newWorkflow);
         return newWorkflow;
     }
