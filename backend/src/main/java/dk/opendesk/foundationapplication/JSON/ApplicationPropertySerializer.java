@@ -25,14 +25,14 @@ public class ApplicationPropertySerializer extends JsonSerializer<ApplicationFie
         if(value.getId() != null){
             jgen.writeStringField("id", value.getId());
         }
-        if(value.getType() != null){
-            jgen.writeStringField("type", value.getType());
+        if(value.getComponent() != null){
+            jgen.writeStringField("component", value.getComponent());
         }
         if(value.getLabel() != null){
             jgen.writeStringField("label", value.getLabel());
         }
-        if(value.getJavaType() != null){
-            jgen.writeStringField("javaType", value.getJavaType().getCanonicalName());
+        if(value.getType() != null){
+            jgen.writeStringField("type", value.getType().getCanonicalName());
         }
         if(value.getValue() != null){
             jgen.writeObjectField("value", value.getValue());

@@ -247,14 +247,14 @@ public class ApplicationBean extends FoundationBean{
                                             if (field.wasLabelSet()) {
                                                 oldField.setLabel(field.getLabel());
                                             }
-                                            if (field.wasJavaTypeSet()) {
-                                                oldField.setJavaType(field.getJavaType());
+                                            if (field.wasTypeSet()) {
+                                                oldField.setType(field.getType());
                                             }
                                             if (field.wasLayoutSet()) {
                                                 oldField.setLayout(field.getLayout());
                                             }
-                                            if (field.wasTypeSet()) {
-                                                oldField.setType(field.getType());
+                                            if (field.wasComponentSet()) {
+                                                oldField.setComponent(field.getComponent());
                                             }
                                             if (field.wasDescribesSet()) {
                                                 oldField.setDescribes(field.getDescribes());

@@ -82,7 +82,7 @@ public class ApplicationBlock extends DAOType{
         List<ApplicationFieldValue> fields = get(this.fields);
         for (ApplicationFieldValue blockField : fields) {
             if (describes.getFriendlyName().equals(blockField.getDescribes())) {
-                if(!describes.getRequiredType().isAssignableFrom(blockField.getJavaType())){
+                if(!describes.getRequiredType().isAssignableFrom(blockField.getType())){
                     LOGGER.warn("Found a match for "+describes+" in "+blockField+" but the types did not match");
                 }
                 return (A)blockField;

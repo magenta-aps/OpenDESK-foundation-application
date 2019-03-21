@@ -233,8 +233,8 @@ public class ResetDemoData extends JacksonBackedWebscript {
         valueField.setId(id);
         valueField.setLabel(label);
         valueField.setLayout(layout);
-        valueField.setType(type);
-        valueField.setJavaType(javaType);
+        valueField.setComponent(type);
+        valueField.setType(javaType);
         if(function != null){
             valueField.setDescribes(function.getFriendlyName());
         }

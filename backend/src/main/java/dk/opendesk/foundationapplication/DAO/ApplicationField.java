@@ -18,8 +18,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 public class ApplicationField<E> extends DAOType{
     private Optional<String> id;
     private Optional<String> label;
-    private Optional<Class<E>> javaType;
-    private Optional<String> type;
+    private Optional<Class<E>> type;
+    private Optional<String> component;
     private Optional<String> describes;
     private Optional<List<E>> allowedValues;
     private Optional<String> layout;
@@ -27,11 +27,11 @@ public class ApplicationField<E> extends DAOType{
     public ApplicationField() {
     }
 
-    public ApplicationField(Optional<String> id, Optional<String> label, Optional<Class<E>> javaType, Optional<String> type, Optional<String> function, Optional<List<E>> allowedValues, Optional<String> layout) {
+    public ApplicationField(Optional<String> id, Optional<String> label, Optional<Class<E>> type, Optional<String> component, Optional<String> function, Optional<List<E>> allowedValues, Optional<String> layout) {
         this.id = id;
         this.label = label;
-        this.javaType = javaType;
         this.type = type;
+        this.component = component;
         this.describes = function;
         this.allowedValues = allowedValues;
         this.layout = layout;
@@ -61,19 +61,7 @@ public class ApplicationField<E> extends DAOType{
         this.label = optional(label);
     }
 
-    public Class<E> getJavaType() {
-        return get(javaType);
-    }
-    
-    public boolean wasJavaTypeSet(){
-        return wasSet(javaType);
-    }
-
-    public void setJavaType(Class<E> javaType) {
-        this.javaType = optional(javaType);
-    }
-
-    public String getType() {
+    public Class<E> getType() {
         return get(type);
     }
     
@@ -81,8 +69,20 @@ public class ApplicationField<E> extends DAOType{
         return wasSet(type);
     }
 
-    public void setType(String type) {
-        this.type = optional(type);
+    public void setType(Class<E> javaType) {
+        this.type = optional(javaType);
+    }
+
+    public String getComponent() {
+        return get(component);
+    }
+    
+    public boolean wasComponentSet(){
+        return wasSet(component);
+    }
+
+    public void setComponent(String component) {
+        this.component = optional(component);
     }
 
     public String getDescribes() {
@@ -126,8 +126,8 @@ public class ApplicationField<E> extends DAOType{
         int hash = 7;
         hash = 97 * hash + Objects.hashCode(this.getId());
         hash = 97 * hash + Objects.hashCode(this.getLabel());
-        hash = 97 * hash + Objects.hashCode(this.getJavaType());
         hash = 97 * hash + Objects.hashCode(this.getType());
+        hash = 97 * hash + Objects.hashCode(this.getComponent());
         hash = 97 * hash + Objects.hashCode(this.getDescribes());
         hash = 97 * hash + Objects.hashCode(this.getAllowedValues());
         hash = 97 * hash + Objects.hashCode(this.getLayout());
@@ -152,10 +152,10 @@ public class ApplicationField<E> extends DAOType{
         if (!Objects.equals(this.getLabel(), other.getLabel())) {
             return false;
         }
-        if (!Objects.equals(this.getJavaType(), other.getJavaType())) {
+        if (!Objects.equals(this.getType(), other.getType())) {
             return false;
         }
-        if (!Objects.equals(this.getType(), other.getType())) {
+        if (!Objects.equals(this.getComponent(), other.getComponent())) {
             return false;
         }
         if (!Objects.equals(this.getDescribes(), other.getDescribes())) {
@@ -175,7 +175,7 @@ public class ApplicationField<E> extends DAOType{
     @Override
     public ToStringBuilder toStringBuilder(){
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE);
-        builder.append("id", id).append("label", label).append("javaType", javaType).append("type", type).append("function", describes).append("layout", layout);
+        builder.append("id", id).append("label", label).append("type", type).append("component", component).append("function", describes).append("layout", layout);
         return builder;
     }
     

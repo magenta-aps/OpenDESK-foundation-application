@@ -35,8 +35,8 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
             if (node.has("id")) {
                 toReturn.setId(node.get("id").asText());
             }
-            if (node.has("type")) {
-                toReturn.setType(node.get("type").asText());
+            if (node.has("component")) {
+                toReturn.setComponent(node.get("component").asText());
             }
             if (node.has("label")) {
                 toReturn.setLabel(node.get("label").asText());
@@ -47,10 +47,10 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
             if (node.has("describes")) {
                 toReturn.setDescribes(node.get("describes").asText());
             }
-            if (node.has("javaType")) {
-                String typeString = node.get("javaType").asText();
+            if (node.has("type")) {
+                String typeString = node.get("type").asText();
                 Class type = Class.forName(typeString);
-                toReturn.setJavaType(type);
+                toReturn.setType(type);
                 if (node.has("value")) {
                     if (type.isAssignableFrom(String.class)) {
                         toReturn.setValue(node.get("value").asText());

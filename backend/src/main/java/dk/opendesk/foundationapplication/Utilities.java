@@ -422,13 +422,13 @@ public final class Utilities {
                 return this;
             }
 
-            public FieldChangeBuilder setType(String newType) {
-                value.setType(newType);
+            public FieldChangeBuilder setComponent(String newType) {
+                value.setComponent(newType);
                 return this;
             }
 
-            public FieldChangeBuilder setJavaType(Class newType) {
-                value.setJavaType(newType);
+            public FieldChangeBuilder setType(Class newType) {
+                value.setType(newType);
                 return this;
             }
 
@@ -444,7 +444,7 @@ public final class Utilities {
 
             public FieldChangeBuilder setValue(Object newValue) {
                 value.setValue(newValue);
-                value.setJavaType(newValue.getClass());
+                value.setType(newValue.getClass());
                 return this;
             }
 
