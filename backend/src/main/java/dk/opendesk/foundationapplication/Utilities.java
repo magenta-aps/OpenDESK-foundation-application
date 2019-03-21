@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
@@ -303,8 +303,8 @@ public final class Utilities {
     public static ObjectMapper getMapper(){
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addSerializer(ApplicationPropertyValue.class, new ApplicationPropertySerializer());
-        module.addDeserializer(ApplicationPropertyValue.class, new ApplicationPropertyDeserializer());
+        module.addSerializer(ApplicationFieldValue.class, new ApplicationPropertySerializer());
+        module.addDeserializer(ApplicationFieldValue.class, new ApplicationPropertyDeserializer());
         module.addSerializer(FoundationActionParameterDefinition.class, new FoundationActionParameterDefinitionSerializer());
         module.addDeserializer(FoundationActionParameterDefinition.class, new FoundationActionParameterDefinitionDeserializer());
         module.addSerializer(FoundationActionParameterValue.class, new FoundationActionParameterValueSerializer());
@@ -378,20 +378,20 @@ public final class Utilities {
 
         public class FieldChangeBuilder {
 
-            private final ApplicationPropertyValue value;
+            private final ApplicationFieldValue value;
 
             public FieldChangeBuilder(String fieldID) {
-                Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> existing = findField(change, fieldID);
+                Pair<ApplicationBlock, ApplicationFieldValue> existing = findField(change, fieldID);
                 if (existing != null) {
                     value = existing.getSecond();
                 } else {
-                    Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> originalVal = findField(original, fieldID);
-                    ApplicationPropertyValue changeVal = new ApplicationPropertyValue();
+                    Pair<ApplicationBlock, ApplicationFieldValue> originalVal = findField(original, fieldID);
+                    ApplicationFieldValue changeVal = new ApplicationFieldValue();
                     changeVal.setId(originalVal.getSecond().getId());
 
                     boolean found = false;
                     if (change.getBlocks() != null) {
-                        for (ApplicationPropertiesContainer block : change.getBlocks()) {
+                        for (ApplicationBlock block : change.getBlocks()) {
                             if (originalVal.getFirst().getId().equals(block.getId())) {
                                 block.getFields().add(changeVal);
                                 found = true;
@@ -400,11 +400,11 @@ public final class Utilities {
                     }
 
                     if (!found) {
-                        ApplicationPropertiesContainer changeBlock = new ApplicationPropertiesContainer();
+                        ApplicationBlock changeBlock = new ApplicationBlock();
                         changeBlock.setId(originalVal.getFirst().getId());
                         changeBlock.setFields(new ArrayList<>());
                         changeBlock.getFields().add(changeVal);
-                        change.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{changeBlock}));
+                        change.setBlocks(Arrays.asList(new ApplicationBlock[]{changeBlock}));
                     }
 
                     value = changeVal;
@@ -452,12 +452,12 @@ public final class Utilities {
                 return ApplicationChangeBuilder.this;
             }
 
-            protected final Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> findField(Application target, String id) {
+            protected final Pair<ApplicationBlock, ApplicationFieldValue> findField(Application target, String id) {
                 if (target.getBlocks() == null) {
                     return null;
                 }
-                for (ApplicationPropertiesContainer block : target.getBlocks()) {
-                    for (ApplicationPropertyValue field : block.getFields()) {
+                for (ApplicationBlock block : target.getBlocks()) {
+                    for (ApplicationFieldValue field : block.getFields()) {
                         if (id.equals(field.getId())) {
                             return new Pair<>(block, field);
                         }

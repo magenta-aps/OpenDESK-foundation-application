@@ -15,13 +15,13 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  *
  * @author martin
  */
-public class ApplicationPropertyValue<E> extends ApplicationProperty<E> {
+public class ApplicationFieldValue<E> extends ApplicationField<E> {
     private Optional<E> value;
 
-    public ApplicationPropertyValue() {
+    public ApplicationFieldValue() {
     }
 
-    public ApplicationPropertyValue(Optional<E> value, Optional<String> id, Optional<String> label, Optional<Class<E>> javaType, Optional<String> type, Optional<String> function, Optional<List<E>> allowedValues, Optional<String> layout) {
+    public ApplicationFieldValue(Optional<E> value, Optional<String> id, Optional<String> label, Optional<Class<E>> javaType, Optional<String> type, Optional<String> function, Optional<List<E>> allowedValues, Optional<String> layout) {
         super(id, label, javaType, type, function, allowedValues, layout);
         this.value = value;
     }
@@ -56,7 +56,7 @@ public class ApplicationPropertyValue<E> extends ApplicationProperty<E> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ApplicationPropertyValue<?> other = (ApplicationPropertyValue<?>) obj;
+        final ApplicationFieldValue<?> other = (ApplicationFieldValue<?>) obj;
         if (!Objects.equals(this.getValue(), other.getValue())) {
             return false;
         }

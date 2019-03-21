@@ -15,7 +15,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  *
  * @author martin
  */
-public class ApplicationProperty<E> extends DAOType{
+public class ApplicationField<E> extends DAOType{
     private Optional<String> id;
     private Optional<String> label;
     private Optional<Class<E>> javaType;
@@ -24,10 +24,10 @@ public class ApplicationProperty<E> extends DAOType{
     private Optional<List<E>> allowedValues;
     private Optional<String> layout;
 
-    public ApplicationProperty() {
+    public ApplicationField() {
     }
 
-    public ApplicationProperty(Optional<String> id, Optional<String> label, Optional<Class<E>> javaType, Optional<String> type, Optional<String> function, Optional<List<E>> allowedValues, Optional<String> layout) {
+    public ApplicationField(Optional<String> id, Optional<String> label, Optional<Class<E>> javaType, Optional<String> type, Optional<String> function, Optional<List<E>> allowedValues, Optional<String> layout) {
         this.id = id;
         this.label = label;
         this.javaType = javaType;
@@ -145,7 +145,7 @@ public class ApplicationProperty<E> extends DAOType{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ApplicationProperty<?> other = (ApplicationProperty<?>) obj;
+        final ApplicationField<?> other = (ApplicationField<?>) obj;
         if (!Objects.equals(this.getId(), other.getId())) {
             return false;
         }

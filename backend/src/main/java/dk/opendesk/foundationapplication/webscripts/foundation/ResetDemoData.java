@@ -6,8 +6,8 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
@@ -183,11 +183,11 @@ public class ResetDemoData extends JacksonBackedWebscript {
         String floor = random(FLOORS);
         Date startDate = Date.from(Instant.now());
         Date endDate = Date.from(Instant.now().plus(Duration.ofDays(RANDOM.nextInt(50) + 1)));
-        ApplicationPropertiesContainer block1 = new ApplicationPropertiesContainer();
+        ApplicationBlock block1 = new ApplicationBlock();
         block1.setId("block1");
         block1.setLabel("Information");
         block1.setLayout("display:block;");
-        List<ApplicationPropertyValue> fields = new ArrayList<>();
+        List<ApplicationFieldValue> fields = new ArrayList<>();
         fields.add(buildValue("1", "Kategori", "display:block;", "text", String.class, null, "My new Category"));
         fields.add(buildValue("2", "Modtager", "display:block;", "text", String.class, null, recipient));
         fields.add(buildValue("3", "Vejnavn", "display:block;", "text", String.class, null, steetName));
@@ -228,8 +228,8 @@ public class ResetDemoData extends JacksonBackedWebscript {
         return app;
     }
     
-    public static <E> ApplicationPropertyValue<E> buildValue(String id, String label, String layout, String type, Class<E> javaType, Functional function, E value){
-        ApplicationPropertyValue valueField = new ApplicationPropertyValue();
+    public static <E> ApplicationFieldValue<E> buildValue(String id, String label, String layout, String type, Class<E> javaType, Functional function, E value){
+        ApplicationFieldValue valueField = new ApplicationFieldValue();
         valueField.setId(id);
         valueField.setLabel(label);
         valueField.setLayout(layout);

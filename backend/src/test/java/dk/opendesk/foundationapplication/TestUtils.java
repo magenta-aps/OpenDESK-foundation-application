@@ -6,8 +6,8 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
@@ -154,18 +154,18 @@ public final class TestUtils {
         branchBean.addBranchBudget(branchRef, budgetRef1);
         branchBean.addBranchBudget(branchRef, budgetRef2);
 
-        ArrayList<ApplicationPropertyValue> fields;
+        ArrayList<ApplicationFieldValue> fields;
         Application app1 = new Application();
         app1.setBranchSummary(branchBean.getBranchSummary(branchRef));
         app1.setBudget(budgetBean.getBudgetReference(budgetRef1));
         app1.setTitle(APPLICATION1_NAME);
-        ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationBlock app1blockRecipient = new ApplicationBlock();
         app1blockRecipient.setId("1");
         app1blockRecipient.setLabel("Recipient");
-        ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        ApplicationBlock app1blockOverview = new ApplicationBlock();
         app1blockOverview.setId("2");
         app1blockOverview.setLabel("Overview");
-        ApplicationPropertiesContainer app1Details = new ApplicationPropertiesContainer();
+        ApplicationBlock app1Details = new ApplicationBlock();
         app1Details.setId("3");
         app1Details.setLabel("Details");
 
@@ -193,7 +193,7 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "4321"));
         fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
         app1Details.setFields(fields);
-        app1.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1Details}));
+        app1.setBlocks(Arrays.asList(new ApplicationBlock[]{app1blockRecipient, app1blockOverview, app1Details}));
         application1 = applicationBean.addNewApplication(app1).asNodeRef();
 
         //application1 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION1_NAME, APPLICATION1_NAME + TITLE_POSTFIX,, "", "", , "", "", "", "", "", "", "", , , , "", "");
@@ -201,13 +201,13 @@ public final class TestUtils {
         app2.setBranchSummary(branchBean.getBranchSummary(branchRef));
         app2.setBudget(budgetBean.getBudgetReference(budgetRef1));
         app2.setTitle(APPLICATION2_NAME);
-        ApplicationPropertiesContainer app2blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationBlock app2blockRecipient = new ApplicationBlock();
         app2blockRecipient.setId("1");
         app2blockRecipient.setLabel("Recipient");
-        ApplicationPropertiesContainer app2blockOverview = new ApplicationPropertiesContainer();
+        ApplicationBlock app2blockOverview = new ApplicationBlock();
         app2blockOverview.setId("2");
         app2blockOverview.setLabel("Overview");
-        ApplicationPropertiesContainer app2details = new ApplicationPropertiesContainer();
+        ApplicationBlock app2details = new ApplicationBlock();
         app2details.setId("3");
         app2details.setLabel("Details");
 
@@ -236,19 +236,19 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
         app2details.setFields(fields);
 
-        app2.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app2blockRecipient, app2blockOverview, app2details}));
+        app2.setBlocks(Arrays.asList(new ApplicationBlock[]{app2blockRecipient, app2blockOverview, app2details}));
         application2 = applicationBean.addNewApplication(app2).asNodeRef();
 
         //application2 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION2_NAME, APPLICATION2_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
         Application app3 = new Application();
         app3.setTitle(APPLICATION3_NAME);
-        ApplicationPropertiesContainer app3blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationBlock app3blockRecipient = new ApplicationBlock();
         app3blockRecipient.setLabel("Recipient");
         app3blockRecipient.setId("1");
-        ApplicationPropertiesContainer app3blockOverview = new ApplicationPropertiesContainer();
+        ApplicationBlock app3blockOverview = new ApplicationBlock();
         app3blockOverview.setLabel("Overview");
         app3blockOverview.setId("2");
-        ApplicationPropertiesContainer app3details = new ApplicationPropertiesContainer();
+        ApplicationBlock app3details = new ApplicationBlock();
         app3details.setLabel("Details");
         app3details.setId("3");
         
@@ -277,7 +277,7 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
         app3details.setFields(fields);
 
-        app3.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app3blockRecipient, app3blockOverview, app3details}));
+        app3.setBlocks(Arrays.asList(new ApplicationBlock[]{app3blockRecipient, app3blockOverview, app3details}));
         application3 = applicationBean.addNewApplication(app3).asNodeRef();
         //application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
         isInitiated = true;

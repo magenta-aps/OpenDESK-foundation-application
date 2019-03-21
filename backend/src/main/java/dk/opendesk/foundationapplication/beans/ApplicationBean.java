@@ -9,8 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationChange;
 import dk.opendesk.foundationapplication.DAO.ApplicationChangeUnit;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchReference;
@@ -75,7 +75,7 @@ public class ApplicationBean extends FoundationBean{
         this.workflowBean = workflowBean;
     }
     
-    public ApplicationReference addNewApplication(String id, NodeRef branchRef, NodeRef budgetRef, String title, ApplicationPropertiesContainer... blocks) throws Exception {
+    public ApplicationReference addNewApplication(String id, NodeRef branchRef, NodeRef budgetRef, String title, ApplicationBlock... blocks) throws Exception {
         Application app = new Application();
         app.setId(id);
         app.setTitle(title);
@@ -109,9 +109,9 @@ public class ApplicationBean extends FoundationBean{
         properties.put(getODFName(APPLICATION_PARAM_TITLE), application.getTitle());
 
         ArrayList<String> blockStrings = new ArrayList<>();
-        List<ApplicationPropertiesContainer> blocks = application.getBlocks();
+        List<ApplicationBlock> blocks = application.getBlocks();
         if (blocks != null) {
-            for (ApplicationPropertiesContainer block : blocks) {
+            for (ApplicationBlock block : blocks) {
                 String blockString = blockMapper.writeValueAsString(block);
                 blockStrings.add(blockString);
             }
@@ -222,12 +222,12 @@ public class ApplicationBean extends FoundationBean{
             }
         }
 
-        List<ApplicationPropertiesContainer> oldBlocks = getApplication(app.asNodeRef()).getBlocks();
+        List<ApplicationBlock> oldBlocks = getApplication(app.asNodeRef()).getBlocks();
 
         if (app.wasBlocksSet() && app.getBlocks() != null) {
-            for (ApplicationPropertiesContainer block : app.getBlocks()) {
+            for (ApplicationBlock block : app.getBlocks()) {
                 if (block.getId() != null) {
-                    ApplicationPropertiesContainer oldBlock = getBlockByID(block.getId(), oldBlocks);
+                    ApplicationBlock oldBlock = getBlockByID(block.getId(), oldBlocks);
                     if (oldBlock == null) {
                         oldBlocks.add(block);
                     } else {
@@ -238,9 +238,9 @@ public class ApplicationBean extends FoundationBean{
                             if (block.getFields() == null) {
                                 oldBlock.setFields(null);
                             } else {
-                                for (ApplicationPropertyValue field : block.getFields()) {
+                                for (ApplicationFieldValue field : block.getFields()) {
                                     if (field.getId() != null) {
-                                        ApplicationPropertyValue oldField = getFieldByID(field.getId(), oldBlock.getFields());
+                                        ApplicationFieldValue oldField = getFieldByID(field.getId(), oldBlock.getFields());
                                         if (oldField == null) {
                                             oldBlock.getFields().add(field);
                                         } else {
@@ -281,7 +281,7 @@ public class ApplicationBean extends FoundationBean{
             }
             ObjectMapper mapper = Utilities.getMapper();
             ArrayList<String> blockStrings = new ArrayList<>();
-            for (ApplicationPropertiesContainer block : oldBlocks) {
+            for (ApplicationBlock block : oldBlocks) {
                 blockStrings.add(mapper.writeValueAsString(block));
             }
             properties.put(getODFName(APPLICATION_PARAM_BLOCKS), blockStrings);
@@ -292,8 +292,8 @@ public class ApplicationBean extends FoundationBean{
         getServiceRegistry().getVersionService().createVersion(app.asNodeRef(), Collections.singletonMap(APPLICATION_CHANGE, APPLICATION_CHANGE_UPDATE));
     }
     
-    private ApplicationPropertiesContainer getBlockByID(String id, List<ApplicationPropertiesContainer> blocks) {
-        for (ApplicationPropertiesContainer block : blocks) {
+    private ApplicationBlock getBlockByID(String id, List<ApplicationBlock> blocks) {
+        for (ApplicationBlock block : blocks) {
             if (Objects.equals(id, block.getId())) {
                 return block;
             }
@@ -301,8 +301,8 @@ public class ApplicationBean extends FoundationBean{
         return null;
     }
 
-    private ApplicationPropertyValue getFieldByID(String id, List<ApplicationPropertyValue> fields) {
-        for (ApplicationPropertyValue field : fields) {
+    private ApplicationFieldValue getFieldByID(String id, List<ApplicationFieldValue> fields) {
+        for (ApplicationFieldValue field : fields) {
             if (Objects.equals(id, field.getId())) {
                 return field;
             }
@@ -442,11 +442,11 @@ public class ApplicationBean extends FoundationBean{
         app.setTitle(getProperty(applicationSummary, APPLICATION_PARAM_TITLE, String.class));
         app.setIsSeen(isApplicationSeen(applicationSummary, getCurrentUserName()));
         List<String> blockStrings = getProperty(applicationSummary, APPLICATION_PARAM_BLOCKS, List.class);
-        List<ApplicationPropertiesContainer> blocks = new ArrayList<>();
+        List<ApplicationBlock> blocks = new ArrayList<>();
 
         if (blockStrings != null) {
             for (String blockString : blockStrings) {
-                blocks.add(mapper.readValue(blockString, ApplicationPropertiesContainer.class));
+                blocks.add(mapper.readValue(blockString, ApplicationBlock.class));
             }
         }
 
@@ -464,10 +464,10 @@ public class ApplicationBean extends FoundationBean{
         application.setTitle(getProperty(applicationRef, APPLICATION_PARAM_TITLE, String.class));
         application.setIsSeen(isApplicationSeen(applicationRef, getCurrentUserName()));
         List<String> blockStrings = getProperty(applicationRef, APPLICATION_PARAM_BLOCKS, List.class);
-        List<ApplicationPropertiesContainer> blocks = new ArrayList<>();
+        List<ApplicationBlock> blocks = new ArrayList<>();
 
         for (String blockString : blockStrings) {
-            blocks.add(mapper.readValue(blockString, ApplicationPropertiesContainer.class));
+            blocks.add(mapper.readValue(blockString, ApplicationBlock.class));
         }
         application.setBlocks(blocks);
 
@@ -514,14 +514,14 @@ public class ApplicationBean extends FoundationBean{
 
         List<ApplicationChangeUnit> changes = new ArrayList<>();
 
-        Map<String, ApplicationPropertyValue> newVersionProperties = getApplicationFields(newVersion);
+        Map<String, ApplicationFieldValue> newVersionProperties = getApplicationFields(newVersion);
 
         if (oldVersion != null) {
-            Map<String, ApplicationPropertyValue> oldVersionProperties = getApplicationFields(oldVersion);
+            Map<String, ApplicationFieldValue> oldVersionProperties = getApplicationFields(oldVersion);
 
             for (String key : oldVersionProperties.keySet()) {
-                ApplicationPropertyValue oldValueField = oldVersionProperties.get(key);
-                ApplicationPropertyValue newValueField = newVersionProperties.get(key);
+                ApplicationFieldValue oldValueField = oldVersionProperties.get(key);
+                ApplicationFieldValue newValueField = newVersionProperties.get(key);
                 if (newValueField != null) {
                     if (!Objects.equals(oldValueField.getValue(), newValueField.getValue())) {
                         changes.add(new ApplicationChangeUnit().setChangedField(oldValueField.getLabel()).setOldValueWithObject(oldValueField.getValue()).setNewValueWithObject(newValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
@@ -534,7 +534,7 @@ public class ApplicationBean extends FoundationBean{
         }
 
         for (String key : newVersionProperties.keySet()) {
-            ApplicationPropertyValue newValueField = newVersionProperties.get(key);
+            ApplicationFieldValue newValueField = newVersionProperties.get(key);
             changes.add(new ApplicationChangeUnit().setChangedField(newValueField.getLabel()).setNewValueWithObject(newValueField.getValue()).setChangeType(APPLICATION_CHANGE_UPDATE_PROP));
         }
 
@@ -553,13 +553,13 @@ public class ApplicationBean extends FoundationBean{
         return changes;
     }
     
-    public Map<String, ApplicationPropertyValue> getApplicationFields(Application application){
+    public Map<String, ApplicationFieldValue> getApplicationFields(Application application){
         if (application == null) {
             return null;
         }
-        Map<String, ApplicationPropertyValue> toReturn = new HashMap<>();
-        for (ApplicationPropertiesContainer block : application.getBlocks()) {
-            for (ApplicationPropertyValue field : block.getFields()) {
+        Map<String, ApplicationFieldValue> toReturn = new HashMap<>();
+        for (ApplicationBlock block : application.getBlocks()) {
+            for (ApplicationFieldValue field : block.getFields()) {
                 toReturn.put(field.getId(), field);
             }
         }

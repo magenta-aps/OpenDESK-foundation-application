@@ -6,14 +6,13 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
-import dk.opendesk.foundationapplication.DAO.State;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import static dk.opendesk.foundationapplication.TestUtils.stateAccessRef;
 import static dk.opendesk.foundationapplication.Utilities.APPLICATION_FOLDER_DOCUMENT;
@@ -66,13 +65,13 @@ public class ApplicationTest extends AbstractTestClass{
 
         Application newApplication = new Application();
         newApplication.setTitle(applicationTitle);
-        ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationBlock app1blockRecipient = new ApplicationBlock();
         app1blockRecipient.setId("1");
         app1blockRecipient.setLabel("Recipients");
-        ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        ApplicationBlock app1blockOverview = new ApplicationBlock();
         app1blockOverview.setId("2");
         app1blockOverview.setLabel("Overview");
-        ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        ApplicationBlock app1details = new ApplicationBlock();
         app1details.setId("3");
         app1details.setLabel("Details");
         app1blockRecipient.setFields(new ArrayList<>());
@@ -96,7 +95,7 @@ public class ApplicationTest extends AbstractTestClass{
         app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), 10000l));
         app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "1234"));
         app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "12345678"));
-        newApplication.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1details}));
+        newApplication.setBlocks(Arrays.asList(new ApplicationBlock[]{app1blockRecipient, app1blockOverview, app1details}));
         
         ApplicationReference reference = post(newApplication, ApplicationReference.class);
         assertNotNull(reference);
@@ -355,8 +354,8 @@ public class ApplicationTest extends AbstractTestClass{
     public void testUpdateApplication() throws Exception{
         String newDescription = "new description";
         Application beforeChange = getApplicationBean().getApplication(TestUtils.application1);
-        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
-        ApplicationPropertyValue description = overview.getFields().get(1);
+        ApplicationBlock overview = beforeChange.getBlocks().get(1);
+        ApplicationFieldValue description = overview.getFields().get(1);
         assertEquals("Overview", overview.getLabel());
         assertEquals("Short Description", description.getLabel());
         assertEquals("Give me money", description.getValue());
@@ -381,8 +380,8 @@ public class ApplicationTest extends AbstractTestClass{
     public void testUpdateFullApplication() throws Exception{
         String newDescription = "new description";
         Application beforeChange = getApplicationBean().getApplication(TestUtils.application1);
-        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
-        ApplicationPropertyValue description = overview.getFields().get(1);
+        ApplicationBlock overview = beforeChange.getBlocks().get(1);
+        ApplicationFieldValue description = overview.getFields().get(1);
         assertEquals("Overview", overview.getLabel());
         assertEquals("Short Description", description.getLabel());
         assertEquals("Give me money", description.getValue());
@@ -405,8 +404,8 @@ public class ApplicationTest extends AbstractTestClass{
     public void testRestUpdateApplication() throws Exception {
         String newDescription = "changed description";
         Application beforeChange = get(Application.class, TestUtils.application1.getId());
-        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
-        ApplicationPropertyValue description = overview.getFields().get(1);
+        ApplicationBlock overview = beforeChange.getBlocks().get(1);
+        ApplicationFieldValue description = overview.getFields().get(1);
         assertEquals("Overview", overview.getLabel());
         assertEquals("Short Description", description.getLabel());
         assertEquals("Give me money", description.getValue());
@@ -429,8 +428,8 @@ public class ApplicationTest extends AbstractTestClass{
     public void testRestUpdateFullApplication() throws Exception {
         String newDescription = "changed description";
         Application beforeChange = get(Application.class, TestUtils.application1.getId());
-        ApplicationPropertiesContainer overview = beforeChange.getBlocks().get(1);
-        ApplicationPropertyValue description = overview.getFields().get(1);
+        ApplicationBlock overview = beforeChange.getBlocks().get(1);
+        ApplicationFieldValue description = overview.getFields().get(1);
         assertEquals("Overview", overview.getLabel());
         assertEquals("Short Description", description.getLabel());
         assertEquals("Give me money", description.getValue());

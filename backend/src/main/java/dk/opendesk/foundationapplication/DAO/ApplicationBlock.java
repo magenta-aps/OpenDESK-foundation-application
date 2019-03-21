@@ -17,15 +17,15 @@ import org.apache.log4j.Logger;
  *
  * @author martin
  */
-public class ApplicationPropertiesContainer extends DAOType{
-    private static final Logger LOGGER = Logger.getLogger(ApplicationPropertiesContainer.class);
+public class ApplicationBlock extends DAOType{
+    private static final Logger LOGGER = Logger.getLogger(ApplicationBlock.class);
     
     private Optional<String> id;
     private Optional<String> label;
     private Optional<String> layout;
-    private Optional<List<ApplicationPropertyValue>> fields;
+    private Optional<List<ApplicationFieldValue>> fields;
 
-    public ApplicationPropertiesContainer() {
+    public ApplicationBlock() {
     }
     
     
@@ -66,7 +66,7 @@ public class ApplicationPropertiesContainer extends DAOType{
     }
 
     
-    public List<ApplicationPropertyValue> getFields() {
+    public List<ApplicationFieldValue> getFields() {
         return get(fields);
     }
 
@@ -74,13 +74,13 @@ public class ApplicationPropertiesContainer extends DAOType{
         return wasSet(fields);
     }
 
-    public void setFields(List<ApplicationPropertyValue> fields) {
+    public void setFields(List<ApplicationFieldValue> fields) {
         this.fields = optional(fields);
     }
     
-    public final <E, A extends ApplicationPropertyValue<E>> A getFunctionalField(Functional<E> describes) {
-        List<ApplicationPropertyValue> fields = get(this.fields);
-        for (ApplicationPropertyValue blockField : fields) {
+    public final <E, A extends ApplicationFieldValue<E>> A getFunctionalField(Functional<E> describes) {
+        List<ApplicationFieldValue> fields = get(this.fields);
+        for (ApplicationFieldValue blockField : fields) {
             if (describes.getFriendlyName().equals(blockField.getDescribes())) {
                 if(!describes.getRequiredType().isAssignableFrom(blockField.getJavaType())){
                     LOGGER.warn("Found a match for "+describes+" in "+blockField+" but the types did not match");
@@ -112,7 +112,7 @@ public class ApplicationPropertiesContainer extends DAOType{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ApplicationPropertiesContainer other = (ApplicationPropertiesContainer) obj;
+        final ApplicationBlock other = (ApplicationBlock) obj;
         if (!Objects.equals(this.getId(), other.getId())) {
             return false;
         }

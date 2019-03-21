@@ -6,22 +6,18 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.StateCategory;
-import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.buildValue;
-import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.numberString;
-import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.phoneNumber;
-import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.random;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -67,8 +63,8 @@ public class CreateDanvaData extends ResetDemoData {
         String floor = random(FLOORS);
         Date startDate = Date.from(Instant.now());
         Date endDate = Date.from(Instant.now().plus(Duration.ofDays(RANDOM.nextInt(50) + 1)));
-        List<ApplicationPropertyValue> fields;
-        ApplicationPropertiesContainer applicant = new ApplicationPropertiesContainer();
+        List<ApplicationFieldValue> fields;
+        ApplicationBlock applicant = new ApplicationBlock();
         applicant.setId("applicant");
         applicant.setLabel("Oplysninger om ansøger");
         applicant.setLayout("display:block;");
@@ -85,7 +81,7 @@ public class CreateDanvaData extends ResetDemoData {
         applicant.setFields(fields);
         
         
-        ApplicationPropertiesContainer projektPartner1 = new ApplicationPropertiesContainer();
+        ApplicationBlock projektPartner1 = new ApplicationBlock();
         projektPartner1.setId("pp1");
         projektPartner1.setLabel(partner1);
         projektPartner1.setLayout("display:block;");
@@ -96,7 +92,7 @@ public class CreateDanvaData extends ResetDemoData {
         fields.add(buildValue("12", "Rolle under projektet", "display:block;", "text", String.class, null, lorem(6)));
         projektPartner1.setFields(fields);
         
-        ApplicationPropertiesContainer projektPartner2 = new ApplicationPropertiesContainer();
+        ApplicationBlock projektPartner2 = new ApplicationBlock();
         projektPartner2.setId("pp2");
         projektPartner2.setLabel(partner2);
         projektPartner2.setLayout("display:block;");
@@ -107,7 +103,7 @@ public class CreateDanvaData extends ResetDemoData {
         fields.add(buildValue("16", "Rolle under projektet", "display:block;", "text", String.class, null, lorem(6)));
         projektPartner2.setFields(fields);
         
-        ApplicationPropertiesContainer project = new ApplicationPropertiesContainer();
+        ApplicationBlock project = new ApplicationBlock();
         project.setId("projekt");
         project.setLabel("Projektet");
         project.setLayout("display:block;");
@@ -123,7 +119,7 @@ public class CreateDanvaData extends ResetDemoData {
         fields.add(buildValue("25", "Effektivisering og bæredygtighed", "display:block;", "text", String.class, null, lorem(140)));
         project.setFields(fields);
         
-        ApplicationPropertiesContainer dateBlock = new ApplicationPropertiesContainer();
+        ApplicationBlock dateBlock = new ApplicationBlock();
         dateBlock.setId("datesbudget");
         dateBlock.setLabel("Dato og finansiering");
         dateBlock.setLayout("display:block;");
@@ -134,7 +130,7 @@ public class CreateDanvaData extends ResetDemoData {
         fields.add(buildValue("29", "Ansøgt beløb", "display:block;", "number", Double.class, Functional.amount(), Double.valueOf(requiredAmount)));
         dateBlock.setFields(fields);   
                 
-        ApplicationPropertiesContainer contact = new ApplicationPropertiesContainer();
+        ApplicationBlock contact = new ApplicationBlock();
         contact.setId("contact");
         contact.setLabel("Ansvarlige personer hos hovedansøger");
         contact.setLayout("display:block;");
@@ -151,7 +147,7 @@ public class CreateDanvaData extends ResetDemoData {
 
         Application app = new Application();
         app.setTitle(name);
-        List<ApplicationPropertiesContainer> containers = Arrays.asList(new ApplicationPropertiesContainer[]{applicant, projektPartner1, projektPartner2, project, dateBlock, contact});
+        List<ApplicationBlock> containers = Arrays.asList(new ApplicationBlock[]{applicant, projektPartner1, projektPartner2, project, dateBlock, contact});
         app.setBlocks(containers);
         if (branch != null) {
             BranchSummary branchRef = new BranchSummary();

@@ -6,7 +6,7 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.StateSummary;
 import dk.opendesk.foundationapplication.DAO.Workflow;
@@ -145,13 +145,13 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         app1.setBranchSummary(branchBean.getBranchSummary(getBranchRef()));
         app1.setBudget(budgetBean.getBudgetReference(budgetRef));
         app1.setTitle(APPLICATION_NAME);
-        ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationBlock app1blockRecipient = new ApplicationBlock();
         app1blockRecipient.setId("1");
         app1blockRecipient.setLabel("Recipients");
-        ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        ApplicationBlock app1blockOverview = new ApplicationBlock();
         app1blockOverview.setId("2");
         app1blockOverview.setLabel("Overview");
-        ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        ApplicationBlock app1details = new ApplicationBlock();
         app1details.setId("3");
         app1details.setLabel("Details");
         
@@ -176,7 +176,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), appliedAmount));
         app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "1234"));
         app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00123456"));
-        app1.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1details}));
+        app1.setBlocks(Arrays.asList(new ApplicationBlock[]{app1blockRecipient, app1blockOverview, app1details}));
         applicationBean.addNewApplication(app1);
         //foundationBean.addNewApplication(getBranchRef(), budgetRef, APPLICATION_NAME, "NewApplication", "Category1", "Dansk Dræbersnegls Bevaringsforbund", "Sneglesporet", 3, "2", "1445", "Svend", "Svendsen", "ikkedraebesneglen@gmail.com", "12345678",
         //        "Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr.", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(2))), appliedAmount, "1234", "00123456");

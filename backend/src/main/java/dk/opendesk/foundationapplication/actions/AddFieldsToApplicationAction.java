@@ -1,8 +1,8 @@
 package dk.opendesk.foundationapplication.actions;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
@@ -40,8 +40,8 @@ public class AddFieldsToApplicationAction extends ActionExecuterAbstractBase {
         String blockId = (String) action.getParameterValue(PARAM_BLOCK_ID);
 
         //finding the block
-        ApplicationPropertiesContainer oldBlock = null;
-        for (ApplicationPropertiesContainer b : application.getBlocks()) {
+        ApplicationBlock oldBlock = null;
+        for (ApplicationBlock b : application.getBlocks()) {
             if (blockId.equals(b.getId())) {
                 oldBlock = b;
             }
@@ -51,12 +51,12 @@ public class AddFieldsToApplicationAction extends ActionExecuterAbstractBase {
         }
 
         //checking if the fields already exists
-        List<ApplicationPropertyValue> newFields = (List<ApplicationPropertyValue>) action.getParameterValue(PARAM_FIELDS);
-        List<ApplicationPropertyValue> oldFields = oldBlock.getFields();
+        List<ApplicationFieldValue> newFields = (List<ApplicationFieldValue>) action.getParameterValue(PARAM_FIELDS);
+        List<ApplicationFieldValue> oldFields = oldBlock.getFields();
 
         if (oldFields != null) {
-            for (ApplicationPropertyValue newField : newFields) {
-                for (ApplicationPropertyValue oldField : oldFields) {
+            for (ApplicationFieldValue newField : newFields) {
+                for (ApplicationFieldValue oldField : oldFields) {
                     if (newField.getId().equals(oldField.getId())) {
                         throw new AlfrescoRuntimeException(EXCEPTION_FIELD_OVERLAP);
                     }
@@ -65,7 +65,7 @@ public class AddFieldsToApplicationAction extends ActionExecuterAbstractBase {
         }
 
         //adding the fields
-        ApplicationPropertiesContainer newBlock = new ApplicationPropertiesContainer();
+        ApplicationBlock newBlock = new ApplicationBlock();
         newBlock.setId(blockId);
         newBlock.setFields(newFields);
 

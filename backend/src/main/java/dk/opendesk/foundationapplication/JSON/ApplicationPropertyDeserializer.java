@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.Utilities;
 import org.apache.log4j.Logger;
 
@@ -22,15 +22,15 @@ import java.util.Date;
  *
  * @author martin
  */
-public class ApplicationPropertyDeserializer extends JsonDeserializer<ApplicationPropertyValue> {
+public class ApplicationPropertyDeserializer extends JsonDeserializer<ApplicationFieldValue> {
 
     private static final Logger logger = Logger.getLogger(ApplicationPropertyDeserializer.class);
 
     @Override
-    public ApplicationPropertyValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public ApplicationFieldValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         ObjectMapper mapper = Utilities.getMapper();
         try {
-            ApplicationPropertyValue toReturn = new ApplicationPropertyValue();
+            ApplicationFieldValue toReturn = new ApplicationFieldValue();
             JsonNode node = jp.getCodec().readTree(jp);
             if (node.has("id")) {
                 toReturn.setId(node.get("id").asText());
@@ -66,14 +66,14 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
             return toReturn;
 
         } catch (ClassNotFoundException ex) {
-            logger.error("Failed to deserialize ApplicationPropertyValue", ex);
+            logger.error("Failed to deserialize ApplicationFieldValue", ex);
             return null;
         }
     }
 
     @Override
     public Class<?> handledType() {
-        return ApplicationPropertyValue.class;
+        return ApplicationFieldValue.class;
     }
 
 }

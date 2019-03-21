@@ -5,7 +5,7 @@
  */
 package dk.opendesk.foundationapplication.beans;
 
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.Budget;
@@ -229,7 +229,7 @@ public class BudgetBean extends FoundationBean{
             appRef.setNodeRef(application.getNodeRef());
             appRef.setTitle(application.getTitle());
             applications.add(appRef);
-            ApplicationPropertyValue<Long> value = application.totalAmount();
+            ApplicationFieldValue<Long> value = application.totalAmount();
             if (value == null) {
                 continue;
             }

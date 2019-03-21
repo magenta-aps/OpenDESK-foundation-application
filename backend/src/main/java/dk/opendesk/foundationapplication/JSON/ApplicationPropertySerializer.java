@@ -9,17 +9,18 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
+
 import java.io.IOException;
 
 /**
  *
  * @author martin
  */
-public class ApplicationPropertySerializer extends JsonSerializer<ApplicationPropertyValue>{
+public class ApplicationPropertySerializer extends JsonSerializer<ApplicationFieldValue>{
 
     @Override
-    public void serialize(ApplicationPropertyValue value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(ApplicationFieldValue value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
         if(value.getId() != null){
             jgen.writeStringField("id", value.getId());
@@ -46,8 +47,8 @@ public class ApplicationPropertySerializer extends JsonSerializer<ApplicationPro
     }
 
     @Override
-    public Class<ApplicationPropertyValue> handledType() {
-        return ApplicationPropertyValue.class;
+    public Class<ApplicationFieldValue> handledType() {
+        return ApplicationFieldValue.class;
     }
     
     
