@@ -395,6 +395,7 @@ public class ApplicationBean extends FoundationBean{
         reference.parseRef(applicationRef);
         reference.setId(getProperty(applicationRef, APPLICATION_PARAM_ID, String.class));
         reference.setTitle(getProperty(applicationRef, APPLICATION_PARAM_TITLE, String.class));
+        reference.setIsSeen(isApplicationSeen(applicationRef, getCurrentUserName()));
         return reference;
     }
 

@@ -18,8 +18,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class ApplicationSummary extends ApplicationReference {
     private Optional<BranchSummary> branchSummary;
     private Optional<List<ApplicationPropertiesContainer>> blocks;
-    private Optional<Boolean> isSeen;
-    
+
     public ApplicationSummary() {
     }
 
@@ -60,18 +59,6 @@ public class ApplicationSummary extends ApplicationReference {
         return null;
     }
 
-    public Boolean getIsSeen() {
-        return get(isSeen);
-    }
-
-    public boolean wasIsSeenSet() {
-        return wasSet(isSeen);
-    }
-
-    public void setIsSeen(Boolean isSeen) {
-        this.isSeen = optional(isSeen);
-    }
-    
     public final ApplicationPropertyValue<Long> totalAmount(){
         return getFunctionalField(Functional.amount());
     }
