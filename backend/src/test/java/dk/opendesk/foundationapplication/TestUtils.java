@@ -142,6 +142,8 @@ public final class TestUtils {
     public static NodeRef user_workflow_write;
     public static NodeRef user_budget_read;
     public static NodeRef user_budget_write;
+    public static NodeRef user_budgetYear_read;
+    public static NodeRef user_budgetYear_write;
     public static NodeRef user_single_application_read;
     public static NodeRef user_no_rights;
     
@@ -241,11 +243,13 @@ public final class TestUtils {
     user_workflow_write = null;
     user_budget_read = null;
     user_budget_write = null;
+    user_budgetYear_read = null;
+    user_budgetYear_write = null;
     user_single_application_read = null;
     user_no_rights = null;
         
         
-        isInitiated = false;
+    isInitiated = false;
 
     }
 
@@ -558,12 +562,26 @@ public final class TestUtils {
         user_workflow_write = createUser(USER_WORKFLOW_WRITE, serviceRegistry);
         user_budget_read = createUser(USER_BUDGET_READ, serviceRegistry);
         user_budget_write = createUser(USER_BUDGET_WRITE, serviceRegistry);
-        user_budget_read = createUser(USER_BUDGETYEAR_READ, serviceRegistry);
-        user_budget_write = createUser(USER_BUDGETYEAR_WRITE, serviceRegistry);
+        user_budgetYear_read = createUser(USER_BUDGETYEAR_READ, serviceRegistry);
+        user_budgetYear_write = createUser(USER_BUDGETYEAR_WRITE, serviceRegistry);
         user_single_application_read = createUser(USER_SINGLE_APPLICATION_WRITE, serviceRegistry);
         
         authBean.addUserGroup(USER_BRANCH_READ, authBean.getGroup(PermissionGroup.BRANCH, branchRef1, false));
         authBean.addUserGroup(USER_BRANCH_WRITE, authBean.getGroup(PermissionGroup.BRANCH, branchRef1, true));
+        
+        authBean.addUserGroup(USER_BRANCH_WRITE_ALL_READ, authBean.getGroup(PermissionGroup.BRANCH, branchRef1, true));
+        authBean.addUserGroup(USER_BRANCH_WRITE_ALL_READ, authBean.getGroup(PermissionGroup.SUPER, false));
+        
+        authBean.addUserGroup(USER_WORKFLOW_READ, authBean.getGroup(PermissionGroup.WORKFLOW, workFlowRef1, false));      
+        authBean.addUserGroup(USER_WORKFLOW_WRITE, authBean.getGroup(PermissionGroup.WORKFLOW, workFlowRef1, true));
+        
+        authBean.addUserGroup(USER_BUDGET_READ, authBean.getGroup(PermissionGroup.BUDGET, budgetRef1, false));
+        authBean.addUserGroup(USER_BUDGET_WRITE, authBean.getGroup(PermissionGroup.BUDGET, budgetRef1, true));
+        
+        authBean.addUserGroup(USER_BUDGETYEAR_READ, authBean.getGroup(PermissionGroup.BUDGET_YEAR, budgetYearRef1, false));
+        authBean.addUserGroup(USER_BUDGETYEAR_WRITE, authBean.getGroup(PermissionGroup.BUDGET_YEAR, budgetYearRef1, true));
+        
+
         authBean.addReadPermission(application3, USER_SINGLE_APPLICATION_WRITE);
         authBean.addWritePermission(application3, USER_SINGLE_APPLICATION_WRITE);
         

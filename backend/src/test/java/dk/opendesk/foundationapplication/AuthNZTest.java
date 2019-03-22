@@ -78,5 +78,32 @@ public class AuthNZTest extends AbstractTestClass {
         
         assertEquals(TestUtils.application3, getApplicationBean().getApplicationReference(TestUtils.application3).asNodeRef());
     }
+    
+    public void testApplicationWithWorkflowRights() throws Exception{
+        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_WORKFLOW_READ);
+        Application application = getApplicationBean().getApplication(TestUtils.application1);
+        Set<String> authorities = getServiceRegistry().getAuthorityService().getAuthorities();
+        System.out.println(authorities);
+        assertEquals(TestUtils.application1, application.asNodeRef());
+        
+        assertNull(application.getBudget());
+        assertEquals(TestUtils.workFlowRef1, application.getWorkflow().asNodeRef());
+        assertEquals(TestUtils.w1StateRecievedRef, application.getState().asNodeRef());
+    }
+    
+    public void testUpdateBudgetWithBranchRights() throws Exception{
+        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_BRANCH_WRITE);
+        Application application = getApplicationBean().getApplication(TestUtils.application1);
+        
+        Set<String> auths = getServiceRegistry().getAuthorityService().getAuthorities();
+        
+        assertEquals(TestUtils.budgetRef1, application.getBudget().asNodeRef());
+        
+        Application change = Utilities.buildChange(application).setBudget(TestUtils.budgetRef2).build();
+        getApplicationBean().updateApplication(change);
+        
+        application = getApplicationBean().getApplication(TestUtils.application1);
+        assertEquals(TestUtils.budgetRef2, application.getBudget().asNodeRef());
+    }
 
 }

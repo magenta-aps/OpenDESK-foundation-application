@@ -46,13 +46,14 @@ import org.alfresco.service.namespace.QName;
 
 import static dk.opendesk.foundationapplication.Utilities.*;
 import dk.opendesk.foundationapplication.enums.PermissionGroup;
+import org.alfresco.repo.security.permissions.AccessDeniedException;
 
 /**
  *
  * @author martin
  */
-public class ApplicationBean extends FoundationBean{
-    
+public class ApplicationBean extends FoundationBean {
+
     private ActionBean actionBean;
     private AuthorityBean authBean;
     private BranchBean branchBean;
@@ -78,7 +79,7 @@ public class ApplicationBean extends FoundationBean{
     public void setWorkflowBean(WorkflowBean workflowBean) {
         this.workflowBean = workflowBean;
     }
-    
+
     public ApplicationReference addNewApplication(String id, NodeRef branchRef, NodeRef budgetRef, String title, ApplicationPropertiesContainer... blocks) throws Exception {
         Application app = new Application();
         app.setId(id);
@@ -179,14 +180,13 @@ public class ApplicationBean extends FoundationBean{
 
             if (!newBranchRef.equals(currentBranchRef)) {
                 NodeRef newBranchWorkflow = getSingleTargetAssoc(newBranchRef, BRANCH_ASSOC_WORKFLOW);
-                if(currentBranchRef != null){
+                if (currentBranchRef != null) {
                     NodeRef currentBranchWorkflow = getSingleTargetAssoc(currentBranchRef, BRANCH_ASSOC_WORKFLOW);
                     changedWorkflow = !newBranchWorkflow.equals(currentBranchWorkflow);
                     authBean.removeFullPermission(currentBranchRef, PermissionGroup.BRANCH, branchBean.getBranchReference(currentBranchRef));
-                }else{
+                } else {
                     changedWorkflow = true;
                 }
-                
 
                 if (changedWorkflow && app.getState() == null) {
                     throw new AlfrescoRuntimeException(MUST_SPECIFY_STATE);
@@ -235,8 +235,6 @@ public class ApplicationBean extends FoundationBean{
 
             }
         }
-
-        
 
         if (app.wasBlocksSet() && app.getBlocks() != null) {
             List<ApplicationPropertiesContainer> oldBlocks = getApplication(app.asNodeRef()).getBlocks();
@@ -306,7 +304,7 @@ public class ApplicationBean extends FoundationBean{
 
         getServiceRegistry().getVersionService().createVersion(app.asNodeRef(), Collections.singletonMap(APPLICATION_CHANGE, APPLICATION_CHANGE_UPDATE));
     }
-    
+
     private ApplicationPropertiesContainer getBlockByID(String id, List<ApplicationPropertiesContainer> blocks) {
         for (ApplicationPropertiesContainer block : blocks) {
             if (Objects.equals(id, block.getId())) {
@@ -370,7 +368,7 @@ public class ApplicationBean extends FoundationBean{
         }
 
     }
-    
+
     private void setApplicationState(NodeRef applicationRef, NodeRef stateRef) throws Exception {
         getServiceRegistry().getNodeService().removeAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
         getServiceRegistry().getNodeService().setAssociations(applicationRef, getODFName(APPLICATION_ASSOC_STATE), Collections.singletonList(stateRef));
@@ -393,8 +391,8 @@ public class ApplicationBean extends FoundationBean{
         //The association is singular, it is never a list
         return states != null && !states.isEmpty() ? states.get(0).getTargetRef() : null;
     }
-    
-        public boolean isApplicationSeen(NodeRef appRef, String userName) throws Exception {
+
+    public boolean isApplicationSeen(NodeRef appRef, String userName) throws Exception {
         List<String> seenByList = (List<String>) getServiceRegistry().getNodeService().getProperty(appRef, getODFName(APPLICATION_PARAM_SEEN_BY));
         //Set<String> seenBySet = new HashSet<>(seenByList);
         if (seenByList == null) {
@@ -417,7 +415,11 @@ public class ApplicationBean extends FoundationBean{
         NodeService ns = getServiceRegistry().getNodeService();
         List<ApplicationSummary> toReturn = new ArrayList<>();
         for (ChildAssociationRef applicationRef : ns.getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_APPLICATIONS), null)) {
-            toReturn.add(getApplicationSummary(applicationRef.getChildRef()));
+            try {
+                toReturn.add(getApplicationSummary(applicationRef.getChildRef()));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         return toReturn;
     }
@@ -426,7 +428,11 @@ public class ApplicationBean extends FoundationBean{
         NodeService ns = getServiceRegistry().getNodeService();
         List<ApplicationSummary> toReturn = new ArrayList<>();
         for (ChildAssociationRef applicationRef : ns.getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_DELETED_APPLICATION), null)) {
-            toReturn.add(getApplicationSummary(applicationRef.getChildRef()));
+            try {
+                toReturn.add(getApplicationSummary(applicationRef.getChildRef()));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         return toReturn;
     }
@@ -435,7 +441,11 @@ public class ApplicationBean extends FoundationBean{
         NodeService ns = getServiceRegistry().getNodeService();
         List<ApplicationSummary> toReturn = new ArrayList<>();
         for (AssociationRef applicationRef : ns.getTargetAssocs(getDataHome(), getODFName(DATA_ASSOC_NEW_APPLICATIONS))) {
-            toReturn.add(getApplicationSummary(applicationRef.getTargetRef()));
+            try {
+                toReturn.add(getApplicationSummary(applicationRef.getTargetRef()));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         return toReturn;
     }
@@ -447,11 +457,16 @@ public class ApplicationBean extends FoundationBean{
         ApplicationSummary app = new ApplicationSummary();
         app.parseRef(applicationSummary);
 
-        NodeRef branchRef = getSingleTargetAssoc(applicationSummary, APPLICATION_ASSOC_BRANCH);
-        if (branchRef != null) {
-            BranchSummary branchSummary = branchBean.getBranchSummary(branchRef);
-            app.setBranchSummary(branchSummary);
+        try {
+            NodeRef branchRef = getSingleTargetAssoc(applicationSummary, APPLICATION_ASSOC_BRANCH);
+            if (branchRef != null) {
+                BranchSummary branchSummary = branchBean.getBranchSummary(branchRef);
+                app.setBranchSummary(branchSummary);
+            }
+        } catch (AccessDeniedException ex) {
+            //Skip the node and continue
         }
+
         app.setId(getProperty(applicationSummary, APPLICATION_PARAM_ID, String.class));
         app.setTitle(getProperty(applicationSummary, APPLICATION_PARAM_TITLE, String.class));
         app.setIsSeen(isApplicationSeen(applicationSummary, getCurrentUserName()));
@@ -490,19 +505,31 @@ public class ApplicationBean extends FoundationBean{
         NodeRef stateRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_STATE);
 
         if (branchRef != null) {
-            application.setBranchSummary(branchBean.getBranchSummary(branchRef));
+            try {
+                application.setBranchSummary(branchBean.getBranchSummary(branchRef));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         if (budgetRef != null) {
-            BudgetReference budget = budgetBean.getBudgetReference(budgetRef);
-            application.setBudget(budget);
+            try {
+                BudgetReference budget = budgetBean.getBudgetReference(budgetRef);
+                application.setBudget(budget);
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         if (stateRef != null) {
-            StateReference state = workflowBean.getStateReference(stateRef);
-            application.setState(state);
-            NodeRef workflowRef = getSingleParentAssoc(stateRef, WORKFLOW_ASSOC_STATES);
-            if (workflowRef != null) {
-                WorkflowReference workflow = workflowBean.getWorkflowReference(workflowRef);
-                application.setWorkflow(workflow);
+            try {
+                StateReference state = workflowBean.getStateReference(stateRef);
+                application.setState(state);
+                NodeRef workflowRef = getSingleParentAssoc(stateRef, WORKFLOW_ASSOC_STATES);
+                if (workflowRef != null) {
+                    WorkflowReference workflow = workflowBean.getWorkflowReference(workflowRef);
+                    application.setWorkflow(workflow);
+                }
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
             }
         }
 
@@ -523,7 +550,7 @@ public class ApplicationBean extends FoundationBean{
         ChildAssociationRef ref = set.getRow(0).getChildAssocRef();
         return getApplicationReference(ref.getChildRef());
     }
-    
+
     public List<ApplicationChangeUnit> getApplicationDifference(Application oldVersion, Application newVersion) {
 
         List<ApplicationChangeUnit> changes = new ArrayList<>();
@@ -566,8 +593,8 @@ public class ApplicationBean extends FoundationBean{
 
         return changes;
     }
-    
-    public Map<String, ApplicationPropertyValue> getApplicationFields(Application application){
+
+    public Map<String, ApplicationPropertyValue> getApplicationFields(Application application) {
         if (application == null) {
             return null;
         }
@@ -580,9 +607,8 @@ public class ApplicationBean extends FoundationBean{
         return toReturn;
     }
 
-    
-    public <E extends Reference> void resolveChangedAssociation(E oldType, E newType, String associationName, List<ApplicationChangeUnit> changes){
-        if(!Objects.equals(oldType, newType)){
+    public <E extends Reference> void resolveChangedAssociation(E oldType, E newType, String associationName, List<ApplicationChangeUnit> changes) {
+        if (!Objects.equals(oldType, newType)) {
             ApplicationChangeUnit changeUnit = new ApplicationChangeUnit().setChangedField(associationName).setChangeType(APPLICATION_CHANGE_UPDATE_ASSOCIATION);
             if (oldType != null) {
                 changeUnit.setOldValue(oldType.getTitle());
@@ -593,8 +619,8 @@ public class ApplicationBean extends FoundationBean{
             changes.add(changeUnit);
         }
     }
-    
-     public void deleteApplication(NodeRef applicationRef) throws Exception {
+
+    public void deleteApplication(NodeRef applicationRef) throws Exception {
         NodeService ns = getServiceRegistry().getNodeService();
 
         //removing associations
@@ -618,8 +644,8 @@ public class ApplicationBean extends FoundationBean{
         //creating version in application history
         getServiceRegistry().getVersionService().createVersion(applicationRef, Collections.singletonMap(APPLICATION_CHANGE, APPLICATION_CHANGE_DELETED));
     }
-     
-         /**
+
+    /**
      * Gets a list of NodeRefs on all emails saved on a given application
      *
      * @param applicationRef The NodeRef for the Application
@@ -636,7 +662,7 @@ public class ApplicationBean extends FoundationBean{
 
         return emailRefs;
     }
-    
+
     public List<ApplicationChange> getApplicationHistory(NodeRef appRef) throws Exception {
         List<ApplicationChange> changes = new ArrayList<>();
 
@@ -663,12 +689,12 @@ public class ApplicationBean extends FoundationBean{
         //sort oldest first
         changes.sort((o1, o2) -> {
             SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
-            Date date1 = sdf.parse((String)o1.getTimesStamp(),new ParsePosition(0));
-            Date date2 = sdf.parse((String)o2.getTimesStamp(),new ParsePosition(0));
+            Date date1 = sdf.parse((String) o1.getTimesStamp(), new ParsePosition(0));
+            Date date2 = sdf.parse((String) o2.getTimesStamp(), new ParsePosition(0));
             return date1.compareTo(date2);
         });
 
         return changes;
     }
-    
+
 }

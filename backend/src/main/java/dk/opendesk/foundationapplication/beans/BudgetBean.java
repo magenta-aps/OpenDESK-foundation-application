@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -45,7 +46,8 @@ import org.alfresco.service.namespace.QName;
  *
  * @author martin
  */
-public class BudgetBean extends FoundationBean{
+public class BudgetBean extends FoundationBean {
+
     private ApplicationBean applicationBean;
     private AuthorityBean authBean;
     private WorkflowBean workflowBean;
@@ -61,10 +63,8 @@ public class BudgetBean extends FoundationBean{
     public void setWorkflowBean(WorkflowBean workflowBean) {
         this.workflowBean = workflowBean;
     }
-    
-    
-    
-        public List<BudgetYear> getCurrentBudgetYears() throws Exception {
+
+    public List<BudgetYear> getCurrentBudgetYears() throws Exception {
         Instant now = Instant.now();
         List<BudgetYearSummary> budgetYears = getBudgetYearSummaries();
         List<BudgetYear> currentBudgets = new ArrayList<>();
@@ -72,7 +72,11 @@ public class BudgetBean extends FoundationBean{
             Instant budgetStartDate = budgetYear.getStartDate().toInstant();
             Instant budgetEndDate = budgetYear.getEndDate().toInstant();
             if (now.isAfter(budgetStartDate) && now.isBefore(budgetEndDate)) {
-                currentBudgets.add(getBudgetYear(budgetYear.asNodeRef()));
+                try {
+                    currentBudgets.add(getBudgetYear(budgetYear.asNodeRef()));
+                } catch (AccessDeniedException ex) {
+                    //Skip the node and continue
+                }
             }
         }
         return currentBudgets;
@@ -91,11 +95,11 @@ public class BudgetBean extends FoundationBean{
         NodeRef newBudgetYear = getServiceRegistry().getNodeService().createNode(getDataHome(), budgetYearsQname, budgetYearQname, budgetYearTypeQname, budgetParams).getChildRef();
         authBean.addFullPermission(newBudgetYear, PermissionGroup.BUDGET_YEAR, newBudgetYear);
         authBean.disableInheritPermissions(newBudgetYear);
-        
+
         return newBudgetYear;
 
     }
-    
+
     public NodeRef addNewBudget(NodeRef budgetYear, String localName, String title, Long amount) throws Exception {
         QName budgetYearBudgetsQname = getODFName(BUDGETYEAR_ASSOC_BUDGETS);
         QName budgetTypeQname = getODFName(BUDGET_TYPE_NAME);
@@ -104,15 +108,15 @@ public class BudgetBean extends FoundationBean{
         Map<QName, Serializable> budgetParams = new HashMap<>();
         budgetParams.put(getODFName(BUDGET_PARAM_TITLE), title);
         budgetParams.put(getODFName(BUDGET_PARAM_AMOUNT), amount);
-        
+
         NodeRef newBudget = getServiceRegistry().getNodeService().createNode(budgetYear, budgetYearBudgetsQname, budgetQname, budgetTypeQname, budgetParams).getChildRef();
         authBean.addFullPermission(newBudget, PermissionGroup.BUDGET, newBudget);
         authBean.disableInheritPermissions(newBudget);
-        
+
         return newBudget;
 
     }
-    
+
     public BudgetReference getBudgetReference(NodeRef budgetRef) throws Exception {
         ensureType(getODFName(BUDGET_TYPE_NAME), budgetRef);
 
@@ -121,13 +125,17 @@ public class BudgetBean extends FoundationBean{
         ref.setTitle(getProperty(budgetRef, BUDGET_PARAM_TITLE, String.class));
         return ref;
     }
-    
+
     public List<NodeRef> getBudgetYearRefs() throws Exception {
         QName budgetYearsQName = getODFName(DATA_ASSOC_BUDGETYEARS);
         List<ChildAssociationRef> budgetAssocs = getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), budgetYearsQName, null);
         List<NodeRef> budgetYears = new ArrayList<>(budgetAssocs.size());
         for (ChildAssociationRef ref : budgetAssocs) {
-            budgetYears.add(ref.getChildRef());
+            try {
+                budgetYears.add(ref.getChildRef());
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         return budgetYears;
     }
@@ -137,7 +145,11 @@ public class BudgetBean extends FoundationBean{
         List<ChildAssociationRef> budgetAssocs = getServiceRegistry().getNodeService().getChildAssocs(budgetYear, budgetYearBudgets, null);
         List<NodeRef> budgets = new ArrayList<>(budgetAssocs.size());
         for (ChildAssociationRef ref : budgetAssocs) {
-            budgets.add(ref.getChildRef());
+            try {
+                budgets.add(ref.getChildRef());
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         return budgets;
     }
@@ -146,7 +158,11 @@ public class BudgetBean extends FoundationBean{
         List<BudgetYearSummary> summaries = new ArrayList<>();
         NodeService ns = getServiceRegistry().getNodeService();
         for (ChildAssociationRef budgetYear : ns.getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_BUDGETYEARS), null)) {
-            summaries.add(getBudgetYearSummary(budgetYear.getChildRef()));
+            try {
+                summaries.add(getBudgetYearSummary(budgetYear.getChildRef()));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         return summaries;
     }
@@ -297,7 +313,7 @@ public class BudgetBean extends FoundationBean{
         }
         return summaries;
     }
-    
+
     public void updateBudget(Budget budget) throws Exception {
         NodeService ns = getServiceRegistry().getNodeService();
         Map<QName, Serializable> properties = new HashMap<>();
@@ -309,5 +325,5 @@ public class BudgetBean extends FoundationBean{
         }
         ns.addProperties(budget.asNodeRef(), properties);
     }
-    
+
 }

@@ -17,6 +17,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.type.MapType;
 import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
+import dk.opendesk.foundationapplication.beans.AuthorityBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
@@ -37,6 +38,7 @@ import org.springframework.extensions.webscripts.TestWebScriptServer;
 public class AbstractTestClass extends BaseWebScriptTest {
     private final ServiceRegistry serviceRegistry = (ServiceRegistry) getServer().getApplicationContext().getBean("ServiceRegistry");
     private final ActionBean actionBean = (ActionBean) getServer().getApplicationContext().getBean("actionBean");
+    private final AuthorityBean authorityBean = (AuthorityBean) getServer().getApplicationContext().getBean("odfAuthBean");
     private final ApplicationBean applicationBean = (ApplicationBean) getServer().getApplicationContext().getBean("applicationBean");
     private final BranchBean branchBean = (BranchBean) getServer().getApplicationContext().getBean("branchBean");
     private final BudgetBean budgetBean = (BudgetBean) getServer().getApplicationContext().getBean("budgetBean");
@@ -69,8 +71,10 @@ public class AbstractTestClass extends BaseWebScriptTest {
     public String getBasePath() {
         return basePath;
     }
-    
-    
+
+    public AuthorityBean getAuthorityBean() {
+        return authorityBean;
+    }
     
     public static final String DELIMITER = "/";
     

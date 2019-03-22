@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -32,7 +33,8 @@ import org.alfresco.service.namespace.QName;
  *
  * @author martin
  */
-public class WorkflowBean extends FoundationBean{
+public class WorkflowBean extends FoundationBean {
+
     private ApplicationBean applicationBean;
     private AuthorityBean authBean;
     private BranchBean branchBean;
@@ -44,11 +46,11 @@ public class WorkflowBean extends FoundationBean{
     public void setAuthBean(AuthorityBean authBean) {
         this.authBean = authBean;
     }
-    
+
     public void setBranchBean(BranchBean branchBean) {
         this.branchBean = branchBean;
     }
-    
+
     public WorkflowReference getWorkflowReference(NodeRef reference) throws Exception {
         ensureType(getODFName(WORKFLOW_TYPE_NAME), reference);
 
@@ -112,16 +114,24 @@ public class WorkflowBean extends FoundationBean{
         List<ChildAssociationRef> workflowAssocs = getServiceRegistry().getNodeService().getChildAssocs(dataHome, dataWorkflowsQname, null);
         List<NodeRef> workflows = new ArrayList<>(workflowAssocs.size());
         for (ChildAssociationRef ref : workflowAssocs) {
-            workflows.add(ref.getChildRef());
+            try {
+                workflows.add(ref.getChildRef());
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         return workflows;
     }
-    
-        public List<WorkflowSummary> getWorkflowSummaries() throws Exception {
+
+    public List<WorkflowSummary> getWorkflowSummaries() throws Exception {
         NodeService ns = getServiceRegistry().getNodeService();
         List<WorkflowSummary> summaries = new ArrayList<>();
         for (ChildAssociationRef ref : ns.getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_WORKFLOW), null)) {
-            summaries.add(getWorkflowSummary(ref.getChildRef()));
+            try {
+                summaries.add(getWorkflowSummary(ref.getChildRef()));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         return summaries;
     }
@@ -133,12 +143,20 @@ public class WorkflowBean extends FoundationBean{
         summary.setTitle(getProperty(workflowRef, WORKFLOW_PARAM_TITLE, String.class));
         NodeRef stateRef = getSingleTargetAssoc(workflowRef, WORKFLOW_ASSOC_ENTRY);
         if (stateRef != null) {
-            summary.setEntry(getStateReference(stateRef));
+            try {
+                summary.setEntry(getStateReference(stateRef));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
 
         List<StateReference> stateReferences = new ArrayList<>();
         for (ChildAssociationRef state : ns.getChildAssocs(workflowRef, getODFName(WORKFLOW_ASSOC_STATES), null)) {
-            stateReferences.add(getStateReference(state.getChildRef()));
+            try {
+                stateReferences.add(getStateReference(state.getChildRef()));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         summary.setStates(stateReferences);
         return summary;
@@ -150,25 +168,36 @@ public class WorkflowBean extends FoundationBean{
         workflow.parseRef(workflowRef);
         workflow.setTitle(getProperty(workflowRef, WORKFLOW_PARAM_TITLE, String.class));
 
-        NodeRef entryRef = getSingleTargetAssoc(workflowRef, WORKFLOW_ASSOC_ENTRY);
-        workflow.setEntry(getStateReference(entryRef));
-
+        try {
+            NodeRef entryRef = getSingleTargetAssoc(workflowRef, WORKFLOW_ASSOC_ENTRY);
+            workflow.setEntry(getStateReference(entryRef));
+        } catch (AccessDeniedException ex) {
+            //Skip the node and continue
+        }
         List<StateSummary> states = new ArrayList<>();
         for (ChildAssociationRef stateRef : ns.getChildAssocs(workflowRef, getODFName(WORKFLOW_ASSOC_STATES), null)) {
-            states.add(getStateSummary(stateRef.getChildRef()));
+            try {
+                states.add(getStateSummary(stateRef.getChildRef()));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         workflow.setStates(states);
-        
+
         List<BranchReference> branches = new ArrayList<>();
-        for(AssociationRef branchRef : ns.getSourceAssocs(workflowRef, getODFName(BRANCH_ASSOC_WORKFLOW))){
-            branches.add(branchBean.getBranchReference(branchRef.getSourceRef()));
+        for (AssociationRef branchRef : ns.getSourceAssocs(workflowRef, getODFName(BRANCH_ASSOC_WORKFLOW))) {
+            try {
+                branches.add(branchBean.getBranchReference(branchRef.getSourceRef()));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         workflow.setUsedByBranches(branches);
 
         return workflow;
 
     }
-    
+
     public State getState(NodeRef stateRef) throws Exception {
         NodeService ns = getServiceRegistry().getNodeService();
         State state = new State();
@@ -176,12 +205,20 @@ public class WorkflowBean extends FoundationBean{
         state.setTitle(getProperty(stateRef, STATE_PARAM_TITLE, String.class));
         List<StateReference> transitions = new ArrayList<>();
         for (AssociationRef transitionRef : ns.getTargetAssocs(stateRef, getODFName(STATE_ASSOC_TRANSITIONS))) {
-            transitions.add(getStateReference(transitionRef.getTargetRef()));
+            try {
+                transitions.add(getStateReference(transitionRef.getTargetRef()));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         state.setReferences(transitions);
         List<ApplicationReference> applications = new ArrayList<>();
         for (AssociationRef applicationRef : ns.getSourceAssocs(stateRef, getODFName(APPLICATION_ASSOC_STATE))) {
-            applications.add(applicationBean.getApplicationReference(applicationRef.getSourceRef()));
+            try {
+                applications.add(applicationBean.getApplicationReference(applicationRef.getSourceRef()));
+            } catch (AccessDeniedException ex) {
+                //Skip the node and continue
+            }
         }
         state.setApplications(applications);
         state.setCategory(StateCategory.getFromName(getProperty(stateRef, STATE_PARAM_CATEGORY, String.class)));
@@ -208,5 +245,5 @@ public class WorkflowBean extends FoundationBean{
         reference.setTitle(getProperty(stateRef, STATE_PARAM_TITLE, String.class));
         return reference;
     }
-    
+
 }
