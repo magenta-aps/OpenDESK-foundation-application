@@ -6,6 +6,8 @@
 package dk.opendesk.foundationapplication.patches;
 
 import java.util.List;
+
+import dk.opendesk.foundationapplication.Utilities;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.patch.AbstractPatch;
@@ -31,6 +33,7 @@ public class InitialStructure extends AbstractPatch {
     public static final String FOUNDATION_TAG = "odf";
     public static final String DATA_PATH = DICTIONARY_PATH+"/"+FOUNDATION_TAG+":"+DATA_NAME;
     public static final String MAIL_TEMPLATE_PATH = DICTIONARY_PATH+"/cm:extensionwebscripts/cm:OpenDesk/cm:Templates/cm:Emails";
+    public static final String MAIL_TEMPLATE_FOLDER_NAME = "foundationEmailTemplateFolder";
     
     public static final String STATE_RECIEVED_NAME = "recieved";
     public static final String STATE_ASSESS_NAME = "assesment";
@@ -61,10 +64,14 @@ public class InitialStructure extends AbstractPatch {
         NodeRef dictionaryRef = getDataDictionaryRef();
         NodeRef dataRef = serviceRegistry.getNodeService().createNode(dictionaryRef, ContentModel.ASSOC_CONTAINS, dataQname, dataTypeQname, Collections.singletonMap(getODFName(DATA_PARAM_LASTID), 0)).getChildRef();    
         serviceRegistry.getPermissionService().setInheritParentPermissions(dataRef, false);
-        
+
+        NodeRef emailTemplateFolder = serviceRegistry.getNodeService().createNode(Utilities.getEmailTemplateDir(serviceRegistry), ContentModel.ASSOC_CONTAINS, getCMName(MAIL_TEMPLATE_FOLDER_NAME), ContentModel.TYPE_FOLDER).getChildRef();
+
         return "Patch applied";
     }
-    
+
+
+
     protected NodeRef getDataDictionaryRef(){
         StoreRef store = StoreRef.STORE_REF_WORKSPACE_SPACESSTORE;
         NodeRef rootRef = serviceRegistry.getNodeService().getRootNode(store);

@@ -3,25 +3,30 @@ package dk.opendesk.foundationapplication;
 import com.github.sleroy.fakesmtp.core.ServerConfiguration;
 import com.github.sleroy.junit.mail.server.MailServer;
 import dk.opendesk.foundationapplication.DAO.*;
+import dk.opendesk.foundationapplication.patches.InitialStructure;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.Action;
+import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.json.JSONObject;
 
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
 import static dk.opendesk.foundationapplication.Utilities.*;
 import static org.alfresco.model.ContentModel.ASSOC_CONTAINS;
 import static org.alfresco.model.ContentModel.TYPE_CONTENT;
+import static org.alfresco.model.ContentModel.TYPE_FOLDER;
 import static org.alfresco.repo.action.executer.MailActionExecuter.*;
 
 public class EmailTest extends AbstractTestClass {
@@ -32,12 +37,17 @@ public class EmailTest extends AbstractTestClass {
         super("/foundation");
     }
 
-    private static String TEST_TEMPLATE_NAME = "email.html.ftl";
-    private static String TEST_ADDRESSEE = "astrid@testmail.dk";
+    public static String TEST_TEMPLATE_NAME = "emailTestTemplate.html";
+    public static String TEST_ADDRESSEE = "astrid@testmail.dk";
+    private HashMap<String, Serializable> emptyStringModel = new HashMap<>();
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
+        emptyStringModel.put("subject","");
+        emptyStringModel.put("userName", "");
+        emptyStringModel.put("password","");
 
         mailServer = new MailServer(ServerConfiguration.create().port(2525).charset("UTF-8").relayDomains("testmail.dk"));
         mailServer.start();
@@ -63,29 +73,31 @@ public class EmailTest extends AbstractTestClass {
         TestUtils.wipeData(getServiceRegistry());
     }
 
-    //todo this test is not finished, currently only works on astrid@localhost
     public void testEmailAction() throws Exception {
         assertTrue(mailServer.getMails().isEmpty());
         Action action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
+        action.setParameterValue(PARAM_TEMPLATE_MODEL, emptyStringModel);
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
         assertEquals(1, mailServer.getMails().size());
         assertEquals("hallo hallo", mailServer.getMails().get(0).getSubject());
     }
 
-    //todo this test is not finished, currently only works on astrid@localhost
     public void testEmailCopying() throws Exception {
+        String subject1 = "subject1";
+        String subject2 = "subject2";
         assertTrue(mailServer.getMails().isEmpty());
         Action action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
-        action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
+        action.setParameterValue(PARAM_SUBJECT, subject1);
         action.setParameterValue(PARAM_FROM, TEST_ADDRESSEE);
+        action.setParameterValue(PARAM_TEMPLATE_MODEL, emptyStringModel);
 
         //sending the email
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
         assertEquals(1, mailServer.getMails().size());
-        assertEquals("hallo hallo", mailServer.getMails().get(0).getSubject());
+        assertEquals(subject1, mailServer.getMails().get(0).getSubject());
 
         //getting the email folder from the application
         List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName("emailFolder"), null);
@@ -98,15 +110,22 @@ public class EmailTest extends AbstractTestClass {
 
         ContentReader reader = getServiceRegistry().getFileFolderService().getReader(childrenRefs.get(0).getChildRef());
         String[] lines = reader.getContentString().split("\n");
+        String fromLine = null;
+        String subjectLine = null;
         for (String s : lines) {
             if (s.startsWith("From:")) {
-                assertEquals("From: " + TEST_ADDRESSEE, s);
+                fromLine = s;
+            }
+            if (s.startsWith("subject =")) {
+                subjectLine = s;
             }
         }
-        assertEquals("<html>", lines[9]);
+        assertEquals("From: " + TEST_ADDRESSEE, fromLine);
+        assertEquals("subject = " + subject1, subjectLine);
 
         //sending one more email
         Thread.sleep(2000); //avoid duplicate filenames
+        action.setParameterValue(PARAM_SUBJECT, subject2);
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
 
         //getting the email folder from the application
@@ -120,12 +139,18 @@ public class EmailTest extends AbstractTestClass {
 
         reader = getServiceRegistry().getFileFolderService().getReader(childrenRefs.get(1).getChildRef());
         lines = reader.getContentString().split("\n");
+        fromLine = null;
+        subjectLine = null;
         for (String s : lines) {
             if (s.startsWith("From:")) {
-                assertEquals("From: " + TEST_ADDRESSEE, s);
+                fromLine = s;
+            }
+            if (s.startsWith("subject =")) {
+                subjectLine = s;
             }
         }
-        assertEquals("<html>", lines[9]);
+        assertEquals("From: " + TEST_ADDRESSEE, fromLine);
+        assertEquals("subject = " + subject2, subjectLine);
 
     }
 
@@ -136,6 +161,7 @@ public class EmailTest extends AbstractTestClass {
         Action action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
+        action.setParameterValue(PARAM_TEMPLATE_MODEL, emptyStringModel);
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
         assertEquals(1, mailServer.getMails().size());
         assertEquals("hallo hallo", mailServer.getMails().get(0).getSubject());
@@ -143,6 +169,7 @@ public class EmailTest extends AbstractTestClass {
         action = getServiceRegistry().getActionService().createAction(ACTION_NAME_EMAIL);
         action.setParameterValue(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
         action.setParameterValue(PARAM_SUBJECT, "hallo hallo");
+        action.setParameterValue(PARAM_TEMPLATE_MODEL, emptyStringModel);
         getServiceRegistry().getActionService().executeAction(action, TestUtils.application1);
         assertEquals(2, mailServer.getMails().size());
         assertEquals("hallo hallo", mailServer.getMails().get(1).getSubject());
@@ -155,12 +182,21 @@ public class EmailTest extends AbstractTestClass {
         String email = get(String.class, "/application/" + TestUtils.application1.getId() + "/email/" + emailRefs.get(0));
 
         String[] lines = email.split("\n");
+        String headerSubjectLine = null;
+        String bodySubjectLine = null;
         for (String s : lines) {
             if (s.startsWith("Subject:")) {
-                assertEquals("Subject: " + "hallo hallo", s);
+                headerSubjectLine = s;
             }
+            if (s.startsWith("subject =")) {
+                bodySubjectLine = s;
+            }
+
         }
-        assertEquals("<html>", lines[9]);
+        assertNotNull(headerSubjectLine);
+        assertNotNull(bodySubjectLine);
+        assertEquals("Subject: " + "hallo hallo", headerSubjectLine);
+        assertEquals("subject = " + "hallo hallo", bodySubjectLine);
     }
 
     public void testSaveEmailCopy() throws Exception {
@@ -186,17 +222,17 @@ public class EmailTest extends AbstractTestClass {
 
     public void testGetOrCreateEmailFolder() throws Exception {
         //no email folder
-        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
+        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_EMAIL), null);
         assertEquals(0, childAssociationRefs.size());
 
         //one email folder
-        getActionBean().getOrCreateEmailFolder(TestUtils.application1);
-        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
+        getApplicationBean().getOrCreateEmailFolder(TestUtils.application1);
+        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_EMAIL), null);
         assertEquals(1, childAssociationRefs.size());
 
         //still one email folder
-        getActionBean().getOrCreateEmailFolder(TestUtils.application1);
-        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
+        getApplicationBean().getOrCreateEmailFolder(TestUtils.application1);
+        childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(TestUtils.application1, Utilities.getODFName(APPLICATION_FOLDER_EMAIL), null);
         assertEquals(1, childAssociationRefs.size());
 
     }
@@ -208,7 +244,7 @@ public class EmailTest extends AbstractTestClass {
         assertEquals(0, emails.size());
 
         //one email
-        NodeRef emailFolderRef = getActionBean().getOrCreateEmailFolder(TestUtils.application1);
+        NodeRef emailFolderRef = getApplicationBean().getOrCreateEmailFolder(TestUtils.application1);
         getServiceRegistry().getNodeService().createNode(emailFolderRef, ASSOC_CONTAINS,
                 getCMName("test"), TYPE_CONTENT).getChildRef();
         emails = getApplicationBean().getApplicationEmails(TestUtils.application1);
@@ -228,7 +264,7 @@ public class EmailTest extends AbstractTestClass {
     public void testGetEmail() throws Exception {
 
         //writing a test email
-        NodeRef emailFolderRef = getActionBean().getOrCreateEmailFolder(TestUtils.application1);
+        NodeRef emailFolderRef = getApplicationBean().getOrCreateEmailFolder(TestUtils.application1);
         NodeRef emailRef = getServiceRegistry().getNodeService().createNode(emailFolderRef, ASSOC_CONTAINS,
                 getCMName("test"), TYPE_CONTENT).getChildRef();
         ContentWriter writer = getServiceRegistry().getFileFolderService().getWriter(emailRef);
@@ -253,12 +289,22 @@ public class EmailTest extends AbstractTestClass {
     public void testEmailSavedToHistory() throws Exception {
 
         //saving action
-        JSONObject data = new JSONObject();
-        data.put("stateRef", TestUtils.w1StateAccessRef);
-        data.put("aspect", ASPECT_ON_CREATE);
-        data.put("subject", "testEmailSavedToHistory");
-        data.put(PARAM_TEMPLATE, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME));
-        post(data, "/action/" + ACTION_NAME_EMAIL);
+        FoundationActionParameterDefinition<String> stateIdParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, String.class, true, null);
+        FoundationActionParameterDefinition<String> aspectParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, String.class, true, null);
+        FoundationActionParameterDefinition<String > msgParam = new FoundationActionParameterDefinition<>(PARAM_SUBJECT, DataTypeDefinition.TEXT, String.class, true, null);
+        FoundationActionParameterDefinition<NodeRef> templateParam = new FoundationActionParameterDefinition<>(PARAM_TEMPLATE, DataTypeDefinition.NODE_REF, NodeRef.class, true, null);
+        FoundationActionParameterDefinition<HashMap> templateModel = new FoundationActionParameterDefinition<>(PARAM_TEMPLATE_MODEL, DataTypeDefinition.ANY, HashMap.class, false, null);
+
+        FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, TestUtils.w1StateAccessRef.getId());
+        FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue<>(aspectParam, ASPECT_ON_CREATE);
+
+        List<FoundationActionParameterValue> params = new ArrayList<>();
+        params.add(new FoundationActionParameterValue<>(msgParam, "testEmailSavedToHistory"));
+        params.add(new FoundationActionParameterValue<>(templateParam, getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME)));
+        params.add(new FoundationActionParameterValue<>(templateModel, emptyStringModel));
+
+        FoundationActionValue foundationActionValue = new FoundationActionValue(ACTION_NAME_EMAIL, stateIdParamVal, aspectParamVal, params);
+        post(foundationActionValue, "/action/" + ACTION_NAME_EMAIL);
 
         //updating application
         Application change = new Application();
@@ -271,5 +317,12 @@ public class EmailTest extends AbstractTestClass {
         //last ApplicationChange is a send email
         List<ApplicationChange> changes = getApplicationBean().getApplicationHistory(TestUtils.application1);
         assertEquals(APPLICATION_CHANGE_UPDATE_EMAIL, changes.get(changes.size() - 1).getChangeType());
+    }
+
+    public void testGetEmailTemplateFolder() throws Exception {
+        NodeRef folderRef = Utilities.getOdfEmailTemplateFolder(getServiceRegistry());
+
+        assertEquals(TYPE_FOLDER, getServiceRegistry().getNodeService().getType(folderRef));
+        assertEquals(getCMName(InitialStructure.MAIL_TEMPLATE_FOLDER_NAME), getServiceRegistry().getNodeService().getPrimaryParent(folderRef).getQName());
     }
 }

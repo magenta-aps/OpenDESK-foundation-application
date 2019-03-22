@@ -7,12 +7,11 @@ package dk.opendesk.foundationapplication.beans;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationChange;
+import dk.opendesk.foundationapplication.DAO.FoundationActionParameterDefinition;
+import dk.opendesk.foundationapplication.DAO.FoundationActionParameterValue;
 import dk.opendesk.foundationapplication.DAO.JSONAction;
-import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.APPLICATION_CHANGE;
-import static dk.opendesk.foundationapplication.Utilities.APPLICATION_EMAILFOLDER;
 import static dk.opendesk.foundationapplication.Utilities.getCMName;
-import static dk.opendesk.foundationapplication.Utilities.getODFName;
 import dk.opendesk.repo.model.OpenDeskModel;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -27,15 +26,16 @@ import java.util.List;
 import java.util.Map;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+
+
 import static org.alfresco.model.ContentModel.ASSOC_CONTAINS;
 import static org.alfresco.model.ContentModel.PROP_CONTENT;
 import static org.alfresco.model.ContentModel.TYPE_CONTENT;
-import static org.alfresco.model.ContentModel.TYPE_FOLDER;
+
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionDefinition;
 import org.alfresco.service.cmr.action.ParameterDefinition;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -50,6 +50,7 @@ import org.alfresco.service.namespace.QName;
  * @author martin
  */
 public class ActionBean extends FoundationBean{
+
     private ApplicationBean applicationBean;
 
     public void setApplicationBean(ApplicationBean applicationBean) {
@@ -58,13 +59,25 @@ public class ActionBean extends FoundationBean{
 
     
     
-    public List<ParameterDefinition> getActionParameters(String actionBeanName) {
+    public List<FoundationActionParameterDefinition> getActionParameters(String actionBeanName) {
+        List<FoundationActionParameterDefinition> toReturn = new ArrayList<>();
         ActionDefinition actionDefinition = getServiceRegistry().getActionService().getActionDefinition(actionBeanName);
-        return actionDefinition.getParameterDefinitions();
+        for (ParameterDefinition paramDef : actionDefinition.getParameterDefinitions()) {
+            toReturn.add(new FoundationActionParameterDefinition(paramDef));
+        }
+        return toReturn;
     }
 
     public ActionDefinition getAction(String actionName) {
         return getServiceRegistry().getActionService().getActionDefinition(actionName);
+    }
+
+    public void saveAction(String actionName, NodeRef stateRef, QName aspect, List<FoundationActionParameterValue> params) {
+        HashMap<String, Serializable> paramMap = new HashMap<>();
+        for (FoundationActionParameterValue param : params) {
+            paramMap.put(param.getName(), (Serializable) param.getValue());
+        }
+        saveAction(actionName, stateRef, aspect, paramMap);
     }
 
     public void saveAction(String actionName, NodeRef stateRef, QName aspect, Map<String, Serializable> params) {
@@ -119,7 +132,7 @@ public class ActionBean extends FoundationBean{
         return new ApplicationChange().setChangeType(changeType).setTimeStamp(timeStamp).setModifier(modifier).setModifierId(modifierId).setChangeList(applicationBean.getApplicationDifference(oldApp, newApp));
     }
     
-        /**
+    /**
      * Saves a email message on the given application
      *
      * @param mimeMessage The message to be saved
@@ -128,7 +141,7 @@ public class ActionBean extends FoundationBean{
      */
     public void saveEmailCopy(MimeMessage mimeMessage, NodeRef applicationRef) throws Exception {
 
-        NodeRef emailFolderRef = getOrCreateEmailFolder(applicationRef);
+        NodeRef emailFolderRef = applicationBean.getOrCreateEmailFolder(applicationRef);
 
         //setting filename
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS");  //todo: Hvad vil vi have filen til at hedde?
@@ -177,29 +190,5 @@ public class ActionBean extends FoundationBean{
         throw new Exception("The requested email was not found");
     }
     
-        /**
-     * Gets the email folder for an application or creates it if it does not
-     * exists.
-     *
-     * @param applicationRef Application nodeRef
-     * @return Email folder nodeRef
-     * @throws Exception if there are more than one email folder on the
-     * application.
-     */
-    public NodeRef getOrCreateEmailFolder(NodeRef applicationRef) throws Exception {
-        NodeRef emailFolderRef;
 
-        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(applicationRef, Utilities.getODFName(APPLICATION_EMAILFOLDER), null);
-
-        if (childAssociationRefs.size() == 0) {
-            emailFolderRef = getServiceRegistry().getNodeService().createNode(applicationRef, getODFName(APPLICATION_EMAILFOLDER), getCMName(APPLICATION_EMAILFOLDER), TYPE_FOLDER).getChildRef();
-        } else if (childAssociationRefs.size() == 1) {
-            emailFolderRef = childAssociationRefs.get(0).getChildRef();
-        } else {
-            throw new Exception("More than one email folder created on application " + applicationRef);
-        }
-
-        return emailFolderRef;
-    }
-    
 }

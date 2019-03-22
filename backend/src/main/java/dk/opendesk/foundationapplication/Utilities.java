@@ -16,9 +16,17 @@ import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.FoundationActionParameterDefinition;
+import dk.opendesk.foundationapplication.DAO.FoundationActionParameterValue;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.JSON.ApplicationPropertyDeserializer;
 import dk.opendesk.foundationapplication.JSON.ApplicationPropertySerializer;
+import dk.opendesk.foundationapplication.JSON.FoundationActionParameterDefinitionDeserializer;
+import dk.opendesk.foundationapplication.JSON.FoundationActionParameterDefinitionSerializer;
+import dk.opendesk.foundationapplication.JSON.FoundationActionParameterValueDeserializer;
+import dk.opendesk.foundationapplication.JSON.FoundationActionParameterValueSerializer;
+import dk.opendesk.foundationapplication.JSON.NodeRefDeserializer;
+import dk.opendesk.foundationapplication.JSON.NodeRefSerializer;
 import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.beans.AuthorityBean;
@@ -38,7 +46,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
@@ -121,11 +131,15 @@ public final class Utilities {
 //    public static final String APPLICATION_CHANGE_UPDATE_BUDGET = "budgetChange";
 //    public static final String APPLICATION_CHANGE_UPDATE_BRANCH = "branchChange";
 
-    public static final String APPLICATION_EMAILFOLDER = "emailFolder";
+    public static final String APPLICATION_FOLDER_EMAIL = "emailFolder";
+    public static final String APPLICATION_FOLDER_DOCUMENT = "documentFolder";
 
     public static final String ACTION_NAME_ADD_BLOCKS = "addBlocks";
     public static final String ACTION_NAME_ADD_FIELDS = "addFields";
     public static final String ACTION_NAME_EMAIL = "foundationMail";
+    public static final String ACTION_NAME_CREATE_APPLICANT = "createApplicant";
+    public static final String ACTION_PARAM_STATE = "stateRef";
+    public static final String ACTION_PARAM_ASPECT = "aspect";
 
     public static final String ASPECT_ON_CREATE = "onCreate";
     public static final String ASPECT_BEFORE_DELETE = "beforeDelete";
@@ -134,17 +148,21 @@ public final class Utilities {
 
     public static final String APPLICATION_PARAM_BLOCKS = "applicationBlocks";
 
+    public static final String HEALTH_CHECK_STRUCTURE = "structure";
+
+    public static final String EXCEPTION_EMAIL_TEMPLATE_FOLDER = "utilities.getOdfEmailTemplateFolder.exception";
+
     private static String foundationNameSpace = null;
 
     static{
         final JmxReporter reporter = JmxReporter.forRegistry(METRICS).build();
         reporter.start();
     }
-    
+
     public static MetricRegistry getMetrics(){
         return METRICS;
     }
-    
+
     public static String getFoundationModelNameSpace() throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -246,7 +264,15 @@ public final class Utilities {
             nodeService.removeChild(dataRef, application.asNodeRef());
         }
     }
-    
+
+    public static NodeRef getOdfEmailTemplateFolder(ServiceRegistry sr) {
+        List<ChildAssociationRef> childAssociationRefs = sr.getNodeService().getChildAssocs(getEmailTemplateDir(sr), ContentModel.ASSOC_CONTAINS,  Utilities.getCMName(InitialStructure.MAIL_TEMPLATE_FOLDER_NAME));
+        if (childAssociationRefs.size() != 1) {
+            throw new AlfrescoRuntimeException(EXCEPTION_EMAIL_TEMPLATE_FOLDER);
+        }
+        return childAssociationRefs.get(0).getChildRef();
+    }
+
     public static NodeRef getEmailTemplateDir(ServiceRegistry sr){
         return getEmailTemplateDir(sr.getNodeService(), sr.getSearchService(), sr.getNamespaceService());
     }
@@ -301,13 +327,16 @@ public final class Utilities {
         SimpleModule module = new SimpleModule();
         module.addSerializer(ApplicationPropertyValue.class, new ApplicationPropertySerializer());
         module.addDeserializer(ApplicationPropertyValue.class, new ApplicationPropertyDeserializer());
+        module.addSerializer(FoundationActionParameterDefinition.class, new FoundationActionParameterDefinitionSerializer());
+        module.addDeserializer(FoundationActionParameterDefinition.class, new FoundationActionParameterDefinitionDeserializer());
+        module.addSerializer(FoundationActionParameterValue.class, new FoundationActionParameterValueSerializer());
+        module.addDeserializer(FoundationActionParameterValue.class, new FoundationActionParameterValueDeserializer());
+        module.addSerializer(NodeRef.class, new NodeRefSerializer());
+        module.addDeserializer(NodeRef.class, new NodeRefDeserializer());
         mapper.registerModule(module);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
     }
-
-
-
 
     public static ApplicationChangeBuilder buildChange(Application toChange) {
         return new ApplicationChangeBuilder(toChange);

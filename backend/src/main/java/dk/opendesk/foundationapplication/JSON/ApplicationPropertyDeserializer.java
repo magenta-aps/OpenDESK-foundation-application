@@ -12,10 +12,11 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.Utilities;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -23,9 +24,11 @@ import java.util.logging.Logger;
  */
 public class ApplicationPropertyDeserializer extends JsonDeserializer<ApplicationPropertyValue> {
 
+    private static final Logger logger = Logger.getLogger(ApplicationPropertyDeserializer.class);
+
     @Override
     public ApplicationPropertyValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-        ObjectMapper newMapper = new ObjectMapper();
+        ObjectMapper mapper = Utilities.getMapper();
         try {
             ApplicationPropertyValue toReturn = new ApplicationPropertyValue();
             JsonNode node = jp.getCodec().readTree(jp);
@@ -54,7 +57,7 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
                     } else if (type.isAssignableFrom(Date.class)) {
                         toReturn.setValue(ctxt.parseDate(node.get("value").asText()));
                     } else {
-                        Object value = newMapper.readValue(node.get("value").toString(), type);
+                        Object value = mapper.readValue(node.get("value").toString(), type);
                         toReturn.setValue(value);
                     }
                 }
@@ -63,7 +66,7 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
             return toReturn;
 
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ApplicationPropertyDeserializer.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Failed to deserialize ApplicationPropertyValue", ex);
             return null;
         }
     }

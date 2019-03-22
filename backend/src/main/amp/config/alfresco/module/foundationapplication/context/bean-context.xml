@@ -49,6 +49,9 @@
         <property name="branchBean" ref="branchBean"/>
         <property name="budgetBean" ref="budgetBean"/>
     </bean>
+
+    <bean id="healthCheckBean" class="dk.opendesk.foundationapplication.beans.HealthCheckBean" parent="foundationBean" init-method="init"/>
+
     <bean id="foundationMail" class="dk.opendesk.foundationapplication.actions.EmailAction">
         <property name="applicationBean" ref="applicationBean"/>
         <property name="actionBean" ref="actionBean"/>
@@ -76,6 +79,12 @@
         <property name="applicationBean" ref="applicationBean"/>
     </bean>
 
+    <bean id="createApplicant" class="dk.opendesk.foundationapplication.actions.CreateNewApplicant">
+        <property name="applicationBean" ref="applicationBean"/>
+        <property name="personBean" ref="personBean"/>
+        <property name="serviceRegistry" ref="ServiceRegistry"/>
+    </bean>
+
     <bean id="webscript.foundation"
           class="dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript"
           parent="webscript" abstract="true">
@@ -85,5 +94,6 @@
         <property name="actionBean" ref="actionBean"/>
         <property name="branchBean" ref="branchBean"/>
         <property name="budgetBean" ref="budgetBean"/>
+        <property name="healthCheckBean" ref="healthCheckBean"/>
     </bean>
 </beans>
