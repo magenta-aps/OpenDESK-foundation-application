@@ -174,7 +174,7 @@ public class VersionTest extends AbstractTestClass {
     }
 
     private void testApplicationHistoryWebScript(NodeRef appRef, String origMail) throws Exception {
-        List<ApplicationChange> changeList = get(List.class, ApplicationChange.class, appRef + "/history");
+        List<ApplicationChange> changeList = get(List.class, ApplicationChange.class, appRef.getId() + "/history");
 
         //Testing the changes made when creating the original version
         ApplicationChange applicationChange = changeList.get(0);
