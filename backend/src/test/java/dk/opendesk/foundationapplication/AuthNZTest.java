@@ -35,7 +35,7 @@ public class AuthNZTest extends AbstractTestClass {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
         TestUtils.wipeData(getServiceRegistry());
     }
-
+    
     public void testUserCreated() {
         PersonService ps = getServiceRegistry().getPersonService();
         NodeRef testUserRef = ps.getPerson(TestUtils.USER_ALL_PERMISSIONS);

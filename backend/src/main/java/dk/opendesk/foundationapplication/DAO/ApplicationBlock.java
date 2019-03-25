@@ -17,15 +17,18 @@ import org.apache.log4j.Logger;
  *
  * @author martin
  */
-public class ApplicationPropertiesContainer extends DAOType{
-    private static final Logger LOGGER = Logger.getLogger(ApplicationPropertiesContainer.class);
+public class ApplicationBlock extends DAOType{
+    private static final Logger LOGGER = Logger.getLogger(ApplicationBlock.class);
     
     private Optional<String> id;
     private Optional<String> label;
     private Optional<String> layout;
-    private Optional<List<ApplicationPropertyValue>> fields;
+    private Optional<List<ApplicationFieldValue>> fields;
+    private Optional<String> icon;
+    private Optional<Boolean> collapsible;
+    private Optional<Boolean> repeatable;
 
-    public ApplicationPropertiesContainer() {
+    public ApplicationBlock() {
     }
     
     
@@ -65,8 +68,44 @@ public class ApplicationPropertiesContainer extends DAOType{
         this.layout = optional(layout);
     }
 
-    
-    public List<ApplicationPropertyValue> getFields() {
+    public String getIcon() {
+        return get(icon);
+    }
+
+    public boolean wasIconSet(){
+        return wasSet(icon);
+    }
+
+    public void setIcon(String icon) {
+        this.icon = optional(icon);
+    }
+
+    public Boolean getCollapsible() {
+        return get(collapsible);
+    }
+
+    public boolean wasCollapsibleSet(){
+        return wasSet(collapsible);
+    }
+
+    public void setCollapsible(Boolean collapsible) {
+        this.collapsible = optional(collapsible);
+    }
+
+    public Boolean getRepeatable() {
+        return get(repeatable);
+    }
+
+    public boolean wasRepeatableSet(){
+        return wasSet(repeatable);
+    }
+
+    public void setRepeatable(Boolean repeatable) {
+        this.repeatable = optional(repeatable);
+    }
+
+
+    public List<ApplicationFieldValue> getFields() {
         return get(fields);
     }
 
@@ -74,15 +113,15 @@ public class ApplicationPropertiesContainer extends DAOType{
         return wasSet(fields);
     }
 
-    public void setFields(List<ApplicationPropertyValue> fields) {
+    public void setFields(List<ApplicationFieldValue> fields) {
         this.fields = optional(fields);
     }
     
-    public final <E, A extends ApplicationPropertyValue<E>> A getFunctionalField(Functional<E> describes) {
-        List<ApplicationPropertyValue> fields = get(this.fields);
-        for (ApplicationPropertyValue blockField : fields) {
+    public final <E, A extends ApplicationFieldValue<E>> A getFunctionalField(Functional<E> describes) {
+        List<ApplicationFieldValue> fields = get(this.fields);
+        for (ApplicationFieldValue blockField : fields) {
             if (describes.getFriendlyName().equals(blockField.getDescribes())) {
-                if(!describes.getRequiredType().isAssignableFrom(blockField.getJavaType())){
+                if(!describes.getRequiredType().isAssignableFrom(blockField.getType())){
                     LOGGER.warn("Found a match for "+describes+" in "+blockField+" but the types did not match");
                 }
                 return (A)blockField;
@@ -112,7 +151,7 @@ public class ApplicationPropertiesContainer extends DAOType{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ApplicationPropertiesContainer other = (ApplicationPropertiesContainer) obj;
+        final ApplicationBlock other = (ApplicationBlock) obj;
         if (!Objects.equals(this.getId(), other.getId())) {
             return false;
         }

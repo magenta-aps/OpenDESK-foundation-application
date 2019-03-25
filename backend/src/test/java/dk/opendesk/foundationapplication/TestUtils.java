@@ -6,8 +6,8 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.beans.AuthorityBean;
@@ -30,6 +30,9 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.log4j.Logger;
+
+import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.RANDOM;
+import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.lorem;
 
 /**
  *
@@ -303,46 +306,46 @@ public final class TestUtils {
 
         
 
-        ArrayList<ApplicationPropertyValue> fields;
+        ArrayList<ApplicationFieldValue> fields;
         Application app1 = new Application();
         app1.setBranchSummary(branchBean.getBranchSummary(branchRef1));
         app1.setBudget(budgetBean.getBudgetReference(budgetRef1));
         app1.setTitle(APPLICATION1_NAME);
-        ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationBlock app1blockRecipient = new ApplicationBlock();
         app1blockRecipient.setId("1");
         app1blockRecipient.setLabel("Recipient");
-        ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        ApplicationBlock app1blockOverview = new ApplicationBlock();
         app1blockOverview.setId("2");
         app1blockOverview.setLabel("Overview");
-        ApplicationPropertiesContainer app1Details = new ApplicationPropertiesContainer();
+        ApplicationBlock app1Details = new ApplicationBlock();
         app1Details.setId("3");
         app1Details.setLabel("Details");
 
         fields = new ArrayList<>();
-        fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
-        fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Tværstrede"));
-        fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 9));
-        fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2 th"));
-        fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "1234"));
-        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, Functional.first_name(), "Lars"));
-        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, Functional.last_name(), "Larsen"));
-        fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), "lars@larsen.org"));
-        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, Functional.phone_number(), "004512345678"));
+        fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Lars Larsen INC"));
+        fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Tværstrede"));
+        fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,9));
+        fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"2 th"));
+        fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"1234"));
+        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, Functional.first_name(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Lars"));
+        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, Functional.last_name(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Larsen"));
+        fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"lars@larsen.org"));
+        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, Functional.phone_number(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"004512345678"));
         app1blockRecipient.setFields(fields);
 
         fields = new ArrayList<>();
-        fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category1"));
-        fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Give me money"));
-        fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
-        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(2)))));
+        fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Category1"));
+        fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Give me money"));
+        fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now())));
+        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now().plus(Duration.ofDays(2)))));
         app1blockOverview.setFields(fields);
 
         fields = new ArrayList<>();
-        fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), APPLICATION1_AMOUNT));
-        fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "4321"));
-        fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
+        fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,APPLICATION1_AMOUNT));
+        fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"4321"));
+        fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"00035254"));
         app1Details.setFields(fields);
-        app1.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1Details}));
+        app1.setBlocks(Arrays.asList(new ApplicationBlock[]{app1blockRecipient, app1blockOverview, app1Details}));
         application1 = applicationBean.addNewApplication(app1).asNodeRef();
 
         //application1 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION1_NAME, APPLICATION1_NAME + TITLE_POSTFIX,, "", "", , "", "", "", "", "", "", "", , , , "", "");
@@ -350,83 +353,83 @@ public final class TestUtils {
         app2.setBranchSummary(branchBean.getBranchSummary(branchRef1));
         app2.setBudget(budgetBean.getBudgetReference(budgetRef1));
         app2.setTitle(APPLICATION2_NAME);
-        ApplicationPropertiesContainer app2blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationBlock app2blockRecipient = new ApplicationBlock();
         app2blockRecipient.setId("1");
         app2blockRecipient.setLabel("Recipient");
-        ApplicationPropertiesContainer app2blockOverview = new ApplicationPropertiesContainer();
+        ApplicationBlock app2blockOverview = new ApplicationBlock();
         app2blockOverview.setId("2");
         app2blockOverview.setLabel("Overview");
-        ApplicationPropertiesContainer app2details = new ApplicationPropertiesContainer();
+        ApplicationBlock app2details = new ApplicationBlock();
         app2details.setId("3");
         app2details.setLabel("Details");
 
         fields = new ArrayList<>();
-        fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
-        fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Tværstrede"));
-        fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 9));
-        fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2"));
-        fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "1234"));
-        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, Functional.first_name(), "Lars"));
-        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, Functional.last_name(), "Larsen"));
-        fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), "lars@larsen.org"));
-        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, Functional.phone_number(), "004512345678"));
+        fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Lars Larsen INC"));
+        fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Tværstrede"));
+        fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,9));
+        fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"2"));
+        fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"1234"));
+        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, Functional.first_name(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Lars"));
+        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, Functional.last_name(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Larsen"));
+        fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"lars@larsen.org"));
+        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, Functional.phone_number(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"004512345678"));
         app2blockRecipient.setFields(fields);
 
         fields = new ArrayList<>();
-        fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category2"));
-        fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Give me more money"));
-        fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
-        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(4)))));
+        fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Category2"));
+        fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Give me more money"));
+        fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now())));
+        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now().plus(Duration.ofDays(4)))));
         app2blockOverview.setFields(fields);
 
         fields = new ArrayList<>();
-        fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), APPLICATION2_AMOUNT));
-        fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "4321"));
-        fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
+        fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,APPLICATION2_AMOUNT));
+        fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"4321"));
+        fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"00035254"));
         app2details.setFields(fields);
 
-        app2.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app2blockRecipient, app2blockOverview, app2details}));
+        app2.setBlocks(Arrays.asList(new ApplicationBlock[]{app2blockRecipient, app2blockOverview, app2details}));
         application2 = applicationBean.addNewApplication(app2).asNodeRef();
 
         //application2 = foundationBean.addNewApplication(branchRef, budgetRef1, APPLICATION2_NAME, APPLICATION2_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
         Application app3 = new Application();
         app3.setTitle(APPLICATION3_NAME);
-        ApplicationPropertiesContainer app3blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationBlock app3blockRecipient = new ApplicationBlock();
         app3blockRecipient.setLabel("Recipient");
         app3blockRecipient.setId("1");
-        ApplicationPropertiesContainer app3blockOverview = new ApplicationPropertiesContainer();
+        ApplicationBlock app3blockOverview = new ApplicationBlock();
         app3blockOverview.setLabel("Overview");
         app3blockOverview.setId("2");
-        ApplicationPropertiesContainer app3details = new ApplicationPropertiesContainer();
+        ApplicationBlock app3details = new ApplicationBlock();
         app3details.setLabel("Details");
         app3details.setId("3");
 
         fields = new ArrayList<>();
-        fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Lars Larsen INC"));
-        fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Tværstrede"));
-        fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 9));
-        fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2"));
-        fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "1234"));
-        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, Functional.first_name(), "Lars"));
-        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, Functional.last_name(), "Larsen"));
-        fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), "lars@larsen.org"));
-        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, Functional.phone_number(), "004512345678"));
+        fields.add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Lars Larsen INC"));
+        fields.add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Tværstrede"));
+        fields.add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,9));
+        fields.add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"2"));
+        fields.add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"1234"));
+        fields.add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, Functional.first_name(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Lars"));
+        fields.add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, Functional.last_name(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Larsen"));
+        fields.add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"lars@larsen.org"));
+        fields.add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, Functional.phone_number(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"004512345678"));
         app3blockRecipient.setFields(fields);
 
         fields = new ArrayList<>();
-        fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category3"));
-        fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Give me even more money"));
-        fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
-        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(4)))));
+        fields.add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Category3"));
+        fields.add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Give me even more money"));
+        fields.add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now())));
+        fields.add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now().plus(Duration.ofDays(4)))));
         app3blockOverview.setFields(fields);
 
         fields = new ArrayList<>();
-        fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), APPLICATION3_AMOUNT));
-        fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "4321"));
-        fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00035254"));
+        fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,APPLICATION3_AMOUNT));
+        fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"4321"));
+        fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"00035254"));
         app3details.setFields(fields);
 
-        app3.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app3blockRecipient, app3blockOverview, app3details}));
+        app3.setBlocks(Arrays.asList(new ApplicationBlock[]{app3blockRecipient, app3blockOverview, app3details}));
         application3 = applicationBean.addNewApplication(app3).asNodeRef();
         //application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
 

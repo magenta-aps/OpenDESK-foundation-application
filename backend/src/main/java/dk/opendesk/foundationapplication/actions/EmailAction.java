@@ -1,8 +1,8 @@
 package dk.opendesk.foundationapplication.actions;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.FoundationActionParameterDefinition;
 import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
@@ -65,8 +65,8 @@ public class EmailAction extends MailActionExecuter {
         if (model == null) {
             model = new HashMap<>();
         }
-        for(ApplicationPropertiesContainer block : application.getBlocks()){
-            for(ApplicationPropertyValue field : block.getFields()){
+        for(ApplicationBlock block : application.getBlocks()){
+            for(ApplicationFieldValue field : block.getFields()){
                 model.put(block.getLabel()+"_"+field.getLabel(), field.getValue().toString());//todo Parse instead of tostring
                 model.put("id"+field.getId(), field.getValue().toString());
             }

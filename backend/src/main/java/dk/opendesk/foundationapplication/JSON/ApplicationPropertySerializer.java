@@ -9,29 +9,30 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
+
 import java.io.IOException;
 
 /**
  *
  * @author martin
  */
-public class ApplicationPropertySerializer extends JsonSerializer<ApplicationPropertyValue>{
+public class ApplicationPropertySerializer extends JsonSerializer<ApplicationFieldValue>{
 
     @Override
-    public void serialize(ApplicationPropertyValue value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(ApplicationFieldValue value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
         if(value.getId() != null){
             jgen.writeStringField("id", value.getId());
         }
-        if(value.getType() != null){
-            jgen.writeStringField("type", value.getType());
+        if(value.getComponent() != null){
+            jgen.writeStringField("component", value.getComponent());
         }
         if(value.getLabel() != null){
             jgen.writeStringField("label", value.getLabel());
         }
-        if(value.getJavaType() != null){
-            jgen.writeStringField("javaType", value.getJavaType().getCanonicalName());
+        if(value.getType() != null){
+            jgen.writeStringField("type", value.getType().getCanonicalName());
         }
         if(value.getValue() != null){
             jgen.writeObjectField("value", value.getValue());
@@ -42,12 +43,30 @@ public class ApplicationPropertySerializer extends JsonSerializer<ApplicationPro
         if(value.getDescribes() != null){
             jgen.writeObjectField("describes", value.getDescribes());
         }
+        if(value.getAllowedValues() != null){
+            jgen.writeObjectField("allowedValues", value.getAllowedValues());
+        }
+        if(value.getHint() != null){
+            jgen.writeStringField("hint", value.getHint());
+        }
+        if(value.getWrapper() != null){
+            jgen.writeStringField("wrapper", value.getWrapper());
+        }
+        if(value.getValidation() != null){
+            jgen.writeStringField("validation", value.getValidation());
+        }
+        if(value.getPermissions() != null){
+            jgen.writeStringField("permission", value.getPermissions());
+        }
+        if(value.getReadOnly() != null){
+            jgen.writeBooleanField("readOnly", value.getReadOnly());
+        }
         jgen.writeEndObject();
     }
 
     @Override
-    public Class<ApplicationPropertyValue> handledType() {
-        return ApplicationPropertyValue.class;
+    public Class<ApplicationFieldValue> handledType() {
+        return ApplicationFieldValue.class;
     }
     
     

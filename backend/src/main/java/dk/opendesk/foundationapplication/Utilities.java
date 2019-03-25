@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
@@ -33,6 +33,7 @@ import dk.opendesk.foundationapplication.beans.AuthorityBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
+import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.patches.InitialStructure;
 
 import java.util.ArrayList;
@@ -325,8 +326,8 @@ public final class Utilities {
     public static ObjectMapper getMapper(){
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addSerializer(ApplicationPropertyValue.class, new ApplicationPropertySerializer());
-        module.addDeserializer(ApplicationPropertyValue.class, new ApplicationPropertyDeserializer());
+        module.addSerializer(ApplicationFieldValue.class, new ApplicationPropertySerializer());
+        module.addDeserializer(ApplicationFieldValue.class, new ApplicationPropertyDeserializer());
         module.addSerializer(FoundationActionParameterDefinition.class, new FoundationActionParameterDefinitionSerializer());
         module.addDeserializer(FoundationActionParameterDefinition.class, new FoundationActionParameterDefinitionDeserializer());
         module.addSerializer(FoundationActionParameterValue.class, new FoundationActionParameterValueSerializer());
@@ -356,7 +357,11 @@ public final class Utilities {
         public FieldChangeBuilder changeField(String fieldId) {
             return new FieldChangeBuilder(fieldId);
         }
-        
+
+        public BlockChangeBuilder changeBlock(String blockId) {
+            return new BlockChangeBuilder(blockId);
+        }
+
         public ApplicationChangeBuilder setBudget(NodeRef budget){
             BudgetReference budgetRef = new BudgetReference();
             budgetRef.parseRef(budget);
@@ -402,23 +407,98 @@ public final class Utilities {
             return change;
         }
 
+
+        public class BlockChangeBuilder {
+
+            private final ApplicationBlock block;
+
+            public BlockChangeBuilder(String blockId) {
+                ApplicationBlock block = findBlock(change, blockId);
+                if (block == null) {
+                    block = findBlock(original, blockId);
+                    ApplicationBlock newBlock = new ApplicationBlock();
+                    newBlock.setId(block.getId());
+                    List<ApplicationBlock> blocks = change.getBlocks();
+                    if (blocks == null) {
+                        blocks = new ArrayList<>();
+                        change.setBlocks(blocks);
+                    }
+                    blocks.add(newBlock);
+                    this.block = newBlock;
+                }
+                else {
+                    this.block = block;
+                }
+
+            }
+
+            public BlockChangeBuilder setLabel(String newLabel) {
+                block.setLabel(newLabel);
+                return this;
+            }
+
+            public BlockChangeBuilder setLayout(String newLayout) {
+                block.setLayout(newLayout);
+                return this;
+            }
+
+            public BlockChangeBuilder setFields(List<ApplicationFieldValue> newFields) {
+                block.setFields(newFields);
+                return this;
+            }
+
+            public BlockChangeBuilder setIcon(String newIcon) {
+                block.setIcon(newIcon);
+                return this;
+            }
+
+            public BlockChangeBuilder setCollapsible(Boolean newCollapsible) {
+                block.setCollapsible(newCollapsible);
+                return this;
+            }
+
+            public BlockChangeBuilder setRepeatable(Boolean newRepeatable) {
+                block.setRepeatable(newRepeatable);
+                return this;
+            }
+
+            public ApplicationChangeBuilder done() {
+                return ApplicationChangeBuilder.this;
+            }
+
+            protected final ApplicationBlock findBlock(Application target, String id) {
+                if (target.getBlocks() == null) {
+                    return null;
+                }
+                for (ApplicationBlock block : target.getBlocks()) {
+                    if (id.equals(block.getId())) {
+                        return block;
+                    }
+                }
+                return null;
+            }
+        }
+
         public class FieldChangeBuilder {
 
-            private final ApplicationPropertyValue value;
+            private final ApplicationFieldValue value;
 
             public FieldChangeBuilder(String fieldID) {
-                Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> existing = findField(change, fieldID);
+                Pair<ApplicationBlock, ApplicationFieldValue> existing = findField(change, fieldID);
                 if (existing != null) {
                     value = existing.getSecond();
                 } else {
-                    Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> originalVal = findField(original, fieldID);
-                    ApplicationPropertyValue changeVal = new ApplicationPropertyValue();
+                    Pair<ApplicationBlock, ApplicationFieldValue> originalVal = findField(original, fieldID);
+                    ApplicationFieldValue changeVal = new ApplicationFieldValue();
                     changeVal.setId(originalVal.getSecond().getId());
 
                     boolean found = false;
                     if (change.getBlocks() != null) {
-                        for (ApplicationPropertiesContainer block : change.getBlocks()) {
+                        for (ApplicationBlock block : change.getBlocks()) {
                             if (originalVal.getFirst().getId().equals(block.getId())) {
+                                if(block.getFields() == null) {
+                                    block.setFields(new ArrayList<>());
+                                }
                                 block.getFields().add(changeVal);
                                 found = true;
                             }
@@ -426,11 +506,11 @@ public final class Utilities {
                     }
 
                     if (!found) {
-                        ApplicationPropertiesContainer changeBlock = new ApplicationPropertiesContainer();
+                        ApplicationBlock changeBlock = new ApplicationBlock();
                         changeBlock.setId(originalVal.getFirst().getId());
                         changeBlock.setFields(new ArrayList<>());
                         changeBlock.getFields().add(changeVal);
-                        change.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{changeBlock}));
+                        change.setBlocks(Arrays.asList(new ApplicationBlock[]{changeBlock}));
                     }
 
                     value = changeVal;
@@ -448,42 +528,71 @@ public final class Utilities {
                 return this;
             }
 
-            public FieldChangeBuilder setType(String newType) {
+            public FieldChangeBuilder setComponent(String newComponent) {
+                value.setComponent(newComponent);
+                return this;
+            }
+
+            public FieldChangeBuilder setType(Class newType) {
                 value.setType(newType);
                 return this;
             }
 
-            public FieldChangeBuilder setJavaType(Class newType) {
-                value.setJavaType(newType);
+            public FieldChangeBuilder setDescribes(Functional newFunctional) {
+                value.setDescribes(newFunctional.getFriendlyName());
                 return this;
             }
 
-            public FieldChangeBuilder setDescribes(String newDescribes) {
-                value.setDescribes(newDescribes);
-                return this;
-            }
-
-            public FieldChangeBuilder setDescribes(List newAllowedValues) {
+            public FieldChangeBuilder setAllowedValues(List newAllowedValues) {
                 value.setAllowedValues(newAllowedValues);
+                return this;
+            }
+
+            public FieldChangeBuilder setHint(String newHint) {
+                value.setHint(newHint);
+                return this;
+            }
+
+            public FieldChangeBuilder setWrapper(String newWrapper) {
+                value.setWrapper(newWrapper);
+                return this;
+            }
+
+            public FieldChangeBuilder setValidation(String newValidation) {
+                value.setValidation(newValidation);
+                return this;
+            }
+
+            public FieldChangeBuilder setPermissions(String newPermissions) {
+                value.setPermissions(newPermissions);
+                return this;
+            }
+
+            public FieldChangeBuilder setReadOnly(Boolean newReadOnly) {
+                value.setReadOnly(newReadOnly);
                 return this;
             }
 
             public FieldChangeBuilder setValue(Object newValue) {
                 value.setValue(newValue);
-                value.setJavaType(newValue.getClass());
+                value.setType(newValue.getClass());
                 return this;
             }
+
 
             public ApplicationChangeBuilder done() {
                 return ApplicationChangeBuilder.this;
             }
 
-            protected final Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> findField(Application target, String id) {
+            protected final Pair<ApplicationBlock, ApplicationFieldValue> findField(Application target, String id) {
                 if (target.getBlocks() == null) {
                     return null;
                 }
-                for (ApplicationPropertiesContainer block : target.getBlocks()) {
-                    for (ApplicationPropertyValue field : block.getFields()) {
+                for (ApplicationBlock block : target.getBlocks()) {
+                    if(block.getFields() == null) {
+                        return null;
+                    }
+                    for (ApplicationFieldValue field : block.getFields()) {
                         if (id.equals(field.getId())) {
                             return new Pair<>(block, field);
                         }
