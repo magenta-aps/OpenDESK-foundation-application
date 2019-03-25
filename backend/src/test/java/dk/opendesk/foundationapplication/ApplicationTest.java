@@ -188,8 +188,8 @@ public class ApplicationTest extends AbstractTestClass{
         NodeRef appRef = TestUtils.application3;
         Application app = get(Application.class, appRef.getId());
 
-        assertNull(app.getBranchSummary().asNodeRef());
-        assertNull(app.getState().asNodeRef());
+        assertNull(app.getBranchSummary());
+        assertNull(app.getState());
 
         Application change = new Application();
         change.parseRef(appRef);
@@ -231,8 +231,8 @@ public class ApplicationTest extends AbstractTestClass{
         appRef = TestUtils.application3;
         app = get(Application.class, appRef.getId());
 
-        assertNull(app.getBranchSummary().asNodeRef());
-        assertNull(app.getState().asNodeRef());
+        assertNull(app.getBranchSummary());
+        assertNull(app.getState());
 
         change = new Application();
         change.parseRef(appRef);

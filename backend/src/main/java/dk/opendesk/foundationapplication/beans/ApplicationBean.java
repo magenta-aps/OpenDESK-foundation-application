@@ -190,15 +190,15 @@ public class ApplicationBean extends FoundationBean {
                     changedWorkflow = true;
                 }
 
-                if (changedWorkflow && app.getState() == null) {
-                    throw new AlfrescoRuntimeException(MUST_SPECIFY_STATE);
-                }
+//                if (changedWorkflow && app.getState() == null) {
+//                    throw new AlfrescoRuntimeException(MUST_SPECIFY_STATE);
+//                }
                 authBean.addFullPermission(newBranchRef, PermissionGroup.BRANCH, branchBean.getBranchReference(newBranchRef));
                 ns.setAssociations(app.asNodeRef(), getODFName(APPLICATION_ASSOC_BRANCH), Collections.singletonList(newBranchRef));
             }
 
         }
-
+        
         if (app.wasStateReferenceSet()) {
             if (app.getState() == null) {
                 clearApplicationState(app.asNodeRef());
@@ -209,6 +209,8 @@ public class ApplicationBean extends FoundationBean {
                     setStateSameWorkflow(app);
                 }
             }
+        }else if(changedWorkflow){
+            setStateDifferentWorkflow(app);
         }
 
         if (app.wasBudgetSet()) {
@@ -358,19 +360,24 @@ public class ApplicationBean extends FoundationBean {
 
     private void setStateDifferentWorkflow(Application app) throws Exception {
         NodeService ns = getServiceRegistry().getNodeService();
-        NodeRef newState = app.getState().asNodeRef();
+        NodeRef newState = null;
         NodeRef newBranchRef = app.getBranchSummary().asNodeRef();
         NodeRef newBranchWorkflow = getSingleTargetAssoc(newBranchRef, BRANCH_ASSOC_WORKFLOW);
-        List<AssociationRef> newWorkflowStates = ns.getTargetAssocs(newBranchWorkflow, getODFName(WORKFLOW_ASSOC_STATES));
-        boolean found = false;
-        for (AssociationRef workflowState : newWorkflowStates) {
-            if (newState.equals(workflowState.getTargetRef())) {
-                found = true;
-                break;
+        if (app.getState() != null) {
+            newState = app.getState().asNodeRef();
+            List<ChildAssociationRef> newWorkflowStates = ns.getChildAssocs(newBranchWorkflow, getODFName(WORKFLOW_ASSOC_STATES), null);
+            boolean found = false;
+            for (ChildAssociationRef workflowState : newWorkflowStates) {
+                if (newState.equals(workflowState.getChildRef())) {
+                    found = true;
+                    break;
+                }
             }
-        }
-        if (!found) {
-            throw new AlfrescoRuntimeException(INVALID_STATE);
+            if (!found) {
+                throw new AlfrescoRuntimeException(INVALID_STATE);
+            }
+        }else{
+            newState = workflowBean.getWorkflowEntryPoint(newBranchWorkflow);
         }
         setApplicationState(app.asNodeRef(), newState);
     }
