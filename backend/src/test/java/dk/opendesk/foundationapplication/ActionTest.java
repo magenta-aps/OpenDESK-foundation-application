@@ -108,7 +108,7 @@ public class ActionTest extends AbstractTestClass {
         FoundationActionParameterDefinition<String> aspectParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, String.class, true, null);
         FoundationActionParameterDefinition<String> msgParam = new FoundationActionParameterDefinition<>("executionMessage", DataTypeDefinition.TEXT, String.class, false, null);
 
-        FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, TestUtils.w1StateRecievedRef.getId());
+        FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, TestUtils.w1StateAccessRef.getId());
         FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue<>(aspectParam, ASPECT_ON_CREATE);
 
         List<FoundationActionParameterValue> params = new ArrayList<>();
