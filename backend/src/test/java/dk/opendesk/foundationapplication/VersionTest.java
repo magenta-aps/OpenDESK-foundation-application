@@ -1,6 +1,7 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.ApplicationChange;
 import dk.opendesk.foundationapplication.DAO.ApplicationChangeUnit;
 import dk.opendesk.foundationapplication.DAO.StateReference;
@@ -12,6 +13,8 @@ import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.cmr.version.VersionService;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,6 +43,24 @@ public class VersionTest extends AbstractTestClass {
     @Override
     protected void tearDown() throws Exception {
         TestUtils.wipeData(getServiceRegistry());
+    }
+
+    public void testVersioningNewApplication() throws Exception {
+
+        Application app = new Application();
+        app.setTitle("newApp");
+        NodeRef appRef = getApplicationBean().addNewApplication(app).asNodeRef();
+        List<ApplicationChange> changeList = get(List.class, ApplicationChange.class, appRef.getId() + "/history");
+        System.out.println(changeList);
+
+        Application app2 = new Application();
+        app2.setTitle("newApp2");
+        NodeRef appRef2 = getApplicationBean().addNewApplication(app2).asNodeRef();
+        ApplicationBlock emptyBlock = new ApplicationBlock();
+        app2.setBlocks(Arrays.asList(new ApplicationBlock[]{emptyBlock}));
+        List<ApplicationChange> changeList2 = get(List.class, ApplicationChange.class, appRef2.getId() + "/history");
+        System.out.println(changeList2);
+
     }
 
     public void testVersioning() throws Exception {
