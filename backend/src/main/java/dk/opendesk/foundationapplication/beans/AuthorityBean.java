@@ -7,16 +7,45 @@ package dk.opendesk.foundationapplication.beans;
 
 import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.enums.PermissionGroup;
-import java.util.ArrayList;
+
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import dk.opendesk.repo.beans.PersonBean;
 import org.alfresco.error.AlfrescoRuntimeException;
-import org.alfresco.service.cmr.repository.InvalidNodeRefException;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.service.cmr.action.Action;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.NotImplementedException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_BRANCHES;
+import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_WORKFLOW;
+import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_TYPE_NAME;
+import static dk.opendesk.foundationapplication.Utilities.getCMName;
+import static dk.opendesk.foundationapplication.Utilities.getODFName;
+import static dk.opendesk.foundationapplication.enums.PermissionGroup.BRANCH;
+import static dk.opendesk.foundationapplication.enums.PermissionGroup.BUDGET_YEAR;
+import static dk.opendesk.foundationapplication.enums.PermissionGroup.NEW_APPLICATION;
+import static dk.opendesk.foundationapplication.enums.PermissionGroup.WORKFLOW;
+import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_BCC;
+import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_SUBJECT;
+import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_TEMPLATE;
+import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_TEMPLATE_MODEL;
+import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_TO;
 
 /**
  *
@@ -24,7 +53,19 @@ import org.alfresco.service.cmr.security.PermissionService;
  */
 public class AuthorityBean extends FoundationBean{
     public static final String ERROR_GROUP_NOT_FOUND = "odf.group.not.found";
-    
+    private static final String ERROR_SUBNAME_NOT_FOUND = "odf.subname.not.found";
+    private static final String ERROR_SUBNAME_NOT_UNIQUE = "odf.subname.not.unique";
+    public static final String ERROR_EMPTY_EMAIL = "odf.authoritybean.empty.email";
+    private static final String ERROR_UNKNOWN_KEY = "odf.authoritybean.unknown.key";
+    private static final String ERROR_EMPTY_PERMISSIONS = "odf.authoritybean.empty.permissions";
+    private static final String ERROR_UNKNOWN_ROLE = "odf.authorityBean.unknown.role";
+    private static final String ERROR_UNKNOWN_PERMISSION = "odf.authorityBean.unknown.permission";
+    private PersonBean personBean;
+
+    public void setPersonBean(PersonBean personBean) {
+        this.personBean = personBean;
+    }
+
     public Set<String> getAllCreatedGroups(){
          AuthorityService as = getServiceRegistry().getAuthorityService();
          return getAllCreatedGroups(as);
@@ -251,12 +292,12 @@ public class AuthorityBean extends FoundationBean{
         as.removeAuthority(from, inherits);
     }
     
-    public void addUserGroup(String userName, String group){
+    public void addUserToGroup(String userName, String group){
         AuthorityService as = getServiceRegistry().getAuthorityService();
         as.addAuthority(group, userName);
     }
     
-    public void removeUserGroup(String userName, String group){
+    public void removeUserFromGroup(String userName, String group){
         AuthorityService as = getServiceRegistry().getAuthorityService();
         as.removeAuthority(group, userName);
     }
@@ -279,5 +320,205 @@ public class AuthorityBean extends FoundationBean{
             throw new RuntimeException("Title of Reference must not be null");
         }
     }
-    
+
+    public void loadUsers(JSONObject roleObject, JSONArray userArray, String emailSubject, NodeRef emailTemplate) throws Exception {
+        loadUsers(roleObject,userArray,emailSubject,emailTemplate,null);
+    }
+
+    public void loadUsers(JSONObject roleObject, JSONArray userArray, String emailSubject, NodeRef emailTemplate, HashMap<String, Serializable> emailModel) throws Exception {
+        AuthorityService as = getServiceRegistry().getAuthorityService();
+
+        Map<String,String> roleMap = readRolePermissionsFromJson(roleObject); //maps roleNames to roleAuthorities
+        Map<String,Map<QName,Serializable>> personPropMap = new HashMap<>();  //maps userNames to personProperties
+        Map<String, String> personRoleMap = new HashMap<>();                  //maps userNames to roleNames
+
+        readUsersFromJson(userArray,roleMap,personPropMap,personRoleMap);
+
+        RetryingTransactionHelper trans = getServiceRegistry().getRetryingTransactionHelper();
+        trans.doInTransaction(() -> {
+            for (String userName : personPropMap.keySet()) {
+                Map<QName,Serializable> personProps = personPropMap.get(userName);
+                String email = personProps.get(getCMName("email")).toString();
+
+                AuthenticationUtil.runAs(() -> {
+                    //creating user
+                    String password = personBean.createPerson(personPropMap.get(userName));
+
+                    //setting role
+                    String roleName = personRoleMap.get(userName);
+                    String authority = roleMap.get(roleName);
+                    addUserToGroup(userName, authority);
+
+
+                    //sending email
+                    HashMap<String, Serializable> model = emailModel;
+                    if (model == null) {
+                        model = new HashMap<>();
+                    }
+                    model.put("brugernavn", userName);
+                    model.put("password", password);
+                    model.put("email", email);
+                    model.put("subject", emailSubject);
+                    model.put("rolle", personRoleMap.get(userName));
+                    model.put("fornavn", personProps.getOrDefault(getCMName("firstName"),"*** fornavn mangler ***")); //todo hvad er kotyme?
+                    model.put("efternavn", personProps.getOrDefault(getCMName("lastName"),"*** efternavn mangler ***"));
+                    model.put("telefon", personProps.getOrDefault(getCMName("phone"),"*** telefonnummer mangler ***"));
+
+                    Map<String, Serializable> emailActionParams = new HashMap<>();
+                    emailActionParams.put(PARAM_TO, email);
+                    emailActionParams.put(PARAM_SUBJECT, emailSubject);
+                    emailActionParams.put(PARAM_TEMPLATE, emailTemplate);
+                    emailActionParams.put(PARAM_TEMPLATE_MODEL, model);
+                    Action emailAction = getServiceRegistry().getActionService().createAction("mail", emailActionParams); //uses standard MailActionExecuter
+                    getServiceRegistry().getActionService().executeAction(emailAction, null);
+                    return true;
+                }, AuthenticationUtil.getSystemUserName());
+            }
+            return null;
+        });
+    }
+
+    public Map<String, String> readRolePermissionsFromJson(JSONObject roleObject) throws Exception {
+        AuthorityService as = getServiceRegistry().getAuthorityService();
+
+        Map<String, String> roleMap = new HashMap<>();
+
+        // reading groups from file
+        Iterator<String> roleIterator = roleObject.keys();   //role: direktør, sekretær etc
+
+        while (roleIterator.hasNext()) {
+            String roleName = roleIterator.next();
+            String roleAuth = as.createAuthority(AuthorityType.GROUP, roleName);
+            roleMap.put(roleName,roleAuth);
+            JSONObject permissionsAsJson = roleObject.getJSONObject(roleName);
+
+            Iterator<String> groupIterator = permissionsAsJson.keys(); //group: State, Branch etc
+
+            while (groupIterator.hasNext()) {
+                String group = groupIterator.next();
+                String groupPermissionsAsString = permissionsAsJson.getString(group);
+                PermissionGroup permissionGroup = PermissionGroup.getPermissionGroup(group);
+                NodeRef subNameRef = null;
+                boolean canWrite = false;
+
+                if (groupPermissionsAsString.equals("read")) {
+                    //nothing to do
+                } else if (groupPermissionsAsString.equals("write") || groupPermissionsAsString.equals("*")) {
+                    canWrite = true;
+                } else {
+                    JSONObject groupPermissionsAsJson = new JSONObject(groupPermissionsAsString);
+                    Iterator<String> subNameIterator = groupPermissionsAsJson.keys();  //subName: special State (Received, Denied, ...) , special Branch ect
+
+                    while (subNameIterator.hasNext()) {
+                        String subName = subNameIterator.next();
+
+                        String subNamePerm = groupPermissionsAsJson.getString(subName);
+                        if (subNamePerm.equals("write")) {
+                            subNameRef = findSubNameRef(permissionGroup, subName);
+                            canWrite = true;
+                        } else if (subNamePerm.equals("read")) {
+                            subNameRef = findSubNameRef(permissionGroup, subName);
+                        } else {
+                            throw new AlfrescoRuntimeException(ERROR_UNKNOWN_PERMISSION);
+                        }
+
+                    }
+                }
+
+                String authority = getGroup(permissionGroup,subNameRef,canWrite);
+                linkAuthorities(roleAuth,authority);
+
+            }
+        }
+        return roleMap;
+    }
+
+
+    public void readUsersFromJson(
+            JSONArray userArray,
+            Map<String,String> roleMap,
+            Map<String,Map<QName,Serializable>> personPropMap,
+            Map<String, String> personRoleMap) throws JSONException {
+
+        System.out.println(userArray);
+        for (int i = 0; i < userArray.length(); i++) {
+            JSONObject user = userArray.getJSONObject(i);
+            Iterator<String> userIterator = user.keys();
+
+            String firstName = null;
+            String lastName = null;
+            String email = null;
+            String phone = null;
+            String role = null;
+
+
+            while (userIterator.hasNext()) {
+                String key = userIterator.next();
+
+                switch (key) {
+                    case "fornavn":
+                        firstName = user.getString(key);
+                        break;
+                    case "efternavn":
+                        lastName = user.getString(key);
+                        break;
+                    case "email":
+                        email = user.getString(key);
+                        break;
+                    case "telefon":
+                        phone = user.getString(key);
+                        break;
+                    case "rolle":
+                        role = user.getString(key);
+                        break;
+                    default:
+                        throw new AlfrescoRuntimeException(ERROR_UNKNOWN_KEY);
+                }
+            }
+            if (email == null || email.isEmpty()) {
+                throw new AlfrescoRuntimeException(ERROR_EMPTY_EMAIL);
+            }
+            if (!roleMap.containsKey(role)) {
+                throw new AlfrescoRuntimeException(ERROR_UNKNOWN_ROLE);
+            }
+
+            Map<QName, Serializable> personProps = personBean.createPersonProperties("", firstName, lastName, email, phone);
+            String userName = personProps.get(getCMName("userName")).toString();
+            personPropMap.put(userName, personProps);
+            personRoleMap.put(userName, role);
+        }
+    }
+
+
+    private NodeRef findSubNameRef(PermissionGroup group, String subName) throws Exception {
+        List<ChildAssociationRef> childAssocs = null;
+        switch (group) {
+            case BRANCH:
+                childAssocs= getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_BRANCHES), getODFName(subName));
+                if (childAssocs.size() == 0) {
+                    throw new AlfrescoRuntimeException(ERROR_SUBNAME_NOT_FOUND);
+                }
+                if (childAssocs.size() > 1) {
+                    throw new AlfrescoRuntimeException(ERROR_SUBNAME_NOT_UNIQUE);
+                }
+                return childAssocs.get(0).getChildRef();
+            case WORKFLOW:
+                childAssocs= getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_WORKFLOW), getODFName(subName));
+                if (childAssocs.size() == 0) {
+                    throw new AlfrescoRuntimeException(ERROR_SUBNAME_NOT_FOUND);
+                }
+                if (childAssocs.size() > 1) {
+                    throw new AlfrescoRuntimeException(ERROR_SUBNAME_NOT_UNIQUE);
+                }
+                return childAssocs.get(0).getChildRef();
+            case BUDGET_YEAR:
+                break;
+            case BUDGET:
+                break;
+        }
+
+        //todo
+        if (childAssocs != null) for (ChildAssociationRef c : childAssocs) System.out.println(c.getQName());
+        throw new NotImplementedException("findSubNameRef for " + group + " " + subName);
+    }
 }

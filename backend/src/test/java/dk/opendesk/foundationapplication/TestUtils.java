@@ -18,6 +18,8 @@ import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.PermissionGroup;
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
+
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -28,8 +30,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.apache.log4j.Logger;
+import org.alfresco.service.cmr.security.AuthorityType;
 
 import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.RANDOM;
 import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.lorem;
@@ -199,7 +205,19 @@ public final class TestUtils {
         if(serviceRegistry.getPersonService().personExists(USER_NO_RIGHTS)){
             serviceRegistry.getPersonService().deletePerson(USER_NO_RIGHTS);
         }
-        
+        if(serviceRegistry.getAuthorityService().authorityExists(AuthorityType.GROUP + "_testDirektør")) {
+            serviceRegistry.getAuthorityService().deleteAuthority(AuthorityType.GROUP + "_testDirektør", true);
+        }
+        if(serviceRegistry.getAuthorityService().authorityExists(AuthorityType.GROUP + "_testSekretær")) {
+            serviceRegistry.getAuthorityService().deleteAuthority(AuthorityType.GROUP + "_testSekretær", true);
+        }
+        if(serviceRegistry.getAuthorityService().authorityExists(AuthorityType.GROUP + "_testBestyrelsesmedlem")) {
+            serviceRegistry.getAuthorityService().deleteAuthority(AuthorityType.GROUP + "_testBestyrelsesmedlem", true);
+        }
+        if(serviceRegistry.getAuthorityService().authorityExists(AuthorityType.GROUP + "_testOligark")) {
+            serviceRegistry.getAuthorityService().deleteAuthority(AuthorityType.GROUP + "_testOligark", true);
+        }
+
     workFlowRef1 = null;
     workFlowRef2 = null;
     workFlowRef3 = null;
@@ -434,8 +452,8 @@ public final class TestUtils {
         //application3 = foundationBean.addNewApplication(null, null, APPLICATION3_NAME, APPLICATION3_NAME + TITLE_POSTFIX, "", "", "", , "", "", "", "", "", "", "", , , , "", "");
 
 
-        authBean.addUserGroup(USER_ALL_PERMISSIONS, authBean.getGroup(PermissionGroup.SUPER, true));
-        authBean.addUserGroup(USER_ALL_READ_PERMISSIONS, authBean.getGroup(PermissionGroup.SUPER, false));
+        authBean.addUserToGroup(USER_ALL_PERMISSIONS, authBean.getGroup(PermissionGroup.SUPER, true));
+        authBean.addUserToGroup(USER_ALL_READ_PERMISSIONS, authBean.getGroup(PermissionGroup.SUPER, false));
         
         LOGGER.info("Created simple flow in "+(System.currentTimeMillis()-startTime));
         isInitiated = true;
@@ -569,20 +587,20 @@ public final class TestUtils {
         user_budgetYear_write = createUser(USER_BUDGETYEAR_WRITE, serviceRegistry);
         user_single_application_read = createUser(USER_SINGLE_APPLICATION_WRITE, serviceRegistry);
         
-        authBean.addUserGroup(USER_BRANCH_READ, authBean.getGroup(PermissionGroup.BRANCH, branchRef1, false));
-        authBean.addUserGroup(USER_BRANCH_WRITE, authBean.getGroup(PermissionGroup.BRANCH, branchRef1, true));
+        authBean.addUserToGroup(USER_BRANCH_READ, authBean.getGroup(PermissionGroup.BRANCH, branchRef1, false));
+        authBean.addUserToGroup(USER_BRANCH_WRITE, authBean.getGroup(PermissionGroup.BRANCH, branchRef1, true));
         
-        authBean.addUserGroup(USER_BRANCH_WRITE_ALL_READ, authBean.getGroup(PermissionGroup.BRANCH, branchRef1, true));
-        authBean.addUserGroup(USER_BRANCH_WRITE_ALL_READ, authBean.getGroup(PermissionGroup.SUPER, false));
+        authBean.addUserToGroup(USER_BRANCH_WRITE_ALL_READ, authBean.getGroup(PermissionGroup.BRANCH, branchRef1, true));
+        authBean.addUserToGroup(USER_BRANCH_WRITE_ALL_READ, authBean.getGroup(PermissionGroup.SUPER, false));
         
-        authBean.addUserGroup(USER_WORKFLOW_READ, authBean.getGroup(PermissionGroup.WORKFLOW, workFlowRef1, false));      
-        authBean.addUserGroup(USER_WORKFLOW_WRITE, authBean.getGroup(PermissionGroup.WORKFLOW, workFlowRef1, true));
+        authBean.addUserToGroup(USER_WORKFLOW_READ, authBean.getGroup(PermissionGroup.WORKFLOW, workFlowRef1, false));
+        authBean.addUserToGroup(USER_WORKFLOW_WRITE, authBean.getGroup(PermissionGroup.WORKFLOW, workFlowRef1, true));
         
-        authBean.addUserGroup(USER_BUDGET_READ, authBean.getGroup(PermissionGroup.BUDGET, budgetRef1, false));
-        authBean.addUserGroup(USER_BUDGET_WRITE, authBean.getGroup(PermissionGroup.BUDGET, budgetRef1, true));
+        authBean.addUserToGroup(USER_BUDGET_READ, authBean.getGroup(PermissionGroup.BUDGET, budgetRef1, false));
+        authBean.addUserToGroup(USER_BUDGET_WRITE, authBean.getGroup(PermissionGroup.BUDGET, budgetRef1, true));
         
-        authBean.addUserGroup(USER_BUDGETYEAR_READ, authBean.getGroup(PermissionGroup.BUDGET_YEAR, budgetYearRef1, false));
-        authBean.addUserGroup(USER_BUDGETYEAR_WRITE, authBean.getGroup(PermissionGroup.BUDGET_YEAR, budgetYearRef1, true));
+        authBean.addUserToGroup(USER_BUDGETYEAR_READ, authBean.getGroup(PermissionGroup.BUDGET_YEAR, budgetYearRef1, false));
+        authBean.addUserToGroup(USER_BUDGETYEAR_WRITE, authBean.getGroup(PermissionGroup.BUDGET_YEAR, budgetYearRef1, true));
         
 
         authBean.addReadPermission(application3, USER_SINGLE_APPLICATION_WRITE);
@@ -747,5 +765,28 @@ public final class TestUtils {
         user.put(ContentModel.PROP_JOBTITLE, "Peon½");
 
         return serviceRegistry.getPersonService().createPerson(user);
+    }
+
+    protected static void deleteUsers(ServiceRegistry serviceRegistry) {
+        PersonService ps = serviceRegistry.getPersonService();
+        NodeService ns = serviceRegistry.getNodeService();
+
+        NodeRef peopleContainer = ps.getPeopleContainer();
+        for (ChildAssociationRef child : ns.getChildAssocs(peopleContainer)) {
+            String userName = ps.getPerson(child.getChildRef()).getUserName();
+            if (!userName.equals("admin") && !userName.equals("guest")) {
+                serviceRegistry.getPersonService().deletePerson(serviceRegistry.getPersonService().getPerson(child.getChildRef()).getUserName());
+            }
+        }
+    }
+
+    protected static HashMap<String, Serializable> getEmptyStringModel() {
+        HashMap<String, Serializable> model = new HashMap<>();
+        model.put("subject","");
+        model.put("userName", "");
+        model.put("password","");
+        model.put("id6","");
+        model.put("Recipient_Recipient","");
+        return model;
     }
 }

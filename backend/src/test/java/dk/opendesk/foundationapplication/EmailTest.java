@@ -154,7 +154,6 @@ public class EmailTest extends AbstractTestClass {
 
     }
 
-    //todo this test is not finished, currently only works on astrid@localhost
     public void testSendEmail() throws Exception {
         assertEquals(0, mailServer.getMails().size());
         //sending two emails
