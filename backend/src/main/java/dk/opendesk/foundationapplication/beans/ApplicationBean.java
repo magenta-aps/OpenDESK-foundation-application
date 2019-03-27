@@ -723,8 +723,8 @@ public class ApplicationBean extends FoundationBean {
         //sort oldest first
         changes.sort((o1, o2) -> {
             SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
-            Date date1 = sdf.parse((String) o1.getTimesStamp(), new ParsePosition(0));
-            Date date2 = sdf.parse((String) o2.getTimesStamp(), new ParsePosition(0));
+            Date date1 = sdf.parse((String) o1.getTimeStamp(), new ParsePosition(0));
+            Date date2 = sdf.parse((String) o2.getTimeStamp(), new ParsePosition(0));
             return date1.compareTo(date2);
         });
 
