@@ -9,6 +9,7 @@ import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.enums.PermissionGroup;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,16 +33,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static dk.opendesk.foundationapplication.Utilities.BUDGETYEAR_ASSOC_BUDGETS;
 import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_BRANCHES;
+import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_BUDGETYEARS;
+import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_NEW_APPLICATIONS;
 import static dk.opendesk.foundationapplication.Utilities.DATA_ASSOC_WORKFLOW;
-import static dk.opendesk.foundationapplication.Utilities.WORKFLOW_TYPE_NAME;
 import static dk.opendesk.foundationapplication.Utilities.getCMName;
 import static dk.opendesk.foundationapplication.Utilities.getODFName;
-import static dk.opendesk.foundationapplication.enums.PermissionGroup.BRANCH;
-import static dk.opendesk.foundationapplication.enums.PermissionGroup.BUDGET_YEAR;
-import static dk.opendesk.foundationapplication.enums.PermissionGroup.NEW_APPLICATION;
-import static dk.opendesk.foundationapplication.enums.PermissionGroup.WORKFLOW;
-import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_BCC;
 import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_SUBJECT;
 import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_TEMPLATE;
 import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_TEMPLATE_MODEL;
@@ -321,6 +319,7 @@ public class AuthorityBean extends FoundationBean{
         }
     }
 
+
     public void loadUsers(JSONObject roleObject, JSONArray userArray, String emailSubject, NodeRef emailTemplate) throws Exception {
         loadUsers(roleObject,userArray,emailSubject,emailTemplate,null);
     }
@@ -355,14 +354,14 @@ public class AuthorityBean extends FoundationBean{
                     if (model == null) {
                         model = new HashMap<>();
                     }
-                    model.put("brugernavn", userName);
+                    model.put("userName", userName);
                     model.put("password", password);
                     model.put("email", email);
                     model.put("subject", emailSubject);
-                    model.put("rolle", personRoleMap.get(userName));
-                    model.put("fornavn", personProps.getOrDefault(getCMName("firstName"),"*** fornavn mangler ***")); //todo hvad er kotyme?
-                    model.put("efternavn", personProps.getOrDefault(getCMName("lastName"),"*** efternavn mangler ***"));
-                    model.put("telefon", personProps.getOrDefault(getCMName("phone"),"*** telefonnummer mangler ***"));
+                    model.put("role", personRoleMap.get(userName));
+                    model.put("firstName", personProps.getOrDefault(getCMName("firstName"),"*** fornavn mangler ***")); //todo hvad er kotyme?
+                    model.put("lastName", personProps.getOrDefault(getCMName("lastName"),"*** efternavn mangler ***"));
+                    model.put("phone", personProps.getOrDefault(getCMName("phone"),"*** telefonnummer mangler ***"));
 
                     Map<String, Serializable> emailActionParams = new HashMap<>();
                     emailActionParams.put(PARAM_TO, email);
@@ -398,19 +397,22 @@ public class AuthorityBean extends FoundationBean{
                 String group = groupIterator.next();
                 String groupPermissionsAsString = permissionsAsJson.getString(group);
                 PermissionGroup permissionGroup = PermissionGroup.getPermissionGroup(group);
-                NodeRef subNameRef = null;
-                boolean canWrite = false;
 
                 if (groupPermissionsAsString.equals("read")) {
-                    //nothing to do
+                    String authority = getGroup(permissionGroup, (NodeRef)null,false);
+                    linkAuthorities(roleAuth,authority);
                 } else if (groupPermissionsAsString.equals("write") || groupPermissionsAsString.equals("*")) {
-                    canWrite = true;
+                    String authority = getGroup(permissionGroup, (NodeRef) null, true);
+                    linkAuthorities(roleAuth,authority);
                 } else {
                     JSONObject groupPermissionsAsJson = new JSONObject(groupPermissionsAsString);
                     Iterator<String> subNameIterator = groupPermissionsAsJson.keys();  //subName: special State (Received, Denied, ...) , special Branch ect
 
                     while (subNameIterator.hasNext()) {
                         String subName = subNameIterator.next();
+                        NodeRef subNameRef;
+                        boolean canWrite = false;
+                        //System.out.println(subName);
 
                         String subNamePerm = groupPermissionsAsJson.getString(subName);
                         if (subNamePerm.equals("write")) {
@@ -421,13 +423,10 @@ public class AuthorityBean extends FoundationBean{
                         } else {
                             throw new AlfrescoRuntimeException(ERROR_UNKNOWN_PERMISSION);
                         }
-
+                        String authority = getGroup(permissionGroup,subNameRef,canWrite);
+                        linkAuthorities(roleAuth,authority);
                     }
                 }
-
-                String authority = getGroup(permissionGroup,subNameRef,canWrite);
-                linkAuthorities(roleAuth,authority);
-
             }
         }
         return roleMap;
@@ -440,7 +439,7 @@ public class AuthorityBean extends FoundationBean{
             Map<String,Map<QName,Serializable>> personPropMap,
             Map<String, String> personRoleMap) throws JSONException {
 
-        System.out.println(userArray);
+        //System.out.println(userArray);
         for (int i = 0; i < userArray.length(); i++) {
             JSONObject user = userArray.getJSONObject(i);
             Iterator<String> userIterator = user.keys();
@@ -491,34 +490,36 @@ public class AuthorityBean extends FoundationBean{
 
 
     private NodeRef findSubNameRef(PermissionGroup group, String subName) throws Exception {
-        List<ChildAssociationRef> childAssocs = null;
+        List<ChildAssociationRef> childAssocs;
+        //System.out.println("Here: " + getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_NEW_APPLICATIONS), null));
         switch (group) {
             case BRANCH:
-                childAssocs= getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_BRANCHES), getODFName(subName));
-                if (childAssocs.size() == 0) {
-                    throw new AlfrescoRuntimeException(ERROR_SUBNAME_NOT_FOUND);
-                }
-                if (childAssocs.size() > 1) {
-                    throw new AlfrescoRuntimeException(ERROR_SUBNAME_NOT_UNIQUE);
-                }
-                return childAssocs.get(0).getChildRef();
+                childAssocs = getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_BRANCHES), getODFName(subName));
+                break;
             case WORKFLOW:
-                childAssocs= getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_WORKFLOW), getODFName(subName));
-                if (childAssocs.size() == 0) {
-                    throw new AlfrescoRuntimeException(ERROR_SUBNAME_NOT_FOUND);
-                }
-                if (childAssocs.size() > 1) {
-                    throw new AlfrescoRuntimeException(ERROR_SUBNAME_NOT_UNIQUE);
-                }
-                return childAssocs.get(0).getChildRef();
+                childAssocs = getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_WORKFLOW), getODFName(subName));
+                break;
+            case NEW_APPLICATION:
+                childAssocs = getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_NEW_APPLICATIONS), getODFName(subName));
+                break;
             case BUDGET_YEAR:
+                childAssocs = getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_BUDGETYEARS), getODFName(subName));
                 break;
             case BUDGET:
+                childAssocs = new ArrayList<>();
+                for (ChildAssociationRef c : getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_BUDGETYEARS), null)) {
+                    childAssocs.addAll(getServiceRegistry().getNodeService().getChildAssocs(c.getChildRef(), getODFName(BUDGETYEAR_ASSOC_BUDGETS), getODFName(subName)));
+                }
                 break;
+            default:
+                throw new NotImplementedException("findSubNameRef for " + group);
         }
-
-        //todo
-        if (childAssocs != null) for (ChildAssociationRef c : childAssocs) System.out.println(c.getQName());
-        throw new NotImplementedException("findSubNameRef for " + group + " " + subName);
+        if (childAssocs.size() == 0) {
+            throw new AlfrescoRuntimeException(ERROR_SUBNAME_NOT_FOUND);
+        }
+        if (childAssocs.size() > 1) {
+            throw new AlfrescoRuntimeException(ERROR_SUBNAME_NOT_UNIQUE);
+        }
+        return childAssocs.get(0).getChildRef();
     }
 }

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import static dk.opendesk.foundationapplication.TestUtils.getEmptyStringModel;
 import static dk.opendesk.foundationapplication.Utilities.*;
 import static org.alfresco.model.ContentModel.ASSOC_CONTAINS;
 import static org.alfresco.model.ContentModel.TYPE_CONTENT;
@@ -39,15 +40,13 @@ public class EmailTest extends AbstractTestClass {
 
     public static String TEST_TEMPLATE_NAME = "emailTestTemplate.html";
     public static String TEST_ADDRESSEE = "astrid@testmail.dk";
-    private HashMap<String, Serializable> emptyStringModel = new HashMap<>();
+    private HashMap<String, Serializable> emptyStringModel;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
-        emptyStringModel.put("subject","");
-        emptyStringModel.put("userName", "");
-        emptyStringModel.put("password","");
+        emptyStringModel = getEmptyStringModel();
 
         mailServer = new MailServer(ServerConfiguration.create().port(2525).charset("UTF-8").relayDomains("testmail.dk"));
         mailServer.start();

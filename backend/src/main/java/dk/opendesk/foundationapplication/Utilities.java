@@ -66,7 +66,7 @@ import org.w3c.dom.Document;
  * @author martin
  */
 public final class Utilities {
-    private Utilities(){};
+    private Utilities(){}
     
     private static final Logger LOGGER = Logger.getLogger(Utilities.class);
     

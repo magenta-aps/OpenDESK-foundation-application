@@ -217,6 +217,9 @@ public final class TestUtils {
         if(serviceRegistry.getAuthorityService().authorityExists(AuthorityType.GROUP + "_testOligark")) {
             serviceRegistry.getAuthorityService().deleteAuthority(AuthorityType.GROUP + "_testOligark", true);
         }
+        if(serviceRegistry.getAuthorityService().authorityExists(AuthorityType.GROUP + "_testMinimal")) {
+            serviceRegistry.getAuthorityService().deleteAuthority(AuthorityType.GROUP + "_testMinimal", true);
+        }
 
     workFlowRef1 = null;
     workFlowRef2 = null;
@@ -787,6 +790,11 @@ public final class TestUtils {
         model.put("password","");
         model.put("id6","");
         model.put("Recipient_Recipient","");
+        model.put("lastName","");
+        model.put("firstName","");
+        model.put("email","");
+        model.put("phone","");
+        model.put("role","");
         return model;
     }
 }
