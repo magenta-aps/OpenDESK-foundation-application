@@ -146,6 +146,8 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
         this.res = res;
         urlParams = req.getServiceMatch().getTemplateVars();
         urlQueryParams = parseUrlParams(req.getURL());
+        res.setContentEncoding("UTF-8");
+        res.setContentType("application/json");
         try {
             Long startTime = System.currentTimeMillis();
             Object returnData = doAction(req, res);
@@ -173,8 +175,6 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
             urlParams = null;
             urlQueryParams = null;
         }
-        res.setContentEncoding("UTF-8");
-        res.setContentType("application/json");
     }
 
     protected abstract Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception;
