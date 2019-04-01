@@ -16,6 +16,7 @@ import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
+import dk.opendesk.foundationapplication.beans.HealthCheckBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import static dk.opendesk.foundationapplication.webscripts.foundation.UpdateBudget.BUDGET_DID_NOT_MATCH;
 
@@ -66,6 +67,7 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
     private ApplicationBean applicationBean;
     private BranchBean branchBean;
     private BudgetBean budgetBean;
+    private HealthCheckBean healthCheckBean;
     private WorkflowBean workflowBean;
 
     protected ServiceRegistry getServiceRegistry() {
@@ -108,6 +110,14 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
         this.budgetBean = budgetBean;
     }
 
+    public HealthCheckBean getHealthCheckBean() {
+        return healthCheckBean;
+    }
+
+    public void setHealthCheckBean(HealthCheckBean healthCheckBean) {
+        this.healthCheckBean = healthCheckBean;
+    }
+
     public WorkflowBean getWorkflowBean() {
         return workflowBean;
     }
@@ -146,7 +156,8 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
                 } else if (returnData instanceof JSONArray) {
                     ((JSONArray) returnData).writeJSONString(res.getWriter());
                 } else {
-                    mapper.writerWithDefaultPrettyPrinter().writeValue(res.getWriter(), returnData);
+                    String result = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(returnData);
+                    res.getWriter().write(result);
                 }
             }
         } catch (Exception e) {
@@ -162,6 +173,8 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
             urlParams = null;
             urlQueryParams = null;
         }
+        res.setContentEncoding("UTF-8");
+        res.setContentType("application/json");
     }
 
     protected abstract Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception;

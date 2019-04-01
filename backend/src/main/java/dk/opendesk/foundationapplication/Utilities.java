@@ -11,19 +11,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.FoundationActionParameterDefinition;
+import dk.opendesk.foundationapplication.DAO.FoundationActionParameterValue;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.JSON.ApplicationPropertyDeserializer;
 import dk.opendesk.foundationapplication.JSON.ApplicationPropertySerializer;
+import dk.opendesk.foundationapplication.JSON.FoundationActionParameterDefinitionDeserializer;
+import dk.opendesk.foundationapplication.JSON.FoundationActionParameterDefinitionSerializer;
+import dk.opendesk.foundationapplication.JSON.FoundationActionParameterValueDeserializer;
+import dk.opendesk.foundationapplication.JSON.FoundationActionParameterValueSerializer;
+import dk.opendesk.foundationapplication.JSON.NodeRefDeserializer;
+import dk.opendesk.foundationapplication.JSON.NodeRefSerializer;
 import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
+import dk.opendesk.foundationapplication.beans.AuthorityBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
+import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.patches.InitialStructure;
 
 import java.util.ArrayList;
@@ -37,14 +47,18 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.search.SearchService;
+import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.Pair;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
@@ -53,6 +67,8 @@ import org.w3c.dom.Document;
  */
 public final class Utilities {
     private Utilities(){};
+    
+    private static final Logger LOGGER = Logger.getLogger(Utilities.class);
     
     private final static MetricRegistry METRICS = new MetricRegistry();
     
@@ -116,11 +132,15 @@ public final class Utilities {
 //    public static final String APPLICATION_CHANGE_UPDATE_BUDGET = "budgetChange";
 //    public static final String APPLICATION_CHANGE_UPDATE_BRANCH = "branchChange";
 
-    public static final String APPLICATION_EMAILFOLDER = "emailFolder";
+    public static final String APPLICATION_FOLDER_EMAIL = "emailFolder";
+    public static final String APPLICATION_FOLDER_DOCUMENT = "documentFolder";
 
     public static final String ACTION_NAME_ADD_BLOCKS = "addBlocks";
     public static final String ACTION_NAME_ADD_FIELDS = "addFields";
     public static final String ACTION_NAME_EMAIL = "foundationMail";
+    public static final String ACTION_NAME_CREATE_APPLICANT = "createApplicant";
+    public static final String ACTION_PARAM_STATE = "stateRef";
+    public static final String ACTION_PARAM_ASPECT = "aspect";
 
     public static final String ASPECT_ON_CREATE = "onCreate";
     public static final String ASPECT_BEFORE_DELETE = "beforeDelete";
@@ -129,17 +149,21 @@ public final class Utilities {
 
     public static final String APPLICATION_PARAM_BLOCKS = "applicationBlocks";
 
+    public static final String HEALTH_CHECK_STRUCTURE = "structure";
+
+    public static final String EXCEPTION_EMAIL_TEMPLATE_FOLDER = "utilities.getOdfEmailTemplateFolder.exception";
+
     private static String foundationNameSpace = null;
 
     static{
         final JmxReporter reporter = JmxReporter.forRegistry(METRICS).build();
         reporter.start();
     }
-    
+
     public static MetricRegistry getMetrics(){
         return METRICS;
     }
-    
+
     public static String getFoundationModelNameSpace() throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -180,6 +204,8 @@ public final class Utilities {
         actionBean.setServiceRegistry(serviceRegistry);
         ApplicationBean applicationBean = new ApplicationBean();
         applicationBean.setServiceRegistry(serviceRegistry);
+        AuthorityBean authBean = new AuthorityBean();
+        authBean.setServiceRegistry(serviceRegistry);
         BranchBean branchBean = new BranchBean();
         branchBean.setServiceRegistry(serviceRegistry);
         BudgetBean budgetBean = new BudgetBean();
@@ -190,20 +216,35 @@ public final class Utilities {
         actionBean.setApplicationBean(applicationBean);
         
         applicationBean.setActionBean(actionBean);
+        applicationBean.setAuthBean(authBean);
         applicationBean.setBranchBean(branchBean);
         applicationBean.setBudgetBean(budgetBean);
         applicationBean.setWorkflowBean(workflowBean);
         
         branchBean.setApplicationBean(applicationBean);
+        branchBean.setAuthBean(authBean);
         branchBean.setBudgetBean(budgetBean);
+        branchBean.setWorkflowBean(workflowBean);
         
         budgetBean.setApplicationBean(applicationBean);
+        budgetBean.setAuthBean(authBean);
         budgetBean.setWorkflowBean(workflowBean);
         
         workflowBean.setApplicationBean(applicationBean);
-        
-        
+        workflowBean.setAuthBean(authBean);
+                
         NodeRef dataRef = applicationBean.getDataHome();
+        
+        AuthorityService as = serviceRegistry.getAuthorityService();
+        for(String group : AuthorityBean.getAllCreatedGroups(as)){
+            if(as.authorityExists(group)){
+                LOGGER.debug("Deleting group: "+group);
+                as.deleteAuthority(group, true);
+            }else{
+                LOGGER.debug("Group missing: "+group);
+            }
+        }
+        
 
         for (NodeRef workflow : workflowBean.getWorkflows()) {
             nodeService.removeChild(dataRef, workflow);
@@ -224,7 +265,15 @@ public final class Utilities {
             nodeService.removeChild(dataRef, application.asNodeRef());
         }
     }
-    
+
+    public static NodeRef getOdfEmailTemplateFolder(ServiceRegistry sr) {
+        List<ChildAssociationRef> childAssociationRefs = sr.getNodeService().getChildAssocs(getEmailTemplateDir(sr), ContentModel.ASSOC_CONTAINS,  Utilities.getCMName(InitialStructure.MAIL_TEMPLATE_FOLDER_NAME));
+        if (childAssociationRefs.size() != 1) {
+            throw new AlfrescoRuntimeException(EXCEPTION_EMAIL_TEMPLATE_FOLDER);
+        }
+        return childAssociationRefs.get(0).getChildRef();
+    }
+
     public static NodeRef getEmailTemplateDir(ServiceRegistry sr){
         return getEmailTemplateDir(sr.getNodeService(), sr.getSearchService(), sr.getNamespaceService());
     }
@@ -277,15 +326,18 @@ public final class Utilities {
     public static ObjectMapper getMapper(){
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addSerializer(ApplicationPropertyValue.class, new ApplicationPropertySerializer());
-        module.addDeserializer(ApplicationPropertyValue.class, new ApplicationPropertyDeserializer());
+        module.addSerializer(ApplicationFieldValue.class, new ApplicationPropertySerializer());
+        module.addDeserializer(ApplicationFieldValue.class, new ApplicationPropertyDeserializer());
+        module.addSerializer(FoundationActionParameterDefinition.class, new FoundationActionParameterDefinitionSerializer());
+        module.addDeserializer(FoundationActionParameterDefinition.class, new FoundationActionParameterDefinitionDeserializer());
+        module.addSerializer(FoundationActionParameterValue.class, new FoundationActionParameterValueSerializer());
+        module.addDeserializer(FoundationActionParameterValue.class, new FoundationActionParameterValueDeserializer());
+        module.addSerializer(NodeRef.class, new NodeRefSerializer());
+        module.addDeserializer(NodeRef.class, new NodeRefDeserializer());
         mapper.registerModule(module);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
     }
-
-
-
 
     public static ApplicationChangeBuilder buildChange(Application toChange) {
         return new ApplicationChangeBuilder(toChange);
@@ -305,7 +357,11 @@ public final class Utilities {
         public FieldChangeBuilder changeField(String fieldId) {
             return new FieldChangeBuilder(fieldId);
         }
-        
+
+        public BlockChangeBuilder changeBlock(String blockId) {
+            return new BlockChangeBuilder(blockId);
+        }
+
         public ApplicationChangeBuilder setBudget(NodeRef budget){
             BudgetReference budgetRef = new BudgetReference();
             budgetRef.parseRef(budget);
@@ -341,29 +397,108 @@ public final class Utilities {
             return this;
         }
         
+        public ApplicationChangeBuilder setTitle(String title){
+            change.setTitle(title);
+            return this;
+        }
         
 
         public Application build() {
             return change;
         }
 
+
+        public class BlockChangeBuilder {
+
+            private final ApplicationBlock block;
+
+            public BlockChangeBuilder(String blockId) {
+                ApplicationBlock block = findBlock(change, blockId);
+                if (block == null) {
+                    block = findBlock(original, blockId);
+                    ApplicationBlock newBlock = new ApplicationBlock();
+                    newBlock.setId(block.getId());
+                    List<ApplicationBlock> blocks = change.getBlocks();
+                    if (blocks == null) {
+                        blocks = new ArrayList<>();
+                        change.setBlocks(blocks);
+                    }
+                    blocks.add(newBlock);
+                    this.block = newBlock;
+                }
+                else {
+                    this.block = block;
+                }
+
+            }
+
+            public BlockChangeBuilder setLabel(String newLabel) {
+                block.setLabel(newLabel);
+                return this;
+            }
+
+            public BlockChangeBuilder setLayout(String newLayout) {
+                block.setLayout(newLayout);
+                return this;
+            }
+
+            public BlockChangeBuilder setFields(List<ApplicationFieldValue> newFields) {
+                block.setFields(newFields);
+                return this;
+            }
+
+            public BlockChangeBuilder setIcon(String newIcon) {
+                block.setIcon(newIcon);
+                return this;
+            }
+
+            public BlockChangeBuilder setCollapsible(Boolean newCollapsible) {
+                block.setCollapsible(newCollapsible);
+                return this;
+            }
+
+            public BlockChangeBuilder setRepeatable(Boolean newRepeatable) {
+                block.setRepeatable(newRepeatable);
+                return this;
+            }
+
+            public ApplicationChangeBuilder done() {
+                return ApplicationChangeBuilder.this;
+            }
+
+            protected final ApplicationBlock findBlock(Application target, String id) {
+                if (target.getBlocks() == null) {
+                    return null;
+                }
+                for (ApplicationBlock block : target.getBlocks()) {
+                    if (id.equals(block.getId())) {
+                        return block;
+                    }
+                }
+                return null;
+            }
+        }
+
         public class FieldChangeBuilder {
 
-            private final ApplicationPropertyValue value;
+            private final ApplicationFieldValue value;
 
             public FieldChangeBuilder(String fieldID) {
-                Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> existing = findField(change, fieldID);
+                Pair<ApplicationBlock, ApplicationFieldValue> existing = findField(change, fieldID);
                 if (existing != null) {
                     value = existing.getSecond();
                 } else {
-                    Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> originalVal = findField(original, fieldID);
-                    ApplicationPropertyValue changeVal = new ApplicationPropertyValue();
+                    Pair<ApplicationBlock, ApplicationFieldValue> originalVal = findField(original, fieldID);
+                    ApplicationFieldValue changeVal = new ApplicationFieldValue();
                     changeVal.setId(originalVal.getSecond().getId());
 
                     boolean found = false;
                     if (change.getBlocks() != null) {
-                        for (ApplicationPropertiesContainer block : change.getBlocks()) {
+                        for (ApplicationBlock block : change.getBlocks()) {
                             if (originalVal.getFirst().getId().equals(block.getId())) {
+                                if(block.getFields() == null) {
+                                    block.setFields(new ArrayList<>());
+                                }
                                 block.getFields().add(changeVal);
                                 found = true;
                             }
@@ -371,11 +506,11 @@ public final class Utilities {
                     }
 
                     if (!found) {
-                        ApplicationPropertiesContainer changeBlock = new ApplicationPropertiesContainer();
+                        ApplicationBlock changeBlock = new ApplicationBlock();
                         changeBlock.setId(originalVal.getFirst().getId());
                         changeBlock.setFields(new ArrayList<>());
                         changeBlock.getFields().add(changeVal);
-                        change.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{changeBlock}));
+                        change.setBlocks(Arrays.asList(new ApplicationBlock[]{changeBlock}));
                     }
 
                     value = changeVal;
@@ -393,42 +528,71 @@ public final class Utilities {
                 return this;
             }
 
-            public FieldChangeBuilder setType(String newType) {
+            public FieldChangeBuilder setComponent(String newComponent) {
+                value.setComponent(newComponent);
+                return this;
+            }
+
+            public FieldChangeBuilder setType(Class newType) {
                 value.setType(newType);
                 return this;
             }
 
-            public FieldChangeBuilder setJavaType(Class newType) {
-                value.setJavaType(newType);
+            public FieldChangeBuilder setDescribes(Functional newFunctional) {
+                value.setDescribes(newFunctional.getFriendlyName());
                 return this;
             }
 
-            public FieldChangeBuilder setDescribes(String newDescribes) {
-                value.setDescribes(newDescribes);
-                return this;
-            }
-
-            public FieldChangeBuilder setDescribes(List newAllowedValues) {
+            public FieldChangeBuilder setAllowedValues(List newAllowedValues) {
                 value.setAllowedValues(newAllowedValues);
+                return this;
+            }
+
+            public FieldChangeBuilder setHint(String newHint) {
+                value.setHint(newHint);
+                return this;
+            }
+
+            public FieldChangeBuilder setWrapper(String newWrapper) {
+                value.setWrapper(newWrapper);
+                return this;
+            }
+
+            public FieldChangeBuilder setValidation(String newValidation) {
+                value.setValidation(newValidation);
+                return this;
+            }
+
+            public FieldChangeBuilder setPermissions(String newPermissions) {
+                value.setPermissions(newPermissions);
+                return this;
+            }
+
+            public FieldChangeBuilder setReadOnly(Boolean newReadOnly) {
+                value.setReadOnly(newReadOnly);
                 return this;
             }
 
             public FieldChangeBuilder setValue(Object newValue) {
                 value.setValue(newValue);
-                value.setJavaType(newValue.getClass());
+                value.setType(newValue.getClass());
                 return this;
             }
+
 
             public ApplicationChangeBuilder done() {
                 return ApplicationChangeBuilder.this;
             }
 
-            protected final Pair<ApplicationPropertiesContainer, ApplicationPropertyValue> findField(Application target, String id) {
+            protected final Pair<ApplicationBlock, ApplicationFieldValue> findField(Application target, String id) {
                 if (target.getBlocks() == null) {
                     return null;
                 }
-                for (ApplicationPropertiesContainer block : target.getBlocks()) {
-                    for (ApplicationPropertyValue field : block.getFields()) {
+                for (ApplicationBlock block : target.getBlocks()) {
+                    if(block.getFields() == null) {
+                        return null;
+                    }
+                    for (ApplicationFieldValue field : block.getFields()) {
                         if (id.equals(field.getId())) {
                             return new Pair<>(block, field);
                         }

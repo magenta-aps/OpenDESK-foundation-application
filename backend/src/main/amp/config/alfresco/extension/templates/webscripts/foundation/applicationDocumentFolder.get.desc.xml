@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get document folder</shortname>
+    <description>Gets the nodeId for the Document folder of an application</description>
+    <url>/foundation/application/{applicationID}/documentfolder</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

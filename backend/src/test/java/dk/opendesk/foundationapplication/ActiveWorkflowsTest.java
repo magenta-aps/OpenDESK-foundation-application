@@ -35,7 +35,7 @@ public class ActiveWorkflowsTest extends AbstractTestClass{
     public void testActiveWorkflows() throws Exception{
         List<WorkflowSummary> beanSummaries = getWorkflowBean().getWorkflowSummaries();
         assertEquals(1, beanSummaries.size());
-        assertEquals(TestUtils.WORKFLOW_NAME+TestUtils.TITLE_POSTFIX, beanSummaries.get(0).getTitle());
+        assertEquals(TestUtils.SHARED_WORKFLOW_NAME+TestUtils.TITLE_POSTFIX, beanSummaries.get(0).getTitle());
         
         List<WorkflowSummary> restSummaries = get(List.class, WorkflowSummary.class);
         assertEquals(1, restSummaries.size());

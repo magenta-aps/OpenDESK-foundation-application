@@ -6,7 +6,7 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.StateSummary;
 import dk.opendesk.foundationapplication.DAO.Workflow;
@@ -25,6 +25,9 @@ import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import dk.opendesk.foundationapplication.enums.Functional;
 import static dk.opendesk.foundationapplication.patches.InitialStructure.DICTIONARY_PATH;
 import static dk.opendesk.foundationapplication.patches.InitialStructure.FOUNDATION_TAG;
+import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.RANDOM;
+import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.lorem;
+
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import java.io.IOException;
 import java.time.Duration;
@@ -80,7 +83,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         assertNotNull("Data node should have been bootstrapped", dataNode);
 
         //Exactly one branch has been created
-        List<NodeRef> branchRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BRANCH_NAME, null, serviceRegistry.getNamespaceService(), false);
+        List<NodeRef> branchRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.BRANCH_NAME1, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, branchRefs.size());
 
         //Exactly one budget years has been created
@@ -95,7 +98,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         assertEquals(1, budget2Refs.size());
 
         //Exactly one workflow has been created
-        List<NodeRef> workflowRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.WORKFLOW_NAME, null, serviceRegistry.getNamespaceService(), false);
+        List<NodeRef> workflowRefs = serviceRegistry.getSearchService().selectNodes(dataNode, "./odf:" + TestUtils.SHARED_WORKFLOW_NAME, null, serviceRegistry.getNamespaceService(), false);
         assertEquals(1, workflowRefs.size());
 
         List<ChildAssociationRef> applicationsRefs = serviceRegistry.getNodeService().getChildAssocs(getDataDictionaryRef(), getODFName(DATA_ASSOC_APPLICATIONS), null);
@@ -145,38 +148,38 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         app1.setBranchSummary(branchBean.getBranchSummary(getBranchRef()));
         app1.setBudget(budgetBean.getBudgetReference(budgetRef));
         app1.setTitle(APPLICATION_NAME);
-        ApplicationPropertiesContainer app1blockRecipient = new ApplicationPropertiesContainer();
+        ApplicationBlock app1blockRecipient = new ApplicationBlock();
         app1blockRecipient.setId("1");
         app1blockRecipient.setLabel("Recipients");
-        ApplicationPropertiesContainer app1blockOverview = new ApplicationPropertiesContainer();
+        ApplicationBlock app1blockOverview = new ApplicationBlock();
         app1blockOverview.setId("2");
         app1blockOverview.setLabel("Overview");
-        ApplicationPropertiesContainer app1details = new ApplicationPropertiesContainer();
+        ApplicationBlock app1details = new ApplicationBlock();
         app1details.setId("3");
         app1details.setLabel("Details");
         
         app1blockRecipient.setFields(new ArrayList<>());
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, "Dansk Dræbersnegls Bevaringsforbund"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, "Sneglesporet"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, 3));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, "2"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, "1445"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, "Svend"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, "Svendsen"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, "ikkedraebesneglen@gmail.com"));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, "12345678"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Dansk Dræbersnegls Bevaringsforbund"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Sneglesporet"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,3));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"2"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"1445"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Svend"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Svendsen"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"ikkedraebesneglen@gmail.com"));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"12345678"));
         
         app1blockOverview.setFields(new ArrayList<>());
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, "Category1"));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, "Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr."));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now())));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, Date.from(Instant.now().plus(Duration.ofDays(2)))));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Category1"));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr."));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now())));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now().plus(Duration.ofDays(2)))));
         
         app1details.setFields(new ArrayList<>());
-        app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), appliedAmount));
-        app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, "1234"));
-        app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, "00123456"));
-        app1.setBlocks(Arrays.asList(new ApplicationPropertiesContainer[]{app1blockRecipient, app1blockOverview, app1details}));
+        app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,appliedAmount));
+        app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"1234"));
+        app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"00123456"));
+        app1.setBlocks(Arrays.asList(new ApplicationBlock[]{app1blockRecipient, app1blockOverview, app1details}));
         applicationBean.addNewApplication(app1);
         //foundationBean.addNewApplication(getBranchRef(), budgetRef, APPLICATION_NAME, "NewApplication", "Category1", "Dansk Dræbersnegls Bevaringsforbund", "Sneglesporet", 3, "2", "1445", "Svend", "Svendsen", "ikkedraebesneglen@gmail.com", "12345678",
         //        "Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr.", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(2))), appliedAmount, "1234", "00123456");
@@ -209,7 +212,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         StoreRef store = StoreRef.STORE_REF_WORKSPACE_SPACESSTORE;
         NodeRef rootRef = serviceRegistry.getNodeService().getRootNode(store);
 
-        List<NodeRef> refs = serviceRegistry.getSearchService().selectNodes(rootRef, InitialStructure.DATA_PATH + "/" + FOUNDATION_TAG + ":" + TestUtils.BRANCH_NAME, null, serviceRegistry.getNamespaceService(), false);
+        List<NodeRef> refs = serviceRegistry.getSearchService().selectNodes(rootRef, InitialStructure.DATA_PATH + "/" + FOUNDATION_TAG + ":" + TestUtils.BRANCH_NAME1, null, serviceRegistry.getNamespaceService(), false);
         if (refs.size() != 1) {
             throw new AlfrescoRuntimeException("Failed to apply patch: Returned multiple refs for " + DICTIONARY_PATH);
         }

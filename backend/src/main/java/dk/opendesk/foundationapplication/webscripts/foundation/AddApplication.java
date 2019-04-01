@@ -23,7 +23,7 @@ public class AddApplication extends JacksonBackedWebscript{
         Application application = getRequestAs(Application.class);
         return getApplicationBean().addNewApplication(application);
     }
-    
-    
-    
+
+
+
 }

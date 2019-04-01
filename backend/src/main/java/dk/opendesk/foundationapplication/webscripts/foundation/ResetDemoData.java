@@ -6,8 +6,8 @@
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
@@ -132,10 +132,10 @@ public class ResetDemoData extends JacksonBackedWebscript {
         createWorkflowStateTransitions(lCSReview, lPayout);
         createWorkflowStateTransitions(lPayout, lClosed);
         
-        getBranchBean().addBranchWorkflow(central, centralWorkflow);
-        getBranchBean().addBranchWorkflow(local1, localWorkflow);
-        getBranchBean().addBranchWorkflow(local2, localWorkflow);
-        getBranchBean().addBranchWorkflow(local3, localWorkflow);
+        getBranchBean().setBranchWorkflow(central, centralWorkflow);
+        getBranchBean().setBranchWorkflow(local1, localWorkflow);
+        getBranchBean().setBranchWorkflow(local2, localWorkflow);
+        getBranchBean().setBranchWorkflow(local3, localWorkflow);
         
         //Create Applications
         NodeRef appc1 = createApplication(cHandleApplication, budgetCentral, central, "Ansøgning central 1", 60000);
@@ -175,7 +175,7 @@ public class ResetDemoData extends JacksonBackedWebscript {
         return app.asNodeRef();
     }
     
-    public Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) {
+    public Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) throws Exception {
         String recipient = random(COMPANYNAMES);
         String firstName = random(FIRSTNAMES);
         String lastName = random(LASTNAMES);
@@ -183,26 +183,26 @@ public class ResetDemoData extends JacksonBackedWebscript {
         String floor = random(FLOORS);
         Date startDate = Date.from(Instant.now());
         Date endDate = Date.from(Instant.now().plus(Duration.ofDays(RANDOM.nextInt(50) + 1)));
-        ApplicationPropertiesContainer block1 = new ApplicationPropertiesContainer();
+        ApplicationBlock block1 = new ApplicationBlock();
         block1.setId("block1");
         block1.setLabel("Information");
         block1.setLayout("display:block;");
-        List<ApplicationPropertyValue> fields = new ArrayList<>();
-        fields.add(buildValue("1", "Kategori", "display:block;", "text", String.class, null, "My new Category"));
-        fields.add(buildValue("2", "Modtager", "display:block;", "text", String.class, null, recipient));
-        fields.add(buildValue("3", "Vejnavn", "display:block;", "text", String.class, null, steetName));
-        fields.add(buildValue("4", "Etage", "display:block;", "text", String.class, null, floor));
-        fields.add(buildValue("5", "Postnr", "display:block;", "text", String.class, null, numberString(4)));
-        fields.add(buildValue("6", "Fornavn", "display:block;", "text", String.class, Functional.first_name(), firstName));
-        fields.add(buildValue("7", "Efternavn", "display:block;", "text", String.class, Functional.last_name(), lastName));
-        fields.add(buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), firstName + "@mail.dk"));
-        fields.add(buildValue("9", "Telefonnummer", "display:block;", "text", String.class, Functional.phone_number(), phoneNumber()));
-        fields.add(buildValue("10", "Kort beskrivelse", "display:block;", "text", String.class, null, lorem(50)));
-        fields.add(buildValue("11", "Startdato", "display:block;", "text", Date.class, null, startDate));
-        fields.add(buildValue("12", "EndDate", "display:block;", "text", Date.class, null, endDate));
-        fields.add(buildValue("13", "Beløb", "display:block;", "text", Long.class, Functional.amount(), requiredAmount));
-        fields.add(buildValue("14", "Registreringsnummer", "display:block;", "text", String.class, null, numberString(4)));
-        fields.add(buildValue("15", "Kontonummer", "display:block;", "text", String.class, null, "000" + numberString(5)));
+        List<ApplicationFieldValue> fields = new ArrayList<>();
+        fields.add(buildValue("1", "Kategori", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"My new Category"));
+        fields.add(buildValue("2", "Modtager", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, recipient));
+        fields.add(buildValue("3", "Vejnavn", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, steetName));
+        fields.add(buildValue("4", "Etage", "display:block;", "text", String.class, null,null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, floor));
+        fields.add(buildValue("5", "Postnr", "display:block;", "text", String.class, null,null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, numberString(4)));
+        fields.add(buildValue("6", "Fornavn", "display:block;", "text", String.class, Functional.first_name(),null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, firstName));
+        fields.add(buildValue("7", "Efternavn", "display:block;", "text", String.class, Functional.last_name(),null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, lastName));
+        fields.add(buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, firstName + "@mail.dk"));
+        fields.add(buildValue("9", "Telefonnummer", "display:block;", "text", String.class, Functional.phone_number(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, phoneNumber()));
+        fields.add(buildValue("10", "Kort beskrivelse", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,lorem(50)));
+        fields.add(buildValue("11", "Startdato", "display:block;", "text", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, startDate));
+        fields.add(buildValue("12", "EndDate", "display:block;", "text", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, endDate));
+        fields.add(buildValue("13", "Beløb", "display:block;", "text", Long.class, Functional.amount(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, requiredAmount));
+        fields.add(buildValue("14", "Registreringsnummer", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, numberString(4)));
+        fields.add(buildValue("15", "Kontonummer", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"000" + numberString(5)));
 
         block1.setFields(fields);
 
@@ -210,34 +210,51 @@ public class ResetDemoData extends JacksonBackedWebscript {
         app.setTitle(name);
         app.setBlocks(Collections.singletonList(block1));
         if (branch != null) {
-            BranchSummary branchRef = new BranchSummary();
-            branchRef.parseRef(branch);
+            BranchSummary branchRef = getBranchBean().getBranchSummary(branch);
             app.setBranchSummary(branchRef);
         }
         if (budget != null) {
-            BudgetReference budgetRef = new BudgetReference();
-            budgetRef.parseRef(budget);
+            BudgetReference budgetRef = getBudgetBean().getBudgetReference(budget);
             app.setBudget(budgetRef);
         }
         if (state != null) {
-            StateReference stateRef = new StateReference();
-            stateRef.parseRef(state);
+            StateReference stateRef = getWorkflowBean().getStateReference(state);
             app.setState(stateRef);
         }
 
         return app;
     }
     
-    public static <E> ApplicationPropertyValue<E> buildValue(String id, String label, String layout, String type, Class<E> javaType, Functional function, E value){
-        ApplicationPropertyValue valueField = new ApplicationPropertyValue();
+    public static <E> ApplicationFieldValue<E> buildValue(
+            String id,
+            String label,
+            String layout,
+            String component,
+            Class<E> type,
+            Functional function,
+            List<E> allowedValues,
+            String hint,
+            String wrapper,
+            String validation,
+            String permission,
+            Boolean readOnly,
+            E value
+    ){
+        ApplicationFieldValue valueField = new ApplicationFieldValue();
         valueField.setId(id);
         valueField.setLabel(label);
         valueField.setLayout(layout);
+        valueField.setComponent(component);
         valueField.setType(type);
-        valueField.setJavaType(javaType);
         if(function != null){
             valueField.setDescribes(function.getFriendlyName());
         }
+        valueField.setAllowedValues(allowedValues);
+        valueField.setHint(hint);
+        valueField.setWrapper(wrapper);
+        valueField.setValidation(validation);
+        valueField.setPermissions(permission);
+        valueField.setReadOnly(readOnly);
         valueField.setValue(value);
         
         return valueField;

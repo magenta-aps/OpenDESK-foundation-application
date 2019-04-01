@@ -1,7 +1,7 @@
 package dk.opendesk.foundationapplication;
 
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.Action;
@@ -42,27 +42,27 @@ public class AddBlocksTest extends AbstractTestClass {
         NodeRef appRef = TestUtils.application1;
         int noBlocks = getApplicationBean().getApplication(appRef).getBlocks().size();
 
-        ApplicationPropertiesContainer uniqueBlockNoFields = new ApplicationPropertiesContainer();
+        ApplicationBlock uniqueBlockNoFields = new ApplicationBlock();
         uniqueBlockNoFields.setId("A");
 
-        ApplicationPropertiesContainer uniqueBlockUniqueFields = new ApplicationPropertiesContainer();
+        ApplicationBlock uniqueBlockUniqueFields = new ApplicationBlock();
         uniqueBlockUniqueFields.setId("B");
-        ApplicationPropertyValue field1 = new ApplicationPropertyValue();
+        ApplicationFieldValue field1 = new ApplicationFieldValue();
         field1.setId("b");
         uniqueBlockUniqueFields.setFields(Collections.singletonList(field1));
 
-        List<ApplicationPropertiesContainer> blocks = Arrays.asList(new ApplicationPropertiesContainer[]{uniqueBlockNoFields, uniqueBlockUniqueFields});
+        List<ApplicationBlock> blocks = Arrays.asList(new ApplicationBlock[]{uniqueBlockNoFields, uniqueBlockUniqueFields});
         Map<String, Serializable> param = new HashMap<>();
         param.put(PARAM_BLOCKS, (Serializable) blocks);
         Action action = getServiceRegistry().getActionService().createAction("addBlocks", param);
         getServiceRegistry().getActionService().executeAction(action, appRef);
 
-        List<ApplicationPropertiesContainer> actBlocks = getApplicationBean().getApplication(appRef).getBlocks();
+        List<ApplicationBlock> actBlocks = getApplicationBean().getApplication(appRef).getBlocks();
         assertEquals(noBlocks + 2, actBlocks.size());
 
-        ApplicationPropertiesContainer blockA = null;
-        ApplicationPropertiesContainer blockB = null;
-        for (ApplicationPropertiesContainer block : actBlocks) {
+        ApplicationBlock blockA = null;
+        ApplicationBlock blockB = null;
+        for (ApplicationBlock block : actBlocks) {
             if ("A".equals(block.getId())) {
                 blockA = block;
             }
@@ -81,18 +81,18 @@ public class AddBlocksTest extends AbstractTestClass {
     public void testAddUniqueBlocksWithDuplicateFields() {
         NodeRef appRef = TestUtils.application1;
 
-        ApplicationPropertiesContainer uniqueBlockNoFields = new ApplicationPropertiesContainer();
+        ApplicationBlock uniqueBlockNoFields = new ApplicationBlock();
         uniqueBlockNoFields.setId("A");
 
-        ApplicationPropertiesContainer uniqueBlockDuplicateField = new ApplicationPropertiesContainer();
+        ApplicationBlock uniqueBlockDuplicateField = new ApplicationBlock();
         uniqueBlockDuplicateField.setId("B");
-        ApplicationPropertyValue field3 = new ApplicationPropertyValue();
-        ApplicationPropertyValue field4 = new ApplicationPropertyValue();
+        ApplicationFieldValue field3 = new ApplicationFieldValue();
+        ApplicationFieldValue field4 = new ApplicationFieldValue();
         field3.setId("a");
         field4.setId("1"); //already exists
-        uniqueBlockDuplicateField.setFields(Arrays.asList(new ApplicationPropertyValue[]{field3, field4}));
+        uniqueBlockDuplicateField.setFields(Arrays.asList(new ApplicationFieldValue[]{field3, field4}));
 
-        List<ApplicationPropertiesContainer> blocks = Arrays.asList(new ApplicationPropertiesContainer[]{uniqueBlockNoFields, uniqueBlockDuplicateField});
+        List<ApplicationBlock> blocks = Arrays.asList(new ApplicationBlock[]{uniqueBlockNoFields, uniqueBlockDuplicateField});
         Map<String, Serializable> param = new HashMap<>();
         param.put(PARAM_BLOCKS, (Serializable) blocks);
         Action action = getServiceRegistry().getActionService().createAction("addBlocks", param);
@@ -108,21 +108,21 @@ public class AddBlocksTest extends AbstractTestClass {
     public void testAddDuplicateBlock() throws Exception {
         NodeRef appRef = TestUtils.application1;
 
-        List<ApplicationPropertiesContainer> oldBlocks = getApplicationBean().getApplication(appRef).getBlocks();
+        List<ApplicationBlock> oldBlocks = getApplicationBean().getApplication(appRef).getBlocks();
 
 
-        ApplicationPropertiesContainer uniqueBlockNoFields = new ApplicationPropertiesContainer();
+        ApplicationBlock uniqueBlockNoFields = new ApplicationBlock();
         uniqueBlockNoFields.setId("A");
 
-        ApplicationPropertiesContainer duplicateBlockUniqueFields = new ApplicationPropertiesContainer();
+        ApplicationBlock duplicateBlockUniqueFields = new ApplicationBlock();
         duplicateBlockUniqueFields.setId("1"); //already exists
-        ApplicationPropertyValue field5 = new ApplicationPropertyValue();
-        ApplicationPropertyValue field6 = new ApplicationPropertyValue();
+        ApplicationFieldValue field5 = new ApplicationFieldValue();
+        ApplicationFieldValue field6 = new ApplicationFieldValue();
         field5.setId("a");
         field6.setId("b");
-        duplicateBlockUniqueFields.setFields(Arrays.asList(new ApplicationPropertyValue[]{field5,field6}));
+        duplicateBlockUniqueFields.setFields(Arrays.asList(new ApplicationFieldValue[]{field5,field6}));
 
-        List<ApplicationPropertiesContainer> blocks = Arrays.asList(new ApplicationPropertiesContainer[]{uniqueBlockNoFields, duplicateBlockUniqueFields});
+        List<ApplicationBlock> blocks = Arrays.asList(new ApplicationBlock[]{uniqueBlockNoFields, duplicateBlockUniqueFields});
         Map<String, Serializable> param = new HashMap<>();
         param.put(PARAM_BLOCKS, (Serializable) blocks);
         Action action = getServiceRegistry().getActionService().createAction("addBlocks", param);

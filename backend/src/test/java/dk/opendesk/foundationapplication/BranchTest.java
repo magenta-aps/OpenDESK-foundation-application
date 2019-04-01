@@ -5,6 +5,7 @@
  */
 package dk.opendesk.foundationapplication;
 
+import com.benfante.jslideshare.App;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
@@ -46,7 +47,7 @@ public class BranchTest extends AbstractTestClass {
     
     public Reference testAddBranchWebScript() throws Exception{
         assertEquals(1, getBranchBean().getBranches().size());
-        assertEquals(TestUtils.BRANCH_NAME+TestUtils.TITLE_POSTFIX, getBranchBean().getBranchSummaries().get(0).getTitle());
+        assertEquals(TestUtils.BRANCH_NAME1+TestUtils.TITLE_POSTFIX, getBranchBean().getBranchSummaries().get(0).getTitle());
         JSONObject requestData = new JSONObject();
         requestData.put("title", "My new branch");
         Reference ref = post(requestData, Reference.class);
@@ -60,7 +61,7 @@ public class BranchTest extends AbstractTestClass {
         
         containsSameElements(restSummaries, beanSummaries);
         assertEquals(1, restSummaries.size());
-        assertEquals(TestUtils.BRANCH_NAME+TestUtils.TITLE_POSTFIX, restSummaries.get(0).getTitle());
+        assertEquals(TestUtils.BRANCH_NAME1+TestUtils.TITLE_POSTFIX, restSummaries.get(0).getTitle());
     }
     
     public void testUpdateBranch() throws IOException, JSONException{
@@ -68,7 +69,7 @@ public class BranchTest extends AbstractTestClass {
         List<BranchSummary> restSummaries = get(List.class, BranchSummary.class);
         assertEquals(1, restSummaries.size());
         BranchSummary summary = restSummaries.get(0);
-        assertEquals(TestUtils.BRANCH_NAME+TestUtils.TITLE_POSTFIX, summary.getTitle());
+        assertEquals(TestUtils.BRANCH_NAME1+TestUtils.TITLE_POSTFIX, summary.getTitle());
         summary.setTitle(myNewTitle);
         post(summary, summary.getNodeID());
         restSummaries = get(List.class, BranchSummary.class);
@@ -77,7 +78,8 @@ public class BranchTest extends AbstractTestClass {
         assertEquals(myNewTitle, summary.getTitle());
         
     }
-    
+
+
     public void testAddWorkflowToBranch() throws Exception{
         String workflowTitle = "TestWorkFlow";
         Reference ref = testAddBranchWebScript();
@@ -100,7 +102,7 @@ public class BranchTest extends AbstractTestClass {
     }
     
     public void testGetBranchApplications() throws Exception{
-        List<ApplicationSummary> applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications");
+        List<ApplicationSummary> applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef1.getId()+"/applications");
         for(ApplicationSummary app : applications){
             switch(app.getTitle()){
                 case TestUtils.APPLICATION1_NAME: continue;
@@ -112,11 +114,11 @@ public class BranchTest extends AbstractTestClass {
     }
     
     public void testGetBranchApplicationsByBudget() throws Exception{
-        List<ApplicationSummary> applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications");
+        List<ApplicationSummary> applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef1.getId()+"/applications");
         assertEquals(2, applications.size());
-        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications?budgetID="+TestUtils.budgetRef1.getId());
+        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef1.getId()+"/applications?budgetID="+TestUtils.budgetRef1.getId());
         assertEquals(2, applications.size());
-        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications?budgetID="+TestUtils.budgetRef2.getId());
+        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef1.getId()+"/applications?budgetID="+TestUtils.budgetRef2.getId());
         assertEquals(0, applications.size());
         
         Application change = new Application();
@@ -126,9 +128,9 @@ public class BranchTest extends AbstractTestClass {
         change.setBudget(newBudget);
         getApplicationBean().updateApplication(change);
         
-        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications?budgetID="+TestUtils.budgetRef1.getId());
+        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef1.getId()+"/applications?budgetID="+TestUtils.budgetRef1.getId());
         assertEquals(1, applications.size());
-        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef.getId()+"/applications?budgetID="+TestUtils.budgetRef2.getId());
+        applications = get(List.class, ApplicationSummary.class, TestUtils.branchRef1.getId()+"/applications?budgetID="+TestUtils.budgetRef2.getId());
         assertEquals(1, applications.size());
     }
     

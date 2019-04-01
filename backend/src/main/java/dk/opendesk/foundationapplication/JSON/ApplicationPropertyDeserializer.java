@@ -11,29 +11,34 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
+import dk.opendesk.foundationapplication.Utilities;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
 
 /**
  *
  * @author martin
  */
-public class ApplicationPropertyDeserializer extends JsonDeserializer<ApplicationPropertyValue> {
+public class ApplicationPropertyDeserializer extends JsonDeserializer<ApplicationFieldValue> {
+
+    private static final Logger logger = Logger.getLogger(ApplicationPropertyDeserializer.class);
 
     @Override
-    public ApplicationPropertyValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-        ObjectMapper newMapper = new ObjectMapper();
+    public ApplicationFieldValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        ObjectMapper mapper = Utilities.getMapper();
         try {
-            ApplicationPropertyValue toReturn = new ApplicationPropertyValue();
+            ApplicationFieldValue toReturn = new ApplicationFieldValue();
             JsonNode node = jp.getCodec().readTree(jp);
             if (node.has("id")) {
                 toReturn.setId(node.get("id").asText());
             }
-            if (node.has("type")) {
-                toReturn.setType(node.get("type").asText());
+            if (node.has("component")) {
+                toReturn.setComponent(node.get("component").asText());
             }
             if (node.has("label")) {
                 toReturn.setLabel(node.get("label").asText());
@@ -44,17 +49,35 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
             if (node.has("describes")) {
                 toReturn.setDescribes(node.get("describes").asText());
             }
-            if (node.has("javaType")) {
-                String typeString = node.get("javaType").asText();
+            if (node.has("hint")) {
+                toReturn.setHint(node.get("hint").asText());
+            }
+            if (node.has("wrapper")) {
+                toReturn.setWrapper(node.get("wrapper").asText());
+            }
+            if (node.has("validation")) {
+                toReturn.setValidation(node.get("validation").asText());
+            }
+            if (node.has("permission")) {
+                toReturn.setPermissions(node.get("permission").asText());
+            }
+            if (node.has("readOnly")) {
+                toReturn.setReadOnly(node.get("readOnly").asBoolean());
+            }
+            if (node.has("allowedValues")) {
+                toReturn.setAllowedValues(new ArrayList<Object>(mapper.readValue(node.get("allowedValues").toString(), List.class)));
+            }
+            if (node.has("type")) {
+                String typeString = node.get("type").asText();
                 Class type = Class.forName(typeString);
-                toReturn.setJavaType(type);
+                toReturn.setType(type);
                 if (node.has("value")) {
                     if (type.isAssignableFrom(String.class)) {
                         toReturn.setValue(node.get("value").asText());
                     } else if (type.isAssignableFrom(Date.class)) {
                         toReturn.setValue(ctxt.parseDate(node.get("value").asText()));
                     } else {
-                        Object value = newMapper.readValue(node.get("value").toString(), type);
+                        Object value = mapper.readValue(node.get("value").toString(), type);
                         toReturn.setValue(value);
                     }
                 }
@@ -63,14 +86,14 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
             return toReturn;
 
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ApplicationPropertyDeserializer.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Failed to deserialize ApplicationFieldValue", ex);
             return null;
         }
     }
 
     @Override
     public Class<?> handledType() {
-        return ApplicationPropertyValue.class;
+        return ApplicationFieldValue.class;
     }
 
 }

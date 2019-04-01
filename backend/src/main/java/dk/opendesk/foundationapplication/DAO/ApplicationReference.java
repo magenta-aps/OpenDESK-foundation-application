@@ -15,7 +15,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 public class ApplicationReference extends Reference{
     private Optional<String> id;
-    
+    private Optional<Boolean> isSeen;
+
     public ApplicationReference() {
     }
     
@@ -29,6 +30,18 @@ public class ApplicationReference extends Reference{
 
     public void setId(String id) {
         this.id = optional(id);
+    }
+
+    public Boolean getIsSeen() {
+        return get(isSeen);
+    }
+
+    public boolean wasIsSeenSet() {
+        return wasSet(isSeen);
+    }
+
+    public void setIsSeen(Boolean isSeen) {
+        this.isSeen = optional(isSeen);
     }
 
 

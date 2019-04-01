@@ -17,9 +17,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 public class ApplicationSummary extends ApplicationReference {
     private Optional<BranchSummary> branchSummary;
-    private Optional<List<ApplicationPropertiesContainer>> blocks;
-    private Optional<Boolean> isSeen;
-    
+    private Optional<List<ApplicationBlock>> blocks;
+
     public ApplicationSummary() {
     }
 
@@ -35,7 +34,7 @@ public class ApplicationSummary extends ApplicationReference {
         this.branchSummary = optional(branchSummary);
     }
 
-    public List<ApplicationPropertiesContainer> getBlocks() {
+    public List<ApplicationBlock> getBlocks() {
         return get(blocks);
     }
     
@@ -43,15 +42,15 @@ public class ApplicationSummary extends ApplicationReference {
         return wasSet(blocks);
     }
 
-    public void setBlocks(List<ApplicationPropertiesContainer> blocks) {
+    public void setBlocks(List<ApplicationBlock> blocks) {
         this.blocks = optional(blocks);
     }
     
-    public final <E, A extends ApplicationPropertyValue<E>> A getFunctionalField(Functional<E> describes){
+    public final <E, A extends ApplicationFieldValue<E>> A getFunctionalField(Functional<E> describes){
         if(blocks == null || !blocks.isPresent()){
             return null;
         }
-        for(ApplicationPropertiesContainer block: blocks.get()){
+        for(ApplicationBlock block: blocks.get()){
             A value = block.getFunctionalField(describes);
             if(value != null){
                 return value;
@@ -60,35 +59,23 @@ public class ApplicationSummary extends ApplicationReference {
         return null;
     }
 
-    public Boolean getIsSeen() {
-        return get(isSeen);
-    }
-
-    public boolean wasIsSeenSet() {
-        return wasSet(isSeen);
-    }
-
-    public void setIsSeen(Boolean isSeen) {
-        this.isSeen = optional(isSeen);
-    }
-    
-    public final ApplicationPropertyValue<Long> totalAmount(){
+    public final ApplicationFieldValue<Long> totalAmount(){
         return getFunctionalField(Functional.amount());
     }
     
-    public final ApplicationPropertyValue<String> emailTo(){
+    public final ApplicationFieldValue<String> emailTo(){
         return getFunctionalField(Functional.email_to());
     }
 
-    public final ApplicationPropertyValue<String> firstName(){
+    public final ApplicationFieldValue<String> firstName(){
         return getFunctionalField(Functional.first_name());
     }
 
-    public final ApplicationPropertyValue<String> lastName(){
+    public final ApplicationFieldValue<String> lastName(){
         return getFunctionalField(Functional.last_name());
     }
 
-    public final ApplicationPropertyValue<String> phoneNumber(){
+    public final ApplicationFieldValue<String> phoneNumber(){
         return getFunctionalField(Functional.phone_number());
     }
 

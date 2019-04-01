@@ -57,13 +57,13 @@ public class ApplicationChangeUnit {
     }
 
     @JsonIgnore
-    public ApplicationChangeUnit setNewValue(Object newValue) {
+    public ApplicationChangeUnit setNewValueWithObject(Object newValue) {
         this.newValue = newValue.toString();
         return this;
     }
 
     @JsonIgnore
-    public ApplicationChangeUnit setNewValue(Date date) {
+    public ApplicationChangeUnit setNewValueWithDate(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
         this.newValue = sdf.format(date);
         return this;
@@ -75,14 +75,14 @@ public class ApplicationChangeUnit {
     }
 
     @JsonIgnore
-    public ApplicationChangeUnit setOldValue(Date date) {
+    public ApplicationChangeUnit setOldValueWithDate(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
         this.oldValue = sdf.format(date);
         return this;
     }
 
     @JsonIgnore
-    public ApplicationChangeUnit setOldValue(Object oldValue) {
+    public ApplicationChangeUnit setOldValueWithObject(Object oldValue) {
         this.oldValue = oldValue.toString();
         return this;
     }

@@ -1,7 +1,7 @@
 package dk.opendesk.foundationapplication;
 
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.Action;
@@ -37,15 +37,15 @@ public class AddFieldsTest extends AbstractTestClass {
 
     public void testAddUniqueFieldsExistingBlock() throws Exception {
         NodeRef appRef = TestUtils.application1;
-        ApplicationPropertiesContainer blockBefore = getApplicationBean().getApplication(appRef).getBlocks().get(0);
+        ApplicationBlock blockBefore = getApplicationBean().getApplication(appRef).getBlocks().get(0);
         int noFields = blockBefore.getFields().size();
 
-        ApplicationPropertyValue field1 = new ApplicationPropertyValue();
-        ApplicationPropertyValue field2 = new ApplicationPropertyValue();
+        ApplicationFieldValue field1 = new ApplicationFieldValue();
+        ApplicationFieldValue field2 = new ApplicationFieldValue();
         field1.setId("a");
         field2.setId("b");
 
-        List<ApplicationPropertyValue> fields = Arrays.asList(new ApplicationPropertyValue[]{field1,field2});
+        List<ApplicationFieldValue> fields = Arrays.asList(new ApplicationFieldValue[]{field1,field2});
 
         Map<String, Serializable> params = new HashMap<>();
         params.put(PARAM_FIELDS, (Serializable) fields);
@@ -53,12 +53,12 @@ public class AddFieldsTest extends AbstractTestClass {
         Action action = getServiceRegistry().getActionService().createAction("addFields", params);
         getServiceRegistry().getActionService().executeAction(action, appRef);
 
-        ApplicationPropertiesContainer blockAfter = getApplicationBean().getApplication(appRef).getBlocks().get(0);
+        ApplicationBlock blockAfter = getApplicationBean().getApplication(appRef).getBlocks().get(0);
         assertEquals(noFields + 2, blockAfter.getFields().size());
 
-        ApplicationPropertyValue fieldA = null;
-        ApplicationPropertyValue fieldB = null;
-        for (ApplicationPropertyValue field : blockAfter.getFields()) {
+        ApplicationFieldValue fieldA = null;
+        ApplicationFieldValue fieldB = null;
+        for (ApplicationFieldValue field : blockAfter.getFields()) {
             if ("a".equals(field.getId())) {
                 fieldA = field;
             }
@@ -72,14 +72,14 @@ public class AddFieldsTest extends AbstractTestClass {
 
     public void testAddDuplicateFieldsExistingBlock() throws Exception {
         NodeRef appRef = TestUtils.application1;
-        ApplicationPropertiesContainer blockBefore = getApplicationBean().getApplication(appRef).getBlocks().get(0);
+        ApplicationBlock blockBefore = getApplicationBean().getApplication(appRef).getBlocks().get(0);
 
-        ApplicationPropertyValue field1 = new ApplicationPropertyValue();
-        ApplicationPropertyValue field2 = new ApplicationPropertyValue();
+        ApplicationFieldValue field1 = new ApplicationFieldValue();
+        ApplicationFieldValue field2 = new ApplicationFieldValue();
         field1.setId("a");
         field2.setId(blockBefore.getFields().get(0).getId());
 
-        List<ApplicationPropertyValue> fields = Arrays.asList(new ApplicationPropertyValue[]{field1,field2});
+        List<ApplicationFieldValue> fields = Arrays.asList(new ApplicationFieldValue[]{field1,field2});
 
         Map<String, Serializable> params = new HashMap<>();
         params.put(PARAM_FIELDS, (Serializable) fields);
@@ -97,7 +97,7 @@ public class AddFieldsTest extends AbstractTestClass {
     public void testAddUniqueFieldsWrongBlockId() {
         NodeRef appRef = TestUtils.application1;
 
-        ApplicationPropertyValue field = new ApplicationPropertyValue();
+        ApplicationFieldValue field = new ApplicationFieldValue();
         field.setId("a");
 
         Map<String, Serializable> params = new HashMap<>();

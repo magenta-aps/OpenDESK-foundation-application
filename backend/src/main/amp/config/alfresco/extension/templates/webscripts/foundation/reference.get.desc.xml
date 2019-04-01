@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get Reference</shortname>
+    <description>Gets a reference in the form of a nodeId based on one of the following id's: emailTemplateFolder</description>
+    <url>/foundation/reference/{id}</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

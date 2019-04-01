@@ -75,7 +75,7 @@ public class ApplicationChange extends ApplicationReference {
     }
 
     @JsonIgnore
-    public ApplicationChange setModifierId(NodeRef nodeRef) {
+    public ApplicationChange setModifierIdWithNodeRef(NodeRef nodeRef) {
         this.modifierId = nodeRef.toString();
         return this;
     }

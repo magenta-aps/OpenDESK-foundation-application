@@ -1,24 +1,22 @@
 package dk.opendesk.foundationapplication.DAO;
 
-import org.alfresco.service.cmr.action.ParameterDefinition;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class FoundationAction {
 
     private String name;
-    private List<FoundationActionParameter> params;
+    private FoundationActionParameterDefinition stateIdParam;
+    private FoundationActionParameterDefinition aspectParam;
+    private List<FoundationActionParameterDefinition> params;
 
     public FoundationAction() {
     }
 
-    public FoundationAction(String name, List<ParameterDefinition> parameterDefinitions) {
+    public FoundationAction(String name, FoundationActionParameterDefinition stateIdParam, FoundationActionParameterDefinition aspect, List<FoundationActionParameterDefinition> params) {
         this.name = name;
-        params = new ArrayList<>();
-        for (ParameterDefinition paramDef : parameterDefinitions) {
-            params.add(new FoundationActionParameter(paramDef));
-        }
+        this.stateIdParam = stateIdParam;
+        this.aspectParam = aspect;
+        this.params = params;
     }
 
     public String getName() {
@@ -29,18 +27,38 @@ public class FoundationAction {
         this.name = name;
     }
 
-    public List<FoundationActionParameter> getParams() {
+    public FoundationActionParameterDefinition getStateIdParam() {
+        return stateIdParam;
+    }
+
+    public void setStateIdParam(FoundationActionParameterDefinition stateIdParam) {
+        this.stateIdParam = stateIdParam;
+    }
+
+    public FoundationActionParameterDefinition getAspectParam() {
+        return aspectParam;
+    }
+
+    public void setAspectParam(FoundationActionParameterDefinition aspectParam) {
+        this.aspectParam = aspectParam;
+    }
+
+    public List<FoundationActionParameterDefinition> getParams() {
         return params;
     }
 
-    public void setParams(List<FoundationActionParameter> params) {
+    public void setParams(List<FoundationActionParameterDefinition> params) {
         this.params = params;
     }
 
+    /*
     @Override
     public String toString() {
         return "FoundationAction\n" +
                 "\tname   = '" + name + "'\n'" +
-                "\tparams =\n" + params;
+                "\tstateIdParam   =\n " + stateIdParam + "\n" +
+                "\taspectParam   =\n " + aspectParam + "\n" +
+                "\totherParams (list) =\n" + params;
     }
+    */
 }

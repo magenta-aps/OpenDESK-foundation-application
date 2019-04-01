@@ -1,8 +1,8 @@
 package dk.opendesk.foundationapplication.actions;
 
 import dk.opendesk.foundationapplication.DAO.Application;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertiesContainer;
-import dk.opendesk.foundationapplication.DAO.ApplicationPropertyValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
@@ -39,23 +39,23 @@ public class AddBlocksToApplicationAction extends ActionExecuterAbstractBase {
             throw new AlfrescoRuntimeException(EXCEPTION_ADD_BLOCKS_FAIL, e);
         }
 
-        List<ApplicationPropertiesContainer> oldBlocks = application.getBlocks();
-        List<ApplicationPropertiesContainer> newBlocks = (List<ApplicationPropertiesContainer>) action.getParameterValue(PARAM_BLOCKS);
+        List<ApplicationBlock> oldBlocks = application.getBlocks();
+        List<ApplicationBlock> newBlocks = (List<ApplicationBlock>) action.getParameterValue(PARAM_BLOCKS);
 
         //checking if the new blocks already exists
-        for (ApplicationPropertiesContainer oldBlock : oldBlocks) {
-            for (ApplicationPropertiesContainer newBlock : newBlocks) {
+        for (ApplicationBlock oldBlock : oldBlocks) {
+            for (ApplicationBlock newBlock : newBlocks) {
                 if (oldBlock.getId().equals(newBlock.getId())) {
                     throw new AlfrescoRuntimeException(EXCEPTION_BLOCK_OVERLAP);
                 }
                 //checking if the new fields already exists
-                List<ApplicationPropertyValue> newBlockFields = newBlock.getFields();
-                List<ApplicationPropertyValue> oldBlockFields = oldBlock.getFields();
+                List<ApplicationFieldValue> newBlockFields = newBlock.getFields();
+                List<ApplicationFieldValue> oldBlockFields = oldBlock.getFields();
                 if (newBlockFields == null | oldBlockFields == null) {
                     continue;
                 }
-                for (ApplicationPropertyValue oldBlockField : oldBlockFields) {
-                    for (ApplicationPropertyValue newBlockField : newBlockFields) {
+                for (ApplicationFieldValue oldBlockField : oldBlockFields) {
+                    for (ApplicationFieldValue newBlockField : newBlockFields) {
                         if (oldBlockField.getId().equals(newBlockField.getId())) {
                             throw new AlfrescoRuntimeException(EXCEPTION_FIELD_OVERLAP);
                         }
