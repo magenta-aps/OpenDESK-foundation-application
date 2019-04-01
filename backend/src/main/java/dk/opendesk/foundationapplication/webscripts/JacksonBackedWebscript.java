@@ -173,6 +173,8 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
             urlParams = null;
             urlQueryParams = null;
         }
+        res.setContentEncoding("UTF-8");
+        res.setContentType("application/json");
     }
 
     protected abstract Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception;
