@@ -140,4 +140,8 @@
         <property name="repository" ref="repositoryHelper"/>
     </bean>
 
+    <bean id="test" class="dk.opendesk.foundationapplication.TestAction">
+        <property name="applicationBean" ref="applicationBean"/>
+    </bean>
+
 </beans>
