@@ -219,7 +219,7 @@
                         <overlay>
                             <groupId>openDESK</groupId>
                             <artifactId>repo</artifactId>
-                            <version>1.3.4</version>
+                            <version>1.3.10</version>
                             <type>amp</type>
                         </overlay>
                     </overlays>
