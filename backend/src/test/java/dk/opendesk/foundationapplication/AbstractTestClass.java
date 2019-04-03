@@ -23,6 +23,7 @@ import dk.opendesk.foundationapplication.beans.BudgetBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import java.util.Map;
 import junit.framework.Assert;
+import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.web.scripts.BaseWebScriptTest;
 import org.alfresco.service.ServiceRegistry;
 import org.json.JSONArray;
@@ -43,6 +44,7 @@ public class AbstractTestClass extends BaseWebScriptTest {
     private final BranchBean branchBean = (BranchBean) getServer().getApplicationContext().getBean("branchBean");
     private final BudgetBean budgetBean = (BudgetBean) getServer().getApplicationContext().getBean("budgetBean");
     private final WorkflowBean workflowBean = (WorkflowBean) getServer().getApplicationContext().getBean("workflowBean");
+    private final BehaviourFilter behaviourFilter = (BehaviourFilter) getServer().getApplicationContext().getBean("policyBehaviourFilter");
 
     public ServiceRegistry getServiceRegistry() {
         return serviceRegistry;
@@ -75,7 +77,11 @@ public class AbstractTestClass extends BaseWebScriptTest {
     public AuthorityBean getAuthorityBean() {
         return authorityBean;
     }
-    
+
+    public BehaviourFilter getBehaviourFilter() {
+        return behaviourFilter;
+    }
+
     public static final String DELIMITER = "/";
     
     private final String basePath;

@@ -111,6 +111,7 @@ public class ApplicationTest extends AbstractTestClass{
         
         ApplicationReference input = new ApplicationReference();
         input.setTitle("Hello");
+        input.setId("5");
         
         ApplicationReference reference = post(input, ApplicationReference.class);
         assertNotNull(reference);

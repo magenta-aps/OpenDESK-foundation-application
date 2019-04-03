@@ -49,6 +49,7 @@
         <property name="authBean" ref="odfAuthBean"/>
         <property name="branchBean" ref="branchBean"/>
         <property name="budgetBean" ref="budgetBean"/>
+        <property name="behaviourFilter" ref="policyBehaviourFilter"/>
     </bean>
 
     <bean id="healthCheckBean" class="dk.opendesk.foundationapplication.beans.HealthCheckBean" parent="foundationBean" init-method="init"/>

@@ -412,7 +412,6 @@ public class AuthorityBean extends FoundationBean{
                         String subName = subNameIterator.next();
                         NodeRef subNameRef;
                         boolean canWrite = false;
-                        //System.out.println(subName);
 
                         String subNamePerm = groupPermissionsAsJson.getString(subName);
                         if (subNamePerm.equals("write")) {
@@ -439,7 +438,6 @@ public class AuthorityBean extends FoundationBean{
             Map<String,Map<QName,Serializable>> personPropMap,
             Map<String, String> personRoleMap) throws JSONException {
 
-        //System.out.println(userArray);
         for (int i = 0; i < userArray.length(); i++) {
             JSONObject user = userArray.getJSONObject(i);
             Iterator<String> userIterator = user.keys();
@@ -491,7 +489,6 @@ public class AuthorityBean extends FoundationBean{
 
     private NodeRef findSubNameRef(PermissionGroup group, String subName) throws Exception {
         List<ChildAssociationRef> childAssocs;
-        //System.out.println("Here: " + getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_NEW_APPLICATIONS), null));
         switch (group) {
             case BRANCH:
                 childAssocs = getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_BRANCHES), getODFName(subName));

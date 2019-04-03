@@ -64,9 +64,8 @@ public class LoadUsersTest extends AbstractTestClass {
         TestUtils.wipeData(getServiceRegistry());
     }
 
-    /*
     public void testSendMails() throws Exception {
-        String groupList = createGroupListSimple();
+        String groupList = createGroupListSimpleRead();
         String userList = createUserList();
         JSONObject groupJson = new JSONObject(groupList);
         JSONArray userJson = new JSONArray(userList);
@@ -110,21 +109,18 @@ public class LoadUsersTest extends AbstractTestClass {
                 phoneLine = s;
             }
         }
-        System.out.println(userNameLine);
-        assertNotNull(userNameLine);
-        assertNotNull(passWordLine);
-        assertNotNull(emailLine);
-        assertNotNull(subjectLine);
-        assertNotNull(roleLine);
-        assertNotNull(firstNameLine);
-        assertNotNull(lastNameLine);
-        assertNotNull(phoneLine);
-        System.out.println(mail);
+        assertEquals("userName =3D Lille_Lise", userNameLine);
+        assertEquals("subject =3D testSubject",subjectLine);
+        assertEquals("phone =3D *** telefonnummer mangler ***", phoneLine);
+        assertEquals("role =3D testSekret=C3=A6r", roleLine);
+        assertEquals("email =3D ll@testmail.dk", emailLine);
+        assertEquals("firstName =3D Lille", firstNameLine);
+        assertEquals("lastName =3D Lise", lastNameLine);
+        assertEquals(8, passWordLine.replace("password =3D ","").length());
     }
-    */
 
-    public void testLoadUsersSimple() throws Exception {
-        String groupList = createGroupListSimple();
+    public void testLoadUsersSimpleRead() throws Exception {
+        String groupList = createGroupListSimpleRead();
         String userList = createUserList();
         JSONObject groupJson = new JSONObject(groupList);
         JSONArray userJson = new JSONArray(userList);
@@ -165,7 +161,6 @@ public class LoadUsersTest extends AbstractTestClass {
         Set<String> minimalAuths = getServiceRegistry().getAuthorityService().getAuthoritiesForUser(minimalUser);
 
         //Branch auth also gives workflow and budget
-        for (String aut : sekretaryAuths) System.out.println(aut);
         assertEquals(7, sekretaryAuths.size());
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, null, false)));
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, branchRef1, false)));
@@ -173,30 +168,26 @@ public class LoadUsersTest extends AbstractTestClass {
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef1, false)));
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef2, false)));
 
-        for (String aut : boardmemberAuths) System.out.println(aut);
         assertEquals(4, boardmemberAuths.size());
         assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, null, false)));
         assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, TestUtils.workFlowRef1, false)));
 
-        for (String aut : bossAuths) System.out.println(aut);
         assertEquals(4, bossAuths.size());
         assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, null, false)));
         assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, TestUtils.budgetYearRef1, false)));
 
-        for (String aut : oligarkAuths) System.out.println(aut);
         assertEquals(5, oligarkAuths.size());
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, null, false)));
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef1, false)));
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef2, false)));
 
-        for (String aut : minimalAuths) System.out.println(aut);
         assertEquals(3, minimalAuths.size());
         assertTrue(minimalAuths.contains(getAuthString(PermissionGroup.NEW_APPLICATION, null, false)));
     }
 
 
 
-    private String createGroupListSimple() throws JSONException {
+    private String createGroupListSimpleRead() throws JSONException {
 
         JSONObject groupList = new JSONObject();
         JSONObject permissionsGroup1 = new JSONObject();
@@ -210,6 +201,109 @@ public class LoadUsersTest extends AbstractTestClass {
         permissionsGroup3.put("BudgetYear", "read");
         permissionsGroup4.put("Budget", "read");
         permissionsGroup5.put("NewApplication", "read");
+
+        groupList.put("testSekretær", permissionsGroup1);
+        groupList.put("testBestyrelsesmedlem", permissionsGroup2);
+        groupList.put("testDirektør", permissionsGroup3);
+        groupList.put("testOligark", permissionsGroup4);
+        groupList.put("testMinimal", permissionsGroup5);
+
+        return groupList.toString();
+    }
+
+    public void testLoadUsersSimpleWrite() throws Exception {
+        String groupList = createGroupListSimpleWrite();
+        String userList = createUserList();
+        JSONObject groupJson = new JSONObject(groupList);
+        JSONArray userJson = new JSONArray(userList);
+
+        getAuthorityBean().loadUsers(groupJson,userJson,"testSubject", getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME), emptyStringModel);
+
+        NodeRef peopleContainer = getServiceRegistry().getPersonService().getPeopleContainer();
+        List<ChildAssociationRef> childAssocs =getServiceRegistry().getNodeService().getChildAssocs(peopleContainer);
+        String sekretaryUser = null;
+        String boardmemberUser = null;
+        String bossUser = null;
+        String oligarkUser = null;
+        String minimalUser = null;
+
+        for (ChildAssociationRef c : childAssocs) {
+            String userName = c.getQName().getLocalName();
+            if (userName.equals("lille_lise")) {
+                sekretaryUser = userName;
+            }
+            if (userName.equals("dumbo_oliphant")) {
+                oligarkUser = userName;
+            }
+            if (userName.equals("tumpe_lampeskærm")) {
+                bossUser = userName;
+            }
+            if (userName.equals("foo_ping")) {
+                boardmemberUser = userName;
+            }
+            if (userName.equals("mini_man")) {
+                minimalUser = userName;
+            }
+        }
+
+        Set<String> sekretaryAuths = getServiceRegistry().getAuthorityService().getAuthoritiesForUser(sekretaryUser);
+        Set<String> boardmemberAuths = getServiceRegistry().getAuthorityService().getAuthoritiesForUser(boardmemberUser);
+        Set<String> bossAuths = getServiceRegistry().getAuthorityService().getAuthoritiesForUser(bossUser);
+        Set<String> oligarkAuths = getServiceRegistry().getAuthorityService().getAuthoritiesForUser(oligarkUser);
+        Set<String> minimalAuths = getServiceRegistry().getAuthorityService().getAuthoritiesForUser(minimalUser);
+
+        //Branch auth also gives workflow and budget
+        assertEquals(10, sekretaryAuths.size());
+        assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, null, true)));
+        assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, null, false)));
+        assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, branchRef1, true)));
+        assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, branchRef1, false)));
+        assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.WORKFLOW, workFlowRef1, true)));
+        assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.WORKFLOW, workFlowRef1, false)));
+        assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef1, false)));
+        assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef2, false)));
+
+        assertEquals(6, boardmemberAuths.size());
+        assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, null, true)));
+        assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, null, false)));
+        assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, TestUtils.workFlowRef1, true)));
+        assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, TestUtils.workFlowRef1, false)));
+
+        assertEquals(6, bossAuths.size());
+        assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, null, true)));
+        assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, null, false)));
+        assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, TestUtils.budgetYearRef1, true)));
+        assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, TestUtils.budgetYearRef1, false)));
+
+        assertEquals(8, oligarkAuths.size());
+        assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, null, true)));
+        assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, null, false)));
+        assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef1, true)));
+        assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef1, false)));
+        assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef2, true)));
+        assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef2, false)));
+
+        assertEquals( 4, minimalAuths.size());
+        assertTrue(minimalAuths.contains(getAuthString(PermissionGroup.NEW_APPLICATION, null, true)));
+        assertTrue(minimalAuths.contains(getAuthString(PermissionGroup.NEW_APPLICATION, null, false)));
+    }
+
+
+
+    private String createGroupListSimpleWrite() throws JSONException {
+
+        JSONObject groupList = new JSONObject();
+        JSONObject permissionsGroup1 = new JSONObject();
+        JSONObject permissionsGroup2 = new JSONObject();
+        JSONObject permissionsGroup3 = new JSONObject();
+        JSONObject permissionsGroup4 = new JSONObject();
+        JSONObject permissionsGroup5 = new JSONObject();
+
+        permissionsGroup1.put("Branch","write");
+        permissionsGroup2.put("Workflow", "write");
+        permissionsGroup3.put("BudgetYear", "write");
+        permissionsGroup4.put("Budget", "write");
+        permissionsGroup5.put("NewApplication", "write");
 
         groupList.put("testSekretær", permissionsGroup1);
         groupList.put("testBestyrelsesmedlem", permissionsGroup2);
@@ -262,24 +356,19 @@ public class LoadUsersTest extends AbstractTestClass {
         Set<String> oligarkAuths = getServiceRegistry().getAuthorityService().getAuthoritiesForUser(oligarkUser);
         Set<String> minimalAuths = getServiceRegistry().getAuthorityService().getAuthoritiesForUser(minimalUser);
 
-        System.out.println("\n--- sekretær");
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, null, true)));
 
-        System.out.println("\n--- bestyrelsesmedlem");
         assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, TestUtils.workFlowRef1, true)));
         assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.BUDGET, TestUtils.budgetRef1, true)));
         assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef2, false)));
 
-        System.out.println("\n--- direktør");
         assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, TestUtils.budgetYearRef1, true)));
         assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BRANCH, TestUtils.branchRef1, false)));
         assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET, null, false)));
         //assertTrue(bossAuths.contains(getAuthString(PermissionGroup.NEW_APPLICATION, application3, false)));
 
-        System.out.println("\n--- oligark");
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.SUPER, null, true)));
 
-        System.out.println("\n--- miniman");
         assertEquals(2, minimalAuths.size());
 
     }

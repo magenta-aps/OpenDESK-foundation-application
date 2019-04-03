@@ -65,7 +65,10 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
                 toReturn.setReadOnly(node.get("readOnly").asBoolean());
             }
             if (node.has("allowedValues")) {
-                toReturn.setAllowedValues(new ArrayList<Object>(mapper.readValue(node.get("allowedValues").toString(), List.class)));
+                List<Object> allowedValues = mapper.readValue(node.get("allowedValues").toString(), List.class);
+                if (allowedValues != null) {
+                    toReturn.setAllowedValues(new ArrayList<>(allowedValues));
+                }
             }
             if (node.has("type")) {
                 String typeString = node.get("type").asText();
