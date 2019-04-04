@@ -12,7 +12,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationField;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
+import dk.opendesk.foundationapplication.DAO.ApplicationSchema;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
@@ -35,11 +37,14 @@ import dk.opendesk.foundationapplication.beans.BudgetBean;
 import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.patches.InitialStructure;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -73,6 +78,8 @@ public final class Utilities {
     private final static MetricRegistry METRICS = new MetricRegistry();
     
     public static final String FOUNDATION_MODEL_LOCATION="/alfresco/module/foundationapplication/model/foundation-model.xml";
+
+    public static final DateFormat UNIVERAL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.ENGLISH);
     
     public static final String DATA_TYPE_NAME = "data";
     public static final String DATA_ASSOC_WORKFLOW = "workflows";
@@ -81,6 +88,8 @@ public final class Utilities {
     public static final String DATA_ASSOC_APPLICATIONS = "applications";
     public static final String DATA_ASSOC_NEW_APPLICATIONS = "newApplications";
     public static final String DATA_ASSOC_DELETED_APPLICATION = "deletedApplications";
+    public static final String DATA_ASSOC_STATIC_FIELDS = "staticFields";
+    public static final String DATA_ASSOC_SCHEMAS = "applicationSchemas";
     public static final String DATA_PARAM_LASTID = "latestID";
 
     public static final String DATE_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
@@ -111,9 +120,16 @@ public final class Utilities {
     public static final String BUDGETYEAR_PARAM_STARTDATE="odf:budgetYearStartDate";
     public static final String BUDGETYEAR_PARAM_ENDDATE="odf:odf:budgetYearEndDate";
     
+    public static final String APPLICATIONSCHEMA_TYPE_NAME="applicationSchema";
+    public static final String APPLICATIONSCHEMA_ASSOCS_BLOCKS="applicationSchemaBlocks";
+    
+    public static final String APPLICATIONSCHEMA_PARAM_ID="applicationSchemaID";
+    public static final String APPLICATIONSCHEMA_PARAM_TITLE="applicationSchemaTitle";
+    
     public static final String APPLICATION_TYPE_NAME="application";
     public static final String APPLICATION_ASSOC_BUDGET = "applicationBudget";
     public static final String APPLICATION_ASSOC_BRANCH = "applicationBranch";
+    public static final String APPLICATION_ASSOC_BLOCKS = "applicationBlocks";
     public static final String APPLICATION_ASSOC_STATE = "applicationState";   
     public static final String APPLICATION_ASSOC_DOCUMENTS = "documents";
     
@@ -134,6 +150,38 @@ public final class Utilities {
 
     public static final String APPLICATION_FOLDER_EMAIL = "emailFolder";
     public static final String APPLICATION_FOLDER_DOCUMENT = "documentFolder";
+    
+    public static final String BLOCK_PARAM_ID = "applicationBlockId";
+    public static final String BLOCK_PARAM_COLLAPSIBLE = "applicationBlockCollapsible";
+    public static final String BLOCK_PARAM_REPEATABLE = "applicationBlockRepeatable";
+    public static final String BLOCK_PARAM_LABEL = "applicationBlockLabel";
+    public static final String BLOCK_PARAM_ICON = "applicationBlockIcon";
+    public static final String BLOCK_PARAM_LAYOUT = "applicationBlockLayout";
+    
+    public static final String FIELD_TYPE_NAME = "applicationField";
+    public static final String FIELD_PARAM_OPTIONS = "applicationFieldOptions";
+    public static final String FIELD_PARAM_VALUE = "applicationFieldValue";
+    public static final String FIELD_ASSOC_STATICDATA = "applicationFieldStaticData";
+    
+    public static final String STATICFIELD_TYPE_NAME = "applicationStaticField";
+    public static final String STATICFIELD_PARAM_ID = "applicationStaticFieldID";
+    public static final String STATICFIELD_PARAM_LABEL = "applicationStaticFieldLabel";
+    public static final String STATICFIELD_PARAM_HINT = "applicationStaticFieldHint";
+    public static final String STATICFIELD_PARAM_COMPONENT = "applicationStaticFieldComponent";
+    public static final String STATICFIELD_PARAM_LAYOUT = "applicationStaticFieldLayout";
+    public static final String STATICFIELD_PARAM_WRAPPER = "applicationStaticFieldWrapper";
+    public static final String STATICFIELD_PARAM_CONTROLLED_BY = "applicationStaticFieldControlledBy";
+    public static final String STATICFIELD_PARAM_DESCRIBES = "applicationStaticFieldDescribes";
+    public static final String STATICFIELD_PARAM_TYPE = "applicationStaticFieldType";
+    public static final String STATICFIELD_PARAM_VALIDATION = "applicationStaticFieldValidation";
+    
+    
+    
+    public static final String BLOCKSPEC_TYPE_NAME = "applicationBlockSpecification";
+    public static final String BLOCKSPEC_ASSOC_FIELDS = "applicationBlockSpecFields";
+    
+    public static final String BLOCKIMPL_TYPE_NAME = "applicationBlockImpl";
+    public static final String BLOCKIMPL_ASSOC_FIELDS= "applicationBlockImplFields";
 
     public static final String ACTION_NAME_ADD_BLOCKS = "addBlocks";
     public static final String ACTION_NAME_ADD_FIELDS = "addFields";
@@ -146,8 +194,6 @@ public final class Utilities {
     public static final String ASPECT_BEFORE_DELETE = "beforeDelete";
 
     public static final String CONTENT_NAME_SPACE = "http://www.alfresco.org/model/content/1.0";
-
-    public static final String APPLICATION_PARAM_BLOCKS = "applicationBlocks";
 
     public static final String HEALTH_CHECK_STRUCTURE = "structure";
 
@@ -264,6 +310,9 @@ public final class Utilities {
         for (ApplicationSummary application : applicationBean.getDeletedApplicationSummaries()) {
             nodeService.removeChild(dataRef, application.asNodeRef());
         }
+        for (ApplicationField applicationField : applicationBean.getApplicationFieldSpecs()) {
+            nodeService.removeChild(dataRef, applicationField.asNodeRef());
+        }
     }
 
     public static NodeRef getOdfEmailTemplateFolder(ServiceRegistry sr) {
@@ -335,12 +384,17 @@ public final class Utilities {
         module.addSerializer(NodeRef.class, new NodeRefSerializer());
         module.addDeserializer(NodeRef.class, new NodeRefDeserializer());
         mapper.registerModule(module);
+        mapper.setDateFormat(UNIVERAL_DATE_FORMAT);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
     }
 
     public static ApplicationChangeBuilder buildChange(Application toChange) {
         return new ApplicationChangeBuilder(toChange);
+    }
+    
+        public static StaticFieldChangeBuilder buildFieldChange(ApplicationBean bean) throws Exception {
+        return new StaticFieldChangeBuilder(bean);
     }
 
     public static class ApplicationChangeBuilder {
@@ -518,64 +572,29 @@ public final class Utilities {
                 }
             }
 
-            public FieldChangeBuilder setLabel(String newLabel) {
-                value.setLabel(newLabel);
+            public FieldChangeBuilder setValue(ArrayList newValue) throws ClassNotFoundException {
+                if (newValue != null && !newValue.isEmpty()) {
+                    value.setValue(newValue);
+
+                    Class type = newValue.get(0).getClass();
+                    for (Object listValue : newValue) {
+                        if (!type.isAssignableFrom(listValue.getClass())) {
+                            throw new RuntimeException("Contents of the list must contain the same class of elements " + newValue);
+                        }
+                    }
+                }
+
                 return this;
             }
-
-            public FieldChangeBuilder setLayout(String newLayout) {
-                value.setLayout(newLayout);
+            
+            public FieldChangeBuilder setValue(Object newValue) throws ClassNotFoundException {
+                value.setValue(new ListBuilder<>(new ArrayList<>()).add(newValue).build());
+                value.setType(newValue.getClass().getCanonicalName());
                 return this;
             }
-
-            public FieldChangeBuilder setComponent(String newComponent) {
-                value.setComponent(newComponent);
-                return this;
-            }
-
-            public FieldChangeBuilder setType(Class newType) {
-                value.setType(newType);
-                return this;
-            }
-
-            public FieldChangeBuilder setDescribes(Functional newFunctional) {
-                value.setDescribes(newFunctional.getFriendlyName());
-                return this;
-            }
-
-            public FieldChangeBuilder setAllowedValues(List newAllowedValues) {
-                value.setAllowedValues(newAllowedValues);
-                return this;
-            }
-
-            public FieldChangeBuilder setHint(String newHint) {
-                value.setHint(newHint);
-                return this;
-            }
-
-            public FieldChangeBuilder setWrapper(String newWrapper) {
-                value.setWrapper(newWrapper);
-                return this;
-            }
-
-            public FieldChangeBuilder setValidation(String newValidation) {
-                value.setValidation(newValidation);
-                return this;
-            }
-
-            public FieldChangeBuilder setPermissions(String newPermissions) {
-                value.setPermissions(newPermissions);
-                return this;
-            }
-
-            public FieldChangeBuilder setReadOnly(Boolean newReadOnly) {
-                value.setReadOnly(newReadOnly);
-                return this;
-            }
-
-            public FieldChangeBuilder setValue(Object newValue) {
-                value.setValue(newValue);
-                value.setType(newValue.getClass());
+            
+            public FieldChangeBuilder setOptions(ArrayList newOptions){
+                value.setOptions(newOptions);
                 return this;
             }
 
@@ -597,6 +616,97 @@ public final class Utilities {
                             return new Pair<>(block, field);
                         }
                     }
+                }
+                return null;
+            }
+
+        }
+
+    }
+    
+    public static class StaticFieldChangeBuilder {
+        private final List<ApplicationField> currentFields = new ArrayList<>(); 
+        private final List<ApplicationField> change = new ArrayList<>();
+
+        public StaticFieldChangeBuilder(ApplicationBean bean) throws Exception {
+            currentFields.addAll(bean.getApplicationFieldSpecs());
+        }
+
+        public FieldChangeBuilder changeField(String fieldId) {
+            return new FieldChangeBuilder(fieldId);
+        }
+        
+
+        public List<ApplicationField> build() {
+            return change;
+        }
+
+        public class FieldChangeBuilder {
+
+            private final ApplicationField value;
+
+            public FieldChangeBuilder(String fieldID) {
+                ApplicationField existing = findField(fieldID);
+                value = existing;
+                change.add(value);
+            }
+
+            public FieldChangeBuilder setLabel(String newLabel) {
+                value.setLabel(newLabel);
+                return this;
+            }
+
+            public FieldChangeBuilder setLayout(String newLayout) {
+                value.setLayout(newLayout);
+                return this;
+            }
+
+            public FieldChangeBuilder setComponent(String newComponent) {
+                value.setComponent(newComponent);
+                return this;
+            }
+
+            public FieldChangeBuilder setType(Class newType) throws ClassNotFoundException {
+                value.setType(newType.getCanonicalName());
+                return this;
+            }
+
+            public FieldChangeBuilder setDescribes(Functional newFunctional) {
+                value.setDescribes(newFunctional.getFriendlyName());
+                return this;
+            }
+
+
+            public FieldChangeBuilder setHint(String newHint) {
+                value.setHint(newHint);
+                return this;
+            }
+
+            public FieldChangeBuilder setWrapper(String newWrapper) {
+                value.setWrapper(newWrapper);
+                return this;
+            }
+
+            public FieldChangeBuilder setValidation(String newValidation) {
+                value.setValidation(newValidation);
+                return this;
+            }
+
+            public FieldChangeBuilder setReadOnly(Boolean newReadOnly) {
+                value.setReadOnly(newReadOnly);
+                return this;
+            }
+
+            public StaticFieldChangeBuilder done() {
+                return StaticFieldChangeBuilder.this;
+            }
+
+            protected final ApplicationField findField(String id) {
+                
+                for (ApplicationField field : currentFields) {
+                        if (id.equals(field.getId())) {
+                            return field;
+                        }
                 }
                 return null;
             }

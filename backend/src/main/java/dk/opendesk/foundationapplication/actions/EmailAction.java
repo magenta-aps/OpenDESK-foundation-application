@@ -19,6 +19,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -67,16 +68,24 @@ public class EmailAction extends MailActionExecuter {
         }
         for(ApplicationBlock block : application.getBlocks()){
             for(ApplicationFieldValue field : block.getFields()){
-                model.put(block.getLabel()+"_"+field.getLabel(), field.getValue().toString());//todo Parse instead of tostring
-                model.put("id"+field.getId(), field.getValue().toString());
+                if(field.isSingleValue()){
+                    model.put(block.getLabel()+"_"+field.getLabel(), field.getSingleValue().toString());//todo Parse instead of tostring
+                    model.put("id"+field.getId(), field.getSingleValue().toString());
+                }else{
+                    ArrayList<Object> values = field.getValue();
+                    for(int i = 0 ; i<values.size() ; i++){
+                        model.put(block.getLabel()+"_"+field.getLabel()+"_"+i, values.get(i).toString());//todo Parse instead of tostring
+                    model.put("id"+field.getId()+"_"+i, values.get(i).toString());
+                    }
+                }
+                
             }
         }
         model.put("subject", ruleAction.getParameterValue(PARAM_SUBJECT));
-        model.put("body", "Bye bye" ); //todo temp body for temp template
 
 
         ruleAction.setParameterValue(PARAM_TEMPLATE_MODEL, (Serializable) model);
-        ruleAction.setParameterValue(PARAM_TO, application.getFunctionalField(Functional.email_to()).getValue());
+        ruleAction.setParameterValue(PARAM_TO, application.getFunctionalField(Functional.email_to()).getSingleValue());
 
         //todo Hvad med alle de andre parametre?
 

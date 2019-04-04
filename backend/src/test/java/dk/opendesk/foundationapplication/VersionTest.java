@@ -45,7 +45,7 @@ public class VersionTest extends AbstractTestClass {
     public void testVersioning() throws Exception {
 
         NodeRef appRef = TestUtils.application1;
-        String origMail = getApplicationBean().getApplication(appRef).emailTo().getValue();
+        String origMail = getApplicationBean().getApplication(appRef).emailTo().getSingleValue();
         String origStateTitle = getApplicationBean().getApplication(appRef).getState().getTitle();
 
         makeChanges(appRef);
@@ -56,12 +56,12 @@ public class VersionTest extends AbstractTestClass {
     private void makeChanges(NodeRef appRef) throws Exception {
         assertEquals(1, versionService.getVersionHistory(appRef).getAllVersions().size());
 
-        if (logger.isDebugEnabled()) logger.debug("\nChange #0: Application created\n");
+        logger.debug("\nChange #0: Application created\n");
         if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
 
 
         // --- FIRST CHANGE --- //
-        if (logger.isDebugEnabled()) logger.debug("\nChange #1: Changing the 'email' property\n");
+        logger.debug("\nChange #1: Changing the 'email' property\n");
 
         Application change1 = Utilities.buildChange(getApplicationBean().getApplication(appRef))
                 .changeField("8").setValue("First change").done()
@@ -72,11 +72,11 @@ public class VersionTest extends AbstractTestClass {
         if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
         Application headVersion = getApplicationBean().getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(2, versionService.getVersionHistory(appRef).getAllVersions().size());
-        assertEquals("First change", headVersion.emailTo().getValue());
+        assertEquals("First change", headVersion.emailTo().getSingleValue());
 
 
         // --- SECOND CHANGE --- //
-        if (logger.isDebugEnabled()) logger.debug("\nChange #2: Changing the state to 'assess'\n");
+        logger.debug("\nChange #2: Changing the state to 'assess'\n");
 
         Application change2 = new Application();
         change2.parseRef(appRef);
@@ -89,13 +89,13 @@ public class VersionTest extends AbstractTestClass {
         headVersion = getApplicationBean().getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(3, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals(TestUtils.w1StateAccessRef, headVersion.getState().asNodeRef());
-        assertEquals("First change", headVersion.emailTo().getValue());
+        assertEquals("First change", headVersion.emailTo().getSingleValue());
 
         if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
 
 
         // --- THIRD CHANGE --- //
-        if (logger.isDebugEnabled()) logger.debug("\nChange #3: Changing both state and email\n");
+        logger.debug("\nChange #3: Changing both state and email\n");
 
         Application change3 = Utilities.buildChange(getApplicationBean().getApplication(appRef))
                 .changeField("8").setValue("Third change").done()
@@ -109,18 +109,18 @@ public class VersionTest extends AbstractTestClass {
         headVersion = getApplicationBean().getApplication(versionService.getVersionHistory(appRef).getHeadVersion().getFrozenStateNodeRef());
         assertEquals(4, versionService.getVersionHistory(appRef).getAllVersions().size());
         assertEquals(TestUtils.w1StateAcceptedRef, headVersion.getState().asNodeRef());
-        assertEquals("Third change", headVersion.emailTo().getValue());
+        assertEquals("Third change", headVersion.emailTo().getSingleValue());
 
         //Current version should be on state 'accepted' and have email = 'Third change'
         Application currentVersion = getApplicationBean().getApplication(appRef);
         assertEquals(TestUtils.w1StateAcceptedRef, currentVersion.getState().asNodeRef());
-        assertEquals("Third change", currentVersion.emailTo().getValue());
+        assertEquals("Third change", currentVersion.emailTo().getSingleValue());
 
         if (logger.isDebugEnabled()) logger.debug(getApplicationBean().getApplicationHistory(appRef));
 
 
         // --- FOURTH CHANGE --- //
-        if (logger.isDebugEnabled()) logger.debug("\nChange #4: Application deleted\n");
+        logger.debug("\nChange #4: Application deleted\n");
 
         getApplicationBean().deleteApplication(appRef);
 
@@ -137,7 +137,7 @@ public class VersionTest extends AbstractTestClass {
 
 
         //Application creation
-        assertEquals(applicationCreation.getChangeType(), APPLICATION_CHANGE_CREATED);
+        assertEquals(APPLICATION_CHANGE_CREATED, applicationCreation.getChangeType());
 
         ApplicationChangeUnit stateChange = null;
         ApplicationChangeUnit emailChange = null;
@@ -293,7 +293,7 @@ public class VersionTest extends AbstractTestClass {
         if (app.getState() != null) {
             builder.append("\n\tState:                          ").append(app.getState().getTitle());
         }
-        builder.append("\n\temail:                          ").append(app.emailTo().getValue());
+        builder.append("\n\temail:                          ").append(app.emailTo().getSingleValue());
 
         VersionHistory history = versionService.getVersionHistory(application);
         if (history != null) {
@@ -313,7 +313,7 @@ public class VersionTest extends AbstractTestClass {
                 if (app.getState() != null) {
                     builder.append("\n\tState:                          ").append(app.getState().getTitle());
                 }
-                builder.append("\n\temail:                          ").append(app.emailTo().getValue());
+                builder.append("\n\temail:                          ").append(app.emailTo().getSingleValue());
 
                 //uncomment to log all properties on a version:
                 /*

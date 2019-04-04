@@ -109,7 +109,8 @@ public class AbstractTestClass extends BaseWebScriptTest {
         TestWebScriptServer.GetRequest request = new TestWebScriptServer.GetRequest(getPath(path));
         request.setHeaders(Collections.singletonMap("Accept", "application/json"));
         TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, TestUtils.ADMIN_USER);
-        return mapper.readValue(response.getContentAsString(), type);
+        String returnText = response.getContentAsString();
+        return mapper.readValue(returnText, type);
     }
 
     protected <K, V, M extends Map<K, V>> M get(Class<M> mapType, Class<K> keyType, Class<V> valueType, String path) throws IOException{

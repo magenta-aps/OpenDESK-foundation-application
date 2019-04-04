@@ -58,27 +58,52 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
             if (node.has("validation")) {
                 toReturn.setValidation(node.get("validation").asText());
             }
-            if (node.has("permission")) {
-                toReturn.setPermissions(node.get("permission").asText());
-            }
             if (node.has("readOnly")) {
                 toReturn.setReadOnly(node.get("readOnly").asBoolean());
-            }
-            if (node.has("allowedValues")) {
-                toReturn.setAllowedValues(new ArrayList<Object>(mapper.readValue(node.get("allowedValues").toString(), List.class)));
             }
             if (node.has("type")) {
                 String typeString = node.get("type").asText();
                 Class type = Class.forName(typeString);
-                toReturn.setType(type);
+                toReturn.setType(type.getCanonicalName());
                 if (node.has("value")) {
+                    JsonNode valueNode = node.get("value");
                     if (type.isAssignableFrom(String.class)) {
-                        toReturn.setValue(node.get("value").asText());
+                        if(valueNode.isArray()){
+                            ArrayList<String> values = new ArrayList();
+                            int i = 0;
+                            while(i<valueNode.size()){
+                                values.add(valueNode.get(i).asText());
+                                i++;
+                            }
+                            toReturn.setValue(values);
+                        }else{
+                            toReturn.setSingleValue(valueNode.asText());
+                        }
+                        
                     } else if (type.isAssignableFrom(Date.class)) {
-                        toReturn.setValue(ctxt.parseDate(node.get("value").asText()));
+                        if(valueNode.isArray()){
+                            ArrayList<Date> values = new ArrayList();
+                            int i = 0;
+                            while(i<valueNode.size()){                            
+                                values.add(ctxt.parseDate(valueNode.get(i).asText()));
+                                i++;
+                            }
+                            toReturn.setValue(values);
+                        }else{
+                            toReturn.setSingleValue(ctxt.parseDate(valueNode.asText()));
+                        }
                     } else {
-                        Object value = mapper.readValue(node.get("value").toString(), type);
-                        toReturn.setValue(value);
+                        if(valueNode.isArray()){
+                            ArrayList<Object> values = new ArrayList();
+                            int i = 0;
+                            while(i<valueNode.size()){                            
+                                values.add(mapper.readValue(valueNode.get(i).asText(), type));
+                                i++;
+                            }
+                            toReturn.setValue(values);
+                        }else{
+                            toReturn.setSingleValue(mapper.readValue(valueNode.toString(), type));
+                        }
                     }
                 }
             }
@@ -95,5 +120,7 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
     public Class<?> handledType() {
         return ApplicationFieldValue.class;
     }
+    
+    
 
 }

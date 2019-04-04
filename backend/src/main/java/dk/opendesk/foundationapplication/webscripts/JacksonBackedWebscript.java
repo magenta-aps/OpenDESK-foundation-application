@@ -36,6 +36,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.ServiceRegistry;
@@ -185,8 +186,8 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
         }
     }
 
-    protected <T> T getRequestListAs(Class<T> clazz) throws IOException {
-        return mapper.readValue(req.getContent().getContent(), mapper.getTypeFactory().constructCollectionType(List.class, clazz));
+    protected <T, E extends Collection<T>> E getRequestAs(Class<E> collectionType, Class<T> clazz) throws IOException {
+        return mapper.readValue(req.getContent().getContent(), mapper.getTypeFactory().constructCollectionType(collectionType, clazz));
     }
 
     public Map<String, String> getUrlParams() {
