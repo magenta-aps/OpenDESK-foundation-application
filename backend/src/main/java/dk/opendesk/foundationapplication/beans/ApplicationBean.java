@@ -26,7 +26,6 @@ import dk.opendesk.foundationapplication.Utilities;
 
 import java.io.Serializable;
 import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,6 +51,7 @@ import org.alfresco.service.namespace.QName;
 import static dk.opendesk.foundationapplication.Utilities.*;
 import dk.opendesk.foundationapplication.enums.PermissionGroup;
 import java.util.Set;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.PermissionService;
@@ -61,6 +61,8 @@ import org.alfresco.service.cmr.security.PermissionService;
  * @author martin
  */
 public class ApplicationBean extends FoundationBean {
+    private static final String ERROR_CREATING_FIELD = "odf.create.userfield";
+    
 
     private ActionBean actionBean;
     private AuthorityBean authBean;
@@ -335,15 +337,18 @@ public class ApplicationBean extends FoundationBean {
         }
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(getODFName(FIELD_PARAM_OPTIONS), field.getOptions());
-        properties.put(getODFName(FIELD_PARAM_VALUE), field.getValue());
-
+        if(!getServiceRegistry().getNodeService().hasAspect(staticFieldRef, getODFName(STATICMULTIFIELD_ASPECT_NAME))){
+            properties.put(getODFName(FIELD_PARAM_VALUE), field.getValue());
+        }
+        
         NodeRef fieldRef = getServiceRegistry().getNodeService().createNode(blockRef, getODFName(BLOCKIMPL_ASSOC_FIELDS), getODFName(field.getId()), getODFName(FIELD_TYPE_NAME), properties).getChildRef();
 
         getServiceRegistry().getNodeService().setAssociations(fieldRef, getODFName(FIELD_ASSOC_STATICDATA), Collections.singletonList(staticFieldRef));
         
-        
-        
-        
+        if(getServiceRegistry().getNodeService().hasAspect(staticFieldRef, getODFName(STATICMULTIFIELD_ASPECT_NAME))){
+            getServiceRegistry().getNodeService().addAspect(fieldRef, getODFName(MULTIFIELD_ASPECT_NAME), null);
+        }
+                
     }
 
     protected NodeRef addStaticField(ApplicationField field) throws Exception {
@@ -361,6 +366,17 @@ public class ApplicationBean extends FoundationBean {
         
         NodeRef ref = getServiceRegistry().getNodeService().createNode(getDataHome(), getODFName(DATA_ASSOC_STATIC_FIELDS), getODFName(field.getId()), getODFName(STATICFIELD_TYPE_NAME), properties).getChildRef();
         authBean.addReadPermission(ref, PermissionGroup.BASIC, (NodeRef)null);
+        
+        if(field.getAggregate()){
+            properties = new HashMap<>();
+            properties.put(getODFName(STATICMULTIFIELD_PARAM_COMPONENT), field.getAggregateComponent());
+            properties.put(getODFName(STATICMULTIFIELD_PARAM_DESCRIBES), field.getAggregateDescribes());
+            properties.put(getODFName(STATICMULTIFIELD_PARAM_HINT), field.getAggregateHint());
+            properties.put(getODFName(STATICMULTIFIELD_PARAM_LAYOUT), field.getAggregateLayout());
+            properties.put(getODFName(STATICMULTIFIELD_PARAM_TYPE), field.getAggregateType());
+            properties.put(getODFName(STATICMULTIFIELD_PARAM_WRAPPER), field.getAggregateWrapper());
+            getServiceRegistry().getNodeService().addAspect(ref, getODFName(STATICMULTIFIELD_ASPECT_NAME), properties);
+        }
         
         return ref;
     }
@@ -633,16 +649,17 @@ public class ApplicationBean extends FoundationBean {
 
         ApplicationField field = new ApplicationField();
         field.parseRef(applicationField);
-
-        field.setId(getProperty(applicationField, STATICFIELD_PARAM_ID, String.class));
-        field.setLabel(getProperty(applicationField, STATICFIELD_PARAM_LABEL, String.class));
-        field.setLayout(getProperty(applicationField, STATICFIELD_PARAM_LAYOUT, String.class));
-        field.setComponent(getProperty(applicationField, STATICFIELD_PARAM_COMPONENT, String.class));
-        field.setHint(getProperty(applicationField, STATICFIELD_PARAM_HINT, String.class));
-        field.setWrapper(getProperty(applicationField, STATICFIELD_PARAM_WRAPPER, String.class));
-        field.setDescribes(getProperty(applicationField, STATICFIELD_PARAM_DESCRIBES, String.class));
-        field.setType(getProperty(applicationField, STATICFIELD_PARAM_TYPE, String.class));
-        field.setValidation(getProperty(applicationField, STATICFIELD_PARAM_VALIDATION, String.class));
+        Map<QName, Serializable> properties = getServiceRegistry().getNodeService().getProperties(applicationField);
+        
+        field.setId(getProperty(applicationField, STATICFIELD_PARAM_ID, String.class, properties));
+        field.setLabel(getProperty(applicationField, STATICFIELD_PARAM_LABEL, String.class, properties));
+        field.setLayout(getProperty(applicationField, STATICFIELD_PARAM_LAYOUT, String.class, properties));
+        field.setComponent(getProperty(applicationField, STATICFIELD_PARAM_COMPONENT, String.class, properties));
+        field.setHint(getProperty(applicationField, STATICFIELD_PARAM_HINT, String.class, properties));
+        field.setWrapper(getProperty(applicationField, STATICFIELD_PARAM_WRAPPER, String.class, properties));
+        field.setDescribes(getProperty(applicationField, STATICFIELD_PARAM_DESCRIBES, String.class, properties));
+        field.setType(getProperty(applicationField, STATICFIELD_PARAM_TYPE, String.class, properties));
+        field.setValidation(getProperty(applicationField, STATICFIELD_PARAM_VALIDATION, String.class, properties));
 
         Set<AccessPermission> userPermissions = getServiceRegistry().getPermissionService().getPermissions(applicationField);
         boolean readOnly = true;
@@ -653,6 +670,18 @@ public class ApplicationBean extends FoundationBean {
             }
         }
         field.setReadOnly(readOnly);
+        
+        if(getServiceRegistry().getNodeService().hasAspect(applicationField, getODFName(STATICMULTIFIELD_ASPECT_NAME))){
+            field.setAggregate(true);
+            field.setAggregateComponent(getProperty(applicationField, STATICMULTIFIELD_PARAM_COMPONENT, String.class, properties));
+            field.setAggregateHint(getProperty(applicationField, STATICMULTIFIELD_PARAM_HINT, String.class, properties));
+            field.setAggregateLayout(getProperty(applicationField, STATICMULTIFIELD_PARAM_LAYOUT, String.class, properties));
+            field.setAggregateType(getProperty(applicationField, STATICMULTIFIELD_PARAM_TYPE, String.class, properties));
+            field.setAggregateWrapper(getProperty(applicationField, STATICMULTIFIELD_PARAM_WRAPPER, String.class, properties));
+            field.setAggregateDescribes(getProperty(applicationField, STATICMULTIFIELD_PARAM_DESCRIBES, String.class, properties));
+        }else{
+            field.setAggregate(false);
+        }
 
         return field;
     }
@@ -686,9 +715,35 @@ public class ApplicationBean extends FoundationBean {
             }
         }
         field.setReadOnly(readOnly);
+        
+        
 
         ObjectMapper mapper = Utilities.getMapper();
-        List<String> textValues = getPropertyList(applicationField, FIELD_PARAM_VALUE, String.class);
+        
+        
+        field.setOptions(getPropertyList(applicationField, FIELD_PARAM_OPTIONS, String.class));
+        
+        
+        List<String> textValues;
+        if(staticField.getAggregate()){       
+            //This is a multi-value field
+            if(!getServiceRegistry().getNodeService().hasAspect(applicationField, getODFName(MULTIFIELD_ASPECT_NAME))){
+                getServiceRegistry().getNodeService().addAspect(applicationField, getODFName(MULTIFIELD_ASPECT_NAME), null);
+            }
+            NodeRef userValueField = getOrCreateMultiField(applicationField);
+            textValues = getPropertyList(userValueField, MULTIFIELD_VALUE_PARAM_VALUE, String.class);
+            field.setAggregate(true);
+            field.setAggregateComponent(staticField.getAggregateComponent());
+            field.setAggregateHint(staticField.getAggregateHint());
+            field.setAggregateLayout(staticField.getAggregateLayout());
+            field.setAggregateType(staticField.getAggregateType());
+            field.setAggregateWrapper(staticField.getAggregateWrapper());
+            field.setAggregateDescribes(staticField.getAggregateDescribes());
+        }else{
+            field.setAggregate(false);
+            textValues = getPropertyList(applicationField, FIELD_PARAM_VALUE, String.class);
+        }
+        
         ArrayList<Object> objectValues = new ArrayList<>();
 
         if (textValues != null) {
@@ -707,9 +762,31 @@ public class ApplicationBean extends FoundationBean {
         }
 
         field.setValue(objectValues);
-        field.setOptions(getPropertyList(applicationField, FIELD_PARAM_OPTIONS, String.class));
 
         return field;
+    }
+    
+    public NodeRef getOrCreateMultiField(NodeRef applicationField) throws Exception {
+        return getServiceRegistry().getRetryingTransactionHelper().doInTransaction(() -> AuthenticationUtil.runAsSystem(() -> {
+            String username = getCurrentUserName();
+            List<ChildAssociationRef> fields = getServiceRegistry().getNodeService().getChildAssocs(applicationField, getODFName(MULTIFIELD_ASSOC_VALUES), getODFName(username));
+            if (fields.size() > 1) {
+                throw new RuntimeException("Field inconsistency detected. Multiple fields for user " + username);
+            } else if (fields.size() == 1) {
+                return fields.get(0).getChildRef();
+            } else {
+                try {
+                    Map<QName, Serializable> properties = new HashMap<>();
+                    properties.put(getODFName(MULTIFIELD_VALUE_PARAM_USERNAME), username);
+                    NodeRef newField = getServiceRegistry().getNodeService().createNode(applicationField, getODFName(MULTIFIELD_ASSOC_VALUES), getODFName(username), getODFName(MULTIFIELD_VALUE_TYPE_NAME), properties).getChildRef();
+                    authBean.addUserPermission(username, newField);
+                    //authBean.disableInheritPermissions(newField);
+                    return newField;
+                } catch (Exception ex) {
+                    throw new AlfrescoRuntimeException(ERROR_CREATING_FIELD, ex);
+                }
+            }
+        }));
     }
 
     public ApplicationReference getApplicationReference(NodeRef applicationRef) throws Exception {
@@ -999,9 +1076,8 @@ public class ApplicationBean extends FoundationBean {
         
         //sort oldest first
         changes.sort((o1, o2) -> {
-            SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
-            Date date1 = sdf.parse((String) o1.getTimesStamp(), new ParsePosition(0));
-            Date date2 = sdf.parse((String) o2.getTimesStamp(), new ParsePosition(0));
+            Date date1 = UNIVERAL_DATE_FORMAT.parse((String) o1.getTimesStamp(), new ParsePosition(0));
+            Date date2 = UNIVERAL_DATE_FORMAT.parse((String) o2.getTimesStamp(), new ParsePosition(0));
             return date1.compareTo(date2);
         });
 

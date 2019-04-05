@@ -1,6 +1,7 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dk.opendesk.foundationapplication.Utilities;
 import org.alfresco.service.cmr.repository.NodeRef;
 
 
@@ -9,7 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static dk.opendesk.foundationapplication.Utilities.DATE_FORMAT_STRING;
 
 public class ApplicationChange extends ApplicationReference {
 
@@ -69,8 +69,7 @@ public class ApplicationChange extends ApplicationReference {
 
     @JsonIgnore
     public ApplicationChange setTimeStamp(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
-        this.timesStamp = sdf.format(date);
+        this.timesStamp = Utilities.UNIVERAL_DATE_FORMAT.format(date);
         return this;
     }
 

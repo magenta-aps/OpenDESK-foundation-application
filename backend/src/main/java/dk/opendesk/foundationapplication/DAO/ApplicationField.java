@@ -32,20 +32,39 @@ public class ApplicationField<E> extends Reference{
     private Optional<String> validation;
     private Optional<Boolean> readOnly;
     private Optional<ArrayList<String>> controlledBy;
+    private Optional<Boolean> aggregate;
+    private Optional<Class<E>> aggregateType;
+    private Optional<String> aggregateComponent;
+    private Optional<String> aggregateLayout;
+    private Optional<String> aggregateHint;
+    private Optional<String> aggregateWrapper;
+    private Optional<String> aggregateDescribes;
 
 
     public ApplicationField() {
     }
 
-    public ApplicationField(String id, String label, Class<E> type, String component, String function, List<E> allowedValues, String layout, String... controlledBy) {
+    public ApplicationField(String id, String label, Class<E> type, String component, String function, List<E> allowedValues, String layout, Boolean aggregate, String... controlledBy) {
         this.id = optional(id);
         this.label = optional(label);
         this.type = optional(type);
         this.component = optional(component);
         this.describes = optional(function);
         this.layout = optional(layout);
+        this.aggregate = optional(aggregate);
         this.controlledBy = optional(new ArrayList<>(Arrays.asList(controlledBy)));
     }
+    
+    public ApplicationField(String id, String label, Class<E> type, String component, String function, List<E> allowedValues, String layout, Boolean aggregate, Class<E> aggregateType, String aggregateComponent, String aggregateLayout, String aggregateHint, String aggregateWrapper, String aggregateDescribes, String... controlledBy) {
+        this(id, label, type, component, function, allowedValues, layout, aggregate, controlledBy);
+        this.aggregateType = optional(aggregateType);
+        this.aggregateComponent = optional(aggregateComponent);
+        this.aggregateLayout = optional(aggregateLayout);
+        this.aggregateHint = optional(aggregateHint);
+        this.aggregateWrapper = optional(aggregateWrapper);
+        this.aggregateDescribes = optional(aggregateDescribes);
+    }
+    
 
     public String getId() {
         return get(id);
@@ -94,7 +113,7 @@ public class ApplicationField<E> extends Reference{
             try {
                 this.type = optional((Class<E>)Class.forName(javaType));
             } catch (ClassNotFoundException ex) {
-                LOGGER.error("Failed to find specified class. Setting to null");
+                LOGGER.error("Failed to find specified class. Setting to null", ex);
                 this.type = null;
             }
         }
@@ -195,6 +214,102 @@ public class ApplicationField<E> extends Reference{
     public void setControlledBy(ArrayList<String> controlledBy) {
         this.controlledBy = optional(controlledBy);
     }
+    
+    public  Boolean getAggregate() {
+        return get(aggregate);
+    }
+
+    public boolean wasAggregateSet(){
+        return wasSet(aggregate);
+    }
+
+    public void setAggregate(Boolean aggregate) {
+        this.aggregate = optional(aggregate);
+    }
+
+    public String getAggregateType() {
+        Class classType = get(aggregateType);
+        if(classType == null){
+            return null;
+        }else{
+            return classType.getCanonicalName();
+        }
+    }
+
+    public boolean wasAggregateTypeSet(){
+        return wasSet(aggregateType);
+    }
+
+    public void setAggregateType(String aggregateType) {
+        if(aggregateType != null){
+            try {
+                this.aggregateType = optional((Class<E>)Class.forName(aggregateType));
+            } catch (ClassNotFoundException ex) {
+                LOGGER.error("Failed to find specified class. Setting to null", ex);
+                this.aggregateType = null;
+            }
+        }
+    }
+
+    public String getAggregateComponent() {
+        return get(aggregateComponent);
+    }
+
+    public boolean wasAggregateComponentSet(){
+        return wasSet(aggregateComponent);
+    }
+
+    public void setAggregateComponent(String aggregateComponent) {
+        this.aggregateComponent = optional(aggregateComponent);
+    }
+
+    public String getAggregateLayout() {
+        return get(aggregateLayout);
+    }
+
+    public boolean wasAggregateLayoutSet(){
+        return wasSet(aggregateLayout);
+    }
+
+    public void setAggregateLayout(String aggregateLayout) {
+        this.aggregateLayout = optional(aggregateLayout);
+    }
+
+    public String getAggregateHint() {
+        return get(aggregateHint);
+    }
+
+    public boolean wasAggregateHintSet(){
+        return wasSet(aggregateHint);
+    }
+
+    public void setAggregateHint(String aggregateHint) {
+        this.aggregateHint = optional(aggregateHint);
+    }
+
+    public String getAggregateWrapper() {
+        return get(aggregateWrapper);
+    }
+
+    public boolean wasAggregateWrapperSet(){
+        return wasSet(aggregateWrapper);
+    }
+
+    public void setAggregateWrapper(String aggregateWrapper) {
+        this.aggregateWrapper = optional(aggregateWrapper);
+    }
+
+    public String getAggregateDescribes() {
+        return get(aggregateDescribes);
+    }
+
+    public boolean wasAggregateDescribesSet(){
+        return wasSet(aggregateDescribes);
+    }
+
+    public void setAggregateDescribes(String aggregateDescribes) {
+        this.aggregateDescribes = optional(aggregateDescribes);
+    }
 
     @Override
     public int hashCode() {
@@ -205,6 +320,14 @@ public class ApplicationField<E> extends Reference{
         hash = 97 * hash + Objects.hashCode(this.getComponent());
         hash = 97 * hash + Objects.hashCode(this.getDescribes());
         hash = 97 * hash + Objects.hashCode(this.getLayout());
+        hash = 97 * hash + Objects.hashCode(this.getControlledBy());
+        hash = 97 * hash + Objects.hashCode(this.getAggregate());
+        hash = 97 * hash + Objects.hashCode(this.getAggregateComponent());
+        hash = 97 * hash + Objects.hashCode(this.getAggregateDescribes());
+        hash = 97 * hash + Objects.hashCode(this.getAggregateHint());
+        hash = 97 * hash + Objects.hashCode(this.getAggregateLayout());
+        hash = 97 * hash + Objects.hashCode(this.getAggregateType());
+        hash = 97 * hash + Objects.hashCode(this.getAggregateWrapper());
         return hash;
     }
 
@@ -238,6 +361,30 @@ public class ApplicationField<E> extends Reference{
         if (!Objects.equals(this.getLayout(), other.getLayout())) {
             return false;
         }
+        if (!Objects.equals(this.getControlledBy(), other.getControlledBy())) {
+            return false;
+        }
+        if (!Objects.equals(this.getAggregate(), other.getAggregate())) {
+            return false;
+        }
+        if (!Objects.equals(this.getAggregateComponent(), other.getAggregateComponent())) {
+            return false;
+        }
+        if (!Objects.equals(this.getAggregateDescribes(), other.getAggregateDescribes())) {
+            return false;
+        }
+        if (!Objects.equals(this.getAggregateHint(), other.getAggregateHint())) {
+            return false;
+        }
+        if (!Objects.equals(this.getAggregateLayout(), other.getAggregateLayout())) {
+            return false;
+        }
+        if (!Objects.equals(this.getAggregateType(), other.getAggregateType())) {
+            return false;
+        }
+        if (!Objects.equals(this.getAggregateWrapper(), other.getAggregateWrapper())) {
+            return false;
+        }
         return true;
     }
     
@@ -246,7 +393,8 @@ public class ApplicationField<E> extends Reference{
     @Override
     public ToStringBuilder toStringBuilder(){
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE);
-        builder.append("id", id).append("label", label).append("type", type).append("component", component).append("function", describes).append("layout", layout);
+        builder.append("id", id).append("label", label).append("type", type).append("component", component).append("function", describes).append("layout", layout).append("controlledBy", controlledBy)
+                .append("aggregate", aggregate).append("aggregateComponent", aggregateComponent).append("aggregateDescribes", aggregateDescribes).append("aggregateHint", aggregateHint).append("aggregateLayout", aggregateLayout).append("aggregateType", aggregateType).append("aggregateWrapper", aggregateWrapper);
         return builder;
     }
     

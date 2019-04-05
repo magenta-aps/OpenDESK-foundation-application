@@ -264,6 +264,18 @@ public class AuthorityBean extends FoundationBean{
         as.removeAuthority(group, userName);
     }
     
+    public void addUserPermission(String userName, NodeRef node){
+        PermissionService ps = getServiceRegistry().getPermissionService();
+        ps.setPermission(node, userName, PermissionService.WRITE, true);
+        ps.setPermission(node, userName, PermissionService.READ, true);
+    }
+    
+    public void removeUserPermission(String userName, NodeRef node){
+        PermissionService ps = getServiceRegistry().getPermissionService();
+        ps.deletePermission(node, userName, PermissionService.WRITE);
+        ps.deletePermission(node, userName, PermissionService.READ);
+    }
+    
     public void enableInheritPermissions(NodeRef ref){
         getServiceRegistry().getPermissionService().setInheritParentPermissions(ref, true);
     }

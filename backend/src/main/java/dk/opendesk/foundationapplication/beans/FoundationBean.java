@@ -7,7 +7,9 @@ package dk.opendesk.foundationapplication.beans;
 
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.*;
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.namespace.QName;
@@ -57,14 +59,23 @@ public class FoundationBean {
         return serviceRegistry.getAuthenticationService().getCurrentUserName();
     }
 
-    public <T> T getProperty(NodeRef ref, String name, Class<T> Type) throws Exception {
+    public <T> T getProperty(NodeRef ref, String name, Class<T> type) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
-        return (T) ns.getProperty(ref, getODFName(name));
+        return type.cast(ns.getProperty(ref, getODFName(name)));
     }
 
-    public <T> List<T> getPropertyList(NodeRef ref, String name, Class<T> Type) throws Exception {
+    public <T> List<T> getPropertyList(NodeRef ref, String name, Class<T> type) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
         return (List<T>) ns.getProperty(ref, getODFName(name));
+    }
+    
+    public <T> T getProperty(NodeRef ref, String name, Class<T> type, Map<QName, Serializable> properties) throws Exception {
+        return type.cast(properties.get(getODFName(name)));
+        
+    }
+
+    public <T> List<T> getPropertyList(NodeRef ref, String name, Class<T> type, Map<QName, Serializable> properties) throws Exception {
+        return (List<T>) properties.get(getODFName(name));
     }
 
     public NodeRef getSingleTargetAssoc(NodeRef sourceRef, String assocName) throws Exception {

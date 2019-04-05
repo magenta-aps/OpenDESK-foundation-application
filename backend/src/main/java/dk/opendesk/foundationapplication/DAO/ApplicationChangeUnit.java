@@ -1,12 +1,12 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dk.opendesk.foundationapplication.Utilities;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static dk.opendesk.foundationapplication.Utilities.DATE_FORMAT_STRING;
 
 public class ApplicationChangeUnit {
 
@@ -64,8 +64,7 @@ public class ApplicationChangeUnit {
 
     @JsonIgnore
     public ApplicationChangeUnit setNewValueWithDate(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
-        this.newValue = sdf.format(date);
+        this.newValue = Utilities.UNIVERAL_DATE_FORMAT.format(date);
         return this;
     }
 
@@ -76,8 +75,7 @@ public class ApplicationChangeUnit {
 
     @JsonIgnore
     public ApplicationChangeUnit setOldValueWithDate(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
-        this.oldValue = sdf.format(date);
+        this.oldValue = Utilities.UNIVERAL_DATE_FORMAT.format(date);
         return this;
     }
 

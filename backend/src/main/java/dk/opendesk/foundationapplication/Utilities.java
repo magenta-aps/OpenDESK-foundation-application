@@ -79,7 +79,7 @@ public final class Utilities {
     
     public static final String FOUNDATION_MODEL_LOCATION="/alfresco/module/foundationapplication/model/foundation-model.xml";
 
-    public static final DateFormat UNIVERAL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.ENGLISH);
+    public static final DateFormat UNIVERAL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ENGLISH);
     
     public static final String DATA_TYPE_NAME = "data";
     public static final String DATA_ASSOC_WORKFLOW = "workflows";
@@ -92,7 +92,6 @@ public final class Utilities {
     public static final String DATA_ASSOC_SCHEMAS = "applicationSchemas";
     public static final String DATA_PARAM_LASTID = "latestID";
 
-    public static final String DATE_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     
     public static final String BRANCH_TYPE_NAME = "applicationBranch"; 
     public static final String BRANCH_ASSOC_WORKFLOW = "branchWorkflow";
@@ -175,13 +174,28 @@ public final class Utilities {
     public static final String STATICFIELD_PARAM_TYPE = "applicationStaticFieldType";
     public static final String STATICFIELD_PARAM_VALIDATION = "applicationStaticFieldValidation";
     
-    
-    
     public static final String BLOCKSPEC_TYPE_NAME = "applicationBlockSpecification";
     public static final String BLOCKSPEC_ASSOC_FIELDS = "applicationBlockSpecFields";
     
     public static final String BLOCKIMPL_TYPE_NAME = "applicationBlockImpl";
     public static final String BLOCKIMPL_ASSOC_FIELDS= "applicationBlockImplFields";
+    
+    public static final String STATICMULTIFIELD_ASPECT_NAME = "applicationStaticMultiField";
+    public static final String STATICMULTIFIELD_PARAM_TYPE = "applicationStaticMultiFieldType";
+    public static final String STATICMULTIFIELD_PARAM_COMPONENT = "applicationStaticMultiFieldComponent";
+    public static final String STATICMULTIFIELD_PARAM_LAYOUT = "applicationStaticMultiFieldLayout";
+    public static final String STATICMULTIFIELD_PARAM_HINT = "applicationStaticMultiFieldHint";
+    public static final String STATICMULTIFIELD_PARAM_WRAPPER = "applicationStaticMultiFieldWrapper";
+    public static final String STATICMULTIFIELD_PARAM_DESCRIBES = "applicationStaticMultiFieldDescribes";
+    
+    public static final String MULTIFIELD_ASPECT_NAME = "applicationMultiField";
+    
+    public static final String MULTIFIELD_ASSOC_VALUES = "applicationMultiFieldValues";
+    public static final String MULTIFIELD_PARAM_OPTIONS = "applicationMultiFieldOptions";    
+    
+    public static final String MULTIFIELD_VALUE_TYPE_NAME = "applicationMultiValue";
+    public static final String MULTIFIELD_VALUE_PARAM_USERNAME = "applicationMultiValueUsername";
+    public static final String MULTIFIELD_VALUE_PARAM_VALUE = "applicationMultiValueValue";
 
     public static final String ACTION_NAME_ADD_BLOCKS = "addBlocks";
     public static final String ACTION_NAME_ADD_FIELDS = "addFields";
