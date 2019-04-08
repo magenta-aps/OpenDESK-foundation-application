@@ -4,6 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.JavaBehaviour;
@@ -41,12 +42,12 @@ public class ValidateUploadedDocument implements NodeServicePolicies.OnCreateChi
                 getCMName("folder"),
                 getCMName("contains"),
                 new JavaBehaviour(this, "onCreateChildAssociation",
-                        Behaviour.NotificationFrequency.EVERY_EVENT));
+                        Behaviour.NotificationFrequency.TRANSACTION_COMMIT));
     }
 
     @Override
     public void onCreateChildAssociation(ChildAssociationRef childAssociationRef, boolean isNewNode) {
-        System.out.println("onCreateAssociation called");
+        System.out.print("\nonCreateAssociation called");
 
         NodeRef parentRef = childAssociationRef.getParentRef();
         NodeRef childRef = childAssociationRef.getChildRef();
@@ -65,10 +66,13 @@ public class ValidateUploadedDocument implements NodeServicePolicies.OnCreateChi
         }
 
         if (!isTempFolder) {
+            System.out.println(" - not tempDocumentFolder, returning.");
             return;
         }
 
-        //new document added to tempDocumentFolder
+        System.out.println(" - is tempDocumentFolder");
+
+        System.out.println(serviceRegistry.getNodeService().getProperty(childRef, ContentModel.PROP_CONTENT).toString());
 
     }
 

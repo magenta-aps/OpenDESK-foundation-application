@@ -36,7 +36,6 @@ import java.util.Objects;
 
 import static org.alfresco.model.ContentModel.TYPE_FOLDER;
 
-import dk.opendesk.foundationapplication.behavior.ValidateUploadedDocument;
 import dk.opendesk.foundationapplication.enums.Functional;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.policy.BehaviourFilter;
@@ -824,7 +823,7 @@ public class ApplicationBean extends FoundationBean {
                 throw new Exception("folderType " + folderType + " not valid");
         }
 
-        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(parentRef, associationType, null);
+        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(parentRef, associationType, folderName);
 
         if (childAssociationRefs.size() == 0) {
             folderRef = getServiceRegistry().getNodeService().createNode(parentRef, associationType, folderName, TYPE_FOLDER).getChildRef();
