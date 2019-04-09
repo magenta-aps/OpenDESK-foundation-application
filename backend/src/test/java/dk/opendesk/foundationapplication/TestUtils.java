@@ -344,6 +344,8 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,APPLICATION1_AMOUNT,null));
         fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"4321",null));
         fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"00035254",null));
+        fields.add(ResetDemoData.buildValue("17", "Account Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"00035254",null,
+                "aggregateComponent", "aggregateDescribes", "aggregateHint", "aggregateLayout", String.class, "aggregateWrapper"));
         app1Details.setFields(fields);
         app1.setBlocks(Arrays.asList(new ApplicationBlock[]{app1blockRecipient, app1blockOverview, app1Details}));
         application1 = applicationBean.addNewApplication(app1).asNodeRef();

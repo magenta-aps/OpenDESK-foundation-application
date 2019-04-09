@@ -173,6 +173,8 @@ public final class Utilities {
     public static final String STATICFIELD_PARAM_DESCRIBES = "applicationStaticFieldDescribes";
     public static final String STATICFIELD_PARAM_TYPE = "applicationStaticFieldType";
     public static final String STATICFIELD_PARAM_VALIDATION = "applicationStaticFieldValidation";
+    public static final String STATICFIELD_PARAM_AGGREGATOR = "applicationStaticMultiFieldAggregator";
+    
     
     public static final String BLOCKSPEC_TYPE_NAME = "applicationBlockSpecification";
     public static final String BLOCKSPEC_ASSOC_FIELDS = "applicationBlockSpecFields";

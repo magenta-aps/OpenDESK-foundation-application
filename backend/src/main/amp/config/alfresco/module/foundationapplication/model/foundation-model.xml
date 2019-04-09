@@ -718,6 +718,15 @@
                 <property name="odf:applicationStaticMultiFieldDescribes">
                     <type>d:text</type>
                     <mandatory>false</mandatory>
+                </property>               
+                <property name="odf:applicationStaticMultiFieldAggregator">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>               
+                <property name="odf:applicationStaticMultiFieldStateCategories">
+                    <type>d:text</type>
+                    <multiple>true</multiple>
+                    <mandatory>false</mandatory>
                 </property>
             </properties>
             <associations>
