@@ -592,6 +592,21 @@
             </associations>
         </type>
         
+        <type name="odf:applicationMultiValue">
+            <title>Field multi value</title>
+            <parent>cm:cmobject</parent>
+            <properties>
+                <property name="odf:applicationMultiValueUsername">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="odf:applicationMultiValueValue">
+                    <type>d:text</type>
+                    <multiple>true</multiple>
+                </property>
+            </properties>
+        </type>
+        
         <type name="odf:applicationBlock">
             <title>Block Common Fields</title>
             <parent>cm:cmobject</parent>
@@ -675,6 +690,71 @@
 
         <aspect name="odf:beforeDelete">
             <title>Event on deletion of a state</title>
+        </aspect>
+        
+        <aspect name="odf:applicationStaticMultiField">
+            <title>Multifield</title>
+            <properties>
+                <property name="odf:applicationStaticMultiFieldType">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>
+                <property name="odf:applicationStaticMultiFieldComponent">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>
+                <property name="odf:applicationStaticMultiFieldLayout">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>               
+                <property name="odf:applicationStaticMultiFieldHint">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>               
+                <property name="odf:applicationStaticMultiFieldWrapper">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>               
+                <property name="odf:applicationStaticMultiFieldDescribes">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>               
+                <property name="odf:applicationStaticMultiFieldAggregator">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>               
+                <property name="odf:applicationStaticMultiFieldStateCategories">
+                    <type>d:text</type>
+                    <multiple>true</multiple>
+                </property>
+            </properties>
+            <associations>
+                
+            </associations>
+        </aspect>
+        
+        <aspect name="odf:applicationMultiField">
+            <title>Multifield</title>
+            <properties>
+                <property name="odf:applicationMultiFieldOptions">
+                    <type>d:text</type>
+                    <multiple>true</multiple>
+                </property>
+            </properties>
+            <associations>
+                <child-association name="odf:applicationMultiFieldValues">
+                    <source>
+                        <mandatory>true</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>odf:applicationMultiValue</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                    <duplicate>false</duplicate>
+                </child-association>
+            </associations>
         </aspect>
 
     </aspects>
