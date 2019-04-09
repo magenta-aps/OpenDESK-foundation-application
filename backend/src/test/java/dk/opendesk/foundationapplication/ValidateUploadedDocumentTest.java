@@ -2,13 +2,17 @@ package dk.opendesk.foundationapplication;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
+import org.alfresco.repo.forms.FormData;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.TestWebScriptServer;
 
+import javax.mail.internet.ContentType;
 import java.io.InputStream;
 
 import static org.alfresco.model.ContentModel.TYPE_CONTENT;
@@ -32,7 +36,7 @@ public class ValidateUploadedDocumentTest extends AbstractTestClass{
         TestUtils.wipeData(getServiceRegistry());
     }
 
-
+    /*
     public void testBehaviourEnabling() throws Exception {
         System.out.println("\n------ Test start ------");
 
@@ -65,4 +69,5 @@ public class ValidateUploadedDocumentTest extends AbstractTestClass{
 
 
     }
+    */
 }

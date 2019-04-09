@@ -398,6 +398,7 @@ public class LoadUsersTest extends AbstractTestClass {
         groupList.put("testOligark", permissionsGroup4);
         groupList.put("testMinimal", new JSONObject());
 
+        //System.out.println(groupList.toString());
         return groupList.toString();
     }
 
@@ -437,6 +438,7 @@ public class LoadUsersTest extends AbstractTestClass {
         user5.put("rolle","testMinimal");
 
         userList.put(user1).put(user2).put(user3).put(user4).put(user5);
+        //System.out.println(userList);
         return userList.toString();
 
     }
