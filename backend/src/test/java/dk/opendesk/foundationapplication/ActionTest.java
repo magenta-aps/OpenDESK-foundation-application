@@ -139,7 +139,7 @@ public class ActionTest extends AbstractTestClass {
         Application app = getApplicationBean().getApplication(appRef);
 
         //testing that enterStateAction got executed
-        assertEquals("enterAction executed",app.emailTo().getValue());
+        assertEquals("enterAction executed",app.emailTo().getSingleValue());
 
         //changing the application out of the assessment state
         ref.parseRef(TestUtils.w1StateAcceptedRef);
@@ -148,7 +148,7 @@ public class ActionTest extends AbstractTestClass {
         app = getApplicationBean().getApplication(appRef);
 
         //testing that enterStateAction got executed
-        assertEquals("exitAction executed",app.emailTo().getValue());
+        assertEquals("exitAction executed",app.emailTo().getSingleValue());
     }
 
 }

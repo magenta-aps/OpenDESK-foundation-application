@@ -48,8 +48,8 @@ public class CreateDanvaData extends ResetDemoData {
         
         getBranchBean().setBranchWorkflow(central, centralWorkflow);
         
-        NodeRef app1 = createApplication(premeeting1, null, central, "Ansøgning 1", 60000);
-        NodeRef app2 = createApplication(premeeting1, null, central, "Ansøgning 2", 120000);
+        //NodeRef app1 = createApplication(premeeting1, null, central, "Ansøgning 1", 60000);
+        //NodeRef app2 = createApplication(premeeting1, null, central, "Ansøgning 2", 120000);
     }
     
     @Override

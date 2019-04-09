@@ -31,20 +31,18 @@ public class ApplicationPropertySerializer extends JsonSerializer<ApplicationFie
         if(value.getLabel() != null){
             jgen.writeStringField("label", value.getLabel());
         }
-        if(value.getType() != null){
-            jgen.writeStringField("type", value.getType().getCanonicalName());
-        }
         if(value.getValue() != null){
-            jgen.writeObjectField("value", value.getValue());
+            if(value.isSingleValue()){
+                jgen.writeObjectField("value", value.getSingleValue());
+            }else{
+                jgen.writeObjectField("value", value.getValue());
+            }         
         }
         if(value.getLayout() != null){
             jgen.writeObjectField("layout", value.getLayout());
         }
         if(value.getDescribes() != null){
             jgen.writeObjectField("describes", value.getDescribes());
-        }
-        if(value.getAllowedValues() != null){
-            jgen.writeObjectField("allowedValues", value.getAllowedValues());
         }
         if(value.getHint() != null){
             jgen.writeStringField("hint", value.getHint());
@@ -55,11 +53,11 @@ public class ApplicationPropertySerializer extends JsonSerializer<ApplicationFie
         if(value.getValidation() != null){
             jgen.writeStringField("validation", value.getValidation());
         }
-        if(value.getPermissions() != null){
-            jgen.writeStringField("permission", value.getPermissions());
-        }
         if(value.getReadOnly() != null){
             jgen.writeBooleanField("readOnly", value.getReadOnly());
+        }
+        if(value.getType() != null){
+            jgen.writeStringField("type", value.getType());
         }
         jgen.writeEndObject();
     }

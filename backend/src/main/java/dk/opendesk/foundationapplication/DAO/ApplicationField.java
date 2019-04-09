@@ -5,42 +5,46 @@
  */
 package dk.opendesk.foundationapplication.DAO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author martin
  */
-public class ApplicationField<E> extends DAOType{
+public class ApplicationField<E> extends Reference{
+    private static final Logger LOGGER = Logger.getLogger(ApplicationField.class);
     private Optional<String> id;
     private Optional<String> label;
     private Optional<Class<E>> type;
     private Optional<String> component;
     private Optional<String> describes;
-    private Optional<List<E>> allowedValues;
     private Optional<String> layout;
     private Optional<String> hint;
     private Optional<String> wrapper;
     private Optional<String> validation;
-    private Optional<String> permissions;
     private Optional<Boolean> readOnly;
+    private Optional<ArrayList<String>> controlledBy;
 
 
     public ApplicationField() {
     }
 
-    public ApplicationField(Optional<String> id, Optional<String> label, Optional<Class<E>> type, Optional<String> component, Optional<String> function, Optional<List<E>> allowedValues, Optional<String> layout) {
-        this.id = id;
-        this.label = label;
-        this.type = type;
-        this.component = component;
-        this.describes = function;
-        this.allowedValues = allowedValues;
-        this.layout = layout;
+    public ApplicationField(String id, String label, Class<E> type, String component, String function, List<E> allowedValues, String layout, String... controlledBy) {
+        this.id = optional(id);
+        this.label = optional(label);
+        this.type = optional(type);
+        this.component = optional(component);
+        this.describes = optional(function);
+        this.layout = optional(layout);
+        this.controlledBy = optional(new ArrayList<>(Arrays.asList(controlledBy)));
     }
 
     public String getId() {
@@ -67,16 +71,33 @@ public class ApplicationField<E> extends DAOType{
         this.label = optional(label);
     }
 
-    public Class<E> getType() {
+    @JsonIgnore
+    public Class<E> getTypeAsClass() {
         return get(type);
+    }
+    
+    public String getType(){
+        Class classType = get(type);
+        if(classType == null){
+            return null;
+        }else{
+            return classType.getCanonicalName();
+        }
     }
     
     public boolean wasTypeSet(){
         return wasSet(type);
     }
 
-    public void setType(Class<E> javaType) {
-        this.type = optional(javaType);
+    public void setType(String javaType){
+        if(javaType != null){
+            try {
+                this.type = optional((Class<E>)Class.forName(javaType));
+            } catch (ClassNotFoundException ex) {
+                LOGGER.error("Failed to find specified class. Setting to null");
+                this.type = null;
+            }
+        }
     }
 
     public String getComponent() {
@@ -101,18 +122,6 @@ public class ApplicationField<E> extends DAOType{
 
     public void setDescribes(String describes) {
         this.describes = optional(describes);
-    }
-
-    public List<E> getAllowedValues() {
-        return get(allowedValues);
-    }
-    
-    public boolean wasAllowedValuesSet(){
-        return wasSet(allowedValues);
-    }
-
-    public void setAllowedValues(List<E> allowedValues) {
-        this.allowedValues = optional(allowedValues);
     }
     
     public String getHint() {
@@ -151,18 +160,6 @@ public class ApplicationField<E> extends DAOType{
         this.validation = optional(validation);
     }
 
-    public String getPermissions() {
-        return get(permissions);
-    }
-
-    public boolean wasPermissionsSet(){
-        return wasSet(permissions);
-    }
-
-    public void setPermissions(String permissions) {
-        this.permissions = optional(permissions);
-    }
-
     public Boolean getReadOnly() {
         return get(readOnly);
     }
@@ -187,6 +184,18 @@ public class ApplicationField<E> extends DAOType{
         this.layout = optional(layout);
     }
 
+    public ArrayList<String> getControlledBy() {
+        return get(controlledBy);
+    }
+
+    public boolean wasControlledBy(){
+        return wasSet(controlledBy);
+    }
+
+    public void setControlledBy(ArrayList<String> controlledBy) {
+        this.controlledBy = optional(controlledBy);
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -195,7 +204,6 @@ public class ApplicationField<E> extends DAOType{
         hash = 97 * hash + Objects.hashCode(this.getType());
         hash = 97 * hash + Objects.hashCode(this.getComponent());
         hash = 97 * hash + Objects.hashCode(this.getDescribes());
-        hash = 97 * hash + Objects.hashCode(this.getAllowedValues());
         hash = 97 * hash + Objects.hashCode(this.getLayout());
         return hash;
     }
@@ -225,9 +233,6 @@ public class ApplicationField<E> extends DAOType{
             return false;
         }
         if (!Objects.equals(this.getDescribes(), other.getDescribes())) {
-            return false;
-        }
-        if (!Objects.equals(this.getAllowedValues(), other.getAllowedValues())) {
             return false;
         }
         if (!Objects.equals(this.getLayout(), other.getLayout())) {

@@ -263,7 +263,7 @@ public class BudgetBean extends FoundationBean {
             if (value == null) {
                 continue;
             }
-            Long applicationAmount = value.getValue();
+            Long applicationAmount = value.getSingleValue();
             NodeRef applicationStateRef = applicationBean.getApplicationState(applicationRef.getSourceRef());
             if (applicationStateRef == null) {
                 continue;

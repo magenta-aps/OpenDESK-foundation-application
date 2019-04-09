@@ -13,6 +13,7 @@ import dk.opendesk.foundationapplication.DAO.StateSummary;
 import dk.opendesk.foundationapplication.DAO.Workflow;
 import dk.opendesk.foundationapplication.DAO.WorkflowReference;
 import dk.opendesk.foundationapplication.DAO.WorkflowSummary;
+import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.*;
 import dk.opendesk.foundationapplication.enums.PermissionGroup;
 import dk.opendesk.foundationapplication.enums.StateCategory;
@@ -78,6 +79,11 @@ public class WorkflowBean extends FoundationBean {
 
     public void setWorkflowEntryPoint(NodeRef workFlowRef, NodeRef workflowStateRef) throws Exception {
         getServiceRegistry().getNodeService().setAssociations(workFlowRef, getODFName(WORKFLOW_ASSOC_ENTRY), Collections.singletonList(workflowStateRef));
+    }
+    
+    public NodeRef getWorkflowEntryPoint(NodeRef workflowRef) throws Exception{
+        ensureType(getODFName(Utilities.WORKFLOW_TYPE_NAME), workflowRef);
+        return getSingleTargetAssoc(workflowRef, WORKFLOW_ASSOC_ENTRY);
     }
 
     public NodeRef addNewWorkflowState(NodeRef workFlowRef, String localName, String title, StateCategory category) throws Exception {

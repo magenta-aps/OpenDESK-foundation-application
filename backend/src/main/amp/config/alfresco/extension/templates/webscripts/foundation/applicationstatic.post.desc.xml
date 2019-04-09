@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Updates static block information</shortname>
+    <description>Updates static fields by ID</description>
+    <url>/foundation/field</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

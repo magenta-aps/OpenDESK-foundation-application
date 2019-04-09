@@ -62,6 +62,11 @@ public class FoundationBean {
         return (T) ns.getProperty(ref, getODFName(name));
     }
 
+    public <T> List<T> getPropertyList(NodeRef ref, String name, Class<T> Type) throws Exception {
+        NodeService ns = serviceRegistry.getNodeService();
+        return (List<T>) ns.getProperty(ref, getODFName(name));
+    }
+
     public NodeRef getSingleTargetAssoc(NodeRef sourceRef, String assocName) throws Exception {
         NodeService ns = serviceRegistry.getNodeService();
         List<AssociationRef> refs = ns.getTargetAssocs(sourceRef, getODFName(assocName));
@@ -106,12 +111,17 @@ public class FoundationBean {
         }
     }
 
+    public void ensureType(String expectedType, NodeRef ref) throws Exception {
+        ensureType(getODFName(expectedType), ref);
+    }
+    
     public void ensureType(QName expectedType, NodeRef ref) {
         QName actualType = serviceRegistry.getNodeService().getType(ref);
         if (!expectedType.equals(actualType)) {
             throw new AlfrescoRuntimeException(ID_BAD_NODE_TYPE, new Object[]{expectedType, actualType});
         }
     }
+    
     public NodeRef getOrCreateFolder(NodeRef applicationRef, String folderName) throws Exception {
         NodeRef folder = serviceRegistry.getNodeService().getChildByName(applicationRef, getODFName(folderName), "cm:" + folderName);
         if (folder == null) {

@@ -20,7 +20,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 public enum PermissionGroup {
     BRANCH("Branch", BranchReference.class), WORKFLOW("Workflow", WorkflowReference.class), BUDGET_YEAR("BudgetYear", BudgetYear.class),
     BUDGET("Budget", BudgetReference.class), APPLICATION("Application", ApplicationReference.class), NEW_APPLICATION("NewApplication", ApplicationReference.class),
-    SUPER("Super", null);    
+    SUPER("Super", null), BASIC("basic", null);    
     private final String shortName;
     private final Class<? extends Reference> requiredType;
 

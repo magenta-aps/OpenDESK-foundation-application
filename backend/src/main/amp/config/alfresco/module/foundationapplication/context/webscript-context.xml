@@ -28,8 +28,18 @@
           parent="webscript.foundation">
     </bean>
     
+    <bean id="webscript.foundation.applicationSchema.get"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.GetApplicationSchemas"
+          parent="webscript.foundation">
+    </bean>
+    
     <bean id="webscript.foundation.newapplications.get"
           class="dk.opendesk.foundationapplication.webscripts.foundation.GetNewApplications"
+          parent="webscript.foundation">
+    </bean>
+    
+    <bean id="webscript.foundation.applicationstatic.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.UpdateApplicationStaticData"
           parent="webscript.foundation">
     </bean>
     
