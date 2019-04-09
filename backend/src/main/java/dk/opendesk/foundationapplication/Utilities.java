@@ -319,7 +319,7 @@ public final class Utilities {
     public static synchronized Integer getNextApplicationID(ServiceRegistry sr) throws Exception{
         NodeRef dataNode = getDataNode(sr);
         Integer currentID = (Integer)sr.getNodeService().getProperty(dataNode, getODFName(DATA_PARAM_LASTID));
-        Integer nextID = currentID++;
+        Integer nextID = ++currentID;
         sr.getNodeService().addProperties(dataNode, Collections.singletonMap(getODFName(DATA_PARAM_LASTID), nextID));
         return nextID;
     }
