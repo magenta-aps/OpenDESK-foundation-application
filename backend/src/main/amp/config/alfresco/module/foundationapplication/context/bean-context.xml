@@ -97,5 +97,6 @@
         <property name="branchBean" ref="branchBean"/>
         <property name="budgetBean" ref="budgetBean"/>
         <property name="healthCheckBean" ref="healthCheckBean"/>
+        <property name="authorityBean" ref="odfAuthBean"/>
     </bean>
 </beans>

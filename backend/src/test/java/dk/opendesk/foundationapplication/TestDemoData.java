@@ -64,6 +64,7 @@ public class TestDemoData extends AbstractTestClass{
         assertEquals(1, getWorkflowBean().getWorkflowSummaries().size());
         assertEquals(2, getApplicationBean().getApplicationSummaries().size());
 
+        System.out.println("id ; " + (getApplicationBean().getApplication(getApplicationBean().getApplicationSummaries().get(0).asNodeRef()).getId()));
         assertNotNull(getApplicationBean().getApplication(getApplicationBean().getApplicationSummaries().get(0).asNodeRef()).getId());
     }
     

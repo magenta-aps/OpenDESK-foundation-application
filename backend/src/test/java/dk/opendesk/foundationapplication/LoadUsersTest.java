@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,7 @@ public class LoadUsersTest extends AbstractTestClass {
     private HashMap<String, Serializable> emptyStringModel = getEmptyStringModel();
 
     public LoadUsersTest() {
-        super("");
+        super("/foundation/groupsandusers");
     }
 
     @Override
@@ -62,6 +63,19 @@ public class LoadUsersTest extends AbstractTestClass {
         mailServer = null;
         deleteUsers(getServiceRegistry());
         TestUtils.wipeData(getServiceRegistry());
+    }
+
+    public void testStartUsersWebScript() throws JSONException, IOException {
+        String groupList = createGroupListSimpleRead();
+        String userList = createUserList();
+
+        JSONObject data = new JSONObject().put("groups", new JSONObject(groupList)).put("users", new JSONArray(userList));
+
+        post(data);
+
+        assertEquals(5, mailServer.getMails().size());
+
+        System.out.println(mailServer.getMails().get(0));
     }
 
     public void testSendMails() throws Exception {

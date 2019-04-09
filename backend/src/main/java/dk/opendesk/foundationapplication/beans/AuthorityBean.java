@@ -402,7 +402,7 @@ public class AuthorityBean extends FoundationBean{
                     String authority = getGroup(permissionGroup, (NodeRef)null,false);
                     linkAuthorities(roleAuth,authority);
                 } else if (groupPermissionsAsString.equals("write") || groupPermissionsAsString.equals("*")) {
-                    String authority = getGroup(permissionGroup, (NodeRef) null, true);
+                    String authority = getOrCreateGroup(permissionGroup, (NodeRef) null, true);
                     linkAuthorities(roleAuth,authority);
                 } else {
                     JSONObject groupPermissionsAsJson = new JSONObject(groupPermissionsAsString);

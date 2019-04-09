@@ -58,7 +58,7 @@ public class ValidateUploadedDocument implements NodeServicePolicies.OnCreateChi
 
     @Override
     public void onCreateChildAssociation(ChildAssociationRef childAssociationRef, boolean isNewNode) {
-        System.out.print("\nonCreateAssociation called");
+        //System.out.print("\nonCreateAssociation called");
 
         NodeService nodeService = serviceRegistry.getNodeService();
         ContentService contentService = serviceRegistry.getContentService();
@@ -80,17 +80,17 @@ public class ValidateUploadedDocument implements NodeServicePolicies.OnCreateChi
         }
 
         if (!isTempFolder) {
-            System.out.println(" - not tempDocumentFolder, returning.");
+            //System.out.println(" - not tempDocumentFolder, returning.");
             return;
         }
 
-        System.out.println(" - is tempDocumentFolder, processing file");
+        //System.out.println(" - is tempDocumentFolder, processing file");
 
         ContentReader reader = contentService.getReader(childRef, ContentModel.PROP_CONTENT);
         String mimeType = reader.getMimetype();
         String fileName = reader.getContentData().getContentUrl();
-        System.out.println("fileName : " + fileName);
-        System.out.println(reader.getContentString());
+        //System.out.println("fileName : " + fileName);
+        //System.out.println(reader.getContentString());
         nodeService.getPath(childRef).last();
 
         InputStream originalInputStream = reader.getContentInputStream();

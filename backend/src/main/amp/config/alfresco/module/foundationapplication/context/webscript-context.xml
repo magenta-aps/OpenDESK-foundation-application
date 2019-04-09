@@ -171,6 +171,10 @@
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetWorkflowsActive"
               parent="webscript.foundation">
     </bean>
+    <bean id="webscript.foundation.groupsandusers.post"
+          class="dk.opendesk.foundationapplication.webscripts.foundation.PostStartGroupsAndUsers"
+          parent="webscript.foundation">
+    </bean>
     
     <bean id="webscript.foundation.state.get"
               class="dk.opendesk.foundationapplication.webscripts.foundation.GetState"
