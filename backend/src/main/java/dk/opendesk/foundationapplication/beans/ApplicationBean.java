@@ -24,6 +24,7 @@ import dk.opendesk.foundationapplication.Utilities;
 import java.io.Serializable;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,7 +36,9 @@ import java.util.Objects;
 
 import static org.alfresco.model.ContentModel.TYPE_FOLDER;
 
+import dk.opendesk.foundationapplication.enums.Functional;
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -61,6 +64,7 @@ public class ApplicationBean extends FoundationBean {
     private BranchBean branchBean;
     private BudgetBean budgetBean;
     private WorkflowBean workflowBean;
+    private BehaviourFilter behaviourFilter;
 
     public void setActionBean(ActionBean actionBean) {
         this.actionBean = actionBean;
@@ -81,7 +85,11 @@ public class ApplicationBean extends FoundationBean {
     public void setWorkflowBean(WorkflowBean workflowBean) {
         this.workflowBean = workflowBean;
     }
-    
+
+    public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
+        this.behaviourFilter = behaviourFilter;
+    }
+
     public ApplicationReference addNewApplication(String id, NodeRef branchRef, NodeRef budgetRef, String title, ApplicationBlock... blocks) throws Exception {
         Application app = new Application();
         app.setId(id);
@@ -125,6 +133,10 @@ public class ApplicationBean extends FoundationBean {
         }
 
         properties.put(getODFName(APPLICATION_PARAM_BLOCKS), blockStrings);
+
+        if (application.getTitle() == null) {
+            application.setTitle(application.getFunctionalField(Functional.email_to()).getValue() + Instant.now());
+        }
 
         QName applicationTypeQname = getODFName(APPLICATION_TYPE_NAME);
         QName applicationQname = getODFName(application.getTitle());
@@ -524,6 +536,7 @@ public class ApplicationBean extends FoundationBean {
         ObjectMapper mapper = Utilities.getMapper();
         Application application = new Application();
         application.parseRef(applicationRef);
+        application.setId(getProperty(applicationRef, APPLICATION_PARAM_ID, String.class));
         application.setTitle(getProperty(applicationRef, APPLICATION_PARAM_TITLE, String.class));
         application.setIsSeen(isApplicationSeen(applicationRef, getCurrentUserName()));
         List<String> blockStrings = getProperty(applicationRef, APPLICATION_PARAM_BLOCKS, List.class);
@@ -577,7 +590,7 @@ public class ApplicationBean extends FoundationBean {
     }
 
     public ApplicationReference findByNumericID(Integer id) throws Exception {
-        ResultSet set = getServiceRegistry().getSearchService().query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "LANGUAGE_LUCENE", "TYPE:\"odf:application\" AND @odf:applicationID:\"" + id + "\"");
+        ResultSet set = getServiceRegistry().getSearchService().query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "LUCENE", "TYPE:\"odf:application\" AND @odf\\:applicationID:\"" + id + "\"");
         if (set.length() == 0) {
             return null;
         }
@@ -723,8 +736,8 @@ public class ApplicationBean extends FoundationBean {
         //sort oldest first
         changes.sort((o1, o2) -> {
             SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
-            Date date1 = sdf.parse((String) o1.getTimesStamp(), new ParsePosition(0));
-            Date date2 = sdf.parse((String) o2.getTimesStamp(), new ParsePosition(0));
+            Date date1 = sdf.parse((String) o1.getTimeStamp(), new ParsePosition(0));
+            Date date2 = sdf.parse((String) o2.getTimeStamp(), new ParsePosition(0));
             return date1.compareTo(date2);
         });
 
@@ -776,26 +789,45 @@ public class ApplicationBean extends FoundationBean {
         return getOrCreateSingleFolder(applicationRef, "doc");
     }
 
+    /**
+     * Gets the document folder subfolder for temporary documents on an application or creates it if it does not
+     * exists.
+     *
+     * @param applicationRef Application nodeRef
+     * @return Temp Document folder nodeRef
+     * @throws Exception if there are more than one temp document folder on the
+     * application.
+     */
+    public NodeRef getOrCreateTempDocumentFolder(NodeRef applicationRef) throws Exception {
+        return getOrCreateSingleFolder(getOrCreateDocumentFolder(applicationRef), "tempDoc");
+    }
 
     private NodeRef getOrCreateSingleFolder(NodeRef parentRef, String folderType) throws Exception {
         NodeRef folderRef;
-        String folderName;
+        QName associationType;
+        QName folderName;
 
         switch (folderType) {
             case "email":
-                folderName = APPLICATION_FOLDER_EMAIL;
+                associationType = getODFName(APPLICATION_FOLDER_EMAIL);
+                folderName = getCMName(APPLICATION_FOLDER_EMAIL);
                 break;
             case "doc":
-                folderName = APPLICATION_FOLDER_DOCUMENT;
+                associationType = getODFName(APPLICATION_FOLDER_DOCUMENT);
+                folderName = getCMName(APPLICATION_FOLDER_DOCUMENT);
+                break;
+            case "tempDoc":
+                associationType = getCMName("contains");
+                folderName = getODFName(APPLICATION_FOLDER_DOCUMENT_TEMP);
                 break;
             default:
                 throw new Exception("folderType " + folderType + " not valid");
         }
 
-        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(parentRef, Utilities.getODFName(folderName), null);
+        List<ChildAssociationRef> childAssociationRefs = getServiceRegistry().getNodeService().getChildAssocs(parentRef, associationType, folderName);
 
         if (childAssociationRefs.size() == 0) {
-            folderRef = getServiceRegistry().getNodeService().createNode(parentRef, getODFName(folderName), getCMName(folderName), TYPE_FOLDER).getChildRef();
+            folderRef = getServiceRegistry().getNodeService().createNode(parentRef, associationType, folderName, TYPE_FOLDER).getChildRef();
         } else if (childAssociationRefs.size() == 1) {
             folderRef = childAssociationRefs.get(0).getChildRef();
         } else {

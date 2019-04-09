@@ -21,7 +21,8 @@
         <property name="serviceRegistry" ref="ServiceRegistry"/>
     </bean>
     <bean id="odfAuthBean" class="dk.opendesk.foundationapplication.beans.AuthorityBean" parent="foundationBean">
-        
+        <property name="personBean" ref="personBean"/>
+
     </bean>
     <bean id="branchBean" class="dk.opendesk.foundationapplication.beans.BranchBean" parent="foundationBean">
         <property name="authBean" ref="odfAuthBean"/>
@@ -48,6 +49,7 @@
         <property name="authBean" ref="odfAuthBean"/>
         <property name="branchBean" ref="branchBean"/>
         <property name="budgetBean" ref="budgetBean"/>
+        <property name="behaviourFilter" ref="policyBehaviourFilter"/>
     </bean>
 
     <bean id="healthCheckBean" class="dk.opendesk.foundationapplication.beans.HealthCheckBean" parent="foundationBean" init-method="init"/>

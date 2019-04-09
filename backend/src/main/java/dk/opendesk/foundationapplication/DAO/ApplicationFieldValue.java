@@ -16,13 +16,15 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @author martin
  */
 public class ApplicationFieldValue<E> extends ApplicationField<E> {
+    private Optional<List<String>> options;
     private Optional<E> value;
 
     public ApplicationFieldValue() {
     }
 
-    public ApplicationFieldValue(Optional<E> value, Optional<String> id, Optional<String> label, Optional<Class<E>> javaType, Optional<String> type, Optional<String> function, Optional<List<E>> allowedValues, Optional<String> layout) {
+    public ApplicationFieldValue(Optional<List<String>> options, Optional<E> value, Optional<String> id, Optional<String> label, Optional<Class<E>> javaType, Optional<String> type, Optional<String> function, Optional<List<E>> allowedValues, Optional<String> layout) {
         super(id, label, javaType, type, function, allowedValues, layout);
+        this.options = options;
         this.value = value;
     }
 
@@ -36,6 +38,18 @@ public class ApplicationFieldValue<E> extends ApplicationField<E> {
 
     public void setValue(E value) {
         this.value = optional(value);
+    }
+
+    public List<String> getOptions() {
+        return get(options);
+    }
+
+    public boolean wasOptionsSet(){
+        return wasSet(options);
+    }
+
+    public void setOptions(List<String> options) {
+        this.options = optional(options);
     }
 
     @Override

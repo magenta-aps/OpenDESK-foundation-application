@@ -41,4 +41,13 @@ public enum PermissionGroup {
         }
     }
 
+    public static PermissionGroup getPermissionGroup(String name) {
+        for (PermissionGroup group : PermissionGroup.values()) {
+            if (group.shortName.equals(name)) {
+                return group;
+            }
+        }
+        return null;
+    }
+
 }

@@ -14,7 +14,7 @@ import static dk.opendesk.foundationapplication.Utilities.DATE_FORMAT_STRING;
 public class ApplicationChange extends ApplicationReference {
 
     private String changeType;
-    private String timesStamp;
+    private String timeStamp;
     private String modifierId;
     private String modifier;
     private List<ApplicationChangeUnit> changes;
@@ -31,8 +31,8 @@ public class ApplicationChange extends ApplicationReference {
         return changeType;
     }
 
-    public Serializable getTimesStamp() {
-        return timesStamp;
+    public Serializable getTimeStamp() {
+        return timeStamp;
     }
 
     public String getModifierId() {
@@ -52,8 +52,8 @@ public class ApplicationChange extends ApplicationReference {
         return this;
     }
 
-    public ApplicationChange setTimesStamp(String timesStamp) {
-        this.timesStamp = timesStamp;
+    public ApplicationChange setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
         return this;
     }
 
@@ -70,7 +70,7 @@ public class ApplicationChange extends ApplicationReference {
     @JsonIgnore
     public ApplicationChange setTimeStamp(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
-        this.timesStamp = sdf.format(date);
+        this.timeStamp = sdf.format(date);
         return this;
     }
 
@@ -95,7 +95,7 @@ public class ApplicationChange extends ApplicationReference {
     public String toString() {
         return "---\nApplicationChange\n" +
                 "\tchangetype = '" + changeType + "'\n" +
-                "\ttimesStamp = '" + timesStamp + "'\n" +
+                "\ttimeStamp = '" + timeStamp + "'\n" +
                 "\tmodifierId = '" + modifierId + "'\n" +
                 "\tmodifier   = '" + modifier + "'\n" +
                 "\tchanges    =\n" + changes + "'\n";

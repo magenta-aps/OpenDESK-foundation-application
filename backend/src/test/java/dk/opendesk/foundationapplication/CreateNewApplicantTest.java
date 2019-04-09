@@ -16,6 +16,8 @@ import java.util.List;
 
 import static dk.opendesk.foundationapplication.EmailTest.TEST_ADDRESSEE;
 import static dk.opendesk.foundationapplication.EmailTest.TEST_TEMPLATE_NAME;
+import static dk.opendesk.foundationapplication.TestUtils.deleteUsers;
+import static dk.opendesk.foundationapplication.TestUtils.getEmptyStringModel;
 import static dk.opendesk.foundationapplication.Utilities.ACTION_NAME_CREATE_APPLICANT;
 import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_SUBJECT;
 import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_TEMPLATE;
@@ -24,7 +26,7 @@ import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_TEMPLAT
 public class CreateNewApplicantTest extends AbstractTestClass{
 
     MailServer mailServer;
-    private HashMap<String, Serializable> emptyStringModel = new HashMap<>();
+    private HashMap<String, Serializable> emptyStringModel = getEmptyStringModel();
 
     public CreateNewApplicantTest() {
         super("");
@@ -33,10 +35,6 @@ public class CreateNewApplicantTest extends AbstractTestClass{
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
-        emptyStringModel.put("subject","");
-        emptyStringModel.put("userName", "");
-        emptyStringModel.put("password","");
 
         mailServer = new MailServer(ServerConfiguration.create().port(2525).charset("UTF-8").relayDomains("testmail.dk"));
         mailServer.start();
@@ -49,7 +47,7 @@ public class CreateNewApplicantTest extends AbstractTestClass{
         TestUtils.wipeData(getServiceRegistry());
         TestUtils.setupSimpleFlow(getServiceRegistry());
 
-        deleteUsers();
+        deleteUsers(getServiceRegistry());
 
     }
 
@@ -60,23 +58,11 @@ public class CreateNewApplicantTest extends AbstractTestClass{
         }
         mailServer = null;
 
-        deleteUsers();
+        deleteUsers(getServiceRegistry());
 
         TestUtils.wipeData(getServiceRegistry());
     }
 
-    private void deleteUsers() {
-        PersonService ps = getServiceRegistry().getPersonService();
-        NodeService ns = getServiceRegistry().getNodeService();
-
-        NodeRef peopleContainer = ps.getPeopleContainer();
-        for (ChildAssociationRef child : ns.getChildAssocs(peopleContainer)) {
-            String userName = ps.getPerson(child.getChildRef()).getUserName();
-            if (!userName.equals("admin") && !userName.equals("guest")) {
-                getServiceRegistry().getPersonService().deletePerson(getServiceRegistry().getPersonService().getPerson(child.getChildRef()).getUserName());
-            }
-        }
-    }
 
     public void testCreateNewApplicant() throws Exception {
 

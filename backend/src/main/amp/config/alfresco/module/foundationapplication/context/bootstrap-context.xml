@@ -60,7 +60,17 @@
         </property>
     </bean>
 
- 
+    <bean id="uploadDocumentListener" class="dk.opendesk.foundationapplication.behavior.ValidateUploadedDocument"
+          init-method="registerEventHandlers">
+        <property name="policyComponent">
+            <ref bean="policyComponent"/>
+        </property>
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry" />
+        </property>
+    </bean>
+
+
     
 <!--    <bean id="dk.opendesk.foundationapplication.bootstrap.patch.standardContainers"
           class="org.alfresco.repo.admin.patch.impl.GenericBootstrapPatch"
