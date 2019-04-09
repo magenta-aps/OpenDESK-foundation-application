@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get Application Schemas</shortname>
+    <description>Retrieves all application schemas defined in OSFlow</description>
+    <url>/foundation/applicationschema</url>
+    <authentication>user</authentication>
+    <transaction>none</transaction>
+</webscript>

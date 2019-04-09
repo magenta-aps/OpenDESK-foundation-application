@@ -9,19 +9,19 @@ import dk.opendesk.foundationapplication.enums.Functional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.log4j.Logger;
 
 /**
  *
  * @author martin
  */
-public class ApplicationBlock extends AbstractBlock{
-    private static final Logger LOGGER = Logger.getLogger(ApplicationBlock.class);
-
-    private Optional<List<ApplicationFieldValue>> fields;
+public class ApplicationBlockSpecification extends AbstractBlock {
+    private static final Logger LOGGER = Logger.getLogger(ApplicationBlockSpecification.class);
     
-    public List<ApplicationFieldValue> getFields() {
+    
+    private Optional<List<ApplicationField>> fields;
+    
+    public List<ApplicationField> getFields() {
         return get(fields);
     }
 
@@ -29,13 +29,13 @@ public class ApplicationBlock extends AbstractBlock{
         return wasSet(fields);
     }
 
-    public void setFields(List<ApplicationFieldValue> fields) {
+    public void setFields(List<ApplicationField> fields) {
         this.fields = optional(fields);
     }
     
-    public <E, A extends ApplicationFieldValue<E>> A getFunctionalField(Functional<E> describes) {
-        List<ApplicationFieldValue> currentFields = get(this.fields);
-        for (ApplicationFieldValue blockField : currentFields) {
+    public <E, A extends ApplicationField<E>> A getFunctionalField(Functional<E> describes) {
+        List<ApplicationField> currentFields = get(this.fields);
+        for (ApplicationField blockField : currentFields) {
             if (describes.getFriendlyName().equals(blockField.getDescribes())) {
                 if(!describes.getRequiredType().isAssignableFrom(blockField.getTypeAsClass())){
                     LOGGER.warn("Found a match for "+describes+" in "+blockField+" but the types did not match");
@@ -47,20 +47,15 @@ public class ApplicationBlock extends AbstractBlock{
     }
 
     @Override
-    public ToStringBuilder toStringBuilder() {
-        return super.toStringBuilder().append("fields", fields);
-    }
-
-    @Override
     public int hashCode() {
         int hash = 7;
-        hash = 59 * hash + Objects.hashCode(this.getId());
-        hash = 59 * hash + Objects.hashCode(this.getLabel());
-        hash = 59 * hash + Objects.hashCode(this.getLayout());
-        hash = 59 * hash + Objects.hashCode(this.getIcon());
-        hash = 59 * hash + Objects.hashCode(this.getCollapsible());
-        hash = 59 * hash + Objects.hashCode(this.getRepeatable());
-        hash = 59 * hash + Objects.hashCode(this.fields);
+        hash = 97 * hash + Objects.hashCode(this.getId());
+        hash = 97 * hash + Objects.hashCode(this.getLabel());
+        hash = 97 * hash + Objects.hashCode(this.getLayout());
+        hash = 97 * hash + Objects.hashCode(this.getIcon());
+        hash = 97 * hash + Objects.hashCode(this.getCollapsible());
+        hash = 97 * hash + Objects.hashCode(this.getRepeatable());
+        hash = 97 * hash + Objects.hashCode(this.fields);
         return hash;
     }
 
@@ -75,8 +70,8 @@ public class ApplicationBlock extends AbstractBlock{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ApplicationBlock other = (ApplicationBlock) obj;
-                if (!Objects.equals(this.getId(), other.getId())) {
+        final ApplicationBlockSpecification other = (ApplicationBlockSpecification) obj;
+        if (!Objects.equals(this.getId(), other.getId())) {
             return false;
         }
         if (!Objects.equals(this.getLabel(), other.getLabel())) {
@@ -94,14 +89,11 @@ public class ApplicationBlock extends AbstractBlock{
         if (!Objects.equals(this.getRepeatable(), other.getRepeatable())) {
             return false;
         }
-        if (!Objects.equals(this.fields, other.fields)) {
+        if (!Objects.equals(this.getFields(), other.getFields())) {
             return false;
         }
         return true;
     }
-
-    
-
     
     
 }

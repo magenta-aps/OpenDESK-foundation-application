@@ -12,6 +12,7 @@ import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
+import dk.opendesk.foundationapplication.ListBuilder;
 import dk.opendesk.foundationapplication.Utilities;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.StateCategory;
@@ -238,26 +239,43 @@ public class ResetDemoData extends JacksonBackedWebscript {
             String validation,
             String permission,
             Boolean readOnly,
-            E value
-    ){
+            ArrayList<E> value
+    ) throws ClassNotFoundException{
         ApplicationFieldValue valueField = new ApplicationFieldValue();
         valueField.setId(id);
         valueField.setLabel(label);
         valueField.setLayout(layout);
         valueField.setComponent(component);
-        valueField.setType(type);
         if(function != null){
             valueField.setDescribes(function.getFriendlyName());
         }
-        valueField.setAllowedValues(allowedValues);
+        valueField.setType(type.getCanonicalName());
         valueField.setHint(hint);
         valueField.setWrapper(wrapper);
         valueField.setValidation(validation);
-        valueField.setPermissions(permission);
         valueField.setReadOnly(readOnly);
         valueField.setValue(value);
         
         return valueField;
+    }
+    
+        
+    public static <E> ApplicationFieldValue<E> buildValue(
+            String id,
+            String label,
+            String layout,
+            String component,
+            Class<E> type,
+            Functional function,
+            List<E> allowedValues,
+            String hint,
+            String wrapper,
+            String validation,
+            String permission,
+            Boolean readOnly,
+            E value
+    ) throws ClassNotFoundException{
+        return buildValue(id, label, layout, component, type, function, allowedValues, hint, wrapper, validation, permission, readOnly, ListBuilder.listFrom(value));
     }
     
     public NodeRef createBranch(String name) throws Exception{

@@ -7,8 +7,10 @@ package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationField;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
+import dk.opendesk.foundationapplication.DAO.ApplicationSchema;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.Budget;
@@ -189,8 +191,8 @@ public class ApplicationTest extends AbstractTestClass{
         NodeRef appRef = TestUtils.application3;
         Application app = get(Application.class, appRef.getId());
 
-        assertNull(app.getBranchSummary().asNodeRef());
-        assertNull(app.getState().asNodeRef());
+        assertNull(app.getBranchSummary());
+        assertNull(app.getState());
 
         Application change = new Application();
         change.parseRef(appRef);
@@ -232,8 +234,8 @@ public class ApplicationTest extends AbstractTestClass{
         appRef = TestUtils.application3;
         app = get(Application.class, appRef.getId());
 
-        assertNull(app.getBranchSummary().asNodeRef());
-        assertNull(app.getState().asNodeRef());
+        assertNull(app.getBranchSummary());
+        assertNull(app.getState());
 
         change = new Application();
         change.parseRef(appRef);
@@ -361,13 +363,13 @@ public class ApplicationTest extends AbstractTestClass{
         ApplicationFieldValue description = overview.getFields().get(1);
         assertEquals("Overview", overview.getLabel());
         assertEquals("Short Description", description.getLabel());
-        assertEquals("Give me money", description.getValue());
+        assertEquals("Give me money", description.getSingleValue());
         
         Application change = Utilities.buildChange(beforeChange).changeField(description.getId()).setValue(newDescription).done().build();
         getApplicationBean().updateApplication(change);
         
         Application afterChange = getApplicationBean().getApplication(TestUtils.application1);
-        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getSingleValue());
         
         for(int blk = 0 ; blk<beforeChange.getBlocks().size() ; blk++){
             for(int fld = 0 ; fld<beforeChange.getBlocks().get(blk).getFields().size() ; fld++){
@@ -387,13 +389,13 @@ public class ApplicationTest extends AbstractTestClass{
         ApplicationFieldValue description = overview.getFields().get(1);
         assertEquals("Overview", overview.getLabel());
         assertEquals("Short Description", description.getLabel());
-        assertEquals("Give me money", description.getValue());
+        assertEquals("Give me money", description.getSingleValue());
         
-        description.setValue(newDescription);
+        description.setSingleValue(newDescription);
         getApplicationBean().updateApplication(beforeChange);
         
         Application afterChange = getApplicationBean().getApplication(TestUtils.application1);
-        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getSingleValue());
         for(int blk = 0 ; blk<beforeChange.getBlocks().size() ; blk++){
             for(int fld = 0 ; fld<beforeChange.getBlocks().get(blk).getFields().size() ; fld++){
                 if(!(blk == 1 && fld == 1)){
@@ -411,13 +413,13 @@ public class ApplicationTest extends AbstractTestClass{
         ApplicationFieldValue description = overview.getFields().get(1);
         assertEquals("Overview", overview.getLabel());
         assertEquals("Short Description", description.getLabel());
-        assertEquals("Give me money", description.getValue());
+        assertEquals("Give me money", description.getSingleValue());
 
         Application change = Utilities.buildChange(beforeChange).changeField(description.getId()).setValue(newDescription).done().build();
         post(change, TestUtils.application1.getId());
 
         Application afterChange = get(Application.class, TestUtils.application1.getId());
-        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getSingleValue());
 
         for (int blk = 0; blk < beforeChange.getBlocks().size(); blk++) {
             for (int fld = 0; fld < beforeChange.getBlocks().get(blk).getFields().size(); fld++) {
@@ -435,13 +437,13 @@ public class ApplicationTest extends AbstractTestClass{
         ApplicationFieldValue description = overview.getFields().get(1);
         assertEquals("Overview", overview.getLabel());
         assertEquals("Short Description", description.getLabel());
-        assertEquals("Give me money", description.getValue());
-        description.setValue(newDescription);
+        assertEquals("Give me money", description.getSingleValue());
+        description.setSingleValue(newDescription);
         
         post(beforeChange, TestUtils.application1.getId());
 
         Application afterChange = get(Application.class, TestUtils.application1.getId());
-        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getValue());
+        assertEquals(newDescription, afterChange.getBlocks().get(1).getFields().get(1).getSingleValue());
 
         for (int blk = 0; blk < beforeChange.getBlocks().size(); blk++) {
             for (int fld = 0; fld < beforeChange.getBlocks().get(blk).getFields().size(); fld++) {
@@ -492,17 +494,19 @@ public class ApplicationTest extends AbstractTestClass{
                 .setCollapsible(true)
                 .setRepeatable(true)
                 .done()
-                .changeField("14")
-                .setLabel("testAmount")
-                .setAllowedValues(Arrays.asList(1,2))
-                .setHint("testHint")
-                .setWrapper("testWrapper")
-                .setPermissions("testPermission")
-                .setReadOnly(false)
-                .done()
                 .build();
         getApplicationBean().updateApplication(change);
 
+        List<ApplicationField> schemaChange = Utilities.buildFieldChange(getApplicationBean()).changeField("14")
+                .setLabel("testAmount")
+                .setHint("testHint")
+                .setWrapper("testWrapper")
+                .done()
+                .build();
+        
+        getApplicationBean().updateApplicationStaticData(schemaChange);
+
+        
         //does the blocks exists
         Application newApp = getApplicationBean().getApplication(appRef);
         List<ApplicationBlock> blocks = newApp.getBlocks();
@@ -555,16 +559,14 @@ public class ApplicationTest extends AbstractTestClass{
 
         //does all fields on field 'testAmount' exist
         assertEquals("14", amountField.getId());
-        assertEquals(Long.class, amountField.getType());
+        assertEquals(Long.class, amountField.getTypeAsClass());
         assertEquals("Long", amountField.getComponent());
         assertEquals(Functional.amount().getFriendlyName(), amountField.getDescribes());
-        assertEquals(1, amountField.getAllowedValues().get(0));
         assertEquals("display:block;", amountField.getLayout());
         assertEquals("testHint", amountField.getHint());
         assertEquals("testWrapper", amountField.getWrapper());
         assertEquals("'v-validate': 'number|max:15'",amountField.getValidation());
-        assertEquals("testPermission", amountField.getPermissions());
-        assertFalse(amountField.getReadOnly());
+        //assertFalse(amountField.getReadOnly());
     }
 
     public void testGetOrCreateDocumentFolder() throws Exception {
