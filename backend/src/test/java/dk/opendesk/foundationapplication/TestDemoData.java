@@ -36,6 +36,7 @@ public class TestDemoData extends AbstractTestClass{
     }
     
     public void testSetupDemoData() throws Exception {
+        TestUtils.wipeData(getServiceRegistry());
         post(new JSONObject().append("doesnt", "matter"));
         
         assertEquals(4, getBranchBean().getBranchSummaries().size());
@@ -55,6 +56,7 @@ public class TestDemoData extends AbstractTestClass{
     
     
     public void testSetupDemoDataDanva() throws Exception {
+        TestUtils.wipeData(getServiceRegistry());
         post(new JSONObject().append("doesnt", "matter"), "danva");
         
         assertEquals(1, getBranchBean().getBranchSummaries().size());
@@ -63,6 +65,19 @@ public class TestDemoData extends AbstractTestClass{
         
         assertEquals(1, getWorkflowBean().getWorkflowSummaries().size());
         assertEquals(0, getApplicationBean().getApplicationSummaries().size());
+
+    }
+    
+    
+    public void testSetupDemoDataDanvaDataAlreadyExists() throws Exception {
+        try{
+            
+        }catch(RuntimeException ex){
+            post(new JSONObject().append("doesnt", "matter"), "danva");
+            fail("Did not throw Exception");
+        }
+        
+        
 
     }
     
