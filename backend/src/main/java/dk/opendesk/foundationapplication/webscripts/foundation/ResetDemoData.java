@@ -13,7 +13,6 @@ import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.ListBuilder;
-import dk.opendesk.foundationapplication.Utilities;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.StateCategory;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
@@ -59,7 +58,9 @@ public class ResetDemoData extends JacksonBackedWebscript {
 
     @Override
     protected JSONObject doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        Utilities.wipeData(getServiceRegistry());
+        if(getBranchBean().getBranchSummaries().size() > 0){
+            throw new RuntimeException("Workflows are already initialized");
+        }
         
         createData();
         
