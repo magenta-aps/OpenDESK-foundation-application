@@ -52,6 +52,9 @@ import org.alfresco.service.namespace.QName;
 
 import static dk.opendesk.foundationapplication.Utilities.*;
 import dk.opendesk.foundationapplication.enums.PermissionGroup;
+import dk.opendesk.foundationapplication.enums.StateCategory;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.Set;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
@@ -653,16 +656,16 @@ public class ApplicationBean extends FoundationBean {
         field.parseRef(applicationField);
         Map<QName, Serializable> properties = getServiceRegistry().getNodeService().getProperties(applicationField);
         
-        field.setId(getProperty(applicationField, STATICFIELD_PARAM_ID, String.class, properties));
-        field.setLabel(getProperty(applicationField, STATICFIELD_PARAM_LABEL, String.class, properties));
-        field.setLayout(getProperty(applicationField, STATICFIELD_PARAM_LAYOUT, String.class, properties));
-        field.setComponent(getProperty(applicationField, STATICFIELD_PARAM_COMPONENT, String.class, properties));
-        field.setHint(getProperty(applicationField, STATICFIELD_PARAM_HINT, String.class, properties));
-        field.setWrapper(getProperty(applicationField, STATICFIELD_PARAM_WRAPPER, String.class, properties));
-        field.setDescribes(getProperty(applicationField, STATICFIELD_PARAM_DESCRIBES, String.class, properties));
-        field.setType(getProperty(applicationField, STATICFIELD_PARAM_TYPE, String.class, properties));
-        field.setValidation(getProperty(applicationField, STATICFIELD_PARAM_VALIDATION, String.class, properties));
-        field.setControlledBy(getPropertyList(applicationField, STATICFIELD_PARAM_CONTROLLED_BY, String.class, properties));
+        field.setId(getProperty(properties, STATICFIELD_PARAM_ID, String.class));
+        field.setLabel(getProperty(properties, STATICFIELD_PARAM_LABEL, String.class));
+        field.setLayout(getProperty(properties, STATICFIELD_PARAM_LAYOUT, String.class));
+        field.setComponent(getProperty(properties, STATICFIELD_PARAM_COMPONENT, String.class));
+        field.setHint(getProperty(properties, STATICFIELD_PARAM_HINT, String.class));
+        field.setWrapper(getProperty(properties, STATICFIELD_PARAM_WRAPPER, String.class));
+        field.setDescribes(getProperty(properties, STATICFIELD_PARAM_DESCRIBES, String.class));
+        field.setType(getProperty(properties, STATICFIELD_PARAM_TYPE, String.class));
+        field.setValidation(getProperty(properties, STATICFIELD_PARAM_VALIDATION, String.class));
+        field.setControlledBy(getPropertyList(properties, STATICFIELD_PARAM_CONTROLLED_BY, String.class));
 
 //        Set<AccessPermission> userPermissions = getServiceRegistry().getPermissionService().getPermissions(applicationField);
 //        boolean readOnly = true;
@@ -675,12 +678,13 @@ public class ApplicationBean extends FoundationBean {
 //        field.setReadOnly(readOnly);
         
         if(getServiceRegistry().getNodeService().hasAspect(applicationField, getODFName(STATICMULTIFIELD_ASPECT_NAME))){
-            field.setAggregateComponent(getProperty(applicationField, STATICMULTIFIELD_PARAM_COMPONENT, String.class, properties));
-            field.setAggregateHint(getProperty(applicationField, STATICMULTIFIELD_PARAM_HINT, String.class, properties));
-            field.setAggregateLayout(getProperty(applicationField, STATICMULTIFIELD_PARAM_LAYOUT, String.class, properties));
-            field.setAggregateType(getProperty(applicationField, STATICMULTIFIELD_PARAM_TYPE, String.class, properties));
-            field.setAggregateWrapper(getProperty(applicationField, STATICMULTIFIELD_PARAM_WRAPPER, String.class, properties));
-            field.setAggregateDescribes(getProperty(applicationField, STATICMULTIFIELD_PARAM_DESCRIBES, String.class, properties));
+            field.setAggregateComponent(getProperty(properties, STATICMULTIFIELD_PARAM_COMPONENT, String.class));
+            field.setAggregateHint(getProperty(properties, STATICMULTIFIELD_PARAM_HINT, String.class));
+            field.setAggregateLayout(getProperty(properties, STATICMULTIFIELD_PARAM_LAYOUT, String.class));
+            field.setAggregateType(getProperty(properties, STATICMULTIFIELD_PARAM_TYPE, String.class));
+            field.setAggregateWrapper(getProperty(properties, STATICMULTIFIELD_PARAM_WRAPPER, String.class));
+            field.setAggregateDescribes(getProperty(properties, STATICMULTIFIELD_PARAM_DESCRIBES, String.class));
+            field.setAggregateStateCategories(getPropertyList(properties, STATICMULTIFIELD_PARAM_STATE_CATEGORIES, String.class));
         }
 
         return field;
@@ -719,7 +723,7 @@ public class ApplicationBean extends FoundationBean {
         
         
 
-        ObjectMapper mapper = Utilities.getMapper();
+        
         
         
         field.setOptions(getPropertyList(applicationField, FIELD_PARAM_OPTIONS, String.class));
@@ -731,50 +735,66 @@ public class ApplicationBean extends FoundationBean {
             if(!getServiceRegistry().getNodeService().hasAspect(applicationField, getODFName(MULTIFIELD_ASPECT_NAME))){
                 getServiceRegistry().getNodeService().addAspect(applicationField, getODFName(MULTIFIELD_ASPECT_NAME), null);
             }
-            NodeRef userValueField = getOrCreateUserField(applicationField);
-            textValues = getPropertyList(userValueField, MULTIFIELD_VALUE_PARAM_VALUE, String.class);
             field.setAggregateComponent(staticField.getAggregateComponent());
             field.setAggregateHint(staticField.getAggregateHint());
             field.setAggregateLayout(staticField.getAggregateLayout());
             field.setAggregateType(staticField.getAggregateType());
             field.setAggregateWrapper(staticField.getAggregateWrapper());
             field.setAggregateDescribes(staticField.getAggregateDescribes());
+            
+            getOrCreateUserField(applicationField); //Ensure that a field exists for the calling user
+            
+            HashMap<String, List<Object>> userValues = new HashMap<>();
+            List<NodeRef> userFields = getAllUserFields(applicationField);
+            for(NodeRef userField : userFields){
+                Map<QName, Serializable> userFieldProperties = getServiceRegistry().getNodeService().getProperties(userField);
+                String userName = getProperty(userFieldProperties, MULTIFIELD_VALUE_PARAM_USERNAME, String.class);
+                List<String> values = getPropertyList(userFieldProperties, MULTIFIELD_VALUE_PARAM_VALUE, String.class);
+                
+                userValues.put(userName, getObjectValues(values, field.getTypeAsClass()));
+            }
+            
+            field.setUserValue(userValues);
+            
         }else{
             textValues = getPropertyList(applicationField, FIELD_PARAM_VALUE, String.class);
+            ArrayList<Object> objectValues = getObjectValues(textValues, field.getTypeAsClass());
+            field.setSingularValue(objectValues);
         }
         
-        ArrayList<Object> objectValues = new ArrayList<>();
+        
 
-        if (textValues != null) {
-            for (String textValue : textValues) {
+        return field;
+    }
+    
+    protected ArrayList<Object> getObjectValues(List<String> jsonObjects, Class listContainsType) throws IOException, ParseException{
+        ArrayList<Object> objectValues = new ArrayList<>();
+        ObjectMapper mapper = Utilities.getMapper();
+        if (jsonObjects != null) {
+            for (String textValue : jsonObjects) {
                 if (textValue != null && !textValue.isEmpty()) {
-                    if (String.class.isAssignableFrom(field.getTypeAsClass())) {
+                    if (String.class.isAssignableFrom(listContainsType)) {
                         objectValues.add(textValue);
-                    } else if(Date.class.isAssignableFrom(field.getTypeAsClass())){
+                    } else if(Date.class.isAssignableFrom(listContainsType)){
                         objectValues.add(Utilities.UNIVERAL_DATE_FORMAT.parse(textValue));
                     } else {
-                        objectValues.add(mapper.readValue(textValue, field.getTypeAsClass()));
+                        objectValues.add(mapper.readValue(textValue, listContainsType));
                     }
                 }
 
             }
         }
-
-        field.setValue(objectValues);
-
-        return field;
+        return objectValues;
     }
     
     public NodeRef getOrCreateUserField(NodeRef applicationField) throws Exception {
-        return getServiceRegistry().getRetryingTransactionHelper().doInTransaction(() -> {
-            String username = getCurrentUserName();
-            NodeRef userField = getMultiField(applicationField, username);
-            if (userField == null) {
-                return createMultiField(applicationField, username);
-            }else {
-                return userField;
-            }
-        });
+        String username = getCurrentUserName();
+        NodeRef userField = getMultiField(applicationField, username);
+        if (userField == null) {
+            return createMultiField(applicationField, username);
+        } else {
+            return userField;
+        }
     }
     
     public NodeRef getMultiField(NodeRef applicationField, String username) throws Exception {
@@ -791,17 +811,16 @@ public class ApplicationBean extends FoundationBean {
     }
     
     public NodeRef createMultiField(NodeRef applicationField, String userName) throws Exception {
-        return getServiceRegistry().getRetryingTransactionHelper().doInTransaction(() -> AuthenticationUtil.runAsSystem(() -> {
-            String username = getCurrentUserName();
-            List<ChildAssociationRef> fields = getServiceRegistry().getNodeService().getChildAssocs(applicationField, getODFName(MULTIFIELD_ASSOC_VALUES), getODFName(username));
+        return getServiceRegistry().getRetryingTransactionHelper().doInTransaction(() -> AuthenticationUtil.runAsSystem(() -> {    
+            List<ChildAssociationRef> fields = getServiceRegistry().getNodeService().getChildAssocs(applicationField, getODFName(MULTIFIELD_ASSOC_VALUES), getODFName(userName));
             if (fields.size() > 0) {
-                throw new RuntimeException("Cannot create field. The field already exists for user: " + username);
+                throw new RuntimeException("Cannot create field. The field already exists for user: " + userName);
             }else {
                 try {
                     Map<QName, Serializable> properties = new HashMap<>();
-                    properties.put(getODFName(MULTIFIELD_VALUE_PARAM_USERNAME), username);
-                    NodeRef newField = getServiceRegistry().getNodeService().createNode(applicationField, getODFName(MULTIFIELD_ASSOC_VALUES), getODFName(username), getODFName(MULTIFIELD_VALUE_TYPE_NAME), properties).getChildRef();
-                    authBean.addUserPermission(username, newField);
+                    properties.put(getODFName(MULTIFIELD_VALUE_PARAM_USERNAME), userName);
+                    NodeRef newField = getServiceRegistry().getNodeService().createNode(applicationField, getODFName(MULTIFIELD_ASSOC_VALUES), getODFName(userName), getODFName(MULTIFIELD_VALUE_TYPE_NAME), properties).getChildRef();
+                    authBean.addUserPermission(userName, newField);
                     //authBean.disableInheritPermissions(newField);
                     return newField;
                 } catch (Exception ex) {
@@ -815,9 +834,71 @@ public class ApplicationBean extends FoundationBean {
         if(!getServiceRegistry().getNodeService().hasAspect(applicationField, getODFName(MULTIFIELD_ASPECT_NAME))){
             throw new RuntimeException("Method is only usable for userFields");
         }
+        List<NodeRef> userFields = new ArrayList<>();
         List<ChildAssociationRef> fields = getServiceRegistry().getNodeService().getChildAssocs(applicationField, getODFName(MULTIFIELD_ASSOC_VALUES), null);
+        for(ChildAssociationRef field : fields){
+            userFields.add(field.getChildRef());
+        }
+        return userFields;
         
+    }
+    
+    public ApplicationField getField(MultiFieldData fieldData, StateCategory currentApplicationStateCategory){
+        if(fieldData.getAggregatorAsClass() == null){
+            return getBasicField(fieldData);
+        }else{
+            if(fieldData.getAggregateStateCategories() == null || fieldData.getAggregateStateCategories().isEmpty()){
+                if(currentApplicationStateCategory == null){
+                    //No aggregate category was set, and the current state has no category, so aggregate
+                    return getAggregateField(fieldData);
+                }else{
+                    return getUserField(fieldData);
+                }
+                
+            }else{
+                if(fieldData.getAggregateStateCategories().contains(currentApplicationStateCategory.getCategoryName())){
+                    return getAggregateField(fieldData);
+                }else{
+                    return getUserField(fieldData);
+                }
+            }
+        }
+    }
+    
+    protected ApplicationField getBasicField(MultiFieldData fieldData){
+        ApplicationField field = new ApplicationField();
+        field.setId(fieldData.getId());
+        field.setLabel(fieldData.getLabel());
+        field.setType(fieldData.getType());
+        field.setComponent(fieldData.getComponent());
+        field.setDescribes(fieldData.getDescribes());
+        field.setLayout(fieldData.getLayout());
+        field.setHint(fieldData.getHint());
+        field.setWrapper(fieldData.getWrapper());
+        field.setValidation(fieldData.getValidation());
+        field.setControlledBy(fieldData.getControlledBy());
         
+        return field;
+    }
+    
+    protected ApplicationField getUserField(MultiFieldData fieldData){
+        return getBasicField(fieldData);
+    }
+    
+    protected ApplicationField getAggregateField(MultiFieldData fieldData){
+        ApplicationField field = new ApplicationField();
+        field.setId(fieldData.getId());
+        field.setLabel(fieldData.getLabel());
+        field.setType(fieldData.getAggregateType());
+        field.setComponent(fieldData.getAggregateComponent());
+        field.setDescribes(fieldData.getAggregateDescribes());
+        field.setLayout(fieldData.getAggregateLayout());
+        field.setHint(fieldData.getAggregateHint());
+        field.setWrapper(fieldData.getAggregateWrapper());
+        field.setValidation(fieldData.getValidation());
+        field.setControlledBy(fieldData.getControlledBy());
+        
+        return field;
     }
 
     public ApplicationReference getApplicationReference(NodeRef applicationRef) throws Exception {

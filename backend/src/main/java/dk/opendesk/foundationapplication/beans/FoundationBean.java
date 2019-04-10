@@ -69,12 +69,12 @@ public class FoundationBean {
         return (List<T>) ns.getProperty(ref, getODFName(name));
     }
     
-    public <T> T getProperty(NodeRef ref, String name, Class<T> type, Map<QName, Serializable> properties) throws Exception {
+    public <T> T getProperty(Map<QName, Serializable> properties, String name, Class<T> type) throws Exception {
         return type.cast(properties.get(getODFName(name)));
         
     }
 
-    public <T> List<T> getPropertyList(NodeRef ref, String name, Class<T> type, Map<QName, Serializable> properties) throws Exception {
+    public <T> List<T> getPropertyList(Map<QName, Serializable> properties, String name, Class<T> type) throws Exception {
         return (List<T>) properties.get(getODFName(name));
     }
 

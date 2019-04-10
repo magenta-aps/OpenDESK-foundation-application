@@ -6,6 +6,7 @@
 package dk.opendesk.foundationapplication.DAO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dk.opendesk.foundationapplication.enums.StateCategory;
 import dk.opendesk.foundationapplication.validator.aggregate.Aggregator;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,7 @@ public class MultiFieldData <E, T> extends Reference{
     private Optional<String> aggregateDescribes;
     private Optional<Class<? extends Aggregator<E, T>>> aggregatorClass;
 
-    
+      
     public String getId() {
         return get(id);
     }
