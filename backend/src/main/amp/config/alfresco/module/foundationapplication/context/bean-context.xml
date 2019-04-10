@@ -69,10 +69,6 @@
         <property name="sysAdminParams" ref="sysAdminParams"/>
     </bean>
 
-    <bean id="test" class="dk.opendesk.foundationapplication.TestAction">
-        <property name="applicationBean" ref="applicationBean"/>
-    </bean>
-
     <bean id="addBlocks" class="dk.opendesk.foundationapplication.actions.AddBlocksToApplicationAction">
         <property name="applicationBean" ref="applicationBean"/>
     </bean>
