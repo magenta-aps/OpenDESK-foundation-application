@@ -23,6 +23,7 @@ public class Functional<E>{
     static{
         Map<String, Functional> newFunctionals = new HashMap<>();
         put(newFunctionals, "amount", Number.class);
+        put(newFunctionals, "applicant_name", String.class);
         put(newFunctionals, "email_to", String.class);
         put(newFunctionals, "first_name", String.class);
         put(newFunctionals, "last_name", String.class);
@@ -55,6 +56,9 @@ public class Functional<E>{
 
     public static Functional<Long> amount(){
         return getFromName("amount");
+    }
+    public static Functional<String> applicant_name(){
+        return getFromName("applicant_name");
     }
     public static Functional<String> email_to(){
         return getFromName("email_to");

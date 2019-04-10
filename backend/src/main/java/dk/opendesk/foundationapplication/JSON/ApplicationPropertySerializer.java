@@ -59,6 +59,9 @@ public class ApplicationPropertySerializer extends JsonSerializer<ApplicationFie
         if(value.getType() != null){
             jgen.writeStringField("type", value.getType());
         }
+        if(value.getControlledBy() != null){
+            jgen.writeObjectField("controlledBy", value.getControlledBy());
+        }
         jgen.writeEndObject();
     }
 
