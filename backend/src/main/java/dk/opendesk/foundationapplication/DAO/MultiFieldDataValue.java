@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import static dk.opendesk.foundationapplication.DAO.ApplicationFieldValue.MULTI_VALUES;
 import dk.opendesk.foundationapplication.ListBuilder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -20,8 +21,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @author martin
  */
 public class MultiFieldDataValue <E, T> extends MultiFieldData<E, T> {
-    private Optional<ArrayList<E>> value;
+    private Optional<ArrayList<E>> singularValue;
     private Optional<ArrayList<String>> options;
+    private Optional<HashMap<String, ArrayList<E>>> userValues;
     private Optional<ArrayList<T>> aggregateValue;
     private Optional<ArrayList<String>> aggregateOptions;
     
@@ -71,21 +73,21 @@ public class MultiFieldDataValue <E, T> extends MultiFieldData<E, T> {
     
     
     
-    public ArrayList<E> getValue() {
-        return get(value);
+    public ArrayList<E> getSingularValue() {
+        return get(singularValue);
     }
 
-    public boolean wasValueSet(){
-        return wasSet(value);
+    public boolean wasSingularValueSet(){
+        return wasSet(singularValue);
     }
 
-    public void setValue(ArrayList<E> value) {
-        this.value = optional(value);
+    public void setSingularValue(ArrayList<E> value) {
+        this.singularValue = optional(value);
     }
     
     @JsonIgnore
-    public boolean isSingleValue(){
-        ArrayList<E> values = getValue();
+    public boolean isSingularSingleValue(){
+        ArrayList<E> values = getSingularValue();
         if(values == null){
             return false;
         }else if(values.isEmpty()){
@@ -98,13 +100,13 @@ public class MultiFieldDataValue <E, T> extends MultiFieldData<E, T> {
     }
     
     @JsonIgnore
-    public void setSingleValue(E value) {
-        setValue(new ListBuilder<>(new ArrayList<E>()).add(value).build());
+    public void setSingularSingleValue(E value) {
+        setSingularValue(new ListBuilder<>(new ArrayList<E>()).add(value).build());
     }
     
     @JsonIgnore
     public E getSingleValue(){
-        ArrayList<E> values = getValue();
+        ArrayList<E> values = getSingularValue();
         if(values == null){
             return null;
         }else if(values.isEmpty()){
@@ -153,9 +155,21 @@ public class MultiFieldDataValue <E, T> extends MultiFieldData<E, T> {
         
     }
     
+    public HashMap<String, ArrayList<E>> getUserValue() {
+        return get(userValues);
+    }
+
+    public boolean wasUserValueSet(){
+        return wasSet(userValues);
+    }
+
+    public void setUserValue(HashMap<String, ArrayList<E>> userValues) {
+        this.userValues = optional(userValues);
+    }
+    
     @Override
     public ToStringBuilder toStringBuilder(){
-        return super.toStringBuilder().append("value", value).append("aggregateValue", aggregateValue).append("options", options).append("aggregateOptions", aggregateOptions);
+        return super.toStringBuilder().append("value", singularValue).append("aggregateValue", aggregateValue).append("options", options).append("aggregateOptions", aggregateOptions);
     }
     
         @Override
@@ -173,7 +187,8 @@ public class MultiFieldDataValue <E, T> extends MultiFieldData<E, T> {
         hash = 97 * hash + Objects.hashCode(this.getAggregateWrapper());
         hash = 97 * hash + Objects.hashCode(this.getAggregator());
         hash = 97 * hash + Objects.hashCode(this.getAggregateValue());
-        hash = 97 * hash + Objects.hashCode(this.getValue());
+        hash = 97 * hash + Objects.hashCode(this.getSingularValue());
+        hash = 97 * hash + Objects.hashCode(this.getUserValue());
         hash = 97 * hash + Objects.hashCode(this.getAggregateOptions());
         hash = 97 * hash + Objects.hashCode(this.getOptions());
         return hash;
@@ -227,7 +242,10 @@ public class MultiFieldDataValue <E, T> extends MultiFieldData<E, T> {
         if (!Objects.equals(this.getAggregateValue(), other.getAggregateValue())) {
             return false;
         }
-        if (!Objects.equals(this.getValue(), other.getValue())) {
+        if (!Objects.equals(this.getSingularValue(), other.getSingularValue())) {
+            return false;
+        }
+        if (!Objects.equals(this.getUserValue(), other.getUserValue())) {
             return false;
         }
         if (!Objects.equals(this.getAggregateOptions(), other.getAggregateOptions())) {

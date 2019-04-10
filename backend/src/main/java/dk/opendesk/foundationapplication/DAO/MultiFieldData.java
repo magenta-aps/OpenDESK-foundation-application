@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication.DAO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dk.opendesk.foundationapplication.validator.aggregate.Aggregator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,6 +30,7 @@ public class MultiFieldData <E, T> extends Reference{
     private Optional<String> hint;
     private Optional<String> wrapper;
     private Optional<String> validation;
+    private Optional<ArrayList<String>> controlledBy;
     private Optional<List<String>> aggregateStateCategories;
     private Optional<Class<T>> aggregateType;
     private Optional<String> aggregateComponent;
@@ -163,6 +165,18 @@ public class MultiFieldData <E, T> extends Reference{
     public void setLayout(String layout) {
         this.layout = optional(layout);
     }
+    
+    public ArrayList<String> getControlledBy() {
+        return get(controlledBy);
+    }
+
+    public boolean wasControlledBySet(){
+        return wasSet(controlledBy);
+    }
+
+    public void setControlledBy(ArrayList<String> controlledBy) {
+        this.controlledBy = optional(controlledBy);
+    }
 
     public List<String> getAggregateStateCategories() {
         return get(aggregateStateCategories);
@@ -294,7 +308,10 @@ public class MultiFieldData <E, T> extends Reference{
         }
     }
     
-   
+   @JsonIgnore
+   public boolean isAggregate(){
+       return aggregatorClass != null;
+   }
     
     @Override
     public ToStringBuilder toStringBuilder(){

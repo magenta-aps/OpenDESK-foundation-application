@@ -19,6 +19,8 @@ import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchReference;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.MultiFieldData;
+import dk.opendesk.foundationapplication.DAO.MultiFieldDataValue;
 import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.DAO.WorkflowReference;
@@ -324,12 +326,12 @@ public class ApplicationBean extends FoundationBean {
         }
     }
 
-    protected void addFieldToBlock(Application containingApplication, ApplicationBlock block, ApplicationFieldValue field) throws Exception {
+    protected void addFieldToBlock(Application containingApplication, ApplicationBlock block, MultiFieldDataValue field) throws Exception {
         addFieldToBlock(containingApplication, block.asNodeRef(), field);
 
     }
 
-    protected void addFieldToBlock(Application containingApplication, NodeRef blockRef, ApplicationFieldValue field) throws Exception {
+    protected void addFieldToBlock(Application containingApplication, NodeRef blockRef, MultiFieldDataValue field) throws Exception {
         NodeRef staticFieldRef = getServiceRegistry().getNodeService().getChildByName(getDataHome(), getODFName(DATA_ASSOC_STATIC_FIELDS), field.getId());
         if (staticFieldRef == null) {
             staticFieldRef = addStaticField(field);
@@ -351,7 +353,7 @@ public class ApplicationBean extends FoundationBean {
                 
     }
 
-    protected NodeRef addStaticField(ApplicationField field) throws Exception {
+    protected NodeRef addStaticField(MultiFieldData field) throws Exception {
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(getODFName(STATICFIELD_PARAM_ID), field.getId());
         properties.put(getODFName(STATICFIELD_PARAM_LABEL), field.getLabel());
@@ -367,7 +369,7 @@ public class ApplicationBean extends FoundationBean {
         NodeRef ref = getServiceRegistry().getNodeService().createNode(getDataHome(), getODFName(DATA_ASSOC_STATIC_FIELDS), getODFName(field.getId()), getODFName(STATICFIELD_TYPE_NAME), properties).getChildRef();
         authBean.addReadPermission(ref, PermissionGroup.BASIC, (NodeRef)null);
         
-        if(field.getAggregate()){
+        if(field.isAggregate()){
             properties = new HashMap<>();
             properties.put(getODFName(STATICMULTIFIELD_PARAM_COMPONENT), field.getAggregateComponent());
             properties.put(getODFName(STATICMULTIFIELD_PARAM_DESCRIBES), field.getAggregateDescribes());
@@ -644,10 +646,10 @@ public class ApplicationBean extends FoundationBean {
         return fields;
     }
 
-    public ApplicationField getFieldSpec(NodeRef applicationField) throws Exception {
+    public MultiFieldData getFieldSpec(NodeRef applicationField) throws Exception {
         ensureType(STATICFIELD_TYPE_NAME, applicationField);
 
-        ApplicationField field = new ApplicationField();
+        MultiFieldData field = new MultiFieldData();
         field.parseRef(applicationField);
         Map<QName, Serializable> properties = getServiceRegistry().getNodeService().getProperties(applicationField);
         
@@ -660,41 +662,39 @@ public class ApplicationBean extends FoundationBean {
         field.setDescribes(getProperty(applicationField, STATICFIELD_PARAM_DESCRIBES, String.class, properties));
         field.setType(getProperty(applicationField, STATICFIELD_PARAM_TYPE, String.class, properties));
         field.setValidation(getProperty(applicationField, STATICFIELD_PARAM_VALIDATION, String.class, properties));
+        field.setControlledBy(getPropertyList(applicationField, STATICFIELD_PARAM_CONTROLLED_BY, String.class, properties));
 
-        Set<AccessPermission> userPermissions = getServiceRegistry().getPermissionService().getPermissions(applicationField);
-        boolean readOnly = true;
-        for (AccessPermission permission : userPermissions) {
-            if (permission.getPermission().equals(PermissionService.WRITE)) {
-                readOnly = false;
-                break;
-            }
-        }
-        field.setReadOnly(readOnly);
+//        Set<AccessPermission> userPermissions = getServiceRegistry().getPermissionService().getPermissions(applicationField);
+//        boolean readOnly = true;
+//        for (AccessPermission permission : userPermissions) {
+//            if (permission.getPermission().equals(PermissionService.WRITE)) {
+//                readOnly = false;
+//                break;
+//            }
+//        }
+//        field.setReadOnly(readOnly);
         
         if(getServiceRegistry().getNodeService().hasAspect(applicationField, getODFName(STATICMULTIFIELD_ASPECT_NAME))){
-            field.setAggregate(true);
             field.setAggregateComponent(getProperty(applicationField, STATICMULTIFIELD_PARAM_COMPONENT, String.class, properties));
             field.setAggregateHint(getProperty(applicationField, STATICMULTIFIELD_PARAM_HINT, String.class, properties));
             field.setAggregateLayout(getProperty(applicationField, STATICMULTIFIELD_PARAM_LAYOUT, String.class, properties));
             field.setAggregateType(getProperty(applicationField, STATICMULTIFIELD_PARAM_TYPE, String.class, properties));
             field.setAggregateWrapper(getProperty(applicationField, STATICMULTIFIELD_PARAM_WRAPPER, String.class, properties));
             field.setAggregateDescribes(getProperty(applicationField, STATICMULTIFIELD_PARAM_DESCRIBES, String.class, properties));
-        }else{
-            field.setAggregate(false);
         }
 
         return field;
     }
 
-    public ApplicationFieldValue getField(NodeRef applicationField) throws Exception {
+    public MultiFieldDataValue getField(NodeRef applicationField) throws Exception {
         ensureType(FIELD_TYPE_NAME, applicationField);
 
-        ApplicationFieldValue field = new ApplicationFieldValue();
+        MultiFieldDataValue field = new MultiFieldDataValue();
         field.parseRef(applicationField);
 
         NodeRef staticData = getSingleTargetAssoc(applicationField, FIELD_ASSOC_STATICDATA);
 
-        ApplicationField staticField = getFieldSpec(staticData);
+        MultiFieldData staticField = getFieldSpec(staticData);
 
         field.setId(staticField.getId());
         field.setLabel(staticField.getLabel());
@@ -705,16 +705,17 @@ public class ApplicationBean extends FoundationBean {
         field.setDescribes(staticField.getDescribes());
         field.setType(staticField.getType());
         field.setValidation(staticField.getValidation());
+        field.setControlledBy(staticField.getControlledBy());
 
-        Set<AccessPermission> userPermissions = getServiceRegistry().getPermissionService().getPermissions(applicationField);
-        boolean readOnly = true;
-        for (AccessPermission permission : userPermissions) {
-            if (permission.getPermission().equals(PermissionService.WRITE)) {
-                readOnly = false;
-                break;
-            }
-        }
-        field.setReadOnly(readOnly);
+//        Set<AccessPermission> userPermissions = getServiceRegistry().getPermissionService().getPermissions(applicationField);
+//        boolean readOnly = true;
+//        for (AccessPermission permission : userPermissions) {
+//            if (permission.getPermission().equals(PermissionService.WRITE)) {
+//                readOnly = false;
+//                break;
+//            }
+//        }
+//        field.setReadOnly(readOnly);
         
         
 
@@ -725,14 +726,13 @@ public class ApplicationBean extends FoundationBean {
         
         
         List<String> textValues;
-        if(staticField.getAggregate()){       
+        if(staticField.isAggregate()){       
             //This is a multi-value field
             if(!getServiceRegistry().getNodeService().hasAspect(applicationField, getODFName(MULTIFIELD_ASPECT_NAME))){
                 getServiceRegistry().getNodeService().addAspect(applicationField, getODFName(MULTIFIELD_ASPECT_NAME), null);
             }
-            NodeRef userValueField = getOrCreateMultiField(applicationField);
+            NodeRef userValueField = getOrCreateUserField(applicationField);
             textValues = getPropertyList(userValueField, MULTIFIELD_VALUE_PARAM_VALUE, String.class);
-            field.setAggregate(true);
             field.setAggregateComponent(staticField.getAggregateComponent());
             field.setAggregateHint(staticField.getAggregateHint());
             field.setAggregateLayout(staticField.getAggregateLayout());
@@ -740,7 +740,6 @@ public class ApplicationBean extends FoundationBean {
             field.setAggregateWrapper(staticField.getAggregateWrapper());
             field.setAggregateDescribes(staticField.getAggregateDescribes());
         }else{
-            field.setAggregate(false);
             textValues = getPropertyList(applicationField, FIELD_PARAM_VALUE, String.class);
         }
         
@@ -766,15 +765,38 @@ public class ApplicationBean extends FoundationBean {
         return field;
     }
     
-    public NodeRef getOrCreateMultiField(NodeRef applicationField) throws Exception {
-        return getServiceRegistry().getRetryingTransactionHelper().doInTransaction(() -> AuthenticationUtil.runAsSystem(() -> {
+    public NodeRef getOrCreateUserField(NodeRef applicationField) throws Exception {
+        return getServiceRegistry().getRetryingTransactionHelper().doInTransaction(() -> {
             String username = getCurrentUserName();
+            NodeRef userField = getMultiField(applicationField, username);
+            if (userField == null) {
+                return createMultiField(applicationField, username);
+            }else {
+                return userField;
+            }
+        });
+    }
+    
+    public NodeRef getMultiField(NodeRef applicationField, String username) throws Exception {
+        return getServiceRegistry().getRetryingTransactionHelper().doInTransaction(() -> {
             List<ChildAssociationRef> fields = getServiceRegistry().getNodeService().getChildAssocs(applicationField, getODFName(MULTIFIELD_ASSOC_VALUES), getODFName(username));
             if (fields.size() > 1) {
                 throw new RuntimeException("Field inconsistency detected. Multiple fields for user " + username);
-            } else if (fields.size() == 1) {
-                return fields.get(0).getChildRef();
+            } else if (fields.size() < 1) {
+                return null;
             } else {
+                return fields.get(0).getChildRef();
+            }
+        });
+    }
+    
+    public NodeRef createMultiField(NodeRef applicationField, String userName) throws Exception {
+        return getServiceRegistry().getRetryingTransactionHelper().doInTransaction(() -> AuthenticationUtil.runAsSystem(() -> {
+            String username = getCurrentUserName();
+            List<ChildAssociationRef> fields = getServiceRegistry().getNodeService().getChildAssocs(applicationField, getODFName(MULTIFIELD_ASSOC_VALUES), getODFName(username));
+            if (fields.size() > 0) {
+                throw new RuntimeException("Cannot create field. The field already exists for user: " + username);
+            }else {
                 try {
                     Map<QName, Serializable> properties = new HashMap<>();
                     properties.put(getODFName(MULTIFIELD_VALUE_PARAM_USERNAME), username);
@@ -787,6 +809,15 @@ public class ApplicationBean extends FoundationBean {
                 }
             }
         }));
+    }
+    
+    public List<NodeRef> getAllUserFields(NodeRef applicationField) throws Exception{
+        if(!getServiceRegistry().getNodeService().hasAspect(applicationField, getODFName(MULTIFIELD_ASPECT_NAME))){
+            throw new RuntimeException("Method is only usable for userFields");
+        }
+        List<ChildAssociationRef> fields = getServiceRegistry().getNodeService().getChildAssocs(applicationField, getODFName(MULTIFIELD_ASSOC_VALUES), null);
+        
+        
     }
 
     public ApplicationReference getApplicationReference(NodeRef applicationRef) throws Exception {
