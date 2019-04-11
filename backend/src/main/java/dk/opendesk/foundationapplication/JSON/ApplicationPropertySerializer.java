@@ -56,6 +56,9 @@ public class ApplicationPropertySerializer extends JsonSerializer<ApplicationFie
         if(value.getReadOnly() != null){
             jgen.writeBooleanField("readOnly", value.getReadOnly());
         }
+        if(value.getOptions() != null){
+            jgen.writeObjectField("options", value.getOptions());
+        }
         if(value.getType() != null){
             jgen.writeStringField("type", value.getType());
         }
