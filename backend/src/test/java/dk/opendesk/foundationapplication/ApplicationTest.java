@@ -613,5 +613,14 @@ public class ApplicationTest extends AbstractTestClass{
         assertNotNull(applicationReference.getId());
         assertNotNull(applicationReference.getIsSeen());
     }
-    
+
+    public void testApplicationId() throws Exception {
+        Application application1 = new Application();
+        application1.setTitle("title1");
+        ApplicationReference appRef1 = getApplicationBean().addNewApplication(application1);
+        assertEquals("1", appRef1.getId());
+
+        ApplicationReference application2 = getApplicationBean().addNewApplication(new Application());
+        assertEquals("1", application2.getId());
+    }
 }
