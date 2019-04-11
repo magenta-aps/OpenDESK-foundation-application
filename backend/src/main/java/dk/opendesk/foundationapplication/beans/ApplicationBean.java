@@ -611,7 +611,7 @@ public class ApplicationBean extends FoundationBean {
         return blockSpecfication;
     }
 
-    public ApplicationBlock getBlock(NodeRef nodeRef) throws Exception {
+    public ApplicationBlock getBlock(NodeRef nodeRef, StateCategory currentStateCategory) throws Exception {
         ensureType(BLOCKIMPL_TYPE_NAME, nodeRef);
 
         ApplicationBlock block = new ApplicationBlock();
@@ -628,7 +628,9 @@ public class ApplicationBean extends FoundationBean {
 
         List<ApplicationFieldValue> fields = new ArrayList<>();
         for (ChildAssociationRef field : fieldRefs) {
-            fields.add(getField(field.getChildRef()));
+            MultiFieldDataValue fieldData = getField(field.getChildRef());
+            ApplicationFieldValue applicationField = getField(fieldData, currentStateCategory, getCurrentUserName());
+            fields.add(applicationField);
         }
 
         block.setFields(fields);
@@ -636,9 +638,9 @@ public class ApplicationBean extends FoundationBean {
         return block;
     }
     
-    public List<ApplicationField> getApplicationFieldSpecs() throws Exception{
+    public List<MultiFieldData> getApplicationFieldSpecs() throws Exception{
         List<ChildAssociationRef> fieldRefs = getServiceRegistry().getNodeService().getChildAssocs(getDataHome(), getODFName(DATA_ASSOC_STATIC_FIELDS), null);
-        List<ApplicationField>  fields = new ArrayList<>();
+        List<MultiFieldData>  fields = new ArrayList<>();
         for(ChildAssociationRef fieldRef : fieldRefs){
             try{
                 fields.add(getFieldSpec(fieldRef.getChildRef()));
@@ -762,8 +764,6 @@ public class ApplicationBean extends FoundationBean {
             field.setSingularValue(objectValues);
         }
         
-        
-
         return field;
     }
     
@@ -843,7 +843,7 @@ public class ApplicationBean extends FoundationBean {
         
     }
     
-    public ApplicationField getField(MultiFieldData fieldData, StateCategory currentApplicationStateCategory){
+    public ApplicationFieldValue getField(MultiFieldDataValue fieldData, StateCategory currentApplicationStateCategory, String username){
         if(fieldData.getAggregatorAsClass() == null){
             return getBasicField(fieldData);
         }else{
@@ -852,21 +852,84 @@ public class ApplicationBean extends FoundationBean {
                     //No aggregate category was set, and the current state has no category, so aggregate
                     return getAggregateField(fieldData);
                 }else{
-                    return getUserField(fieldData);
+                    return getUserField(fieldData, username);
                 }
                 
             }else{
                 if(fieldData.getAggregateStateCategories().contains(currentApplicationStateCategory.getCategoryName())){
                     return getAggregateField(fieldData);
                 }else{
-                    return getUserField(fieldData);
+                    return getUserField(fieldData, username);
                 }
             }
         }
     }
     
+    public ApplicationField getField(MultiFieldData fieldData, StateCategory currentApplicationStateCategory, String username){
+        if(fieldData.getAggregatorAsClass() == null){
+            return getBasicField(fieldData);
+        }else{
+            if(fieldData.getAggregateStateCategories() == null || fieldData.getAggregateStateCategories().isEmpty()){
+                if(currentApplicationStateCategory == null){
+                    //No aggregate category was set, and the current state has no category, so aggregate
+                    return getAggregateField(fieldData);
+                }else{
+                    return getUserField(fieldData, username);
+                }
+                
+            }else{
+                if(fieldData.getAggregateStateCategories().contains(currentApplicationStateCategory.getCategoryName())){
+                    return getAggregateField(fieldData);
+                }else{
+                    return getUserField(fieldData, username);
+                }
+            }
+        }
+    }
+    
+    protected ApplicationFieldValue getBasicField(MultiFieldDataValue fieldData) {
+
+        ApplicationFieldValue fieldValue = new ApplicationFieldValue();
+        MultiFieldDataValue fieldDataValue = (MultiFieldDataValue) fieldData;
+
+        fieldValue.setValue(fieldDataValue.getSingularValue());
+        fieldValue.setOptions(fieldDataValue.getOptions());
+
+        populateUserField(fieldValue, fieldData);
+
+        return fieldValue;
+    }
+    
     protected ApplicationField getBasicField(MultiFieldData fieldData){
         ApplicationField field = new ApplicationField();
+        populateUserField(field, fieldData);
+        return field;
+    }
+    
+    protected ApplicationFieldValue getUserField(MultiFieldDataValue fieldData, String userName) {
+
+        ApplicationFieldValue fieldValue = new ApplicationFieldValue();
+        MultiFieldDataValue<?, ?> fieldDataValue = (MultiFieldDataValue<?, ?>) fieldData;
+
+        ArrayList<?> userValue = fieldDataValue.getUserValue().get(userName);
+
+        fieldValue.setValue(userValue);
+        fieldValue.setOptions(fieldDataValue.getOptions());
+
+        populateUserField(fieldValue, fieldData);
+
+        return fieldValue;
+    }
+    
+    protected ApplicationField getUserField(MultiFieldData fieldData, String userName){
+        ApplicationField field = new ApplicationField();
+
+        populateUserField(field, fieldData);        
+        
+        return field;
+    }
+    
+    protected void populateUserField(ApplicationField field, MultiFieldData fieldData){
         field.setId(fieldData.getId());
         field.setLabel(fieldData.getLabel());
         field.setType(fieldData.getType());
@@ -877,16 +940,28 @@ public class ApplicationBean extends FoundationBean {
         field.setWrapper(fieldData.getWrapper());
         field.setValidation(fieldData.getValidation());
         field.setControlledBy(fieldData.getControlledBy());
+    }
+    
+    protected ApplicationFieldValue getAggregateField(MultiFieldDataValue fieldData) {
+        ApplicationFieldValue fieldValue = new ApplicationFieldValue();
+        MultiFieldDataValue fieldDataValue = (MultiFieldDataValue) fieldData;
+
+        fieldValue.setValue(fieldDataValue.getSingularValue());
+        fieldValue.setOptions(fieldDataValue.getOptions());
+
+        populateAggregateField(fieldValue, fieldData);
+
+        return fieldValue;
+    }
+
+    protected ApplicationField getAggregateField(MultiFieldData fieldData){
+        ApplicationField field = new ApplicationField();
+        populateAggregateField(field, fieldData);
         
         return field;
     }
     
-    protected ApplicationField getUserField(MultiFieldData fieldData){
-        return getBasicField(fieldData);
-    }
-    
-    protected ApplicationField getAggregateField(MultiFieldData fieldData){
-        ApplicationField field = new ApplicationField();
+    protected void populateAggregateField(ApplicationField field, MultiFieldData fieldData){
         field.setId(fieldData.getId());
         field.setLabel(fieldData.getLabel());
         field.setType(fieldData.getAggregateType());
@@ -897,8 +972,6 @@ public class ApplicationBean extends FoundationBean {
         field.setWrapper(fieldData.getAggregateWrapper());
         field.setValidation(fieldData.getValidation());
         field.setControlledBy(fieldData.getControlledBy());
-        
-        return field;
     }
 
     public ApplicationReference getApplicationReference(NodeRef applicationRef) throws Exception {
@@ -911,6 +984,28 @@ public class ApplicationBean extends FoundationBean {
         reference.setIsSeen(isApplicationSeen(applicationRef, getCurrentUserName()));
         return reference;
     }
+    
+//    public ApplicationField getField(MultiFieldDataValue fieldData, StateCategory currentApplicationStateCategory, String username){
+//        if(fieldData.getAggregatorAsClass() == null){
+//            return getBasicField(fieldData);
+//        }else{
+//            if(fieldData.getAggregateStateCategories() == null || fieldData.getAggregateStateCategories().isEmpty()){
+//                if(currentApplicationStateCategory == null){
+//                    //No aggregate category was set, and the current state has no category, so aggregate
+//                    return getAggregateField(fieldData);
+//                }else{
+//                    return getUserField(fieldData, username);
+//                }
+//                
+//            }else{
+//                if(fieldData.getAggregateStateCategories().contains(currentApplicationStateCategory.getCategoryName())){
+//                    return getAggregateField(fieldData);
+//                }else{
+//                    return getUserField(fieldData, username);
+//                }
+//            }
+//        }
+//    }
 
     public List<ApplicationSummary> getApplicationSummaries() throws Exception {
         NodeService ns = getServiceRegistry().getNodeService();
