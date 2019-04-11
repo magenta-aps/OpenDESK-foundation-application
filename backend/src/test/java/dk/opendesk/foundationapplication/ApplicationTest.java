@@ -21,6 +21,7 @@ import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoD
 import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.lorem;
 
 import dk.opendesk.foundationapplication.DAO.StateSummary;
+import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 
@@ -32,6 +33,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -615,12 +617,50 @@ public class ApplicationTest extends AbstractTestClass{
     }
 
     public void testApplicationId() throws Exception {
-        Application application1 = new Application();
-        application1.setTitle("title1");
-        ApplicationReference appRef1 = getApplicationBean().addNewApplication(application1);
-        assertEquals("1", appRef1.getId());
+        //checking that an application with an id already set gets the right id assigned
+        Application application6 = new Application();
+        application6.setTitle("title6");
+        application6.setId("6");
+        ApplicationReference appRef6 = getApplicationBean().addNewApplication(application6);
+        assertEquals("6", appRef6.getId());
 
-        ApplicationReference application2 = getApplicationBean().addNewApplication(new Application());
-        assertEquals("1", application2.getId());
+        Application application7 = new Application();
+        application7.setTitle("title7");
+        application7.setId("7");
+        ApplicationReference appRef7 = getApplicationBean().addNewApplication(application7);
+        assertEquals("7", appRef7.getId());
+
+        //checking consecutive id's on new application (id's 1-3 already made in setup)
+        Application application4 = new Application();
+        application4.setTitle("title1");
+        ApplicationReference appRef4 = getApplicationBean().addNewApplication(application4);
+        assertEquals("4", appRef4.getId());
+
+        Application application5 = new Application();
+        application5.setTitle("title5");
+        ApplicationReference appRef5 = getApplicationBean().addNewApplication(application5);
+        assertEquals("5", appRef5.getId());
+
+        //checking that repeated id gets rejected
+        Application application5dot2 = new Application();
+        application5dot2.setTitle("title5dot2");
+        application5dot2.setId("5");
+        try {
+            getApplicationBean().addNewApplication(application5dot2);
+            fail();
+        } catch (AlfrescoRuntimeException e) {
+            assertTrue(e.getMessage().contains(ApplicationBean.ID_IN_USE));
+        }
+
+        //checking that the next application after id 5 gets id 8 because id 6 and id 7 already exists
+        Application application8 = new Application();
+        application8.setTitle("title8");
+        application8.setId("8");
+        ApplicationReference appRef8 = getApplicationBean().addNewApplication(application8);
+        assertEquals("8", appRef8.getId());
+        application6.setId("6");
+
+
+
     }
 }

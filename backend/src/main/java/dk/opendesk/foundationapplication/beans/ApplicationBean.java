@@ -122,7 +122,11 @@ public class ApplicationBean extends FoundationBean {
                 throw new AlfrescoRuntimeException(ID_IN_USE);
             }
         } else {
-            application.setId(Utilities.getNextApplicationID(getServiceRegistry()) + "");
+            Integer nextId = Utilities.getNextApplicationID(getServiceRegistry());
+            while (findByNumericID(nextId) != null){
+                nextId++;
+            }
+            application.setId(nextId.toString());
         }
         properties.put(getODFName(APPLICATION_PARAM_ID), application.getId());
         properties.put(getODFName(APPLICATION_PARAM_TITLE), application.getTitle());
