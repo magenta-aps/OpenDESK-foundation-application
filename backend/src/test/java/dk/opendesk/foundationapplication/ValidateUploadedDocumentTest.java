@@ -2,9 +2,11 @@ package dk.opendesk.foundationapplication;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
+import org.alfresco.repo.content.filestore.FileContentReader;
 import org.alfresco.repo.forms.FormData;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -13,6 +15,7 @@ import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.TestWebScriptServer;
 
 import javax.mail.internet.ContentType;
+import java.io.File;
 import java.io.InputStream;
 
 import static org.alfresco.model.ContentModel.TYPE_CONTENT;
@@ -36,7 +39,6 @@ public class ValidateUploadedDocumentTest extends AbstractTestClass{
         TestUtils.wipeData(getServiceRegistry());
     }
 
-    /*
     public void testBehaviourEnabling() throws Exception {
         System.out.println("\n------ Test start ------");
 
@@ -67,7 +69,24 @@ public class ValidateUploadedDocumentTest extends AbstractTestClass{
         System.out.println("\n-------moving node to tempfolder-----------------");
         ns.moveNode(docNodeRef, tempFolderRef, Utilities.getCMName("contains"), Utilities.getODFName("testDocument"));
 
+        System.out.println("\n-------with sendRequest-----------------");
 
+        File file = new File("/home/astrid/OpenDESK-foundation-application/backend/src/test/resources/alfresco/module/repo/bootstrap/files/testFile1.txt");
+        System.out.println(file.getAbsolutePath());
+
+        System.out.println("-- checkpoint --");
+        ContentReader reader = new FileContentReader(file);
+        reader.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN);
+
+        FormData formData = new FormData();
+        formData.addFieldData("filename", "testName");
+        formData.addFieldData("destination", tempFolderRef);
+        formData.addFieldData("filedata", reader.getContentString());
+
+        System.out.println(formData.toString());
+
+        TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest("http://localhost:8080/alfresco/s/api/upload", formData.toString(), "multipart/form-data");
+        TestWebScriptServer.Response response = sendRequest(request, 200, TestUtils.ADMIN_USER);
+        System.out.println(response);
     }
-    */
 }
