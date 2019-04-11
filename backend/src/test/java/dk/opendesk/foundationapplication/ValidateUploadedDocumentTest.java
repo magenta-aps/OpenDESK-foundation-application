@@ -71,7 +71,7 @@ public class ValidateUploadedDocumentTest extends AbstractTestClass{
 
         System.out.println("\n-------with sendRequest-----------------");
 
-        File file = new File("/home/astrid/OpenDESK-foundation-application/backend/src/test/resources/alfresco/module/repo/bootstrap/files/testFile1.txt");
+        File file = new File(ValidateUploadedDocumentTest.class.getResource("/alfresco/module/repo/bootstrap/files/testFile1.txt").getFile());
         System.out.println(file.getAbsolutePath());
 
         System.out.println("-- checkpoint --");
