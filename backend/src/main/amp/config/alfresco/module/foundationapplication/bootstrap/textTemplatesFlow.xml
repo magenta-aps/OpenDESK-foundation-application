@@ -1,0 +1,19 @@
+<view:view xmlns:view="http://www.alfresco.org/view/repository/1.0"
+           xmlns:cm="http://www.alfresco.org/model/content/1.0"
+           xmlns:app="http://www.alfresco.org/model/application/1.0"
+           xmlns:od="http://www.magenta-aps.dk/model/content/1.0">
+
+     <cm:content view:childName="cm:ekstern-bruger-osflow.html.ftl">
+        <view:aspects>
+            <cm:author />
+        </view:aspects>
+        <view:properties>
+            <cm:description>This file contains the email template for new external users on OSflow.</cm:description>
+            <cm:author>admin</cm:author>
+            <cm:name>ekstern-bruger-osflow.html.ftl</cm:name>
+            <cm:title>Du er blevet oprettet i OSflow</cm:title>
+            <cm:content>contentUrl=classpath:alfresco/module/foundationapplication/bootstrap/files/ekstern-bruger-osflow.html.ftl|mimetype=text/html|size=581|encoding=UTF-8|locale=da_DK_</cm:content>
+        </view:properties>
+        <view:associations></view:associations>
+    </cm:content>
+</view:view>

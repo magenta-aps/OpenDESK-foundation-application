@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Upload groups and users</shortname>
+    <description>Upload a collection of groups and users at once. To be used by admin at the beginning of a project. </description>
+    <url>/foundation/groupsandusers</url>
+    <authentication>admin</authentication>
+    <transaction>none</transaction>
+</webscript>

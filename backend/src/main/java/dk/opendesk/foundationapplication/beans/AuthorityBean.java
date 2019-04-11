@@ -269,13 +269,16 @@ public class AuthorityBean extends FoundationBean{
                 //This is a subgroup, and should be added to the supergroup.
                 String superGroup = getOrCreateGroup(group, null, write);
                 linkAuthorities(superGroup, groupName);
-            }else if(!PermissionGroup.SUPER.equals(group)){
-                //This is a supergroup, add it so superadmin group
-                String superAdminGroup = getOrCreateGroup(PermissionGroup.SUPER, null, write);
-                linkAuthorities(superAdminGroup, groupName);
+                linkAuthorities(groupName, getOrCreateGroup(PermissionGroup.BASIC, null, true));
+            }else{ 
+                if (!PermissionGroup.SUPER.equals(group)) {
+                    //This is a supergroup, add it so superadmin group
+                    String superAdminGroup = getOrCreateGroup(PermissionGroup.SUPER, null, write);
+                    linkAuthorities(superAdminGroup, groupName);
+                }
             }
         }else{
-            getLogger().debug("Found group: "+groupName);
+            //getLogger().debug("Found group: "+groupName);
         }
         return groupName;
     }
@@ -402,7 +405,7 @@ public class AuthorityBean extends FoundationBean{
                     String authority = getGroup(permissionGroup, (NodeRef)null,false);
                     linkAuthorities(roleAuth,authority);
                 } else if (groupPermissionsAsString.equals("write") || groupPermissionsAsString.equals("*")) {
-                    String authority = getGroup(permissionGroup, (NodeRef) null, true);
+                    String authority = getOrCreateGroup(permissionGroup, (NodeRef) null, true);
                     linkAuthorities(roleAuth,authority);
                 } else {
                     JSONObject groupPermissionsAsJson = new JSONObject(groupPermissionsAsString);

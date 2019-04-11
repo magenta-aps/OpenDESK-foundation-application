@@ -57,10 +57,10 @@ public class CreateNewApplicant extends ActionExecuterAbstractBase {
 
         Map<QName, Serializable> personProps = personBean.createPersonProperties(
                 "",
-                application.firstName().getValue(),
-                application.lastName().getValue(),
-                application.emailTo().getValue(),
-                application.phoneNumber().getValue()
+                application.firstName().getSingleValue(),
+                application.lastName().getSingleValue(),
+                application.emailTo().getSingleValue(),
+                application.phoneNumber().getSingleValue()
         );
 
         String password = personBean.createPerson(personProps);

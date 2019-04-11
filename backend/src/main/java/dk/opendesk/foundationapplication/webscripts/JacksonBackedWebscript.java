@@ -14,6 +14,7 @@ import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.stringExists;
 import dk.opendesk.foundationapplication.beans.ActionBean;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
+import dk.opendesk.foundationapplication.beans.AuthorityBean;
 import dk.opendesk.foundationapplication.beans.BranchBean;
 import dk.opendesk.foundationapplication.beans.BudgetBean;
 import dk.opendesk.foundationapplication.beans.HealthCheckBean;
@@ -36,6 +37,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.ServiceRegistry;
@@ -65,6 +67,7 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
     private ServiceRegistry serviceRegistry;
     private ActionBean actionBean;
     private ApplicationBean applicationBean;
+    private AuthorityBean authorityBean;
     private BranchBean branchBean;
     private BudgetBean budgetBean;
     private HealthCheckBean healthCheckBean;
@@ -92,6 +95,14 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
 
     public void setApplicationBean(ApplicationBean applicationBean) {
         this.applicationBean = applicationBean;
+    }
+
+    public AuthorityBean getAuthorityBean() {
+        return authorityBean;
+    }
+
+    public void setAuthorityBean(AuthorityBean authorityBean) {
+        this.authorityBean = authorityBean;
     }
 
     public BranchBean getBranchBean() {
@@ -187,8 +198,8 @@ public abstract class JacksonBackedWebscript extends AbstractWebScript {
         }
     }
 
-    protected <T> T getRequestListAs(Class<T> clazz) throws IOException {
-        return mapper.readValue(req.getContent().getContent(), mapper.getTypeFactory().constructCollectionType(List.class, clazz));
+    protected <T, E extends Collection<T>> E getRequestAs(Class<E> collectionType, Class<T> clazz) throws IOException {
+        return mapper.readValue(req.getContent().getContent(), mapper.getTypeFactory().constructCollectionType(collectionType, clazz));
     }
 
     public Map<String, String> getUrlParams() {

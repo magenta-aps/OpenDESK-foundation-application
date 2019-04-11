@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,7 @@ public class LoadUsersTest extends AbstractTestClass {
     private HashMap<String, Serializable> emptyStringModel = getEmptyStringModel();
 
     public LoadUsersTest() {
-        super("");
+        super("/foundation/groupsandusers");
     }
 
     @Override
@@ -62,6 +63,19 @@ public class LoadUsersTest extends AbstractTestClass {
         mailServer = null;
         deleteUsers(getServiceRegistry());
         TestUtils.wipeData(getServiceRegistry());
+    }
+
+    public void testStartUsersWebScript() throws JSONException, IOException {
+        String groupList = createGroupListSimpleRead();
+        String userList = createUserList();
+
+        JSONObject data = new JSONObject().put("groups", new JSONObject(groupList)).put("users", new JSONArray(userList));
+
+        post(data);
+
+        assertEquals(5, mailServer.getMails().size());
+
+        System.out.println(mailServer.getMails().get(0));
     }
 
     public void testSendMails() throws Exception {
@@ -161,22 +175,22 @@ public class LoadUsersTest extends AbstractTestClass {
         Set<String> minimalAuths = getServiceRegistry().getAuthorityService().getAuthoritiesForUser(minimalUser);
 
         //Branch auth also gives workflow and budget
-        assertEquals(7, sekretaryAuths.size());
+        assertEquals(9, sekretaryAuths.size());
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, null, false)));
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, branchRef1, false)));
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.WORKFLOW, workFlowRef1, false)));
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef1, false)));
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef2, false)));
 
-        assertEquals(4, boardmemberAuths.size());
+        assertEquals(6, boardmemberAuths.size());
         assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, null, false)));
         assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, TestUtils.workFlowRef1, false)));
 
-        assertEquals(4, bossAuths.size());
+        assertEquals(6, bossAuths.size());
         assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, null, false)));
         assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, TestUtils.budgetYearRef1, false)));
 
-        assertEquals(5, oligarkAuths.size());
+        assertEquals(7, oligarkAuths.size());
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, null, false)));
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef1, false)));
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef2, false)));
@@ -253,7 +267,7 @@ public class LoadUsersTest extends AbstractTestClass {
         Set<String> minimalAuths = getServiceRegistry().getAuthorityService().getAuthoritiesForUser(minimalUser);
 
         //Branch auth also gives workflow and budget
-        assertEquals(10, sekretaryAuths.size());
+        assertEquals(12, sekretaryAuths.size());
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, null, true)));
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, null, false)));
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BRANCH, branchRef1, true)));
@@ -263,19 +277,19 @@ public class LoadUsersTest extends AbstractTestClass {
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef1, false)));
         assertTrue(sekretaryAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef2, false)));
 
-        assertEquals(6, boardmemberAuths.size());
+        assertEquals(8, boardmemberAuths.size());
         assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, null, true)));
         assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, null, false)));
         assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, TestUtils.workFlowRef1, true)));
         assertTrue(boardmemberAuths.contains(getAuthString(PermissionGroup.WORKFLOW, TestUtils.workFlowRef1, false)));
 
-        assertEquals(6, bossAuths.size());
+        assertEquals(8, bossAuths.size());
         assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, null, true)));
         assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, null, false)));
         assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, TestUtils.budgetYearRef1, true)));
         assertTrue(bossAuths.contains(getAuthString(PermissionGroup.BUDGET_YEAR, TestUtils.budgetYearRef1, false)));
 
-        assertEquals(8, oligarkAuths.size());
+        assertEquals(10, oligarkAuths.size());
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, null, true)));
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, null, false)));
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef1, true)));
@@ -283,7 +297,7 @@ public class LoadUsersTest extends AbstractTestClass {
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef2, true)));
         assertTrue(oligarkAuths.contains(getAuthString(PermissionGroup.BUDGET, budgetRef2, false)));
 
-        assertEquals( 4, minimalAuths.size());
+        assertEquals(4, minimalAuths.size());
         assertTrue(minimalAuths.contains(getAuthString(PermissionGroup.NEW_APPLICATION, null, true)));
         assertTrue(minimalAuths.contains(getAuthString(PermissionGroup.NEW_APPLICATION, null, false)));
     }
