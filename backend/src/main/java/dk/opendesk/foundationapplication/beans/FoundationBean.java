@@ -30,7 +30,7 @@ public class FoundationBean {
     public final String INVALID_STATE = "odf.bad.state";
     public final String MUST_SPECIFY_STATE = "odf.specify.state";
     public final String INVALID_BRANCH = "odf.bad.branch";
-    public final String ID_IN_USE = "odf.id.used";
+    public static final String ID_IN_USE = "odf.id.used";
     public final String ID_BAD_NODE_TYPE = "odf.node.badtype";
 
     private ServiceRegistry serviceRegistry;

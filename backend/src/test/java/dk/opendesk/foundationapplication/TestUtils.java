@@ -37,6 +37,9 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.apache.log4j.Logger;
 import org.alfresco.service.cmr.security.AuthorityType;
 
+import static dk.opendesk.foundationapplication.Utilities.DATA_PARAM_LASTID;
+import static dk.opendesk.foundationapplication.Utilities.getODFName;
+import static dk.opendesk.foundationapplication.Utilities.getDataNode;
 import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.RANDOM;
 import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.lorem;
 
@@ -220,6 +223,9 @@ public final class TestUtils {
         if(serviceRegistry.getAuthorityService().authorityExists(AuthorityType.GROUP + "_testMinimal")) {
             serviceRegistry.getAuthorityService().deleteAuthority(AuthorityType.GROUP + "_testMinimal", true);
         }
+
+
+        serviceRegistry.getNodeService().setProperty(getDataNode(serviceRegistry), getODFName(DATA_PARAM_LASTID), 0);
 
     workFlowRef1 = null;
     workFlowRef2 = null;
