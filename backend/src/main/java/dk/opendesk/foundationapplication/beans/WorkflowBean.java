@@ -171,10 +171,6 @@ public class WorkflowBean extends FoundationBean {
     }
 
     public Workflow getWorkflow(NodeRef workflowRef) throws Exception {
-        System.out.println("username: "+getCurrentUserName());
-        System.out.println("authorities: "+getServiceRegistry().getAuthorityService().getAuthorities());
-        Set<AccessPermission> accessPermissions = getServiceRegistry().getPermissionService().getPermissions(workflowRef);
-        System.out.println("permissions: "+accessPermissions);
         NodeService ns = getServiceRegistry().getNodeService();
         Workflow workflow = new Workflow();
         workflow.parseRef(workflowRef);

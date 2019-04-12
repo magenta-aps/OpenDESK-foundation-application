@@ -112,12 +112,8 @@ public class BranchBean extends FoundationBean {
     }
 
     public List<NodeRef> getBranches() throws Exception {
-        System.out.println("username: "+getCurrentUserName());
-        System.out.println("authorities: "+getServiceRegistry().getAuthorityService().getAuthorities());
         QName dataBranchesQname = getODFName(DATA_ASSOC_BRANCHES);
         NodeRef dataHome = getDataHome();
-        Set<AccessPermission> accessPermissions = getServiceRegistry().getPermissionService().getPermissions(dataHome);
-        System.out.println("permissions: "+accessPermissions);
         List<ChildAssociationRef> branchAssocs = getServiceRegistry().getNodeService().getChildAssocs(dataHome, dataBranchesQname, null);
         List<NodeRef> branches = new ArrayList<>(branchAssocs.size());
         for (ChildAssociationRef ref : branchAssocs) {
