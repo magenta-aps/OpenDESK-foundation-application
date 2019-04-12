@@ -53,6 +53,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -233,18 +234,21 @@ public final class Utilities {
     }
      
     
-    public static NodeRef getDataNode(NodeService nodeService, SearchService searchService, NamespaceService namespaceService){
-        NodeRef rootRef = nodeService.getRootNode(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
-        
-        List<NodeRef> refs = searchService.selectNodes(rootRef, InitialStructure.DATA_PATH, null, namespaceService, false);
-        if (refs.size() > 1) {
-            throw new AlfrescoRuntimeException("Failed to create structure: Returned multiple refs for " + InitialStructure.DATA_PATH);
-        }
-        if (refs.size() == 0) {
-            throw new  AlfrescoRuntimeException("Failed to create structure: No refs returned for " + InitialStructure.DATA_PATH);
-        }
-        
-        return refs.get(0);
+    public static NodeRef getDataNode(NodeService nodeService, SearchService searchService, NamespaceService namespaceService) {
+        return AuthenticationUtil.runAsSystem(() -> {
+            NodeRef rootRef = nodeService.getRootNode(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
+
+            List<NodeRef> refs = searchService.selectNodes(rootRef, InitialStructure.DATA_PATH, null, namespaceService, false);
+            if (refs.size() > 1) {
+                throw new AlfrescoRuntimeException("Failed to create structure: Returned multiple refs for " + InitialStructure.DATA_PATH);
+            }
+            if (refs.size() == 0) {
+                throw new AlfrescoRuntimeException("Failed to create structure: No refs returned for " + InitialStructure.DATA_PATH);
+            }
+
+            return refs.get(0);
+        });
+
     }
     
     public static void wipeData(ServiceRegistry serviceRegistry) throws Exception {

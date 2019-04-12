@@ -16,7 +16,10 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.namespace.QName;
 import static dk.opendesk.foundationapplication.Utilities.*;
+import dk.opendesk.foundationapplication.beans.AuthorityBean;
+import dk.opendesk.foundationapplication.enums.PermissionGroup;
 import java.util.Collections;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.apache.log4j.Logger;
 
 /**
@@ -60,9 +63,20 @@ public class InitialStructure extends AbstractPatch {
         
         QName dataTypeQname = getODFName(DATA_TYPE_NAME);
         QName dataQname = getODFName(DATA_NAME);
-        
         NodeRef dictionaryRef = getDataDictionaryRef();
-        NodeRef dataRef = serviceRegistry.getNodeService().createNode(dictionaryRef, ContentModel.ASSOC_CONTAINS, dataQname, dataTypeQname, Collections.singletonMap(getODFName(DATA_PARAM_LASTID), 0)).getChildRef();    
+        
+        AuthorityBean authBean = new AuthorityBean();
+        authBean.setServiceRegistry(serviceRegistry);
+        
+        //serviceRegistry.getPermissionService().setPermission(nodeService.getRootNode(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE), AuthorityBean.getOrCreateGroup(PermissionGroup.BASIC, null, true, serviceRegistry.getAuthorityService()), PermissionService.READ, true);
+        NodeRef dataRef = serviceRegistry.getNodeService().createNode(dictionaryRef, ContentModel.ASSOC_CONTAINS, dataQname, dataTypeQname, Collections.singletonMap(getODFName(DATA_PARAM_LASTID), 0)).getChildRef();
+        authBean.addFullPermission(dataRef, PermissionGroup.BASIC);
+//        serviceRegistry.getPermissionService().setPermission(dataRef, AuthorityBean.getOrCreateGroup(PermissionGroup.BASIC, null, true, serviceRegistry.getAuthorityService()), PermissionService.WRITE, true);    
+//        serviceRegistry.getPermissionService().setPermission(dataRef, AuthorityBean.getOrCreateGroup(PermissionGroup.BASIC, null, true, serviceRegistry.getAuthorityService()), PermissionService.READ_ASSOCIATIONS, true); 
+//        serviceRegistry.getPermissionService().setPermission(dataRef, AuthorityBean.getOrCreateGroup(PermissionGroup.BASIC, null, true, serviceRegistry.getAuthorityService()), PermissionService.READ_CHILDREN, true); 
+//        serviceRegistry.getPermissionService().setPermission(dataRef, AuthorityBean.getOrCreateGroup(PermissionGroup.BASIC, null, true, serviceRegistry.getAuthorityService()), PermissionService.READ_PERMISSIONS, true); 
+//        serviceRegistry.getPermissionService().setPermission(dataRef, AuthorityBean.getOrCreateGroup(PermissionGroup.BASIC, null, true, serviceRegistry.getAuthorityService()), PermissionService.READ_PROPERTIES, true); 
+//        serviceRegistry.getPermissionService().setPermission(dataRef, AuthorityBean.getOrCreateGroup(PermissionGroup.BASIC, null, true, serviceRegistry.getAuthorityService()), PermissionService.READ, true);
         serviceRegistry.getPermissionService().setInheritParentPermissions(dataRef, false);
 
         NodeRef emailTemplateFolder = serviceRegistry.getNodeService().createNode(Utilities.getEmailTemplateDir(serviceRegistry), ContentModel.ASSOC_CONTAINS, getCMName(MAIL_TEMPLATE_FOLDER_NAME), ContentModel.TYPE_FOLDER).getChildRef();

@@ -6,6 +6,10 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.Workflow;
+import dk.opendesk.foundationapplication.DAO.WorkflowReference;
+import static dk.opendesk.foundationapplication.TestUtils.USER_ALL_PERMISSIONS;
+import java.util.List;
 import java.util.Set;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
@@ -25,6 +29,7 @@ public class AuthNZTest extends AbstractTestClass {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        setDefaultRunAs(AuthenticationUtil.getAdminUserName());
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
         TestUtils.wipeData(getServiceRegistry());
         TestUtils.setupFullTestUsers(getServiceRegistry());
@@ -83,7 +88,6 @@ public class AuthNZTest extends AbstractTestClass {
         AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_WORKFLOW_READ);
         Application application = getApplicationBean().getApplication(TestUtils.application1);
         Set<String> authorities = getServiceRegistry().getAuthorityService().getAuthorities();
-        System.out.println(authorities);
         assertEquals(TestUtils.application1, application.asNodeRef());
         
         assertNull(application.getBudget());
@@ -105,5 +109,86 @@ public class AuthNZTest extends AbstractTestClass {
         application = getApplicationBean().getApplication(TestUtils.application1);
         assertEquals(TestUtils.budgetRef2, application.getBudget().asNodeRef());
     }
-
+    
+    public void testGetStatesWithBranchRights() throws Exception{
+        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_BRANCH_READ);
+        
+        Workflow workflow = getWorkflowBean().getWorkflow(TestUtils.workFlowRef1);
+        assertEquals(4, workflow.getStates().size());
+    }
+    
+    public void testGetWorkflowWithMissingRights() throws Exception{
+        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_NO_RIGHTS);
+        
+        try{
+            getWorkflowBean().getWorkflow(TestUtils.workFlowRef1);
+            fail("Getting workflow with no rights should fail");
+        }catch(Exception ex){
+            
+        }
+    }
+    
+    public void testGetBranchWithNoRights() throws Exception{
+        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_NO_RIGHTS);
+        
+        try{
+            getBranchBean().getBranch(TestUtils.branchRef1);
+            fail("Getting branch with no rights should fail");
+        }catch(Exception ex){
+            
+        }
+    }
+    
+    public void testGetBranchWithInsuficcientRights() throws Exception{
+        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_BRANCH_READ);
+        
+        try{
+            getBranchBean().getBranch(TestUtils.branchRef2);
+            fail("Getting branch with no rights should fail");
+        }catch(Exception ex){
+            
+        }
+    }
+    
+    public void testWorkflow() throws Exception{
+        Workflow workflow = get(Workflow.class, "workflow/"+TestUtils.workFlowRef1.getId(), TestUtils.USER_BRANCH_READ);
+        assertEquals(TestUtils.workFlowRef1, workflow.asNodeRef());  
+    }
+    
+    public void testGetSingleApplication() throws Exception{
+        Application application = get(Application.class, "application/"+TestUtils.application3.getId(), TestUtils.USER_SINGLE_APPLICATION_WRITE);
+        assertEquals(TestUtils.application3, application.asNodeRef());
+    }
+    
+    public void testGetSingleApplicationThroughBean() throws Exception{
+        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_SINGLE_APPLICATION_WRITE);
+        Application application = getApplicationBean().getApplication(TestUtils.application3);
+        assertEquals(TestUtils.application3, application.asNodeRef());
+    }
+    
+    public void testGetSingleApplicationThroughBeanNoRights() throws Exception{
+        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_NO_RIGHTS);
+        Application application = getApplicationBean().getApplication(TestUtils.application3);
+        assertEquals(TestUtils.application3, application.asNodeRef());
+    }
+    
+    public void testGetActiveWorkflowsAdmin() throws Exception{
+        List<WorkflowReference> activeWorkflows = get(List.class, WorkflowReference.class, "activeworkflow", TestUtils.ADMIN_USER);
+        assertEquals(2, activeWorkflows.size());   
+    }
+    
+    public void testGetActiveWorkflowsFullRights() throws Exception{
+        List<WorkflowReference> activeWorkflows = get(List.class, WorkflowReference.class, "activeworkflow", TestUtils.USER_ALL_PERMISSIONS);
+        assertEquals(2, activeWorkflows.size());    
+    }
+    
+    public void testGetActiveWorkflows() throws Exception{
+        List<WorkflowReference> activeWorkflows = get(List.class, WorkflowReference.class, "activeworkflow", TestUtils.USER_BRANCH_READ);
+        assertEquals(1, activeWorkflows.size()); 
+    }
+    
+    public void testGetActiveWorkflowsNoRights() throws Exception{
+        List<WorkflowReference> activeWorkflows = get(List.class, WorkflowReference.class, "activeworkflow", TestUtils.USER_NO_RIGHTS);
+        assertEquals(0, activeWorkflows.size());
+    }
 }

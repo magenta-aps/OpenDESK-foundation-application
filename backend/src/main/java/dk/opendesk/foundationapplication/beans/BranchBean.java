@@ -19,11 +19,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.namespace.QName;
 
 /**
@@ -63,7 +65,7 @@ public class BranchBean extends FoundationBean {
         branchParams.put(branchTitle, title);
 
         NodeRef newBranch = getServiceRegistry().getNodeService().createNode(dataHome, dataBranchesQname, branchQname, branchTypeQname, branchParams).getChildRef();
-        authBean.addFullPermission(dataHome, PermissionGroup.BRANCH, newBranch);
+        authBean.addFullPermission(newBranch, PermissionGroup.BRANCH, newBranch);
         authBean.disableInheritPermissions(newBranch);
 
         return newBranch;
@@ -110,8 +112,12 @@ public class BranchBean extends FoundationBean {
     }
 
     public List<NodeRef> getBranches() throws Exception {
+        System.out.println("username: "+getCurrentUserName());
+        System.out.println("authorities: "+getServiceRegistry().getAuthorityService().getAuthorities());
         QName dataBranchesQname = getODFName(DATA_ASSOC_BRANCHES);
         NodeRef dataHome = getDataHome();
+        Set<AccessPermission> accessPermissions = getServiceRegistry().getPermissionService().getPermissions(dataHome);
+        System.out.println("permissions: "+accessPermissions);
         List<ChildAssociationRef> branchAssocs = getServiceRegistry().getNodeService().getChildAssocs(dataHome, dataBranchesQname, null);
         List<NodeRef> branches = new ArrayList<>(branchAssocs.size());
         for (ChildAssociationRef ref : branchAssocs) {
@@ -163,7 +169,7 @@ public class BranchBean extends FoundationBean {
 
     public Branch getBranch(NodeRef branchRef) throws Exception {
         ensureType(getODFName(BRANCH_TYPE_NAME), branchRef);
-
+        
         NodeService ns = getServiceRegistry().getNodeService();
         Branch branch = new Branch();
         branch.parseRef(branchRef);

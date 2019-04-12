@@ -23,11 +23,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.namespace.QName;
 
 /**
@@ -169,6 +171,10 @@ public class WorkflowBean extends FoundationBean {
     }
 
     public Workflow getWorkflow(NodeRef workflowRef) throws Exception {
+        System.out.println("username: "+getCurrentUserName());
+        System.out.println("authorities: "+getServiceRegistry().getAuthorityService().getAuthorities());
+        Set<AccessPermission> accessPermissions = getServiceRegistry().getPermissionService().getPermissions(workflowRef);
+        System.out.println("permissions: "+accessPermissions);
         NodeService ns = getServiceRegistry().getNodeService();
         Workflow workflow = new Workflow();
         workflow.parseRef(workflowRef);

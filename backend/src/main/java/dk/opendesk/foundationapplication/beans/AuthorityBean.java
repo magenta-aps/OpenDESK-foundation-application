@@ -44,12 +44,15 @@ import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_SUBJECT
 import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_TEMPLATE;
 import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_TEMPLATE_MODEL;
 import static org.alfresco.repo.action.executer.MailActionExecuter.PARAM_TO;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author martin
  */
 public class AuthorityBean extends FoundationBean{
+    public static final Logger LOGGER = Logger.getLogger(AuthorityBean.class);
+    
     public static final String ERROR_GROUP_NOT_FOUND = "odf.group.not.found";
     private static final String ERROR_SUBNAME_NOT_FOUND = "odf.subname.not.found";
     private static final String ERROR_SUBNAME_NOT_UNIQUE = "odf.subname.not.unique";
@@ -149,6 +152,7 @@ public class AuthorityBean extends FoundationBean{
     
     public void addReadPermission(NodeRef target, String authority){
         PermissionService ps = getServiceRegistry().getPermissionService();
+        ps.setPermission(target, authority, PermissionService.CONSUMER, true);
         ps.setPermission(target, authority, PermissionService.READ, true);
         ps.setPermission(target, authority, PermissionService.READ_PERMISSIONS, true);
         ps.setPermission(target, authority, PermissionService.READ_CONTENT, true);
@@ -200,6 +204,7 @@ public class AuthorityBean extends FoundationBean{
     public void removeReadPermission(NodeRef target, PermissionGroup group, NodeRef subName){
         PermissionService ps = getServiceRegistry().getPermissionService();
         String readPermissionGroup = getOrCreateGroup(group, subName, false);        
+        ps.deletePermission(target, readPermissionGroup, PermissionService.CONSUMER);
         ps.deletePermission(target, readPermissionGroup, PermissionService.READ);
         ps.deletePermission(target, readPermissionGroup, PermissionService.READ_PERMISSIONS);
         ps.deletePermission(target, readPermissionGroup, PermissionService.READ_CONTENT);
@@ -253,13 +258,17 @@ public class AuthorityBean extends FoundationBean{
     
     public String getOrCreateGroup(PermissionGroup group, NodeRef subName, boolean write){
         AuthorityService as = getServiceRegistry().getAuthorityService();
+        return getOrCreateGroup(group, subName, write, as);
+    }
+    
+    public static String getOrCreateGroup(PermissionGroup group, NodeRef subName, boolean write, AuthorityService as){
         String shortName = group.getShortName(subName)+(!write ? "_Read" : "");
         String groupName = as.getName(AuthorityType.GROUP, shortName);
         if(!as.authorityExists(groupName)){
             String newGroupName = as.createAuthority(AuthorityType.GROUP, shortName);
-            getLogger().debug("Created new group: "+newGroupName);
+            LOGGER.debug("Created new group: "+newGroupName);
             if(write){
-                linkAuthorities(newGroupName, getOrCreateGroup(group, subName, false));
+                linkAuthorities(newGroupName, getOrCreateGroup(group, subName, false, as), as);
             }
             if(!newGroupName.equals(groupName)){
                 //If this happens, group names are not created as we expect.
@@ -267,14 +276,14 @@ public class AuthorityBean extends FoundationBean{
             }
             if(subName != null){
                 //This is a subgroup, and should be added to the supergroup.
-                String superGroup = getOrCreateGroup(group, null, write);
-                linkAuthorities(superGroup, groupName);
-                linkAuthorities(groupName, getOrCreateGroup(PermissionGroup.BASIC, null, true));
+                String superGroup = getOrCreateGroup(group, null, write, as);
+                linkAuthorities(superGroup, groupName, as);
+                linkAuthorities(groupName, getOrCreateGroup(PermissionGroup.BASIC, null, true, as), as);
             }else{ 
                 if (!PermissionGroup.SUPER.equals(group)) {
                     //This is a supergroup, add it so superadmin group
-                    String superAdminGroup = getOrCreateGroup(PermissionGroup.SUPER, null, write);
-                    linkAuthorities(superAdminGroup, groupName);
+                    String superAdminGroup = getOrCreateGroup(PermissionGroup.SUPER, null, write, as);
+                    linkAuthorities(superAdminGroup, groupName, as);
                 }
             }
         }else{
@@ -285,11 +294,19 @@ public class AuthorityBean extends FoundationBean{
     
     public void linkAuthorities(String inherits, String from){
         AuthorityService as = getServiceRegistry().getAuthorityService();
-        as.addAuthority(from, inherits);
+        linkAuthorities(inherits, from, as);
     }
     
     public void unlinkAuthorities(String inherits, String from){
         AuthorityService as = getServiceRegistry().getAuthorityService();
+        unlinkAuthorities(inherits, from, as);
+    }
+    
+    public static void linkAuthorities(String inherits, String from, AuthorityService as){
+        as.addAuthority(from, inherits);
+    }
+    
+    public static void unlinkAuthorities(String inherits, String from, AuthorityService as){
         as.removeAuthority(from, inherits);
     }
     

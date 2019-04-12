@@ -541,6 +541,9 @@ public final class TestUtils {
         workflowBean.setAuthBean(authBean);
         
         setupBranch4(branchBean, workflowBean, budgetBean);
+        setupWorkflow3(workflowBean);
+        setupBudget4(budgetBean);
+        setupBudget5(budgetBean);
         LOGGER.info("Created full flow in "+(System.currentTimeMillis()-startTime));
     }
     
@@ -608,6 +611,7 @@ public final class TestUtils {
 
         authBean.addReadPermission(application3, USER_SINGLE_APPLICATION_WRITE);
         authBean.addWritePermission(application3, USER_SINGLE_APPLICATION_WRITE);
+        authBean.addUserToGroup(USER_SINGLE_APPLICATION_WRITE, authBean.getGroup(PermissionGroup.BASIC, true));
         
         
         

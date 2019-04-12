@@ -25,10 +25,13 @@ public class GetWorkflowsActive extends JacksonBackedWebscript{
 
     @Override
     protected List<WorkflowReference> doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
+        System.out.println("GAW auths"+getServiceRegistry().getAuthorityService().getAuthorities());
         //A workflow can be used by several branches. We do not want duplicates, so we use a set which will ignore repeated equal noderefs.
         Set<WorkflowReference> workflows = new TreeSet<>((o1, o2) -> o1.getNodeRef().compareTo(o2.getNodeRef()));
         for(BranchSummary branch : getBranchBean().getBranchSummaries()){
-            workflows.add(branch.getWorkflowRef());
+            if(branch.getWorkflowRef() != null){
+                workflows.add(branch.getWorkflowRef());
+            }
         }
         List<WorkflowReference> workflowList = new ArrayList<>(workflows);
         Collections.sort(workflowList, new Comparator<WorkflowReference>() {

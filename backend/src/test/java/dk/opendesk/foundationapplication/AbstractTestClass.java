@@ -96,11 +96,15 @@ public class AbstractTestClass extends BaseWebScriptTest {
     }
     
     protected <R> R get(Class<R> returnType, String path) throws IOException{
+        return get(returnType, path, TestUtils.ADMIN_USER);
+    }
+    
+    protected <R> R get(Class<R> returnType, String path, String username) throws IOException{
         ObjectMapper mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         TestWebScriptServer.GetRequest request = new TestWebScriptServer.GetRequest(getPath(path));
         request.setHeaders(Collections.singletonMap("Accept", "application/json"));
-        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, TestUtils.ADMIN_USER);
+        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, username);
         return mapper.readValue(response.getContentAsString(), returnType);
     }
     
@@ -109,23 +113,30 @@ public class AbstractTestClass extends BaseWebScriptTest {
     }
     
     protected <R, C extends Collection<R>> C get(Class<C> collectionType, Class<R> returnType, String path) throws IOException{
+        return get(collectionType, returnType, path, TestUtils.ADMIN_USER);
+    }
+    protected <R, C extends Collection<R>> C get(Class<C> collectionType, Class<R> returnType, String path, String username) throws IOException{
         ObjectMapper mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         CollectionType type = mapper.getTypeFactory().constructCollectionType(collectionType, returnType);
         TestWebScriptServer.GetRequest request = new TestWebScriptServer.GetRequest(getPath(path));
         request.setHeaders(Collections.singletonMap("Accept", "application/json"));
-        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, TestUtils.ADMIN_USER);
+        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, username);
         String returnText = response.getContentAsString();
         return mapper.readValue(returnText, type);
     }
 
     protected <K, V, M extends Map<K, V>> M get(Class<M> mapType, Class<K> keyType, Class<V> valueType, String path) throws IOException{
+        return get(mapType, keyType, valueType, path, TestUtils.ADMIN_USER);
+    }
+
+    protected <K, V, M extends Map<K, V>> M get(Class<M> mapType, Class<K> keyType, Class<V> valueType, String path, String username) throws IOException{
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         MapType type = mapper.getTypeFactory().constructMapType(mapType,keyType,valueType);
         TestWebScriptServer.GetRequest request = new TestWebScriptServer.GetRequest(getPath(path));
         request.setHeaders(Collections.singletonMap("Accept", "application/json"));
-        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, TestUtils.ADMIN_USER);
+        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, username);
         return mapper.readValue(response.getContentAsString(), type);
     }
 
@@ -135,15 +146,18 @@ public class AbstractTestClass extends BaseWebScriptTest {
     }
     
     protected <S, R, C extends Collection<R>> C post(S toSend, Class<C> collection, Class<R> recieve, String path) throws IOException{
+        return post(toSend, collection, recieve, path, TestUtils.ADMIN_USER);
+    }    
+    
+    protected <S, R, C extends Collection<R>> C post(S toSend, Class<C> collection, Class<R> recieve, String path, String username) throws IOException{
         ObjectMapper mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         CollectionType type = mapper.getTypeFactory().constructCollectionType(collection, recieve);
         String data = getContent(toSend, mapper);
 
         TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest(getPath(path), data, "application/json");
-        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, TestUtils.ADMIN_USER);
+        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, username);
         return mapper.readValue(response.getContentAsString(), type);
-        
     }
     
     protected <S> void post(S toSend) throws IOException, JSONException {
@@ -168,12 +182,17 @@ public class AbstractTestClass extends BaseWebScriptTest {
     }
 
     protected <S, R> R post(S toSend, Class<R> recieve, String path, int statusCode) throws IOException {
+        return post(toSend, recieve, path, statusCode, TestUtils.ADMIN_USER);
+
+    }
+    
+        protected <S, R> R post(S toSend, Class<R> recieve, String path, int statusCode, String username) throws IOException {
         ObjectMapper mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String data = getContent(toSend, mapper);
 
         TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest(getPath(path), data, "application/json");
-        TestWebScriptServer.Response response = sendRequest(request, statusCode, TestUtils.ADMIN_USER);
+        TestWebScriptServer.Response response = sendRequest(request, statusCode, username);
         if(recieve != null){
             return mapper.readValue(response.getContentAsString(), recieve);
         }
@@ -182,10 +201,14 @@ public class AbstractTestClass extends BaseWebScriptTest {
     }
 
     protected <R> R delete(Class<R> returnType, String path) throws IOException{
+        return delete(returnType, path, TestUtils.ADMIN_USER);
+    }
+    
+        protected <R> R delete(Class<R> returnType, String path, String username) throws IOException{
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         TestWebScriptServer.DeleteRequest request = new TestWebScriptServer.DeleteRequest(getPath(path));
-        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, TestUtils.ADMIN_USER);
+        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK, username);
         if (returnType == String.class) {
             return (R) response.getContentAsString();
         }
