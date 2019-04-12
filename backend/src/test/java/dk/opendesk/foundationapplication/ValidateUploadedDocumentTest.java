@@ -1,26 +1,15 @@
 package dk.opendesk.foundationapplication;
 
-import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
-import org.alfresco.repo.content.filestore.FileContentReader;
-import org.alfresco.repo.forms.FormData;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
-import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
-import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.springframework.extensions.webscripts.Status;
+import org.apache.commons.io.IOUtils;
 import org.springframework.extensions.webscripts.TestWebScriptServer;
 
-import javax.mail.internet.ContentType;
-import java.io.File;
-import java.io.InputStream;
-
-import static org.alfresco.model.ContentModel.TYPE_CONTENT;
-
-public class ValidateUploadedDocumentTest extends AbstractTestClass{
+public class ValidateUploadedDocumentTest extends AbstractTestClass {
 
     public ValidateUploadedDocumentTest() {
         super("/api/upload");
@@ -50,43 +39,22 @@ public class ValidateUploadedDocumentTest extends AbstractTestClass{
         System.out.println("\n-------doc-folder-----------------");
         NodeRef docFolderRef = getApplicationBean().getOrCreateDocumentFolder(appRef);
 
-        System.out.println("\n-------test-folder-----------------");
-        NodeRef testFolder = ns.createNode(docFolderRef, ContentModel.ASSOC_CONTAINS, Utilities.getODFName("testFolder"), ContentModel.TYPE_FOLDER).getChildRef();
 
         System.out.println("\n-------temp-folder-----------------");
         NodeRef tempFolderRef = getApplicationBean().getOrCreateTempDocumentFolder(appRef);
 
-        System.out.println("\n------- creating node -----------------");
-        NodeRef docNodeRef = ns.createNode(testFolder, ContentModel.ASSOC_CONTAINS, Utilities.getODFName("testDocument"), TYPE_CONTENT).getChildRef();
-
-        System.out.println("\n------- adding content to node -----------------");
-        InputStream stream = getClass().getResourceAsStream("/alfresco/module/repo/bootstrap/files/testFile1.txt");
-        ContentWriter writer = cs.getWriter(docNodeRef, ContentModel.PROP_CONTENT, true);
-        //writer.setLocale(CONTENT_LOCALE);
-        writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN);
-        writer.putContent(stream);
-
-        System.out.println("\n-------moving node to tempfolder-----------------");
-        ns.moveNode(docNodeRef, tempFolderRef, Utilities.getCMName("contains"), Utilities.getODFName("testDocument"));
 
         System.out.println("\n-------with sendRequest-----------------");
 
-        File file = new File(ValidateUploadedDocumentTest.class.getResource("/alfresco/module/repo/bootstrap/files/testFile1.txt").getFile());
-        System.out.println(file.getAbsolutePath());
 
-        System.out.println("-- checkpoint --");
-        ContentReader reader = new FileContentReader(file);
-        reader.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN);
+        byte[] fileContent = IOUtils.toByteArray(getClass().getResourceAsStream("/alfresco/module/repo/bootstrap/files/testFile1.txt"));
 
-        FormData formData = new FormData();
-        formData.addFieldData("filename", "testName");
-        formData.addFieldData("destination", tempFolderRef);
-        formData.addFieldData("filedata", reader.getContentString());
+        // TODO: the request object below probably has to be constructed in another way...
 
-        System.out.println(formData.toString());
-
-        TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest("http://localhost:8080/alfresco/s/api/upload", formData.toString(), "multipart/form-data");
+//        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+        TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest("/api/upload", fileContent, MimetypeMap.MIMETYPE_TEXT_PLAIN);
         TestWebScriptServer.Response response = sendRequest(request, 200, TestUtils.ADMIN_USER);
-        System.out.println(response);
+
+
     }
 }
