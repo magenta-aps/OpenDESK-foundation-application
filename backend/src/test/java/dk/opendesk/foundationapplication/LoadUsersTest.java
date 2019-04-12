@@ -457,6 +457,15 @@ public class LoadUsersTest extends AbstractTestClass {
 
     }
 
+    public void testWrongGroups() throws JSONException {
+        JSONObject BranchGroup = new JSONObject().put("Branch", "write");
+        String rightUsers = createUserList();
+
+        getAuthorityBean().loadUsers(wrongGroup,rightUsers,"testSubject", getActionBean().getEmailTemplate(TEST_TEMPLATE_NAME), emptyStringModel);
+
+
+    }
+
     public String getAuthString(PermissionGroup group, NodeRef subName, boolean write) {
 
         String shortName = group.getShortName(subName) +(!write ? "_Read" : "");
