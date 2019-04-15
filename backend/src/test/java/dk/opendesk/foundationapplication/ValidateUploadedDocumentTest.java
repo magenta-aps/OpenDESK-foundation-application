@@ -69,6 +69,7 @@ public class ValidateUploadedDocumentTest extends AbstractTestClass{
         System.out.println("\n-------moving node to tempfolder-----------------");
         ns.moveNode(docNodeRef, tempFolderRef, Utilities.getCMName("contains"), Utilities.getODFName("testDocument"));
 
+        /*
         System.out.println("\n-------with sendRequest-----------------");
 
         File file = new File(ValidateUploadedDocumentTest.class.getResource("/alfresco/module/repo/bootstrap/files/testFile1.txt").getFile());
@@ -88,5 +89,6 @@ public class ValidateUploadedDocumentTest extends AbstractTestClass{
         TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest("http://localhost:8080/alfresco/s/api/upload", formData.toString(), "multipart/form-data");
         TestWebScriptServer.Response response = sendRequest(request, 200, TestUtils.ADMIN_USER);
         System.out.println(response);
+        */
     }
 }

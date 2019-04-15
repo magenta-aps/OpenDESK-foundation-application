@@ -3,6 +3,7 @@ package dk.opendesk.foundationapplication.behavior;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import dk.opendesk.foundationapplication.Utilities;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.NodeServicePolicies;
@@ -23,6 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static dk.opendesk.foundationapplication.Utilities.APPLICATION_FOLDER_DOCUMENT_TEMP;
@@ -88,7 +92,8 @@ public class ValidateUploadedDocument implements NodeServicePolicies.OnCreateChi
 
         ContentReader reader = contentService.getReader(childRef, ContentModel.PROP_CONTENT);
         String mimeType = reader.getMimetype();
-        String fileName = reader.getContentData().getContentUrl();
+        System.out.println("mimeType : " + mimeType);
+        String fileName = reader.getContentData().getContentUrl(); //todo Har brug for det rigtige filnavn
         System.out.println("fileName : " + fileName);
         System.out.println(reader.getContentString());
         nodeService.getPath(childRef).last();
@@ -120,6 +125,17 @@ public class ValidateUploadedDocument implements NodeServicePolicies.OnCreateChi
 
         //nodeService.
 */
+
+        //Validation passed:
+        try {
+            NodeRef statusNodeRef = nodeService.createNode(Utilities.getDataNode(serviceRegistry),ContentModel.TYPE_CONTENT, ContentModel.TYPE_CONTENT, getODFName("docStatus")).getChildRef();
+            HashMap<String, String> statusMap = new HashMap<>();
+            statusMap.put("status", "OK");
+            nodeService.setProperty(statusNodeRef, getODFName(childRef.getId()), statusMap);
+            System.out.println(statusNodeRef);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
 
