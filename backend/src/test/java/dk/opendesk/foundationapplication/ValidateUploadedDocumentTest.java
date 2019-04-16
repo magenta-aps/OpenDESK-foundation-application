@@ -1,13 +1,10 @@
 package dk.opendesk.foundationapplication;
 
-import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.apache.commons.io.IOUtils;
-import org.springframework.extensions.webscripts.TestWebScriptServer;
 
 public class ValidateUploadedDocumentTest extends AbstractTestClass {
 
@@ -47,14 +44,20 @@ public class ValidateUploadedDocumentTest extends AbstractTestClass {
         System.out.println("\n-------with sendRequest-----------------");
 
 
-        byte[] fileContent = IOUtils.toByteArray(getClass().getResourceAsStream("/alfresco/module/repo/bootstrap/files/testFile1.txt"));
+        //byte[] fileContent = IOUtils.toByteArray(getClass().getResourceAsStream("/alfresco/module/repo/bootstrap/files/testFile1.txt"));
 
+        OdfBaseApiTest test = new OdfBaseApiTest();
+        //test.setup();
+        test.setupTests();
+        test.createTextFile(tempFolderRef.getId(),"test", "This is file content" );
         // TODO: the request object below probably has to be constructed in another way...
+        test.tearDown();
 
-//        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-        TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest("/api/upload", fileContent, MimetypeMap.MIMETYPE_TEXT_PLAIN);
-        TestWebScriptServer.Response response = sendRequest(request, 200, TestUtils.ADMIN_USER);
-
+        //transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+        //TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest("/api/upload", fileContent, MimetypeMap.MIMETYPE_TEXT_PLAIN);
+        //TestWebScriptServer.Response response = sendRequest(request, 200, TestUtils.ADMIN_USER);
 
     }
+
+
 }

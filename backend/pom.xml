@@ -28,7 +28,7 @@
         <alfresco.client.war.folder>${project.build.directory}/${project.build.finalName}-war</alfresco.client.war.folder>
 
         <jdk>1.8</jdk>
-        <alfresco.version>5.1.g</alfresco.version>
+        <alfresco.version>5.2.g</alfresco.version>
         <jackson.version>2.9.7</jackson.version>
         <metrics.version>4.0.5</metrics.version>
         <!-- This control the root logging level for all apps uncomment and change, defaults to WARN
@@ -239,6 +239,11 @@
 		<trimStackTrace>false</trimStackTrace>
 	</configuration>
         </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>9.4.16.v20190411</version>
+            </plugin>
         </plugins>
     </build>
 
