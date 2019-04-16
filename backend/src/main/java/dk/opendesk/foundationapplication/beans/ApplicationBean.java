@@ -509,6 +509,7 @@ public class ApplicationBean extends FoundationBean {
         if (found) {
             setApplicationState(app.asNodeRef(), newStateRef);
         } else {
+            //todo vi skal kunne flytte states den modsatte vej i workflowet
             throw new AlfrescoRuntimeException(INVALID_STATE);
         }
 
