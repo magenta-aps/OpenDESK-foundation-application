@@ -1,8 +1,10 @@
 package dk.opendesk.foundationapplication.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
+import dk.opendesk.foundationapplication.Utilities;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
@@ -12,8 +14,11 @@ import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 public class AddFieldsToApplicationAction extends ActionExecuterAbstractBase {
 
@@ -51,7 +56,17 @@ public class AddFieldsToApplicationAction extends ActionExecuterAbstractBase {
         }
 
         //checking if the fields already exists
-        List<ApplicationFieldValue> newFields = (List<ApplicationFieldValue>) action.getParameterValue(PARAM_FIELDS);
+        List<ApplicationFieldValue> newFields = new ArrayList<>();
+        for (LinkedHashMap field : (ArrayList<LinkedHashMap<String, String>>) action.getParameterValue(PARAM_FIELDS)) {
+            ApplicationFieldValue newField = new ApplicationFieldValue();
+            for (String key : (Set<String>) field.keySet()) {
+                switch (key) {
+                    case "id":
+                        newField.setId((String) field.get(key));
+                        her er jeg igang 
+                }
+            }
+        }
         List<ApplicationFieldValue> oldFields = oldBlock.getFields();
 
         if (oldFields != null) {

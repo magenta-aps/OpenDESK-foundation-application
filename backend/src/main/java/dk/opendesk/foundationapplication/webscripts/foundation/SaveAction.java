@@ -17,6 +17,7 @@ import static dk.opendesk.foundationapplication.Utilities.getODFName;
 public class SaveAction extends JacksonBackedWebscript {
     @Override
     protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
+        System.out.println("------------>" + req.getContent().getContent());
 
         String actionName = getUrlParams().get("action");
         FoundationActionValue foundationAction = getRequestAs(FoundationActionValue.class);
