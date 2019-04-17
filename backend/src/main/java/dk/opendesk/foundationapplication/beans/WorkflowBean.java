@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -250,6 +251,24 @@ public class WorkflowBean extends FoundationBean {
         reference.parseRef(stateRef);
         reference.setTitle(getProperty(stateRef, STATE_PARAM_TITLE, String.class));
         return reference;
+    }
+    
+    /**
+     * Returns the category of the specified state. Ignores access rights. (Runs as system)
+     * @param stateRef
+     * @return
+     * @throws Exception
+     */
+    public StateCategory getStateCategoryByStateRef(NodeRef stateRef) throws Exception {
+        ensureType(STATE_TYPE_NAME, stateRef);
+        return AuthenticationUtil.runAsSystem(() -> StateCategory.getFromName(getProperty(stateRef, STATE_PARAM_CATEGORY, String.class)));    
+    }
+    public StateCategory getStateCategoryByApplicationRef(NodeRef applicationRef) throws Exception {
+        ensureType(APPLICATION_TYPE_NAME, applicationRef);
+        return AuthenticationUtil.runAsSystem(() -> {
+            NodeRef stateRef = applicationBean.getApplicationState(applicationRef);
+            return StateCategory.getFromName(getProperty(stateRef, STATE_PARAM_CATEGORY, String.class));
+        });    
     }
 
 }

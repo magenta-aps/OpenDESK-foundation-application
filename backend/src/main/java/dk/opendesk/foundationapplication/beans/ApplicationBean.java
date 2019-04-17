@@ -343,7 +343,7 @@ public class ApplicationBean extends FoundationBean {
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(getODFName(FIELD_PARAM_OPTIONS), field.getOptions());
         if(!getServiceRegistry().getNodeService().hasAspect(staticFieldRef, getODFName(STATICMULTIFIELD_ASPECT_NAME))){
-            properties.put(getODFName(FIELD_PARAM_VALUE), field.getValue());
+            properties.put(getODFName(FIELD_PARAM_VALUE), field.getSingularValue());
         }
         
         NodeRef fieldRef = getServiceRegistry().getNodeService().createNode(blockRef, getODFName(BLOCKIMPL_ASSOC_FIELDS), getODFName(field.getId()), getODFName(FIELD_TYPE_NAME), properties).getChildRef();
@@ -586,7 +586,7 @@ public class ApplicationBean extends FoundationBean {
         return schema;
     }
 
-    public ApplicationBlockSpecification getBlockSpecification(NodeRef nodeRef) throws Exception {
+    public ApplicationBlockSpecification getBlockSpecification(NodeRef nodeRef, StateCategory stateCategory) throws Exception {
         ensureType(BLOCKSPEC_TYPE_NAME, nodeRef);
 
         ApplicationBlockSpecification blockSpecfication = new ApplicationBlockSpecification();
@@ -603,7 +603,8 @@ public class ApplicationBean extends FoundationBean {
 
         List<ApplicationField> fields = new ArrayList<>();
         for (AssociationRef field : fieldRefs) {
-            fields.add(getFieldSpec(field.getTargetRef()));
+            MultiFieldData fieldData = getFieldSpec(field.getTargetRef());
+            fields.add(getFrontendField(fieldData, stateCategory, getCurrentUserName()));
         }
 
         blockSpecfication.setFields(fields);
@@ -629,7 +630,7 @@ public class ApplicationBean extends FoundationBean {
         List<ApplicationFieldValue> fields = new ArrayList<>();
         for (ChildAssociationRef field : fieldRefs) {
             MultiFieldDataValue fieldData = getField(field.getChildRef());
-            ApplicationFieldValue applicationField = getField(fieldData, currentStateCategory, getCurrentUserName());
+            ApplicationFieldValue applicationField = ApplicationBean.this.getFrontendField(fieldData, currentStateCategory, getCurrentUserName());
             fields.add(applicationField);
         }
 
@@ -843,7 +844,7 @@ public class ApplicationBean extends FoundationBean {
         
     }
     
-    public ApplicationFieldValue getField(MultiFieldDataValue fieldData, StateCategory currentApplicationStateCategory, String username){
+    public ApplicationFieldValue getFrontendField(MultiFieldDataValue fieldData, StateCategory currentApplicationStateCategory, String username){
         if(fieldData.getAggregatorAsClass() == null){
             return getBasicField(fieldData);
         }else{
@@ -865,7 +866,7 @@ public class ApplicationBean extends FoundationBean {
         }
     }
     
-    public ApplicationField getField(MultiFieldData fieldData, StateCategory currentApplicationStateCategory, String username){
+    public ApplicationField getFrontendField(MultiFieldData fieldData, StateCategory currentApplicationStateCategory, String username){
         if(fieldData.getAggregatorAsClass() == null){
             return getBasicField(fieldData);
         }else{
@@ -1068,9 +1069,11 @@ public class ApplicationBean extends FoundationBean {
 
         List<ChildAssociationRef> blockRefs = getServiceRegistry().getNodeService().getChildAssocs(applicationSummary, getODFName(APPLICATION_ASSOC_BLOCKS), null);
         List<ApplicationBlock> blocks = new ArrayList<>();
-
+        
+        StateCategory category = workflowBean.getStateCategoryByApplicationRef(applicationSummary);
+        
         for (ChildAssociationRef blockRef : blockRefs) {
-            blocks.add(getBlock(blockRef.getChildRef()));
+            blocks.add(getBlock(blockRef.getChildRef(), category));
         }
 
         app.setBlocks(blocks);
@@ -1086,15 +1089,7 @@ public class ApplicationBean extends FoundationBean {
         application.setTitle(getProperty(applicationRef, APPLICATION_PARAM_TITLE, String.class));
         application.setIsSeen(isApplicationSeen(applicationRef, getCurrentUserName()));
 
-        List<ChildAssociationRef> blockRefs = getServiceRegistry().getNodeService().getChildAssocs(applicationRef, getODFName(APPLICATION_ASSOC_BLOCKS), null);
-        List<ApplicationBlock> blocks = new ArrayList<>();
-
-        for (ChildAssociationRef blockRef : blockRefs) {
-            blocks.add(getBlock(blockRef.getChildRef()));
-        }
-
-        application.setBlocks(blocks);
-
+        
         NodeRef branchRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BRANCH);
         NodeRef budgetRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET);
         NodeRef stateRef = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_STATE);
@@ -1114,6 +1109,7 @@ public class ApplicationBean extends FoundationBean {
                 //Skip the node and continue
             }
         }
+        StateCategory category = null;
         if (stateRef != null) {
             try {
                 StateReference state = workflowBean.getStateReference(stateRef);
@@ -1123,10 +1119,21 @@ public class ApplicationBean extends FoundationBean {
                     WorkflowReference workflow = workflowBean.getWorkflowReference(workflowRef);
                     application.setWorkflow(workflow);
                 }
+                category = workflowBean.getStateCategoryByStateRef(stateRef);
             } catch (AccessDeniedException ex) {
                 //Skip the node and continue
             }
         }
+        
+        List<ChildAssociationRef> blockRefs = getServiceRegistry().getNodeService().getChildAssocs(applicationRef, getODFName(APPLICATION_ASSOC_BLOCKS), null);
+        List<ApplicationBlock> blocks = new ArrayList<>();
+
+        for (ChildAssociationRef blockRef : blockRefs) {
+            blocks.add(getBlock(blockRef.getChildRef(), category));
+        }
+
+        application.setBlocks(blocks);
+
 
 //        NodeRef projectDesc = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_PROJECT_DESCRIPTION_DOC);
 //        NodeRef budgetDoc = getSingleTargetAssoc(applicationRef, APPLICATION_ASSOC_BUDGET_DOC);

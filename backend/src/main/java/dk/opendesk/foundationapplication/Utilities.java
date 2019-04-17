@@ -20,6 +20,7 @@ import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.FoundationActionParameterDefinition;
 import dk.opendesk.foundationapplication.DAO.FoundationActionParameterValue;
+import dk.opendesk.foundationapplication.DAO.MultiFieldData;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.JSON.ApplicationPropertyDeserializer;
 import dk.opendesk.foundationapplication.JSON.ApplicationPropertySerializer;
@@ -327,7 +328,7 @@ public final class Utilities {
         for (ApplicationSummary application : applicationBean.getDeletedApplicationSummaries()) {
             nodeService.removeChild(dataRef, application.asNodeRef());
         }
-        for (ApplicationField applicationField : applicationBean.getApplicationFieldSpecs()) {
+        for (MultiFieldData applicationField : applicationBean.getApplicationFieldSpecs()) {
             nodeService.removeChild(dataRef, applicationField.asNodeRef());
         }
     }
