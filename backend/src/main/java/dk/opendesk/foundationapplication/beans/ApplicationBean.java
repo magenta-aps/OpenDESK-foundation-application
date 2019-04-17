@@ -496,7 +496,7 @@ public class ApplicationBean extends FoundationBean {
         NodeRef currentState = getSingleTargetAssoc(app.asNodeRef(), APPLICATION_ASSOC_STATE);
         StateReference newState = app.getState();
         //The state didn't change. Don't continue.
-        if (currentState.equals(newState.asNodeRef())) {
+        if (newState.asNodeRef().equals(currentState)) {
             return;
         }
 
