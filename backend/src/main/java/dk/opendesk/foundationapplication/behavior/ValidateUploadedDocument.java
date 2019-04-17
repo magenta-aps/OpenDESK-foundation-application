@@ -122,25 +122,7 @@ public class ValidateUploadedDocument implements NodeServicePolicies.OnCreateChi
         if (!QName.createQName(nodeService.getPath(docFolder).last().getElementString()).getLocalName().equals("documentFolder")) {
             throw new AlfrescoRuntimeException(EXCEPTION_DOCUMENT_FOLDER);
         }
-
-        //nodeService.
-*/
-
-        //Validation passed:
-        try {
-            NodeRef statusNodeRef = nodeService.createNode(Utilities.getDataNode(serviceRegistry),ContentModel.TYPE_CONTENT, ContentModel.TYPE_CONTENT, getODFName("docStatus")).getChildRef();
-            HashMap<String, String> statusMap = new HashMap<>();
-            statusMap.put("status", "OK");
-            nodeService.setProperty(statusNodeRef, getODFName(childRef.getId()), statusMap);
-            System.out.println(statusNodeRef);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-
-
-        //System.out.println(nodeService.getProperty(childRef, ContentModel.PROP_CONTENT).toString());
+        */
 
     }
 

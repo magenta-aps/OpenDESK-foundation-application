@@ -62,7 +62,6 @@ public class ValidateUploadedDocumentTest extends AbstractTestClass{
         System.out.println("\n------- adding content to node -----------------");
         InputStream stream = getClass().getResourceAsStream("/alfresco/module/repo/bootstrap/files/testFile1.txt");
         ContentWriter writer = cs.getWriter(docNodeRef, ContentModel.PROP_CONTENT, true);
-        //writer.setLocale(CONTENT_LOCALE);
         writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN);
         writer.putContent(stream);
 
