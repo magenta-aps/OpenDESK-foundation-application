@@ -1,22 +1,22 @@
 package dk.opendesk.foundationapplication;
 
-import org.alfresco.model.ContentModel;
-import org.alfresco.repo.content.MimetypeMap;
-import org.alfresco.repo.forms.FormData;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
-import org.alfresco.service.cmr.repository.ContentService;
-import org.alfresco.service.cmr.repository.ContentWriter;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.TestWebScriptServer;
 
-import javax.mail.internet.ContentType;
-import java.io.InputStream;
-
-import static org.alfresco.model.ContentModel.TYPE_CONTENT;
-
+import java.util.Collections;
+import java.util.Scanner;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.json.JSONException;
+import org.json.JSONObject;
 public class ValidateUploadedDocumentTest extends AbstractTestClass{
 
     public ValidateUploadedDocumentTest() {
@@ -35,6 +35,64 @@ public class ValidateUploadedDocumentTest extends AbstractTestClass{
     protected void tearDown() throws Exception {
         TestUtils.wipeData(getServiceRegistry());
     }
+    
+    public void testUploadDocument() throws Exception{
+        TestWebScriptServer.GetRequest request = new TestWebScriptServer.GetRequest("api/upload");
+        request.setHeaders(Collections.singletonMap("Content-Type", "application/json"));
+        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK); //as user
+    }
+    
+    public void testFormData() throws Exception{
+        MultipartEntityBuilder uploadRequest = MultipartEntityBuilder.create().setCharset(Charset.forName("UTF-8"));
+        
+        uploadRequest.addTextBody("mytest", "mybody", ContentType.TEXT_PLAIN);
+        HttpEntity entity = uploadRequest.build();
+        
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        entity.writeTo(stream);
+        
+        
+        System.out.println("Content\n" +stream.toString());
+        
+        System.out.println("Headername " + entity.getContentType().getName());
+        System.out.println("HeaderValue " +entity.getContentType().getValue());
+    }
+    
+    public void testUpload() throws IOException, JSONException{
+        String nodeRef = Utilities.getOdfEmailTemplateFolder(getServiceRegistry()).toString();
+        String filename = "myfile.txt";
+        
+        MultipartEntityBuilder uploadRequest = MultipartEntityBuilder.create();
+        uploadRequest.addTextBody("filename", filename);
+        uploadRequest.addTextBody("destination", nodeRef);
+        
+        InputStream fileInputStream = getClass().getResourceAsStream("/alfresco/module/repo/bootstrap/textTemplates.xml");
+        
+        System.out.println(fileInputStream.available());
+        
+        uploadRequest.addBinaryBody("filedata", fileInputStream, ContentType.TEXT_XML, filename);
+        
+        HttpEntity entity = uploadRequest.build();
+        Header contentType = entity.getContentType();
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        entity.writeTo(stream);
+        
+        TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest("api/upload", stream.toString(), contentType.getValue());
+        //request.setHeaders(Collections.singletonMap(contentType.getName(), contentType.getValue()));
+        TestWebScriptServer.Response response = sendRequest(request, Status.STATUS_OK);
+        JSONObject responseJSON = new JSONObject(response.getContentAsString());
+        
+        System.out.println(responseJSON.get("nodeRef"));
+        
+//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//        entity.writeTo(stream);
+//        System.out.println("Content\n" +stream.toString());
+        
+        
+    }
+    
+    
 
     /*
     public void testBehaviourEnabling() throws Exception {

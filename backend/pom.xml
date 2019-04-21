@@ -128,11 +128,16 @@
             <version>21.0</version>
         </dependency>
         
-        <!-- Email testing dependencies -->
+        <!-- Testing dependencies -->
         <dependency>
             <groupId>com.github.sleroy</groupId>
             <artifactId>fakesmtp-junit-runner</artifactId>
             <version>0.1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
             <scope>test</scope>
         </dependency>
         
