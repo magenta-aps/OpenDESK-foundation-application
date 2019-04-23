@@ -1,6 +1,7 @@
 package dk.opendesk.foundationapplication.actions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
@@ -14,11 +15,9 @@ import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 public class AddFieldsToApplicationAction extends ActionExecuterAbstractBase {
 
@@ -56,17 +55,16 @@ public class AddFieldsToApplicationAction extends ActionExecuterAbstractBase {
         }
 
         //checking if the fields already exists
-        List<ApplicationFieldValue> newFields = new ArrayList<>();
-        for (LinkedHashMap field : (ArrayList<LinkedHashMap<String, String>>) action.getParameterValue(PARAM_FIELDS)) {
-            ApplicationFieldValue newField = new ApplicationFieldValue();
-            for (String key : (Set<String>) field.keySet()) {
-                switch (key) {
-                    case "id":
-                        newField.setId((String) field.get(key));
-                        her er jeg igang 
-                }
-            }
+        ObjectMapper mapper = Utilities.getMapper();
+        CollectionType type = mapper.getTypeFactory().constructCollectionType(List.class, ApplicationFieldValue.class);
+        List<ApplicationFieldValue> newFields;
+        try {
+            newFields = mapper.readValue(action.getParameterValue(PARAM_FIELDS).toString(), type);
+            //todo Skal Param_fields bare sættes til at tage strings?+
+        } catch (IOException e) {
+            throw new AlfrescoRuntimeException(EXCEPTION_ADD_FIELDS_FAIL, e);
         }
+
         List<ApplicationFieldValue> oldFields = oldBlock.getFields();
 
         if (oldFields != null) {

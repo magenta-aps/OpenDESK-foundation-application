@@ -1,5 +1,6 @@
 package dk.opendesk.foundationapplication;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
@@ -60,7 +61,7 @@ public class AddFieldsTest extends AbstractTestClass {
         List<ApplicationFieldValue> fields = Arrays.asList(new ApplicationFieldValue[]{field1,field2});
 
         Map<String, Serializable> params = new HashMap<>();
-        params.put(PARAM_FIELDS, (Serializable) fields);
+        params.put(PARAM_FIELDS, Utilities.getMapper().writeValueAsString(fields));
         params.put(PARAM_BLOCK_ID, blockBefore.getId());
         Action action = getServiceRegistry().getActionService().createAction("addFields", params);
         getServiceRegistry().getActionService().executeAction(action, appRef);
@@ -94,7 +95,7 @@ public class AddFieldsTest extends AbstractTestClass {
         List<ApplicationFieldValue> fields = Arrays.asList(new ApplicationFieldValue[]{field1,field2});
 
         Map<String, Serializable> params = new HashMap<>();
-        params.put(PARAM_FIELDS, (Serializable) fields);
+        params.put(PARAM_FIELDS, Utilities.getMapper().writeValueAsString(fields));
         params.put(PARAM_BLOCK_ID, blockBefore.getId());
         Action action = getServiceRegistry().getActionService().createAction("addFields", params);
         try {
@@ -106,14 +107,14 @@ public class AddFieldsTest extends AbstractTestClass {
 
     }
 
-    public void testAddUniqueFieldsWrongBlockId() {
+    public void testAddUniqueFieldsWrongBlockId() throws JsonProcessingException {
         NodeRef appRef = TestUtils.application1;
 
         ApplicationFieldValue field = new ApplicationFieldValue();
         field.setId("a");
 
         Map<String, Serializable> params = new HashMap<>();
-        params.put(PARAM_FIELDS, (Serializable) Collections.singletonList(field));
+        params.put(PARAM_FIELDS, Utilities.getMapper().writeValueAsString(Collections.singletonList(field)));
         params.put(PARAM_BLOCK_ID, "A");
         Action action = getServiceRegistry().getActionService().createAction("addFields", params);
         try {
@@ -139,13 +140,13 @@ public class AddFieldsTest extends AbstractTestClass {
         FoundationActionParameterDefinition<String> stateIdParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, String.class, true, null);
         FoundationActionParameterDefinition<String> aspectParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, String.class, true, null);
         FoundationActionParameterDefinition<String> blockParam = new FoundationActionParameterDefinition<>(PARAM_BLOCK_ID, DataTypeDefinition.TEXT, String.class, false, null);
-        FoundationActionParameterDefinition<List> fieldsParam = new FoundationActionParameterDefinition<>(PARAM_FIELDS, DataTypeDefinition.ANY, List.class, false, null);
+        FoundationActionParameterDefinition<String> fieldsParam = new FoundationActionParameterDefinition<>(PARAM_FIELDS, DataTypeDefinition.ANY, String.class, false, null);
 
         FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, TestUtils.w1StateAccessRef.getId());
         FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue<>(aspectParam, ASPECT_ON_CREATE);
 
         List<FoundationActionParameterValue> params = new ArrayList<>();
-        params.add(new FoundationActionParameterValue<>(fieldsParam, fields));
+        params.add(new FoundationActionParameterValue<>(fieldsParam, Utilities.getMapper().writeValueAsString(fields)));
         params.add(new FoundationActionParameterValue<>(blockParam, blockBefore.getId()));
 
         FoundationActionValue foundationActionValue = new FoundationActionValue(ACTION_NAME_ADD_FIELDS, stateIdParamVal, aspectParamVal, params);
