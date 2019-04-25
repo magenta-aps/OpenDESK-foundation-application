@@ -7,10 +7,14 @@ package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationField;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.FoundationActionParameterDefinition;
+import dk.opendesk.foundationapplication.DAO.FoundationActionParameterValue;
 import dk.opendesk.foundationapplication.DAO.StateReference;
+import dk.opendesk.foundationapplication.Utilities;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.StateCategory;
 
@@ -20,7 +24,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.namespace.QName;
+
+import static dk.opendesk.foundationapplication.Utilities.ACTION_NAME_ADD_FIELDS;
+import static dk.opendesk.foundationapplication.Utilities.ASPECT_ON_CREATE;
+import static dk.opendesk.foundationapplication.actions.AddFieldsToApplicationAction.PARAM_BLOCK_ID;
+import static dk.opendesk.foundationapplication.actions.AddFieldsToApplicationAction.PARAM_FIELDS;
 
 /**
  *
@@ -34,8 +46,8 @@ public class CreateDanvaData extends ResetDemoData {
         
         NodeRef centralWorkflow = createWorkflow("Central");
         
-        NodeRef premeeting1 = createWorkflowState("Udvælg bedømmelser", centralWorkflow, true, null);
-        NodeRef meeting1 = createWorkflowState("Bestyrelsesmøde 1", centralWorkflow, false, null);
+        NodeRef premeeting1 = createWorkflowState("Udvælg bedømmelser", centralWorkflow, true, StateCategory.RECEIVED);
+        NodeRef meeting1 = createWorkflowState("Bestyrelsesmøde 1", centralWorkflow, false, StateCategory.RECEIVED2);
         NodeRef expanded = createWorkflowState("Udvidet ansøgning", centralWorkflow, false, StateCategory.NOMINATED);
         NodeRef meeting2 = createWorkflowState("Møde2", centralWorkflow, false, StateCategory.ACCEPTED);
         NodeRef approved = createWorkflowState("Godkendt", centralWorkflow, false, StateCategory.CLOSED);        
@@ -50,8 +62,41 @@ public class CreateDanvaData extends ResetDemoData {
         
         //NodeRef app1 = createApplication(premeeting1, null, central, "Ansøgning 1", 60000);
         //NodeRef app2 = createApplication(premeeting1, null, central, "Ansøgning 2", 120000);
+        
+        addCreateNewFieldsAction(expanded);
     }
-    
+
+    private void addCreateNewFieldsAction(NodeRef stateRef) throws Exception {
+        QName aspect = Utilities.getODFName(ASPECT_ON_CREATE);
+
+        ApplicationBlock block1 = new ApplicationBlock();
+        block1.setId("newBlock");
+        block1.setLabel("New block");
+
+        ApplicationField field1 = new ApplicationField();
+        field1.setId("cooperation");
+        field1.setLabel("Samarbejde");
+        field1.setType(String.class.getCanonicalName());
+        field1.setComponent("text");
+
+        List<ApplicationField> fields = Arrays.asList(new ApplicationField[]{field1});
+        //FoundationActionParameterDefinition<String> stateIdParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, String.class, true, null);
+        //FoundationActionParameterDefinition<String> aspectParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, String.class, true, null);
+        FoundationActionParameterDefinition<String> blockParam = new FoundationActionParameterDefinition<>(PARAM_BLOCK_ID, DataTypeDefinition.TEXT, String.class, false, null);
+        FoundationActionParameterDefinition<String> fieldsParam = new FoundationActionParameterDefinition<>(PARAM_FIELDS, DataTypeDefinition.ANY, String.class, false, null);
+
+        //FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, stateRef.getId());
+        //FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue<>(aspectParam, ASPECT_ON_CREATE);
+
+        List<FoundationActionParameterValue> params = new ArrayList<>();
+        params.add(new FoundationActionParameterValue<>(fieldsParam, Utilities.getMapper().writeValueAsString(fields)));
+        params.add(new FoundationActionParameterValue<>(blockParam, block1.getId()));
+
+        //FoundationActionValue foundationActionValue = new FoundationActionValue(ACTION_NAME_ADD_FIELDS, stateIdParamVal, aspectParamVal, params);
+        getActionBean().saveAction(ACTION_NAME_ADD_FIELDS,stateRef,aspect,params);
+
+    }
+
     @Override
     public Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) throws Exception {
         String recipient = random(COMPANYNAMES);
