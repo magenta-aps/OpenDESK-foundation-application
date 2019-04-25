@@ -10,12 +10,13 @@ import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.ApplicationField;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
-import dk.opendesk.foundationapplication.DAO.ApplicationSchema;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
+
+import static dk.opendesk.foundationapplication.TestUtils.w1StateRecievedRef;
 import static dk.opendesk.foundationapplication.Utilities.APPLICATION_FOLDER_DOCUMENT;
 import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.RANDOM;
 import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.lorem;
@@ -662,5 +663,19 @@ public class ApplicationTest extends AbstractTestClass{
 
 
 
+    }
+
+
+    public void testMoveApplicationWithWebscript() throws Exception {
+        NodeRef appRef = TestUtils.application1;
+        String appId = appRef.getId();
+        String stateId = w1StateAccessRef.getId();
+        //String data = "{\"nodeRef\" : \"workspace://SpacesStore/"+ appId +"\",\"state\":{\"nodeRef\" : \"workspace://SpacesStore/" + stateId + "\",\"nodeID\":\"" + stateId + "\"}}";
+        String data = "{\"nodeRef\" : \"workspace://SpacesStore/"+ appId +"\",\"state\":{\"nodeID\":\"" + stateId + "\"}}";
+
+        Application change = Utilities.getMapper().readValue(data,Application.class);
+        assertEquals(w1StateRecievedRef, getApplicationBean().getApplication(appRef).getState().asNodeRef());
+        post(change, "/" + appId);
+        assertEquals(w1StateAccessRef, getApplicationBean().getApplication(appRef).getState().asNodeRef());
     }
 }
