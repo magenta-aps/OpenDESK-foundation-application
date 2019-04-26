@@ -5,6 +5,7 @@
  */
 package dk.opendesk.foundationapplication.webscripts.foundation;
 
+import com.benfante.jslideshare.App;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.ApplicationField;
@@ -25,14 +26,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.activiti.engine.impl.json.JsonObjectConverter;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 
-import static dk.opendesk.foundationapplication.Utilities.ACTION_NAME_ADD_FIELDS;
+import static dk.opendesk.foundationapplication.Utilities.ACTION_NAME_ADD_BLOCKS;
 import static dk.opendesk.foundationapplication.Utilities.ASPECT_ON_CREATE;
-import static dk.opendesk.foundationapplication.actions.AddFieldsToApplicationAction.PARAM_BLOCK_ID;
-import static dk.opendesk.foundationapplication.actions.AddFieldsToApplicationAction.PARAM_FIELDS;
+import static dk.opendesk.foundationapplication.actions.AddBlocksToApplicationAction.PARAM_BLOCKS;
 
 /**
  *
@@ -46,8 +47,8 @@ public class CreateDanvaData extends ResetDemoData {
         
         NodeRef centralWorkflow = createWorkflow("Central");
         
-        NodeRef premeeting1 = createWorkflowState("Udvælg bedømmelser", centralWorkflow, true, StateCategory.RECEIVED);
-        NodeRef meeting1 = createWorkflowState("Bestyrelsesmøde 1", centralWorkflow, false, StateCategory.RECEIVED2);
+        NodeRef premeeting1 = createWorkflowState("Udvælg bedømmelser", centralWorkflow, true, null);
+        NodeRef meeting1 = createWorkflowState("Bestyrelsesmøde 1", centralWorkflow, false, null);
         NodeRef expanded = createWorkflowState("Udvidet ansøgning", centralWorkflow, false, StateCategory.NOMINATED);
         NodeRef meeting2 = createWorkflowState("Møde2", centralWorkflow, false, StateCategory.ACCEPTED);
         NodeRef approved = createWorkflowState("Godkendt", centralWorkflow, false, StateCategory.CLOSED);        
@@ -63,37 +64,167 @@ public class CreateDanvaData extends ResetDemoData {
         //NodeRef app1 = createApplication(premeeting1, null, central, "Ansøgning 1", 60000);
         //NodeRef app2 = createApplication(premeeting1, null, central, "Ansøgning 2", 120000);
         
-        addCreateNewFieldsAction(expanded);
+        addCreateNewBlockAction(expanded);
     }
 
-    private void addCreateNewFieldsAction(NodeRef stateRef) throws Exception {
+    private void addCreateNewBlockAction(NodeRef stateRef) throws Exception {
         QName aspect = Utilities.getODFName(ASPECT_ON_CREATE);
 
-        ApplicationBlock block1 = new ApplicationBlock();
-        block1.setId("newBlock");
-        block1.setLabel("New block");
+        // Block with info fields:
 
-        ApplicationField field1 = new ApplicationField();
-        field1.setId("cooperation");
-        field1.setLabel("Samarbejde");
-        field1.setType(String.class.getCanonicalName());
-        field1.setComponent("text");
+        ApplicationBlock infoBlock = new ApplicationBlock();
+        infoBlock.setId("additional_info");
+        infoBlock.setLabel("Eksta information");
 
-        List<ApplicationField> fields = Arrays.asList(new ApplicationField[]{field1});
-        //FoundationActionParameterDefinition<String> stateIdParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_STATE, DataTypeDefinition.TEXT, String.class, true, null);
-        //FoundationActionParameterDefinition<String> aspectParam = new FoundationActionParameterDefinition<>(ACTION_PARAM_ASPECT, DataTypeDefinition.TEXT, String.class, true, null);
-        FoundationActionParameterDefinition<String> blockParam = new FoundationActionParameterDefinition<>(PARAM_BLOCK_ID, DataTypeDefinition.TEXT, String.class, false, null);
-        FoundationActionParameterDefinition<String> fieldsParam = new FoundationActionParameterDefinition<>(PARAM_FIELDS, DataTypeDefinition.ANY, String.class, false, null);
+        ApplicationFieldValue field1 = new ApplicationFieldValue();
+        field1.setId("quality_improvement1");
+        field1.setLabel("Kvalitetsforbedring");
+        field1.setHint("Beskriv projektets effektiviseringspotentiale. Beskriv hvordan projektet bidrager med forbed-ringer via cirkulær økonomi indenfor f.eks. klima, miljø, forbrugere, økonomi, ressourcegen-brug, energibesparelse/produktion, mindre tidsforbrug i drift og arbejdsgange, optimal udnyt-telse af data osv.). Der kan f.eks. være elementer inden for Asset Management, salg af ydelser til andre forsyningsselskaber, vagt og beredskabsforbedringer osv.");
 
-        //FoundationActionParameterValue stateIdParamVal = new FoundationActionParameterValue<>(stateIdParam, stateRef.getId());
-        //FoundationActionParameterValue aspectParamVal = new FoundationActionParameterValue<>(aspectParam, ASPECT_ON_CREATE);
+        ApplicationFieldValue field2 = new ApplicationFieldValue();
+        field2.setId("quality_improvement2");
+        field2.setLabel("Kvalitetsforbedring");
+        field2.setHint("Beskriv hvordan projektet bidrager til kvalitetsforbedring af f.eks. drikkevand, spildevand, res-sourcekvalitet, håndtering af differentieret kvalitet og tilhørende teknologi, kvalitet af proces-serne - fra strategi over planlægning til drift i forsyningen, upcycling og serviceteknologier, do-kumentation af teknologi og procedurer, osv. Ansøger bør forholde sig til, om der skabes et nyt problem andetsteds ved at løse et, f.eks. om der kan opstå forhøjelse af uønskede stoffer i re-cipienten, når proceseffektiviteten forbedres i renseanlægget");
+
+        ApplicationFieldValue field3 = new ApplicationFieldValue();
+        field3.setId("environment_climate_potentiale");
+        field3.setLabel("Miljø- og klimaforbedringspotentiale");
+        field3.setHint("Beskriv projektets miljø- og klimaforbedringspotentiale f.eks. i udledning til recipienter, emissi-onsopgørelser, mindre forbrug af kemikalier osv. Ansøger bør forholde sig til, om der skabes afledte effekter ved at løse et problem et sted, f.eks. at der kan opstå forhøjelse af klimaga-semissioner, når proceseffektiviteten forbedres i renseanlægget.");
+
+        ApplicationFieldValue field4 = new ApplicationFieldValue();
+        field4.setId("security_of_supply");
+        field4.setLabel("Forsyningssikkerhed");
+        field4.setHint("Beskriv om projektet tilfører bedre forsyningssikkerhed eller mindsker den.");
+
+        ApplicationFieldValue field5 = new ApplicationFieldValue();
+        field5.setId("implementation_after_project_end");
+        field5.setLabel("Implementering efter projektafslutning");
+        field5.setHint("Beskriv desuden hvad der sker efter projektet – hvordan implementeres projektresultaterne i branchen, markeds- og eksportmulighederne, eksportmulighederne f.eks. Hvordan sikres en opskalering til praktisk anvendelse i vandsektoren.");
+
+        ApplicationFieldValue field6 = new ApplicationFieldValue();
+        field6.setId("project_completion_risk");
+        field6.setLabel("Risici for projektgennemførsel");
+        field6.setHint("Beskriv risici for projektets gennemførelse og tekniske aspekter. Det kan f.eks. være på forde-ling af mandskabsressourcer pga. arbejdspres, usikkerheder omkring processer og effekter af ændringer, tekniske usikkerheder eller tidsplansforskydninger.");
+
+        ApplicationFieldValue field7 = new ApplicationFieldValue();
+        field7.setId("presentation");
+        field7.setLabel("Formidling");
+        field7.setHint("Beskriv hvordan projektet vil blive formidlet. Beskriv strategien for formidling under og efter projektets afslutning");
+
+        ApplicationFieldValue field8 = new ApplicationFieldValue();
+        field8.setId("cooperation");
+        field8.setLabel("Samarbejde");
+        field8.setHint("Beskriv samarbejdet (grundlaget for samarbejde, valg af samarbejdspartnere, fordele ved samarbejde etc.)");
+
+
+        List<ApplicationFieldValue> infoFields = Arrays.asList(field1,field2,field3,field4,field5,field6,field7,field8);
+        for (ApplicationFieldValue infoField : infoFields) {
+            infoField.setType(String.class.getCanonicalName());
+            infoField.setComponent("textarea");
+            infoField.setLayout("block");
+            infoField.setWrapper("block");
+            infoField.setValidation("{\"max_words\":\"150\"}");
+            infoField.setValue(null);
+        }
+        infoBlock.setFields(infoFields);
+
+        // Block with file fields:
+
+        ApplicationBlock fileBlock = new ApplicationBlock();
+        fileBlock.setId("files");
+        fileBlock.setLabel("Upload af bilag");
+
+        ApplicationFieldValue headerField1 = new ApplicationFieldValue();
+        headerField1.setId("header1");
+        headerField1.setComponent("heading");
+        headerField1.setSingleValue("Obligatoriske bilag");
+
+        ApplicationFieldValue field9 = new ApplicationFieldValue();
+        field9.setId("file_budget");
+        field9.setLabel("Budget");
+        field9.setHint(" – budgetskabelon anvendes");
+        field9.setValidation("{\"required\":\"true\"}");
+        field9.setComponent("file");
+
+        ApplicationFieldValue field10 = new ApplicationFieldValue();
+        field10.setId("file_organization_diagram");
+        field10.setLabel("Organisationsdiagram for partnerne");
+        field10.setValidation("{\"required\":\"true\"}");
+        field10.setComponent("file");
+
+        ApplicationFieldValue field11 = new ApplicationFieldValue();
+        field11.setId("file_mini_cv");
+        field11.setLabel("Mini CV’er for nøglepersoner");
+        field11.setHint(" – en samlet pdf (max 2 sider pr. person)");
+        field11.setValidation("{\"required\":\"true\"}");
+        field11.setComponent("file");
+
+        ApplicationFieldValue field13 = new ApplicationFieldValue();
+        field13.setId("file_annual_rapport");
+        field13.setLabel("Seneste årsrapport for alle partnere");
+        field13.setValidation("{\"required\":\"true\"}");
+        field13.setComponent("file");
+
+        ApplicationFieldValue field14 = new ApplicationFieldValue();
+        field14.setId("file_time_plan_diagram");
+        field14.setLabel("Diagram for tidsplan");
+        field14.setHint(" – GANTT, Excel eller lignende");
+        field14.setValidation("{\"required\":\"true\"}");
+        field14.setComponent("file");
+
+        ApplicationFieldValue field15 = new ApplicationFieldValue();
+        field15.setId("file_plan_of_presentation");
+        field15.setLabel("Formidlingsplan");
+        field15.setHint(" – hvilke medier og hvornår");
+        field15.setValidation("{\"required\":\"true\"}");
+        field15.setComponent("file");
+
+        ApplicationFieldValue field16 = new ApplicationFieldValue();
+        field16.setId("file_cooperation_statement");
+        field16.setLabel("Samarbejdserklæring");
+        field16.setValidation("{\"required\":\"true\"}");
+        field16.setComponent("file");
+
+        ApplicationFieldValue field17 = new ApplicationFieldValue();
+        field17.setId("file_plan_for_implementation");
+        field17.setLabel("Implementeringsplan");
+        field17.setValidation("{\"required\":\"true\"}");
+        field17.setComponent("file");
+
+        ApplicationFieldValue headerField2 = new ApplicationFieldValue();
+        headerField2.setId("header2");
+        headerField2.setComponent("heading");
+        headerField2.setSingleValue("Valgfrie bilag");
+
+        ApplicationFieldValue field18 = new ApplicationFieldValue();
+        field18.setId("file_statement_on_rights_and_patents");
+        field18.setLabel("Erklæring om rettigheder/patenter");
+        field18.setComponent("file");
+
+        ApplicationFieldValue field19 = new ApplicationFieldValue();
+        field19.setId("file_illustrations");
+        field19.setLabel("Tegninger, illustrationer etc.");
+        field19.setComponent("file");
+
+        List<ApplicationFieldValue> fileFields = Arrays.asList(headerField1,field9,field10,field11,field13,field14,field15,field16,field17,headerField2,field18,field19);
+        for (ApplicationFieldValue fileField : fileFields) {
+            //fileField.setType(String.class.getCanonicalName());
+            fileField.setLayout("block");
+            fileField.setWrapper("block");
+        }
+        fileBlock.setFields(fileFields);
+
+        //todo kan bruge noderefs fra curlkaldMoveApplication doc hvis jeg ikke sletter alf data eller kører tests.
+
+        //todo til sidst: ændre testen tilsvarende
+
+        List<ApplicationBlock> blocks = Arrays.asList(infoBlock, fileBlock);
 
         List<FoundationActionParameterValue> params = new ArrayList<>();
-        params.add(new FoundationActionParameterValue<>(fieldsParam, Utilities.getMapper().writeValueAsString(fields)));
-        params.add(new FoundationActionParameterValue<>(blockParam, block1.getId()));
+        FoundationActionParameterDefinition<String> blockParam = new FoundationActionParameterDefinition<>(PARAM_BLOCKS, DataTypeDefinition.ANY, String.class, false, null);
+        params.add(new FoundationActionParameterValue<>(blockParam, Utilities.getMapper().writeValueAsString(blocks)));
 
-        //FoundationActionValue foundationActionValue = new FoundationActionValue(ACTION_NAME_ADD_FIELDS, stateIdParamVal, aspectParamVal, params);
-        getActionBean().saveAction(ACTION_NAME_ADD_FIELDS,stateRef,aspect,params);
+        getActionBean().saveAction(ACTION_NAME_ADD_BLOCKS,stateRef,aspect,params);
 
     }
 
@@ -173,7 +304,7 @@ public class CreateDanvaData extends ResetDemoData {
         fields.add(buildValue("27", "Slutdato", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,endDate));
         fields.add(buildValue("28", "Budgetsum", "display:block;", "number", Double.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Double.valueOf(requiredAmount*2)));
         fields.add(buildValue("29", "Ansøgt beløb", "display:block;", "number", Double.class, Functional.amount(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Double.valueOf(requiredAmount)));
-        dateBlock.setFields(fields);   
+        dateBlock.setFields(fields);
                 
         ApplicationBlock contact = new ApplicationBlock();
         contact.setId("contact");
@@ -184,7 +315,7 @@ public class CreateDanvaData extends ResetDemoData {
         fields.add(buildValue("31", "Projektleders/kontaktpersons stilling", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Direktør"));
         fields.add(buildValue("32", "Økonomiske/juridiske ansvarliges navn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,random(FIRSTNAMES)+ " "+random(LASTNAMES)));
         fields.add(buildValue("33", "Økonomiske/juridiske ansvarliges stilling", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Bogholder"));
-        contact.setFields(fields);   
+        contact.setFields(fields);
 
         
         

@@ -27,7 +27,6 @@ import dk.opendesk.foundationapplication.Utilities;
 import java.io.Serializable;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +38,6 @@ import java.util.Objects;
 
 import static org.alfresco.model.ContentModel.TYPE_FOLDER;
 
-import dk.opendesk.foundationapplication.enums.Functional;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.service.cmr.repository.AssociationRef;
@@ -102,13 +100,14 @@ public class ApplicationBean extends FoundationBean {
         app.setTitle(title);
         BranchReference branch = new BranchReference();
         branch.parseRef(branchRef);
-        BranchSummary branchSummary = new BranchSummary();
-        branchSummary.setNodeRef(branchRef.toString());
+        BranchSummary branchSummary = branchBean.getBranchSummary(branchRef);
 
         app.setBranchSummary(branchSummary);
-        BudgetReference budget = new BudgetReference();
-        budget.parseRef(budgetRef);
-        app.setBudget(budget);
+        if (budgetRef != null) {
+            BudgetReference budget = new BudgetReference();
+            budget.parseRef(budgetRef);
+            app.setBudget(budget);
+        }
         app.setBlocks(Arrays.asList(blocks));
 
         return addNewApplication(app);

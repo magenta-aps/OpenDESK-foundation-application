@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @author martin
  */
 public enum StateCategory {
-     RECEIVED("received"), RECEIVED2("received2"), NOMINATED("nominated"), ACCEPTED("accepted"), CLOSED("closed"), REJECTED("rejected");
+     NOMINATED("nominated"), ACCEPTED("accepted"), CLOSED("closed"), REJECTED("rejected");
     
     private final String categoryName;
     

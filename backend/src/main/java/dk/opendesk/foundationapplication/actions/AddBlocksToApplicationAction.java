@@ -1,9 +1,12 @@
 package dk.opendesk.foundationapplication.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
+import dk.opendesk.foundationapplication.Utilities;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
 import org.alfresco.repo.action.executer.ActionExecuterAbstractBase;
@@ -12,6 +15,8 @@ import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
 
+import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import static dk.opendesk.foundationapplication.actions.AddFieldsToApplicationAction.EXCEPTION_FIELD_OVERLAP;
@@ -40,8 +45,14 @@ public class AddBlocksToApplicationAction extends ActionExecuterAbstractBase {
         }
 
         List<ApplicationBlock> oldBlocks = application.getBlocks();
-        List<ApplicationBlock> newBlocks = (List<ApplicationBlock>) action.getParameterValue(PARAM_BLOCKS);
-
+        List<ApplicationBlock> newBlocks;
+        ObjectMapper mapper = Utilities.getMapper();
+        CollectionType type = mapper.getTypeFactory().constructCollectionType(List.class, ApplicationBlock.class);
+        try {
+            newBlocks = mapper.readValue(action.getParameterValue(PARAM_BLOCKS).toString(), type);
+        } catch (IOException e) {
+            throw new AlfrescoRuntimeException(EXCEPTION_ADD_BLOCKS_FAIL, e);
+        }
         //checking if the new blocks already exists
         for (ApplicationBlock oldBlock : oldBlocks) {
             for (ApplicationBlock newBlock : newBlocks) {

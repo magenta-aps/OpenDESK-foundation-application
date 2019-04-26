@@ -5,20 +5,20 @@
  */
 package dk.opendesk.foundationapplication;
 
+import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.BudgetYearSummary;
-import dk.opendesk.foundationapplication.beans.ActionBean;
-import dk.opendesk.foundationapplication.beans.ApplicationBean;
-import dk.opendesk.foundationapplication.beans.AuthorityBean;
-import dk.opendesk.foundationapplication.beans.BranchBean;
-import dk.opendesk.foundationapplication.beans.BudgetBean;
-import dk.opendesk.foundationapplication.beans.WorkflowBean;
+import dk.opendesk.foundationapplication.DAO.StateReference;
+import dk.opendesk.foundationapplication.DAO.StateSummary;
+import dk.opendesk.foundationapplication.DAO.Workflow;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.json.JSONObject;
 
-import java.util.Date;
+import java.util.List;
+
 
 /**
  *
@@ -86,62 +86,63 @@ public class TestDemoData extends AbstractTestClass{
             post(new JSONObject().append("doesnt", "matter"), "danva");
             fail("Did not throw Exception");
         }
-        
-        
-
     }
 
-    public void testAddFieldsActionOnDanvaData() throws Exception {
+
+    public void testAddBlocksActionExecutingOnDanvaData() throws Exception {
         TestUtils.wipeData(getServiceRegistry());
-
-        ServiceRegistry serviceRegistry = getServiceRegistry();
-
-        ActionBean actionBean = new ActionBean();
-        actionBean.setServiceRegistry(serviceRegistry);
-        ApplicationBean applicationBean = new ApplicationBean();
-        applicationBean.setServiceRegistry(serviceRegistry);
-        AuthorityBean authBean = new AuthorityBean();
-        authBean.setServiceRegistry(serviceRegistry);
-        BranchBean branchBean = new BranchBean();
-        branchBean.setServiceRegistry(serviceRegistry);
-        BudgetBean budgetBean = new BudgetBean();
-        budgetBean.setServiceRegistry(serviceRegistry);
-        WorkflowBean workflowBean = new WorkflowBean();
-        workflowBean.setServiceRegistry(serviceRegistry);
-
-        actionBean.setApplicationBean(applicationBean);
-
-        applicationBean.setActionBean(actionBean);
-        applicationBean.setAuthBean(authBean);
-        applicationBean.setBranchBean(branchBean);
-        applicationBean.setBudgetBean(budgetBean);
-        applicationBean.setWorkflowBean(workflowBean);
-
-        branchBean.setApplicationBean(applicationBean);
-        branchBean.setAuthBean(authBean);
-        branchBean.setBudgetBean(budgetBean);
-        branchBean.setWorkflowBean(workflowBean);
-
-        budgetBean.setApplicationBean(applicationBean);
-        budgetBean.setAuthBean(authBean);
-        budgetBean.setWorkflowBean(workflowBean);
-
-        workflowBean.setApplicationBean(applicationBean);
-        workflowBean.setAuthBean(authBean);
-
         post(new JSONObject().append("doesnt", "matter"), "danva");
 
-        System.out.println(getApplicationBean().getApplicationSummaries().size());
-
-        NodeRef centralBudgetYear = budgetBean.addNewBudgetYear("centralBudgetYear","title", new Date(), new Date());
-        NodeRef centralBudget = budgetBean.addNewBudget(centralBudgetYear, "centralBudget", "title", 1000000L);
-
-
         NodeRef branchRef = getBranchBean().getBranchSummaries().get(0).asNodeRef();
-        //NodeRef budgetRef = getBudgetBean().getBudgetSummaries(getBudgetBean().getBudgetYearSummaries().get(0)).get(0).asNodeRef();
-        //getApplicationBean().addNewApplication("app1", branchRef, budgetRef,"title");
-        getApplicationBean().addNewApplication("1", branchRef, centralBudget,"title");
-        System.out.println(getApplicationBean().getApplicationSummaries().size());
+        NodeRef workflowRef = getBranchBean().getBranchWorkflow(branchRef);
+        Workflow workflow = getWorkflowBean().getWorkflow(workflowRef);
+        List<StateSummary> stateList = workflow.getStates();
+        NodeRef meeting1 = null;
+        NodeRef expanded = null;
+        for (StateSummary stateSummary : stateList) {
+            if (stateSummary.getTitle().equals("Bestyrelsesmøde 1")) {
+                meeting1 = stateSummary.asNodeRef();
+            }
+            if (stateSummary.getTitle().equals("Udvidet ansøgning")) {
+                expanded = stateSummary.asNodeRef();
+            }
+        }
+
+        //adding application
+        assertEquals(0, getApplicationBean().getApplicationSummaries().size());
+        ApplicationReference appRef = getApplicationBean().addNewApplication("1", branchRef, null,"title");
+        assertEquals(1, getApplicationBean().getApplicationSummaries().size());
+
+        //move application to meeting1
+        Application change = new Application();
+        change.parseRef(appRef.asNodeRef());
+        StateReference state = getWorkflowBean().getStateReference(meeting1);
+        change.setState(state);
+
+        getApplicationBean().updateApplication(change);
+
+        assertEquals(0, getApplicationBean().getApplication(appRef.asNodeRef()).getBlocks().size());
+
+        //move application to meeting1
+        change = new Application();
+        change.parseRef(appRef.asNodeRef());
+        state = getWorkflowBean().getStateReference(expanded);
+        change.setState(state);
+
+        getApplicationBean().updateApplication(change);
+
+        //asserting blocks and fields got created
+        assertEquals(2, getApplicationBean().getApplication(appRef.asNodeRef()).getBlocks().size());
+
+        ApplicationBlock newBlock1 = getApplicationBean().getApplication(appRef.asNodeRef()).getBlocks().get(0);
+        assertEquals( "additional_info", newBlock1.getId());
+        assertEquals(8, newBlock1.getFields().size());
+
+        ApplicationBlock newBlock2 = getApplicationBean().getApplication(appRef.asNodeRef()).getBlocks().get(1);
+        assertEquals( "files", newBlock2.getId());
+        assertEquals(12, newBlock2.getFields().size());
+
+
     }
     
 }

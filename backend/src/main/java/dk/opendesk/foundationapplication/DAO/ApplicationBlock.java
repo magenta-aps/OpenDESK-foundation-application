@@ -32,6 +32,7 @@ public class ApplicationBlock extends AbstractBlock{
     public void setFields(List<ApplicationFieldValue> fields) {
         this.fields = optional(fields);
     }
+
     
     public <E, A extends ApplicationFieldValue<E>> A getFunctionalField(Functional<E> describes) {
         List<ApplicationFieldValue> currentFields = get(this.fields);
