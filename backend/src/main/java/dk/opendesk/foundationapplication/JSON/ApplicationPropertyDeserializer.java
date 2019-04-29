@@ -61,6 +61,9 @@ public class ApplicationPropertyDeserializer extends JsonDeserializer<Applicatio
             if (node.has("readOnly")) {
                 toReturn.setReadOnly(node.get("readOnly").asBoolean());
             }
+            if (node.has("nodeRef")) {
+                toReturn.setNodeRef(node.get("nodeRef").asText());
+            }
             if (node.has("options")) {
                 ArrayList<String> options = new ArrayList<>();
                 JsonNode optionsNode = node.get("options");

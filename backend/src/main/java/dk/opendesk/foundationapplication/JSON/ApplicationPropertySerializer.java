@@ -62,6 +62,9 @@ public class ApplicationPropertySerializer extends JsonSerializer<ApplicationFie
         if(value.getType() != null){
             jgen.writeStringField("type", value.getType());
         }
+        if(value.getNodeID() != null){
+            jgen.writeStringField("nodeRef", value.getNodeRef());
+        }
         jgen.writeEndObject();
     }
 
