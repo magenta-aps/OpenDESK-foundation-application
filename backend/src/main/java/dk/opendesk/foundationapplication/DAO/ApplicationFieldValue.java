@@ -36,13 +36,7 @@ public class ApplicationFieldValue<E> extends ApplicationField<E> {
         ArrayList<E> values = getValue();
         if(values == null){
             return false;
-        }else if(values.isEmpty()){
-            return false;
-        }else if(values.size() == 1){
-            return true;
-        }else{
-            return false;
-        }
+        }else return values.size() <= 1;
     }
     
     public boolean wasValueSet(){

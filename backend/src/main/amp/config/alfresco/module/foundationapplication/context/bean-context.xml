@@ -83,6 +83,11 @@
         <property name="serviceRegistry" ref="ServiceRegistry"/>
     </bean>
 
+    <bean id="danvaMods" class="dk.opendesk.foundationapplication.actions.DanvaModifications">
+        <property name="applicationBean" ref="applicationBean"/>
+        <property name="serviceRegistry" ref="ServiceRegistry"/>
+    </bean>
+
     <bean id="webscript.foundation"
           class="dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript"
           parent="webscript" abstract="true">

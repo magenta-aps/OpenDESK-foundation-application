@@ -190,6 +190,7 @@ public final class Utilities {
     public static final String ACTION_NAME_ADD_BLOCKS = "addBlocks";
     public static final String ACTION_NAME_ADD_FIELDS = "addFields";
     public static final String ACTION_NAME_EMAIL = "foundationMail";
+    public static final String ACTION_NAME_DANVA_MODS = "danvaMods";
     public static final String ACTION_NAME_CREATE_APPLICANT = "createApplicant";
     public static final String ACTION_PARAM_STATE = "stateRef";
     public static final String ACTION_PARAM_ASPECT = "aspect";

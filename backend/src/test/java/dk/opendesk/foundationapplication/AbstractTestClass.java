@@ -190,7 +190,6 @@ public class AbstractTestClass extends BaseWebScriptTest {
         ObjectMapper mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String data = getContent(toSend, mapper);
-            System.out.println("--------------> " +  data);
 
         TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest(getPath(path), data, "application/json");
         TestWebScriptServer.Response response = sendRequest(request, statusCode, username);

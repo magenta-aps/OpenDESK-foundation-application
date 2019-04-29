@@ -575,6 +575,10 @@
                     <type>d:text</type>
                     <multiple>true</multiple>
                 </property>
+                <property name="odf:allowedMimeTypes">
+                    <type>d:text</type>
+                    <multiple>true</multiple>
+                </property>
             </properties>
             <associations>
                 <association name="odf:applicationFieldStaticData">

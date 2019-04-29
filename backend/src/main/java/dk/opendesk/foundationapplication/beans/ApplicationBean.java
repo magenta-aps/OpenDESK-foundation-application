@@ -312,7 +312,7 @@ public class ApplicationBean extends FoundationBean {
     }
 
 
-    protected void addBlockToApplication(Application application, ApplicationBlock newBlock) throws Exception {
+    public void addBlockToApplication(Application application, ApplicationBlock newBlock) throws Exception {
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(getODFName(BLOCK_PARAM_ID), newBlock.getId());
         properties.put(getODFName(BLOCK_PARAM_LABEL), newBlock.getLabel());
@@ -331,6 +331,10 @@ public class ApplicationBean extends FoundationBean {
                 addFieldToBlock(application, newBlockRef, field);
             }
         }
+    }
+
+    public void deleteBlock(Application app, ApplicationBlock block) {
+        getServiceRegistry().getNodeService().removeChild(app.asNodeRef(),block.asNodeRef());
     }
 
     protected void addFieldToBlock(Application containingApplication, ApplicationBlock block, ApplicationFieldValue field) throws Exception {
@@ -448,7 +452,7 @@ public class ApplicationBean extends FoundationBean {
         }
     }
 
-    private ApplicationBlock getBlockByID(String id, List<ApplicationBlock> blocks) {
+    public ApplicationBlock getBlockByID(String id, List<ApplicationBlock> blocks) {
         for (ApplicationBlock block : blocks) {
             if (Objects.equals(id, block.getId())) {
                 return block;
@@ -457,7 +461,7 @@ public class ApplicationBean extends FoundationBean {
         return null;
     }
 
-    private ApplicationFieldValue getFieldByID(String id, List<ApplicationFieldValue> fields) {
+    public ApplicationFieldValue getFieldByID(String id, List<ApplicationFieldValue> fields) {
         for (ApplicationFieldValue field : fields) {
             if (Objects.equals(id, field.getId())) {
                 return field;

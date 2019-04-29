@@ -19,12 +19,15 @@ import dk.opendesk.foundationapplication.Utilities;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.StateCategory;
 
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.activiti.engine.impl.json.JsonObjectConverter;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
@@ -32,6 +35,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 
 import static dk.opendesk.foundationapplication.Utilities.ACTION_NAME_ADD_BLOCKS;
+import static dk.opendesk.foundationapplication.Utilities.ACTION_NAME_DANVA_MODS;
 import static dk.opendesk.foundationapplication.Utilities.ASPECT_ON_CREATE;
 import static dk.opendesk.foundationapplication.actions.AddBlocksToApplicationAction.PARAM_BLOCKS;
 
@@ -65,10 +69,11 @@ public class CreateDanvaData extends ResetDemoData {
         //NodeRef app2 = createApplication(premeeting1, null, central, "Ansøgning 2", 120000);
         
         addCreateNewBlockAction(expanded);
+        makeDanvaSpecificModifications(expanded);
     }
 
+
     private void addCreateNewBlockAction(NodeRef stateRef) throws Exception {
-        QName aspect = Utilities.getODFName(ASPECT_ON_CREATE);
 
         // Block with info fields:
 
@@ -76,20 +81,15 @@ public class CreateDanvaData extends ResetDemoData {
         infoBlock.setId("additional_info");
         infoBlock.setLabel("Eksta information");
 
-        ApplicationFieldValue field1 = new ApplicationFieldValue();
-        field1.setId("quality_improvement1");
-        field1.setLabel("Kvalitetsforbedring");
-        field1.setHint("Beskriv projektets effektiviseringspotentiale. Beskriv hvordan projektet bidrager med forbed-ringer via cirkulær økonomi indenfor f.eks. klima, miljø, forbrugere, økonomi, ressourcegen-brug, energibesparelse/produktion, mindre tidsforbrug i drift og arbejdsgange, optimal udnyt-telse af data osv.). Der kan f.eks. være elementer inden for Asset Management, salg af ydelser til andre forsyningsselskaber, vagt og beredskabsforbedringer osv.");
-
         ApplicationFieldValue field2 = new ApplicationFieldValue();
-        field2.setId("quality_improvement2");
+        field2.setId("quality_improvement");
         field2.setLabel("Kvalitetsforbedring");
-        field2.setHint("Beskriv hvordan projektet bidrager til kvalitetsforbedring af f.eks. drikkevand, spildevand, res-sourcekvalitet, håndtering af differentieret kvalitet og tilhørende teknologi, kvalitet af proces-serne - fra strategi over planlægning til drift i forsyningen, upcycling og serviceteknologier, do-kumentation af teknologi og procedurer, osv. Ansøger bør forholde sig til, om der skabes et nyt problem andetsteds ved at løse et, f.eks. om der kan opstå forhøjelse af uønskede stoffer i re-cipienten, når proceseffektiviteten forbedres i renseanlægget");
+        field2.setHint("Beskriv hvordan projektet bidrager til kvalitetsforbedring af f.eks. drikkevand, spildevand, ressourcekvalitet, håndtering af differentieret kvalitet og tilhørende teknologi, kvalitet af processerne - fra strategi over planlægning til drift i forsyningen, upcycling og serviceteknologier, dokumentation af teknologi og procedurer, osv. Ansøger bør forholde sig til, om der skabes et nyt problem andetsteds ved at løse et, f.eks. om der kan opstå forhøjelse af uønskede stoffer i recipienten, når proceseffektiviteten forbedres i renseanlægget");
 
         ApplicationFieldValue field3 = new ApplicationFieldValue();
         field3.setId("environment_climate_potentiale");
         field3.setLabel("Miljø- og klimaforbedringspotentiale");
-        field3.setHint("Beskriv projektets miljø- og klimaforbedringspotentiale f.eks. i udledning til recipienter, emissi-onsopgørelser, mindre forbrug af kemikalier osv. Ansøger bør forholde sig til, om der skabes afledte effekter ved at løse et problem et sted, f.eks. at der kan opstå forhøjelse af klimaga-semissioner, når proceseffektiviteten forbedres i renseanlægget.");
+        field3.setHint("Beskriv projektets miljø- og klimaforbedringspotentiale f.eks. i udledning til recipienter, emissionsopgørelser, mindre forbrug af kemikalier osv. Ansøger bør forholde sig til, om der skabes afledte effekter ved at løse et problem et sted, f.eks. at der kan opstå forhøjelse af klimagasemissioner, når proceseffektiviteten forbedres i renseanlægget.");
 
         ApplicationFieldValue field4 = new ApplicationFieldValue();
         field4.setId("security_of_supply");
@@ -104,7 +104,7 @@ public class CreateDanvaData extends ResetDemoData {
         ApplicationFieldValue field6 = new ApplicationFieldValue();
         field6.setId("project_completion_risk");
         field6.setLabel("Risici for projektgennemførsel");
-        field6.setHint("Beskriv risici for projektets gennemførelse og tekniske aspekter. Det kan f.eks. være på forde-ling af mandskabsressourcer pga. arbejdspres, usikkerheder omkring processer og effekter af ændringer, tekniske usikkerheder eller tidsplansforskydninger.");
+        field6.setHint("Beskriv risici for projektets gennemførelse og tekniske aspekter. Det kan f.eks. være på fordeling af mandskabsressourcer pga. arbejdspres, usikkerheder omkring processer og effekter af ændringer, tekniske usikkerheder eller tidsplansforskydninger.");
 
         ApplicationFieldValue field7 = new ApplicationFieldValue();
         field7.setId("presentation");
@@ -117,7 +117,7 @@ public class CreateDanvaData extends ResetDemoData {
         field8.setHint("Beskriv samarbejdet (grundlaget for samarbejde, valg af samarbejdspartnere, fordele ved samarbejde etc.)");
 
 
-        List<ApplicationFieldValue> infoFields = Arrays.asList(field1,field2,field3,field4,field5,field6,field7,field8);
+        List<ApplicationFieldValue> infoFields = Arrays.asList(field2,field3,field4,field5,field6,field7,field8);
         for (ApplicationFieldValue infoField : infoFields) {
             infoField.setType(String.class.getCanonicalName());
             infoField.setComponent("textarea");
@@ -127,6 +127,7 @@ public class CreateDanvaData extends ResetDemoData {
             infoField.setValue(null);
         }
         infoBlock.setFields(infoFields);
+
 
         // Block with file fields:
 
@@ -214,9 +215,8 @@ public class CreateDanvaData extends ResetDemoData {
         }
         fileBlock.setFields(fileFields);
 
-        //todo kan bruge noderefs fra curlkaldMoveApplication doc hvis jeg ikke sletter alf data eller kører tests.
 
-        //todo til sidst: ændre testen tilsvarende
+        //adding the action
 
         List<ApplicationBlock> blocks = Arrays.asList(infoBlock, fileBlock);
 
@@ -224,7 +224,15 @@ public class CreateDanvaData extends ResetDemoData {
         FoundationActionParameterDefinition<String> blockParam = new FoundationActionParameterDefinition<>(PARAM_BLOCKS, DataTypeDefinition.ANY, String.class, false, null);
         params.add(new FoundationActionParameterValue<>(blockParam, Utilities.getMapper().writeValueAsString(blocks)));
 
+        QName aspect = Utilities.getODFName(ASPECT_ON_CREATE);
         getActionBean().saveAction(ACTION_NAME_ADD_BLOCKS,stateRef,aspect,params);
+
+    }
+
+    private void makeDanvaSpecificModifications(NodeRef stateRef) throws Exception {
+        Map<String, Serializable> params = new HashMap<>();
+        QName aspect = Utilities.getODFName(ASPECT_ON_CREATE);
+        getActionBean().saveAction(ACTION_NAME_DANVA_MODS, stateRef, aspect, params);
 
     }
 
@@ -340,7 +348,7 @@ public class CreateDanvaData extends ResetDemoData {
 
         return app;
     }
-    
-    
+
+
     
 }
