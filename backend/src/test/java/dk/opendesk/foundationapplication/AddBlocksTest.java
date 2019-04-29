@@ -1,5 +1,7 @@
 package dk.opendesk.foundationapplication;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -53,7 +55,8 @@ public class AddBlocksTest extends AbstractTestClass {
 
         List<ApplicationBlock> blocks = Arrays.asList(new ApplicationBlock[]{uniqueBlockNoFields, uniqueBlockUniqueFields});
         Map<String, Serializable> param = new HashMap<>();
-        param.put(PARAM_BLOCKS, (Serializable) blocks);
+        ObjectMapper mapper = Utilities.getMapper();
+        param.put(PARAM_BLOCKS, mapper.writeValueAsString(blocks));
         Action action = getServiceRegistry().getActionService().createAction("addBlocks", param);
         getServiceRegistry().getActionService().executeAction(action, appRef);
 
@@ -78,7 +81,7 @@ public class AddBlocksTest extends AbstractTestClass {
 
     }
 
-    public void testAddUniqueBlocksWithDuplicateFields() {
+    public void testAddUniqueBlocksWithDuplicateFields() throws JsonProcessingException {
         NodeRef appRef = TestUtils.application1;
 
         ApplicationBlock uniqueBlockNoFields = new ApplicationBlock();
@@ -94,7 +97,8 @@ public class AddBlocksTest extends AbstractTestClass {
 
         List<ApplicationBlock> blocks = Arrays.asList(new ApplicationBlock[]{uniqueBlockNoFields, uniqueBlockDuplicateField});
         Map<String, Serializable> param = new HashMap<>();
-        param.put(PARAM_BLOCKS, (Serializable) blocks);
+        ObjectMapper mapper = Utilities.getMapper();
+        param.put(PARAM_BLOCKS, mapper.writeValueAsString(blocks));
         Action action = getServiceRegistry().getActionService().createAction("addBlocks", param);
         try {
             getServiceRegistry().getActionService().executeAction(action, appRef);
@@ -124,7 +128,8 @@ public class AddBlocksTest extends AbstractTestClass {
 
         List<ApplicationBlock> blocks = Arrays.asList(new ApplicationBlock[]{uniqueBlockNoFields, duplicateBlockUniqueFields});
         Map<String, Serializable> param = new HashMap<>();
-        param.put(PARAM_BLOCKS, (Serializable) blocks);
+        ObjectMapper mapper = Utilities.getMapper();
+        param.put(PARAM_BLOCKS, mapper.writeValueAsString(blocks));
         Action action = getServiceRegistry().getActionService().createAction("addBlocks", param);
         try {
             getServiceRegistry().getActionService().executeAction(action, appRef);
