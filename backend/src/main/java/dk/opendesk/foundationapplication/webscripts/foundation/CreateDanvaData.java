@@ -7,9 +7,12 @@ package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlockSpecification;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.MultiFieldDataValue;
+import dk.opendesk.foundationapplication.DAO.NewApplication;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.StateCategory;
@@ -53,7 +56,7 @@ public class CreateDanvaData extends ResetDemoData {
     }
     
     @Override
-    public Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) throws Exception {
+    public NewApplication buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) throws Exception {
         String recipient = random(COMPANYNAMES);
         String partner1 = random(COMPANYNAMES);
         String partner2 = random(COMPANYNAMES);
@@ -63,95 +66,95 @@ public class CreateDanvaData extends ResetDemoData {
         String floor = random(FLOORS);
         Date startDate = Date.from(Instant.now());
         Date endDate = Date.from(Instant.now().plus(Duration.ofDays(RANDOM.nextInt(50) + 1)));
-        List<ApplicationFieldValue> fields;
-        ApplicationBlock applicant = new ApplicationBlock();
+        List<MultiFieldDataValue> fields;
+        ApplicationBlockSpecification applicant = new ApplicationBlockSpecification();
         applicant.setId("applicant");
         applicant.setLabel("Oplysninger om ansøger");
         applicant.setLayout("display:block;");
         fields = new ArrayList<>();
-        fields.add(buildValue("1", "Hovedansøger", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,recipient,null));
-        fields.add(buildValue("2", "Adresse", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,steetName,null));
-        fields.add(buildValue("3", "Postnummer", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,numberString(4),null));
-        fields.add(buildValue("4", "By", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,floor,null));
-        fields.add(buildValue("5", "CVR", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,numberString(8),null));
-        fields.add(buildValue("6a", "Projektleder fornavn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,firstName,null));
-        fields.add(buildValue("6b", "Projektleder efternavn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,lastName,null));
-        fields.add(buildValue("7", "Projektleder email", "display:block;", "text", String.class, Functional.email_to(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,firstName + "@testmail.dk",null));
-        fields.add(buildValue("8", "Projektleder telefon", "display:block;", "text", String.class, Functional.phone_number(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,phoneNumber(),null));
+        fields.add(buildValue("1", "Hovedansøger", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,recipient,null));
+        fields.add(buildValue("2", "Adresse", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,steetName,null));
+        fields.add(buildValue("3", "Postnummer", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,numberString(4),null));
+        fields.add(buildValue("4", "By", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,floor,null));
+        fields.add(buildValue("5", "CVR", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,numberString(8),null));
+        fields.add(buildValue("6a", "Projektleder fornavn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,firstName,null));
+        fields.add(buildValue("6b", "Projektleder efternavn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,lastName,null));
+        fields.add(buildValue("7", "Projektleder email", "display:block;", "text", String.class, Functional.email_to(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,firstName + "@testmail.dk",null));
+        fields.add(buildValue("8", "Projektleder telefon", "display:block;", "text", String.class, Functional.phone_number(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,phoneNumber(),null));
         applicant.setFields(fields);
         
         
-        ApplicationBlock projektPartner1 = new ApplicationBlock();
+        ApplicationBlockSpecification projektPartner1 = new ApplicationBlockSpecification();
         projektPartner1.setId("pp1");
         projektPartner1.setLabel(partner1);
         projektPartner1.setLayout("display:block;");
         fields = new ArrayList<>();
-        fields.add(buildValue("9", "Viksomhedens navn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,partner1,null));
-        fields.add(buildValue("10", "CVR nummer", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,numberString(8),null));
-        fields.add(buildValue("11", "Kontaktperson", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,random(FIRSTNAMES)+ "" +random(LASTNAMES),null));
-        fields.add(buildValue("12", "Rolle under projektet", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,lorem(6),null));
+        fields.add(buildValue("9", "Viksomhedens navn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,partner1,null));
+        fields.add(buildValue("10", "CVR nummer", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,numberString(8),null));
+        fields.add(buildValue("11", "Kontaktperson", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,random(FIRSTNAMES)+ "" +random(LASTNAMES),null));
+        fields.add(buildValue("12", "Rolle under projektet", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,lorem(6),null));
         projektPartner1.setFields(fields);
         
-        ApplicationBlock projektPartner2 = new ApplicationBlock();
+        ApplicationBlockSpecification projektPartner2 = new ApplicationBlockSpecification();
         projektPartner2.setId("pp2");
         projektPartner2.setLabel(partner2);
         projektPartner2.setLayout("display:block;");
         fields = new ArrayList<>();
-        fields.add(buildValue("13", "Viksomhedens navn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,partner2,null));
-        fields.add(buildValue("14", "CVR nummer", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,numberString(8),null));
-        fields.add(buildValue("15", "Kontaktperson", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,random(FIRSTNAMES)+ "" +random(LASTNAMES),null));
-        fields.add(buildValue("16", "Rolle under projektet", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,lorem(6),null));
+        fields.add(buildValue("13", "Viksomhedens navn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,partner2,null));
+        fields.add(buildValue("14", "CVR nummer", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,numberString(8),null));
+        fields.add(buildValue("15", "Kontaktperson", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,random(FIRSTNAMES)+ "" +random(LASTNAMES),null));
+        fields.add(buildValue("16", "Rolle under projektet", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,lorem(6),null));
         projektPartner2.setFields(fields);
         
-        ApplicationBlock project = new ApplicationBlock();
+        ApplicationBlockSpecification project = new ApplicationBlockSpecification();
         project.setId("projekt");
         project.setLabel("Projektet");
         project.setLayout("display:block;");
         fields = new ArrayList<>();
-        fields.add(buildValue("17", "Titel", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,name,null));
-        fields.add(buildValue("18", "Kategori", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Spildevand",null));
-        fields.add(buildValue("19", "Kategori", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Klimatilpasning",null));
-        fields.add(buildValue("20", "Beskrivelse", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,LOREM,null));
-        fields.add(buildValue("21", "Hvorfor dette projekt?", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,LOREM,null));
-        fields.add(buildValue("22", "Output fra projektet", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,LOREM,null));
-        fields.add(buildValue("23", "Nyhedsværdi", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,lorem(140),null));
-        fields.add(buildValue("24", "Nytteværdi", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,lorem(70),null));
-        fields.add(buildValue("25", "Effektivisering og bæredygtighed", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,lorem(140),null));
+        fields.add(buildValue("17", "Titel", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,name,null));
+        fields.add(buildValue("18", "Kategori", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Spildevand",null));
+        fields.add(buildValue("19", "Kategori", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Klimatilpasning",null));
+        fields.add(buildValue("20", "Beskrivelse", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,LOREM,null));
+        fields.add(buildValue("21", "Hvorfor dette projekt?", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,LOREM,null));
+        fields.add(buildValue("22", "Output fra projektet", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,LOREM,null));
+        fields.add(buildValue("23", "Nyhedsværdi", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,lorem(140),null));
+        fields.add(buildValue("24", "Nytteværdi", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,lorem(70),null));
+        fields.add(buildValue("25", "Effektivisering og bæredygtighed", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,lorem(140),null));
         project.setFields(fields);
         
-        ApplicationBlock dateBlock = new ApplicationBlock();
+        ApplicationBlockSpecification dateBlock = new ApplicationBlockSpecification();
         dateBlock.setId("datesbudget");
         dateBlock.setLabel("Dato og finansiering");
         dateBlock.setLayout("display:block;");
         fields = new ArrayList<>();
-        fields.add(buildValue("26", "Startdato", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,startDate,null));
-        fields.add(buildValue("27", "Slutdato", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,endDate,null));
-        fields.add(buildValue("28", "Budgetsum", "display:block;", "number", Double.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Double.valueOf(requiredAmount*2),null));
-        fields.add(buildValue("29", "Ansøgt beløb", "display:block;", "number", Double.class, Functional.amount(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Double.valueOf(requiredAmount),null));
+        fields.add(buildValue("26", "Startdato", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,startDate,null));
+        fields.add(buildValue("27", "Slutdato", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,endDate,null));
+        fields.add(buildValue("28", "Budgetsum", "display:block;", "number", Double.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,Double.valueOf(requiredAmount*2),null));
+        fields.add(buildValue("29", "Ansøgt beløb", "display:block;", "number", Double.class, Functional.amount(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,Double.valueOf(requiredAmount),null));
         dateBlock.setFields(fields);   
                 
-        ApplicationBlock contact = new ApplicationBlock();
+        ApplicationBlockSpecification contact = new ApplicationBlockSpecification();
         contact.setId("contact");
         contact.setLabel("Ansvarlige personer hos hovedansøger");
         contact.setLayout("display:block;");
         fields = new ArrayList<>();
-        fields.add(buildValue("30", "Projektleders/kontaktpersons navn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,random(FIRSTNAMES)+ " "+random(LASTNAMES),null));
-        fields.add(buildValue("31", "Projektleders/kontaktpersons stilling", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Direktør",null));
-        fields.add(buildValue("32", "Økonomiske/juridiske ansvarliges navn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,random(FIRSTNAMES)+ " "+random(LASTNAMES),null));
-        fields.add(buildValue("33", "Økonomiske/juridiske ansvarliges stilling", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Bogholder",null));
+        fields.add(buildValue("30", "Projektleders/kontaktpersons navn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,random(FIRSTNAMES)+ " "+random(LASTNAMES),null));
+        fields.add(buildValue("31", "Projektleders/kontaktpersons stilling", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Direktør",null));
+        fields.add(buildValue("32", "Økonomiske/juridiske ansvarliges navn", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,random(FIRSTNAMES)+ " "+random(LASTNAMES),null));
+        fields.add(buildValue("33", "Økonomiske/juridiske ansvarliges stilling", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Bogholder",null));
         contact.setFields(fields);   
 
         
         
         
 
-        Application app = new Application();
+        NewApplication app = new NewApplication();
         app.setTitle(name);
-        List<ApplicationBlock> containers = Arrays.asList(new ApplicationBlock[]{applicant, projektPartner1, projektPartner2, project, dateBlock, contact});
+        List<ApplicationBlockSpecification> containers = Arrays.asList(new ApplicationBlockSpecification[]{applicant, projektPartner1, projektPartner2, project, dateBlock, contact});
         app.setBlocks(containers);
         if (branch != null) {
             BranchSummary branchRef = getBranchBean().getBranchSummary(branch);
-            app.setBranchSummary(branchRef);
+            app.setBranch(branchRef);
         }
         if (budget != null) {
             BudgetReference budgetRef = getBudgetBean().getBudgetReference(budget);

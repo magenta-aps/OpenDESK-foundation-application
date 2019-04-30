@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.ApplicationField;
 import dk.opendesk.foundationapplication.DAO.ApplicationSchema;
+import dk.opendesk.foundationapplication.DAO.MultiFieldData;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import java.util.List;
 import org.json.JSONObject;
@@ -21,7 +22,7 @@ public class UpdateApplicationStaticData extends JacksonBackedWebscript{
 
     @Override
     protected Object doAction(WebScriptRequest req, WebScriptResponse res) throws Exception {
-        List<ApplicationField> fields = getRequestAs(List.class, ApplicationField.class);
+        List<MultiFieldData> fields = getRequestAs(List.class, ApplicationField.class);
         getApplicationBean().updateApplicationStaticData(fields);
         return new JSONObject().put("status", "OK");
     }

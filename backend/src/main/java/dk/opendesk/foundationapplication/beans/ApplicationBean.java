@@ -21,6 +21,7 @@ import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
 import dk.opendesk.foundationapplication.DAO.MultiFieldData;
 import dk.opendesk.foundationapplication.DAO.MultiFieldDataValue;
+import dk.opendesk.foundationapplication.DAO.NewApplication;
 import dk.opendesk.foundationapplication.DAO.Reference;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.DAO.WorkflowReference;
@@ -67,6 +68,7 @@ import org.alfresco.service.cmr.security.PermissionService;
  */
 public class ApplicationBean extends FoundationBean {
     private static final String ERROR_CREATING_FIELD = "odf.create.userfield";
+    private static final String ERROR_CANT_CREATE_FIELD = "odf.cannot.create.field";
     
 
     private ActionBean actionBean;
@@ -95,8 +97,8 @@ public class ApplicationBean extends FoundationBean {
         this.workflowBean = workflowBean;
     }
 
-    public ApplicationReference addNewApplication(String id, NodeRef branchRef, NodeRef budgetRef, String title, ApplicationBlock... blocks) throws Exception {
-        Application app = new Application();
+    public ApplicationReference addNewApplication(String id, NodeRef branchRef, NodeRef budgetRef, String title, ApplicationBlockSpecification... blocks) throws Exception {
+        NewApplication app = new NewApplication();
         app.setId(id);
         app.setTitle(title);
         BranchReference branch = new BranchReference();
@@ -104,7 +106,7 @@ public class ApplicationBean extends FoundationBean {
         BranchSummary branchSummary = new BranchSummary();
         branchSummary.setNodeRef(branchRef.toString());
 
-        app.setBranchSummary(branchSummary);
+        app.setBranch(branchSummary);
         BudgetReference budget = new BudgetReference();
         budget.parseRef(budgetRef);
         app.setBudget(budget);
@@ -113,7 +115,7 @@ public class ApplicationBean extends FoundationBean {
         return addNewApplication(app);
     }
 
-    public ApplicationReference addNewApplication(Application application) throws Exception {
+    public ApplicationReference addNewApplication(NewApplication application) throws Exception {
         Map<QName, Serializable> properties = new HashMap<>();
         if (application.getId() != null) {
             ApplicationReference ref = findByNumericID(Integer.parseInt(application.getId()));
@@ -135,9 +137,9 @@ public class ApplicationBean extends FoundationBean {
                     NodeRef newApplicationRef = getServiceRegistry().getNodeService().createNode(getDataHome(), dataAssocApplication, applicationQname, applicationTypeQname, properties).getChildRef();
 
                     application.parseRef(newApplicationRef);
-                    List<ApplicationBlock> blocks = application.getBlocks();
+                    List<ApplicationBlockSpecification> blocks = application.getBlocks();
                     if (blocks != null) {
-                        for (ApplicationBlock block : blocks) {
+                        for (ApplicationBlockSpecification block : blocks) {
                             addBlockToApplication(application, block);
                         }
                     }
@@ -149,15 +151,15 @@ public class ApplicationBean extends FoundationBean {
             getServiceRegistry().getNodeService().createAssociation(applicationRef, application.getBudget().asNodeRef(), getODFName(APPLICATION_ASSOC_BUDGET));
             authBean.addFullPermission(applicationRef, PermissionGroup.BUDGET, application.getBudget());
         }
-        if (application.getBranchSummary() != null) {
-            NodeRef workFlowRef = getServiceRegistry().getNodeService().getTargetAssocs(application.getBranchSummary().asNodeRef(), getODFName(BRANCH_ASSOC_WORKFLOW)).get(0).getTargetRef();
+        if (application.getBranch() != null) {
+            NodeRef workFlowRef = getServiceRegistry().getNodeService().getTargetAssocs(application.getBranch().asNodeRef(), getODFName(BRANCH_ASSOC_WORKFLOW)).get(0).getTargetRef();
             List<AssociationRef> workflowEntryRefs = getServiceRegistry().getNodeService().getTargetAssocs(workFlowRef, getODFName(WORKFLOW_ASSOC_ENTRY));
             if (workflowEntryRefs.size() != 1) {
                 throw new AlfrescoRuntimeException("Cannot create new application. The workflow on this branch does not have an entry point set");
             }
-            getServiceRegistry().getNodeService().createAssociation(applicationRef, application.getBranchSummary().asNodeRef(), getODFName(APPLICATION_ASSOC_BRANCH));
+            getServiceRegistry().getNodeService().createAssociation(applicationRef, application.getBranch().asNodeRef(), getODFName(APPLICATION_ASSOC_BRANCH));
             getServiceRegistry().getNodeService().createAssociation(applicationRef, workflowEntryRefs.get(0).getTargetRef(), getODFName(APPLICATION_ASSOC_STATE));
-            authBean.addFullPermission(applicationRef, PermissionGroup.WORKFLOW, application.getBranchSummary().getWorkflowRef());
+            authBean.addFullPermission(applicationRef, PermissionGroup.WORKFLOW, branchBean.getBranchWorkflow(application.getBranch().asNodeRef()));
         } else {
             getServiceRegistry().getNodeService().createAssociation(getDataHome(), applicationRef, getODFName(DATA_ASSOC_NEW_APPLICATIONS));
             authBean.addFullPermission(applicationRef, PermissionGroup.NEW_APPLICATION);
@@ -169,8 +171,8 @@ public class ApplicationBean extends FoundationBean {
         return getApplicationReference(applicationRef);
     }
     
-    public void updateApplicationStaticData(List<ApplicationField> fields) throws Exception {
-        for (ApplicationField field : fields) {
+    public void updateApplicationStaticData(List<MultiFieldData> fields) throws Exception {
+        for (MultiFieldData field : fields) {
             updateStaticField(field);
         }
     }
@@ -267,7 +269,8 @@ public class ApplicationBean extends FoundationBean {
                 if (block.getId() != null) {
                     ApplicationBlock currentBlock = getBlockByID(block.getId(), currentBlocks);
                     if (currentBlock == null) {
-                        addBlockToApplication(app, block);
+                        //addBlockToApplication(app, block);
+                        throw new AlfrescoRuntimeException(ERROR_CANT_CREATE_FIELD);
                     } else {
                         block.parseRef(currentBlock.asNodeRef());
                         updateBlock(block);
@@ -280,7 +283,8 @@ public class ApplicationBean extends FoundationBean {
                                     if (field.getId() != null) {
                                         ApplicationFieldValue currentField = getFieldByID(field.getId(), currentBlock.getFields());
                                         if (currentField == null) {
-                                            addFieldToBlock(app, currentBlock, field);
+                                            //addFieldToBlock(app, currentBlock, field);
+                                            throw new AlfrescoRuntimeException(ERROR_CANT_CREATE_FIELD);
                                         } else {
                                             field.parseRef(currentField.asNodeRef());
                                             updateField(field);
@@ -308,7 +312,7 @@ public class ApplicationBean extends FoundationBean {
     }
 
 
-    protected void addBlockToApplication(Application application, ApplicationBlock newBlock) throws Exception {
+    protected void addBlockToApplication(ApplicationSchema application, ApplicationBlockSpecification newBlock) throws Exception {
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(getODFName(BLOCK_PARAM_ID), newBlock.getId());
         properties.put(getODFName(BLOCK_PARAM_LABEL), newBlock.getLabel());
@@ -323,18 +327,18 @@ public class ApplicationBean extends FoundationBean {
         
         //Add all fields on block as well
         if(newBlock.getFields() != null){
-            for (ApplicationFieldValue field : newBlock.getFields()) {
+            for (MultiFieldDataValue field : newBlock.getFields()) {
                 addFieldToBlock(application, newBlockRef, field);
             }
         }
     }
 
-    protected void addFieldToBlock(Application containingApplication, ApplicationBlock block, MultiFieldDataValue field) throws Exception {
+    protected void addFieldToBlock(ApplicationSchema containingApplication, ApplicationBlock block, MultiFieldDataValue field) throws Exception {
         addFieldToBlock(containingApplication, block.asNodeRef(), field);
 
     }
 
-    protected void addFieldToBlock(Application containingApplication, NodeRef blockRef, MultiFieldDataValue field) throws Exception {
+    protected void addFieldToBlock(ApplicationSchema containingApplication, NodeRef blockRef, MultiFieldDataValue field) throws Exception {
         NodeRef staticFieldRef = getServiceRegistry().getNodeService().getChildByName(getDataHome(), getODFName(DATA_ASSOC_STATIC_FIELDS), field.getId());
         if (staticFieldRef == null) {
             staticFieldRef = addStaticField(field);
@@ -400,7 +404,7 @@ public class ApplicationBean extends FoundationBean {
         }
     }
 
-    protected void updateStaticField(ApplicationField field) throws Exception {
+    protected void updateStaticField(MultiFieldData field) throws Exception {
         Map<QName, Serializable> properties = new HashMap<>();
         if (field.wasLabelSet()) {
             properties.put(getODFName(STATICFIELD_PARAM_LABEL), field.getLabel());
@@ -420,7 +424,7 @@ public class ApplicationBean extends FoundationBean {
         if (field.wasValidationSet()) {
             properties.put(getODFName(STATICFIELD_PARAM_VALIDATION), field.getValidation());
         }
-        if (field.wasControlledBy()) {
+        if (field.wasControlledBySet()) {
             properties.put(getODFName(STATICFIELD_PARAM_CONTROLLED_BY), field.getControlledBy());
         }
         if (field.wasTypeSet()) {
@@ -586,7 +590,7 @@ public class ApplicationBean extends FoundationBean {
         return schema;
     }
 
-    public ApplicationBlockSpecification getBlockSpecification(NodeRef nodeRef, StateCategory stateCategory) throws Exception {
+    public ApplicationBlockSpecification getBlockSpecification(NodeRef nodeRef) throws Exception {
         ensureType(BLOCKSPEC_TYPE_NAME, nodeRef);
 
         ApplicationBlockSpecification blockSpecfication = new ApplicationBlockSpecification();
@@ -601,10 +605,11 @@ public class ApplicationBean extends FoundationBean {
 
         List<AssociationRef> fieldRefs = getServiceRegistry().getNodeService().getTargetAssocs(nodeRef, getODFName(BLOCKSPEC_ASSOC_FIELDS));
 
-        List<ApplicationField> fields = new ArrayList<>();
+        List<MultiFieldDataValue> fields = new ArrayList<>();
         for (AssociationRef field : fieldRefs) {
-            MultiFieldData fieldData = getFieldSpec(field.getTargetRef());
-            fields.add(getFrontendField(fieldData, stateCategory, getCurrentUserName()));
+            MultiFieldDataValue fieldData = getField(field.getTargetRef());
+            //fields.add(getFrontendField(fieldData, stateCategory, getCurrentUserName()));
+            fields.add(fieldData);
         }
 
         blockSpecfication.setFields(fields);

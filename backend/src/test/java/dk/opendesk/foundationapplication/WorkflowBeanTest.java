@@ -7,7 +7,9 @@ package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlockSpecification;
 import dk.opendesk.foundationapplication.DAO.Budget;
+import dk.opendesk.foundationapplication.DAO.NewApplication;
 import dk.opendesk.foundationapplication.DAO.StateSummary;
 import dk.opendesk.foundationapplication.DAO.Workflow;
 import static dk.opendesk.foundationapplication.TestUtils.STATE_ACCEPTED_NAME;
@@ -144,42 +146,42 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         Long appliedAmount = 10000000l;
 
         
-        Application app1 = new Application();
-        app1.setBranchSummary(branchBean.getBranchSummary(getBranchRef()));
+        NewApplication app1 = new NewApplication();
+        app1.setBranch(branchBean.getBranchSummary(getBranchRef()));
         app1.setBudget(budgetBean.getBudgetReference(budgetRef));
         app1.setTitle(APPLICATION_NAME);
-        ApplicationBlock app1blockRecipient = new ApplicationBlock();
+        ApplicationBlockSpecification app1blockRecipient = new ApplicationBlockSpecification();
         app1blockRecipient.setId("1");
         app1blockRecipient.setLabel("Recipients");
-        ApplicationBlock app1blockOverview = new ApplicationBlock();
+        ApplicationBlockSpecification app1blockOverview = new ApplicationBlockSpecification();
         app1blockOverview.setId("2");
         app1blockOverview.setLabel("Overview");
-        ApplicationBlock app1details = new ApplicationBlock();
+        ApplicationBlockSpecification app1details = new ApplicationBlockSpecification();
         app1details.setId("3");
         app1details.setLabel("Details");
         
         app1blockRecipient.setFields(new ArrayList<>());
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Dansk Dræbersnegls Bevaringsforbund",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Sneglesporet",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,3,null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"2",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"1445",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Svend",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Svendsen",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"ikkedraebesneglen@gmail.com",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"12345678",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Dansk Dræbersnegls Bevaringsforbund",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Sneglesporet",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,3,null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"2",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"1445",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Svend",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Svendsen",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"ikkedraebesneglen@gmail.com",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"12345678",null));
         
         app1blockOverview.setFields(new ArrayList<>());
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Category1",null));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr.",null));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now()),null));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now().plus(Duration.ofDays(2))),null));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Category1",null));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr.",null));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,Date.from(Instant.now()),null));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,Date.from(Instant.now().plus(Duration.ofDays(2))),null));
         
         app1details.setFields(new ArrayList<>());
-        app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,appliedAmount,null));
-        app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"1234",null));
-        app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"00123456",null));
-        app1.setBlocks(Arrays.asList(new ApplicationBlock[]{app1blockRecipient, app1blockOverview, app1details}));
+        app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,appliedAmount,null));
+        app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"1234",null));
+        app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"00123456",null));
+        app1.setBlocks(Arrays.asList(new ApplicationBlockSpecification[]{app1blockRecipient, app1blockOverview, app1details}));
         applicationBean.addNewApplication(app1);
         //foundationBean.addNewApplication(getBranchRef(), budgetRef, APPLICATION_NAME, "NewApplication", "Category1", "Dansk Dræbersnegls Bevaringsforbund", "Sneglesporet", 3, "2", "1445", "Svend", "Svendsen", "ikkedraebesneglen@gmail.com", "12345678",
         //        "Vi ønsker at undgå flere unødvendige drab af dræbersnegle, samt at ophøje den til Danmarks nationaldyr.", Date.from(Instant.now()), Date.from(Instant.now().plus(Duration.ofDays(2))), appliedAmount, "1234", "00123456");

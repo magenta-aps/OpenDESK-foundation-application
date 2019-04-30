@@ -643,8 +643,8 @@ public final class Utilities {
     }
     
     public static class StaticFieldChangeBuilder {
-        private final List<ApplicationField> currentFields = new ArrayList<>(); 
-        private final List<ApplicationField> change = new ArrayList<>();
+        private final List<MultiFieldData> currentFields = new ArrayList<>(); 
+        private final List<MultiFieldData> change = new ArrayList<>();
 
         public StaticFieldChangeBuilder(ApplicationBean bean) throws Exception {
             currentFields.addAll(bean.getApplicationFieldSpecs());
@@ -655,16 +655,16 @@ public final class Utilities {
         }
         
 
-        public List<ApplicationField> build() {
+        public List<MultiFieldData> build() {
             return change;
         }
 
         public class FieldChangeBuilder {
 
-            private final ApplicationField value;
+            private final MultiFieldData value;
 
             public FieldChangeBuilder(String fieldID) {
-                ApplicationField existing = findField(fieldID);
+                MultiFieldData existing = findField(fieldID);
                 value = existing;
                 change.add(value);
             }
@@ -710,18 +710,14 @@ public final class Utilities {
                 return this;
             }
 
-            public FieldChangeBuilder setReadOnly(Boolean newReadOnly) {
-                value.setReadOnly(newReadOnly);
-                return this;
-            }
 
             public StaticFieldChangeBuilder done() {
                 return StaticFieldChangeBuilder.this;
             }
 
-            protected final ApplicationField findField(String id) {
+            protected final MultiFieldData findField(String id) {
                 
-                for (ApplicationField field : currentFields) {
+                for (MultiFieldData field : currentFields) {
                         if (id.equals(field.getId())) {
                             return field;
                         }

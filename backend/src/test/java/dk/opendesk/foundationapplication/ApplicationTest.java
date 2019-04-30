@@ -7,6 +7,7 @@ package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlockSpecification;
 import dk.opendesk.foundationapplication.DAO.ApplicationField;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
@@ -15,6 +16,8 @@ import dk.opendesk.foundationapplication.DAO.ApplicationSummary;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.Budget;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.MultiFieldData;
+import dk.opendesk.foundationapplication.DAO.NewApplication;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import static dk.opendesk.foundationapplication.Utilities.APPLICATION_FOLDER_DOCUMENT;
 import static dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData.RANDOM;
@@ -67,39 +70,39 @@ public class ApplicationTest extends AbstractTestClass{
         
         String applicationTitle = "More cats for dogs";
 
-        Application newApplication = new Application();
+        NewApplication newApplication = new NewApplication();
         newApplication.setTitle(applicationTitle);
-        ApplicationBlock app1blockRecipient = new ApplicationBlock();
+        ApplicationBlockSpecification app1blockRecipient = new ApplicationBlockSpecification();
         app1blockRecipient.setId("1");
         app1blockRecipient.setLabel("Recipients");
-        ApplicationBlock app1blockOverview = new ApplicationBlock();
+        ApplicationBlockSpecification app1blockOverview = new ApplicationBlockSpecification();
         app1blockOverview.setId("2");
         app1blockOverview.setLabel("Overview");
-        ApplicationBlock app1details = new ApplicationBlock();
+        ApplicationBlockSpecification app1details = new ApplicationBlockSpecification();
         app1details.setId("3");
         app1details.setLabel("Details");
         app1blockRecipient.setFields(new ArrayList<>());
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Cats4Dogs",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Testgade",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,1337,null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"2",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"9999",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Test",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Osteron",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"t@est.dk",null));
-        app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"12345678",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("1", "Recipient", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Cats4Dogs",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("2", "Road", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Testgade",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("3", "Number", "display:block;", "Integer", Integer.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,1337,null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("4", "Floor", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"2",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("5", "Postal code", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"9999",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("6", "First name", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Test",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("7", "Last name", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Osteron",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("8", "Email", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"t@est.dk",null));
+        app1blockRecipient.getFields().add(ResetDemoData.buildValue("9", "Contact Phone", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"12345678",null));
         
         app1blockOverview.setFields(new ArrayList<>());
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"Category3",null));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"We want to buy a cat for every dog",null));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now()),null));
-        app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,Date.from(Instant.now().plus(Duration.ofDays(30))),null));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("10", "Category", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"Category3",null));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("11", "Short Description", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"We want to buy a cat for every dog",null));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("12", "Start Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,Date.from(Instant.now()),null));
+        app1blockOverview.getFields().add(ResetDemoData.buildValue("13", "End Date", "display:block;", "datepicker", Date.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,Date.from(Instant.now().plus(Duration.ofDays(30))),null));
         
         app1details.setFields(new ArrayList<>());
-        app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,10000l,null));
-        app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"1234",null));
-        app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"12345678",null));
-        newApplication.setBlocks(Arrays.asList(new ApplicationBlock[]{app1blockRecipient, app1blockOverview, app1details}));
+        app1details.getFields().add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,10000l,null));
+        app1details.getFields().add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"1234",null));
+        app1details.getFields().add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"12345678",null));
+        newApplication.setBlocks(Arrays.asList(new ApplicationBlockSpecification[]{app1blockRecipient, app1blockOverview, app1details}));
         
         ApplicationReference reference = post(newApplication, ApplicationReference.class);
         assertNotNull(reference);
@@ -496,7 +499,7 @@ public class ApplicationTest extends AbstractTestClass{
                 .build();
         getApplicationBean().updateApplication(change);
 
-        List<ApplicationField> schemaChange = Utilities.buildFieldChange(getApplicationBean()).changeField("14")
+        List<MultiFieldData> schemaChange = Utilities.buildFieldChange(getApplicationBean()).changeField("14")
                 .setLabel("testAmount")
                 .setHint("testHint")
                 .setWrapper("testWrapper")

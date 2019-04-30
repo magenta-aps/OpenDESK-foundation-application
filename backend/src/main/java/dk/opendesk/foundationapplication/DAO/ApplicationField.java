@@ -187,7 +187,7 @@ public class ApplicationField<E> extends Reference{
         return get(controlledBy);
     }
 
-    public boolean wasControlledBy(){
+    public boolean wasControlledBySet(){
         return wasSet(controlledBy);
     }
 

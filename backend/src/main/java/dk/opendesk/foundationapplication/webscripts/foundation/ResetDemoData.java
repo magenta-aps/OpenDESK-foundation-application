@@ -7,10 +7,13 @@ package dk.opendesk.foundationapplication.webscripts.foundation;
 
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlockSpecification;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.MultiFieldDataValue;
+import dk.opendesk.foundationapplication.DAO.NewApplication;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.ListBuilder;
 import dk.opendesk.foundationapplication.Utilities;
@@ -176,7 +179,7 @@ public class ResetDemoData extends JacksonBackedWebscript {
         return app.asNodeRef();
     }
     
-    public Application buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) throws Exception {
+    public NewApplication buildApplication(NodeRef state, NodeRef budget, NodeRef branch, String name, long requiredAmount) throws Exception {
         String recipient = random(COMPANYNAMES);
         String firstName = random(FIRSTNAMES);
         String lastName = random(LASTNAMES);
@@ -184,35 +187,35 @@ public class ResetDemoData extends JacksonBackedWebscript {
         String floor = random(FLOORS);
         Date startDate = Date.from(Instant.now());
         Date endDate = Date.from(Instant.now().plus(Duration.ofDays(RANDOM.nextInt(50) + 1)));
-        ApplicationBlock block1 = new ApplicationBlock();
+        ApplicationBlockSpecification block1 = new ApplicationBlockSpecification();
         block1.setId("block1");
         block1.setLabel("Information");
         block1.setLayout("display:block;");
-        List<ApplicationFieldValue> fields = new ArrayList<>();
-        fields.add(buildValue("1", "Kategori", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"My new Category",null));
-        fields.add(buildValue("2", "Modtager", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, recipient,null));
-        fields.add(buildValue("3", "Vejnavn", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, steetName,null));
-        fields.add(buildValue("4", "Etage", "display:block;", "text", String.class, null,null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, floor,null));
-        fields.add(buildValue("5", "Postnr", "display:block;", "text", String.class, null,null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, numberString(4),null));
-        fields.add(buildValue("6", "Fornavn", "display:block;", "text", String.class, Functional.first_name(),null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, firstName,null));
-        fields.add(buildValue("7", "Efternavn", "display:block;", "text", String.class, Functional.last_name(),null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, lastName,null));
-        fields.add(buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, firstName + "@mail.dk",null));
-        fields.add(buildValue("9", "Telefonnummer", "display:block;", "text", String.class, Functional.phone_number(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, phoneNumber(),null));
-        fields.add(buildValue("10", "Kort beskrivelse", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,lorem(50),null));
-        fields.add(buildValue("11", "Startdato", "display:block;", "text", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, startDate,null));
-        fields.add(buildValue("12", "EndDate", "display:block;", "text", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, endDate,null));
-        fields.add(buildValue("13", "Beløb", "display:block;", "text", Long.class, Functional.amount(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, requiredAmount,null));
-        fields.add(buildValue("14", "Registreringsnummer", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true, numberString(4),null));
-        fields.add(buildValue("15", "Kontonummer", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,true,"000" + numberString(5),null));
+        List<MultiFieldDataValue> fields = new ArrayList<>();
+        fields.add(buildValue("1", "Kategori", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"My new Category",null));
+        fields.add(buildValue("2", "Modtager", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, recipient,null));
+        fields.add(buildValue("3", "Vejnavn", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, steetName,null));
+        fields.add(buildValue("4", "Etage", "display:block;", "text", String.class, null,null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, floor,null));
+        fields.add(buildValue("5", "Postnr", "display:block;", "text", String.class, null,null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, numberString(4),null));
+        fields.add(buildValue("6", "Fornavn", "display:block;", "text", String.class, Functional.first_name(),null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, firstName,null));
+        fields.add(buildValue("7", "Efternavn", "display:block;", "text", String.class, Functional.last_name(),null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, lastName,null));
+        fields.add(buildValue("8", "Email", "display:block;", "text", String.class, Functional.email_to(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, firstName + "@mail.dk",null));
+        fields.add(buildValue("9", "Telefonnummer", "display:block;", "text", String.class, Functional.phone_number(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, phoneNumber(),null));
+        fields.add(buildValue("10", "Kort beskrivelse", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,lorem(50),null));
+        fields.add(buildValue("11", "Startdato", "display:block;", "text", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, startDate,null));
+        fields.add(buildValue("12", "EndDate", "display:block;", "text", Date.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, endDate,null));
+        fields.add(buildValue("13", "Beløb", "display:block;", "text", Long.class, Functional.amount(), null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, requiredAmount,null));
+        fields.add(buildValue("14", "Registreringsnummer", "display:block;", "text", String.class, null, null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, numberString(4),null));
+        fields.add(buildValue("15", "Kontonummer", "display:block;", "text", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"000" + numberString(5),null));
 
         block1.setFields(fields);
 
-        Application app = new Application();
+        NewApplication app = new NewApplication();
         app.setTitle(name);
         app.setBlocks(Collections.singletonList(block1));
         if (branch != null) {
             BranchSummary branchRef = getBranchBean().getBranchSummary(branch);
-            app.setBranchSummary(branchRef);
+            app.setBranch(branchRef);
         }
         if (budget != null) {
             BudgetReference budgetRef = getBudgetBean().getBudgetReference(budget);
@@ -226,7 +229,7 @@ public class ResetDemoData extends JacksonBackedWebscript {
         return app;
     }
     
-    public static <E> ApplicationFieldValue<E> buildValue(
+    public static <E, T> MultiFieldDataValue<E, T> buildValue(
             String id,
             String label,
             String layout,
@@ -238,11 +241,10 @@ public class ResetDemoData extends JacksonBackedWebscript {
             String wrapper,
             String validation,
             String permission,
-            Boolean readOnly,
             ArrayList<E> value,
             ArrayList<String> controlledBy
     ) throws ClassNotFoundException{
-        ApplicationFieldValue valueField = new ApplicationFieldValue();
+        MultiFieldDataValue valueField = new MultiFieldDataValue();
         valueField.setId(id);
         valueField.setLabel(label);
         valueField.setLayout(layout);
@@ -254,15 +256,14 @@ public class ResetDemoData extends JacksonBackedWebscript {
         valueField.setHint(hint);
         valueField.setWrapper(wrapper);
         valueField.setValidation(validation);
-        valueField.setReadOnly(readOnly);
-        valueField.setValue(value);
+        valueField.setSingularValue(value);
         valueField.setControlledBy(controlledBy);
         
         return valueField;
     }
     
         
-    public static <E> ApplicationFieldValue<E> buildValue(
+    public static <E, T> MultiFieldDataValue<E, T> buildValue(
             String id,
             String label,
             String layout,
@@ -274,14 +275,13 @@ public class ResetDemoData extends JacksonBackedWebscript {
             String wrapper,
             String validation,
             String permission,
-            Boolean readOnly,
             E value,
             ArrayList<String> controlledBy
     ) throws ClassNotFoundException{
-        return buildValue(id, label, layout, component, type, function, allowedValues, hint, wrapper, validation, permission, readOnly, ListBuilder.listFrom(value), controlledBy);
+        return buildValue(id, label, layout, component, type, function, allowedValues, hint, wrapper, validation, permission, ListBuilder.listFrom(value), controlledBy);
     }
     
-    public static <E> ApplicationFieldValue<E> buildValue(
+    public static <E, T> MultiFieldDataValue<E, T> buildValue(
             String id,
             String label,
             String layout,
@@ -293,7 +293,6 @@ public class ResetDemoData extends JacksonBackedWebscript {
             String wrapper,
             String validation,
             String permission,
-            Boolean readOnly,
             ArrayList<E> value,
             ArrayList<String> controlledBy,
             String aggregateComponent,
@@ -303,8 +302,7 @@ public class ResetDemoData extends JacksonBackedWebscript {
             Class<E> aggregateType,
             String aggregateWrapper
     ) throws ClassNotFoundException{
-        ApplicationFieldValue valueField = buildValue(id, label, layout, component, type, function, allowedValues, hint, wrapper, validation, permission, readOnly, value, controlledBy);
-        valueField.setAggregate(true);
+        MultiFieldDataValue valueField = buildValue(id, label, layout, component, type, function, allowedValues, hint, wrapper, validation, permission, value, controlledBy);
         valueField.setAggregateComponent(aggregateComponent);
         valueField.setAggregateDescribes(aggregateDescribes);
         valueField.setAggregateHint(aggregateHint);
@@ -315,7 +313,7 @@ public class ResetDemoData extends JacksonBackedWebscript {
         return valueField;
     }
     
-public static <E> ApplicationFieldValue<E> buildValue(
+public static <E, T> MultiFieldDataValue<E, T> buildValue(
             String id,
             String label,
             String layout,
@@ -327,7 +325,6 @@ public static <E> ApplicationFieldValue<E> buildValue(
             String wrapper,
             String validation,
             String permission,
-            Boolean readOnly,
             E value,
             ArrayList<String> controlledBy,
             String aggregateComponent,
@@ -337,7 +334,7 @@ public static <E> ApplicationFieldValue<E> buildValue(
             Class<E> aggregateType,
             String aggregateWrapper
     ) throws ClassNotFoundException{
-        return buildValue(id, label, layout, component, type, function, allowedValues, hint, wrapper, validation, permission, readOnly, ListBuilder.listFrom(value), controlledBy, aggregateComponent, aggregateDescribes, aggregateHint, aggregateLayout, aggregateType, aggregateWrapper);
+        return buildValue(id, label, layout, component, type, function, allowedValues, hint, wrapper, validation, permission, ListBuilder.listFrom(value), controlledBy, aggregateComponent, aggregateDescribes, aggregateHint, aggregateLayout, aggregateType, aggregateWrapper);
 
     }
     

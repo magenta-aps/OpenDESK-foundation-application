@@ -9,6 +9,7 @@ import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationReference;
 import dk.opendesk.foundationapplication.DAO.BranchSummary;
 import dk.opendesk.foundationapplication.DAO.BudgetReference;
+import dk.opendesk.foundationapplication.DAO.NewApplication;
 import dk.opendesk.foundationapplication.DAO.StateReference;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -28,9 +29,9 @@ public class AddApplicationTemplate extends JacksonBackedWebscript{
         BranchSummary branch = input.getBranchSummary();
         BudgetReference budget = input.getBudget();
         StateReference state = input.getState();
-        Application newApplication = new Application();
+        NewApplication newApplication = new NewApplication();
         if(branch != null){
-            newApplication.setBranchSummary(branch);
+            newApplication.setBranch(branch);
         }
         if(budget != null){
             newApplication.setBudget(budget);

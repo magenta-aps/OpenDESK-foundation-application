@@ -8,6 +8,7 @@ package dk.opendesk.foundationapplication.beans;
 import dk.opendesk.foundationapplication.Utilities;
 import static dk.opendesk.foundationapplication.Utilities.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -74,8 +75,8 @@ public class FoundationBean {
         
     }
 
-    public <T> List<T> getPropertyList(Map<QName, Serializable> properties, String name, Class<T> type) throws Exception {
-        return (List<T>) properties.get(getODFName(name));
+    public <T> ArrayList<T> getPropertyList(Map<QName, Serializable> properties, String name, Class<T> type) throws Exception {
+        return (ArrayList<T>) properties.get(getODFName(name));
     }
 
     public NodeRef getSingleTargetAssoc(NodeRef sourceRef, String assocName) throws Exception {
