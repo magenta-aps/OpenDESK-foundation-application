@@ -15,9 +15,12 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  */
 public class DAOType {
     
+    protected ToStringStyle printStyle(){
+        return ToStringStyle.SHORT_PREFIX_STYLE;
+    }
     
     public ToStringBuilder toStringBuilder(){
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE); 
+        return new ToStringBuilder(this, printStyle()); 
     }
     
     @Override

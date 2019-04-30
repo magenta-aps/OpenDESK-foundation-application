@@ -3,6 +3,7 @@ package dk.opendesk.foundationapplication.actions;
 import dk.opendesk.foundationapplication.DAO.Application;
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
+import dk.opendesk.foundationapplication.DAO.MultiFieldDataValue;
 import dk.opendesk.foundationapplication.beans.ApplicationBean;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
@@ -51,11 +52,11 @@ public class AddFieldsToApplicationAction extends ActionExecuterAbstractBase {
         }
 
         //checking if the fields already exists
-        List<ApplicationFieldValue> newFields = (List<ApplicationFieldValue>) action.getParameterValue(PARAM_FIELDS);
+        List<MultiFieldDataValue> newFields = (List<MultiFieldDataValue>) action.getParameterValue(PARAM_FIELDS);
         List<ApplicationFieldValue> oldFields = oldBlock.getFields();
 
         if (oldFields != null) {
-            for (ApplicationFieldValue newField : newFields) {
+            for (MultiFieldDataValue newField : newFields) {
                 for (ApplicationFieldValue oldField : oldFields) {
                     if (newField.getId().equals(oldField.getId())) {
                         throw new AlfrescoRuntimeException(EXCEPTION_FIELD_OVERLAP);
@@ -65,15 +66,11 @@ public class AddFieldsToApplicationAction extends ActionExecuterAbstractBase {
         }
 
         //adding the fields
-        ApplicationBlock newBlock = new ApplicationBlock();
-        newBlock.setId(blockId);
-        newBlock.setFields(newFields);
-
-        Application change = new Application();
-        change.parseRef(actionedUponNodeRef);
-        change.setBlocks(Collections.singletonList(newBlock));
         try {
-            applicationBean.updateApplication(change);
+            for(MultiFieldDataValue newField: newFields){
+                applicationBean.addFieldToBlock(application.asNodeRef(), oldBlock, newField);
+            }
+            
         } catch (Exception e) {
             throw new AlfrescoRuntimeException(EXCEPTION_ADD_FIELDS_FAIL, e);
         }

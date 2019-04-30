@@ -1,7 +1,9 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlockSpecification;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
+import dk.opendesk.foundationapplication.DAO.MultiFieldDataValue;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.Action;
@@ -42,16 +44,16 @@ public class AddBlocksTest extends AbstractTestClass {
         NodeRef appRef = TestUtils.application1;
         int noBlocks = getApplicationBean().getApplication(appRef).getBlocks().size();
 
-        ApplicationBlock uniqueBlockNoFields = new ApplicationBlock();
+        ApplicationBlockSpecification uniqueBlockNoFields = new ApplicationBlockSpecification();
         uniqueBlockNoFields.setId("A");
 
-        ApplicationBlock uniqueBlockUniqueFields = new ApplicationBlock();
+        ApplicationBlockSpecification uniqueBlockUniqueFields = new ApplicationBlockSpecification();
         uniqueBlockUniqueFields.setId("B");
-        ApplicationFieldValue field1 = new ApplicationFieldValue();
+        MultiFieldDataValue field1 = new MultiFieldDataValue();
         field1.setId("b");
         uniqueBlockUniqueFields.setFields(Collections.singletonList(field1));
 
-        List<ApplicationBlock> blocks = Arrays.asList(new ApplicationBlock[]{uniqueBlockNoFields, uniqueBlockUniqueFields});
+        List<ApplicationBlockSpecification> blocks = Arrays.asList(new ApplicationBlockSpecification[]{uniqueBlockNoFields, uniqueBlockUniqueFields});
         Map<String, Serializable> param = new HashMap<>();
         param.put(PARAM_BLOCKS, (Serializable) blocks);
         Action action = getServiceRegistry().getActionService().createAction("addBlocks", param);
@@ -81,18 +83,18 @@ public class AddBlocksTest extends AbstractTestClass {
     public void testAddUniqueBlocksWithDuplicateFields() {
         NodeRef appRef = TestUtils.application1;
 
-        ApplicationBlock uniqueBlockNoFields = new ApplicationBlock();
+        ApplicationBlockSpecification uniqueBlockNoFields = new ApplicationBlockSpecification();
         uniqueBlockNoFields.setId("A");
 
-        ApplicationBlock uniqueBlockDuplicateField = new ApplicationBlock();
+        ApplicationBlockSpecification uniqueBlockDuplicateField = new ApplicationBlockSpecification();
         uniqueBlockDuplicateField.setId("B");
-        ApplicationFieldValue field3 = new ApplicationFieldValue();
-        ApplicationFieldValue field4 = new ApplicationFieldValue();
+        MultiFieldDataValue field3 = new MultiFieldDataValue();
+        MultiFieldDataValue field4 = new MultiFieldDataValue();
         field3.setId("a");
         field4.setId("1"); //already exists
-        uniqueBlockDuplicateField.setFields(Arrays.asList(new ApplicationFieldValue[]{field3, field4}));
+        uniqueBlockDuplicateField.setFields(Arrays.asList(new MultiFieldDataValue[]{field3, field4}));
 
-        List<ApplicationBlock> blocks = Arrays.asList(new ApplicationBlock[]{uniqueBlockNoFields, uniqueBlockDuplicateField});
+        List<ApplicationBlockSpecification> blocks = Arrays.asList(new ApplicationBlockSpecification[]{uniqueBlockNoFields, uniqueBlockDuplicateField});
         Map<String, Serializable> param = new HashMap<>();
         param.put(PARAM_BLOCKS, (Serializable) blocks);
         Action action = getServiceRegistry().getActionService().createAction("addBlocks", param);
@@ -111,18 +113,18 @@ public class AddBlocksTest extends AbstractTestClass {
         List<ApplicationBlock> oldBlocks = getApplicationBean().getApplication(appRef).getBlocks();
 
 
-        ApplicationBlock uniqueBlockNoFields = new ApplicationBlock();
+        ApplicationBlockSpecification uniqueBlockNoFields = new ApplicationBlockSpecification();
         uniqueBlockNoFields.setId("A");
 
-        ApplicationBlock duplicateBlockUniqueFields = new ApplicationBlock();
+        ApplicationBlockSpecification duplicateBlockUniqueFields = new ApplicationBlockSpecification();
         duplicateBlockUniqueFields.setId("1"); //already exists
-        ApplicationFieldValue field5 = new ApplicationFieldValue();
-        ApplicationFieldValue field6 = new ApplicationFieldValue();
+        MultiFieldDataValue field5 = new MultiFieldDataValue();
+        MultiFieldDataValue field6 = new MultiFieldDataValue();
         field5.setId("a");
         field6.setId("b");
-        duplicateBlockUniqueFields.setFields(Arrays.asList(new ApplicationFieldValue[]{field5,field6}));
+        duplicateBlockUniqueFields.setFields(Arrays.asList(new MultiFieldDataValue[]{field5,field6}));
 
-        List<ApplicationBlock> blocks = Arrays.asList(new ApplicationBlock[]{uniqueBlockNoFields, duplicateBlockUniqueFields});
+        List<ApplicationBlockSpecification> blocks = Arrays.asList(new ApplicationBlockSpecification[]{uniqueBlockNoFields, duplicateBlockUniqueFields});
         Map<String, Serializable> param = new HashMap<>();
         param.put(PARAM_BLOCKS, (Serializable) blocks);
         Action action = getServiceRegistry().getActionService().createAction("addBlocks", param);

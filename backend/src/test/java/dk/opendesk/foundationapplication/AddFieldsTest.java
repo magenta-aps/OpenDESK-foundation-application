@@ -2,6 +2,7 @@ package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
 import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
+import dk.opendesk.foundationapplication.DAO.MultiFieldDataValue;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.Action;
@@ -40,12 +41,12 @@ public class AddFieldsTest extends AbstractTestClass {
         ApplicationBlock blockBefore = getApplicationBean().getApplication(appRef).getBlocks().get(0);
         int noFields = blockBefore.getFields().size();
 
-        ApplicationFieldValue field1 = new ApplicationFieldValue();
-        ApplicationFieldValue field2 = new ApplicationFieldValue();
+        MultiFieldDataValue field1 = new MultiFieldDataValue();
+        MultiFieldDataValue field2 = new MultiFieldDataValue();
         field1.setId("a");
         field2.setId("b");
 
-        List<ApplicationFieldValue> fields = Arrays.asList(new ApplicationFieldValue[]{field1,field2});
+        List<MultiFieldDataValue> fields = Arrays.asList(new MultiFieldDataValue[]{field1,field2});
 
         Map<String, Serializable> params = new HashMap<>();
         params.put(PARAM_FIELDS, (Serializable) fields);
@@ -74,12 +75,12 @@ public class AddFieldsTest extends AbstractTestClass {
         NodeRef appRef = TestUtils.application1;
         ApplicationBlock blockBefore = getApplicationBean().getApplication(appRef).getBlocks().get(0);
 
-        ApplicationFieldValue field1 = new ApplicationFieldValue();
-        ApplicationFieldValue field2 = new ApplicationFieldValue();
+        MultiFieldDataValue field1 = new MultiFieldDataValue();
+        MultiFieldDataValue field2 = new MultiFieldDataValue();
         field1.setId("a");
         field2.setId(blockBefore.getFields().get(0).getId());
 
-        List<ApplicationFieldValue> fields = Arrays.asList(new ApplicationFieldValue[]{field1,field2});
+        List<MultiFieldDataValue> fields = Arrays.asList(new MultiFieldDataValue[]{field1,field2});
 
         Map<String, Serializable> params = new HashMap<>();
         params.put(PARAM_FIELDS, (Serializable) fields);
@@ -97,7 +98,7 @@ public class AddFieldsTest extends AbstractTestClass {
     public void testAddUniqueFieldsWrongBlockId() {
         NodeRef appRef = TestUtils.application1;
 
-        ApplicationFieldValue field = new ApplicationFieldValue();
+        MultiFieldDataValue field = new MultiFieldDataValue();
         field.setId("a");
 
         Map<String, Serializable> params = new HashMap<>();

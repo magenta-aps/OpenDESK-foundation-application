@@ -243,12 +243,15 @@ public class ApplicationField<E> extends Reference{
         }
         return true;
     }
-    
-    
+
+    @Override
+    protected ToStringStyle printStyle() {
+        return ToStringStyle.MULTI_LINE_STYLE;
+    }
     
     @Override
     public ToStringBuilder toStringBuilder(){
-        ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE);
+        ToStringBuilder builder = super.toStringBuilder();
         builder.append("id", id).append("label", label).append("type", type).append("component", component).append("function", describes).append("layout", layout).append("controlledBy", controlledBy);
         return builder;
     }

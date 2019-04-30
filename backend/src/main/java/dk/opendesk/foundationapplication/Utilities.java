@@ -54,6 +54,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -262,75 +263,79 @@ public final class Utilities {
     }
     
     public static void wipeData(ServiceRegistry serviceRegistry) throws Exception {
-        NodeService nodeService = serviceRegistry.getNodeService();
-
-        ActionBean actionBean = new ActionBean();
-        actionBean.setServiceRegistry(serviceRegistry);
-        ApplicationBean applicationBean = new ApplicationBean();
-        applicationBean.setServiceRegistry(serviceRegistry);
-        AuthorityBean authBean = new AuthorityBean();
-        authBean.setServiceRegistry(serviceRegistry);
-        BranchBean branchBean = new BranchBean();
-        branchBean.setServiceRegistry(serviceRegistry);
-        BudgetBean budgetBean = new BudgetBean();
-        budgetBean.setServiceRegistry(serviceRegistry);
-        WorkflowBean workflowBean = new WorkflowBean();
-        workflowBean.setServiceRegistry(serviceRegistry);
-        
-        actionBean.setApplicationBean(applicationBean);
-        
-        applicationBean.setActionBean(actionBean);
-        applicationBean.setAuthBean(authBean);
-        applicationBean.setBranchBean(branchBean);
-        applicationBean.setBudgetBean(budgetBean);
-        applicationBean.setWorkflowBean(workflowBean);
-        
-        branchBean.setApplicationBean(applicationBean);
-        branchBean.setAuthBean(authBean);
-        branchBean.setBudgetBean(budgetBean);
-        branchBean.setWorkflowBean(workflowBean);
-        
-        budgetBean.setApplicationBean(applicationBean);
-        budgetBean.setAuthBean(authBean);
-        budgetBean.setWorkflowBean(workflowBean);
-        
-        workflowBean.setApplicationBean(applicationBean);
-        workflowBean.setAuthBean(authBean);
-                
-        NodeRef dataRef = applicationBean.getDataHome();
-        
-        AuthorityService as = serviceRegistry.getAuthorityService();
-        for(String group : AuthorityBean.getAllCreatedGroups(as)){
-            if(as.authorityExists(group)){
-                LOGGER.debug("Deleting group: "+group);
-                as.deleteAuthority(group, true);
-            }else{
-                LOGGER.debug("Group missing: "+group);
+        AuthenticationUtil.runAsSystem(() -> {
+            NodeService nodeService = serviceRegistry.getNodeService();
+            
+            ActionBean actionBean = new ActionBean();
+            actionBean.setServiceRegistry(serviceRegistry);
+            ApplicationBean applicationBean = new ApplicationBean();
+            applicationBean.setServiceRegistry(serviceRegistry);
+            AuthorityBean authBean = new AuthorityBean();
+            authBean.setServiceRegistry(serviceRegistry);
+            BranchBean branchBean = new BranchBean();
+            branchBean.setServiceRegistry(serviceRegistry);
+            BudgetBean budgetBean = new BudgetBean();
+            budgetBean.setServiceRegistry(serviceRegistry);
+            WorkflowBean workflowBean = new WorkflowBean();
+            workflowBean.setServiceRegistry(serviceRegistry);
+            
+            actionBean.setApplicationBean(applicationBean);
+            
+            applicationBean.setActionBean(actionBean);
+            applicationBean.setAuthBean(authBean);
+            applicationBean.setBranchBean(branchBean);
+            applicationBean.setBudgetBean(budgetBean);
+            applicationBean.setWorkflowBean(workflowBean);
+            
+            branchBean.setApplicationBean(applicationBean);
+            branchBean.setAuthBean(authBean);
+            branchBean.setBudgetBean(budgetBean);
+            branchBean.setWorkflowBean(workflowBean);
+            
+            budgetBean.setApplicationBean(applicationBean);
+            budgetBean.setAuthBean(authBean);
+            budgetBean.setWorkflowBean(workflowBean);
+            
+            workflowBean.setApplicationBean(applicationBean);
+            workflowBean.setAuthBean(authBean);
+            
+            NodeRef dataRef = applicationBean.getDataHome();
+            
+            AuthorityService as = serviceRegistry.getAuthorityService();
+            for(String group : AuthorityBean.getAllCreatedGroups(as)){
+                if(as.authorityExists(group)){
+                    LOGGER.debug("Deleting group: "+group);
+                    as.deleteAuthority(group, true);
+                }else{
+                    LOGGER.debug("Group missing: "+group);
+                }
             }
-        }
+            
+            
+            for (NodeRef workflow : workflowBean.getWorkflows()) {
+                nodeService.removeChild(dataRef, workflow);
+            }
+            
+            for (NodeRef budget : budgetBean.getBudgetYearRefs()) {
+                nodeService.removeChild(dataRef, budget);
+            }
+            
+            for (NodeRef branch : branchBean.getBranches()) {
+                nodeService.removeChild(dataRef, branch);
+            }
+            
+            for (ApplicationSummary application : applicationBean.getApplicationSummaries()) {
+                nodeService.removeChild(dataRef, application.asNodeRef());
+            }
+            for (ApplicationSummary application : applicationBean.getDeletedApplicationSummaries()) {
+                nodeService.removeChild(dataRef, application.asNodeRef());
+            }
+            for (MultiFieldData applicationField : applicationBean.getApplicationFieldSpecs()) {
+                nodeService.removeChild(dataRef, applicationField.asNodeRef());
+            }
+            return null;
+        });
         
-
-        for (NodeRef workflow : workflowBean.getWorkflows()) {
-            nodeService.removeChild(dataRef, workflow);
-        }
-
-        for (NodeRef budget : budgetBean.getBudgetYearRefs()) {
-            nodeService.removeChild(dataRef, budget);
-        }
-
-        for (NodeRef branch : branchBean.getBranches()) {
-            nodeService.removeChild(dataRef, branch);
-        }
-
-        for (ApplicationSummary application : applicationBean.getApplicationSummaries()) {
-            nodeService.removeChild(dataRef, application.asNodeRef());
-        }
-        for (ApplicationSummary application : applicationBean.getDeletedApplicationSummaries()) {
-            nodeService.removeChild(dataRef, application.asNodeRef());
-        }
-        for (MultiFieldData applicationField : applicationBean.getApplicationFieldSpecs()) {
-            nodeService.removeChild(dataRef, applicationField.asNodeRef());
-        }
     }
 
     public static NodeRef getOdfEmailTemplateFolder(ServiceRegistry sr) {

@@ -312,7 +312,16 @@ public class ApplicationBean extends FoundationBean {
     }
 
 
-    protected void addBlockToApplication(ApplicationSchema application, ApplicationBlockSpecification newBlock) throws Exception {
+    
+    public void addBlockToApplication(ApplicationSchema application, ApplicationBlockSpecification newBlock) throws Exception {
+       addBlockToApplication(application.asNodeRef(), newBlock);
+    }
+    
+    public void addBlockToApplication(ApplicationReference application, ApplicationBlockSpecification newBlock) throws Exception {
+       addBlockToApplication(application.asNodeRef(), newBlock);
+    }
+    
+    public void addBlockToApplication(NodeRef application, ApplicationBlockSpecification newBlock) throws Exception {
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(getODFName(BLOCK_PARAM_ID), newBlock.getId());
         properties.put(getODFName(BLOCK_PARAM_LABEL), newBlock.getLabel());
@@ -321,7 +330,7 @@ public class ApplicationBean extends FoundationBean {
         properties.put(getODFName(BLOCK_PARAM_COLLAPSIBLE), newBlock.getCollapsible());
         properties.put(getODFName(BLOCK_PARAM_REPEATABLE), newBlock.getRepeatable());
 
-        NodeRef newBlockRef = getServiceRegistry().getNodeService().createNode(application.asNodeRef(), getODFName(APPLICATION_ASSOC_BLOCKS), getODFName(newBlock.getId()), getODFName(BLOCKIMPL_TYPE_NAME), properties).getChildRef();
+        NodeRef newBlockRef = getServiceRegistry().getNodeService().createNode(application, getODFName(APPLICATION_ASSOC_BLOCKS), getODFName(newBlock.getId()), getODFName(BLOCKIMPL_TYPE_NAME), properties).getChildRef();
 
         
         
@@ -333,12 +342,12 @@ public class ApplicationBean extends FoundationBean {
         }
     }
 
-    protected void addFieldToBlock(ApplicationSchema containingApplication, ApplicationBlock block, MultiFieldDataValue field) throws Exception {
+    public void addFieldToBlock(NodeRef containingApplication, ApplicationBlock block, MultiFieldDataValue field) throws Exception {
         addFieldToBlock(containingApplication, block.asNodeRef(), field);
 
     }
 
-    protected void addFieldToBlock(ApplicationSchema containingApplication, NodeRef blockRef, MultiFieldDataValue field) throws Exception {
+    public void addFieldToBlock(NodeRef containingApplication, NodeRef blockRef, MultiFieldDataValue field) throws Exception {
         NodeRef staticFieldRef = getServiceRegistry().getNodeService().getChildByName(getDataHome(), getODFName(DATA_ASSOC_STATIC_FIELDS), field.getId());
         if (staticFieldRef == null) {
             staticFieldRef = addStaticField(field);
@@ -360,7 +369,7 @@ public class ApplicationBean extends FoundationBean {
                 
     }
 
-    protected NodeRef addStaticField(MultiFieldData field) throws Exception {
+    public NodeRef addStaticField(MultiFieldData field) throws Exception {
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(getODFName(STATICFIELD_PARAM_ID), field.getId());
         properties.put(getODFName(STATICFIELD_PARAM_LABEL), field.getLabel());
@@ -390,7 +399,7 @@ public class ApplicationBean extends FoundationBean {
         return ref;
     }
 
-    protected void updateField(ApplicationFieldValue field) throws Exception {
+    public void updateField(ApplicationFieldValue field) throws Exception {
         Map<QName, Serializable> properties = new HashMap<>();
         if (field.wasOptionsSet()) {
             properties.put(getODFName(FIELD_PARAM_OPTIONS), field.getOptions());
@@ -404,7 +413,7 @@ public class ApplicationBean extends FoundationBean {
         }
     }
 
-    protected void updateStaticField(MultiFieldData field) throws Exception {
+    public void updateStaticField(MultiFieldData field) throws Exception {
         Map<QName, Serializable> properties = new HashMap<>();
         if (field.wasLabelSet()) {
             properties.put(getODFName(STATICFIELD_PARAM_LABEL), field.getLabel());
@@ -439,7 +448,7 @@ public class ApplicationBean extends FoundationBean {
         }
     }
 
-    protected void updateBlock(ApplicationBlock block) throws Exception {
+    public void updateBlock(ApplicationBlock block) throws Exception {
         Map<QName, Serializable> properties = new HashMap<>();
         if (block.wasLabelSet() || block.wasTitleSet()) {
             properties.put(getODFName(BLOCK_PARAM_LABEL), block.getLabel()); //Label and title should be equal
@@ -903,12 +912,14 @@ public class ApplicationBean extends FoundationBean {
 
         populateUserField(fieldValue, fieldData);
 
+        fieldValue.parseRef(fieldData.asNodeRef());
         return fieldValue;
     }
     
     protected ApplicationField getBasicField(MultiFieldData fieldData){
         ApplicationField field = new ApplicationField();
         populateUserField(field, fieldData);
+        field.parseRef(fieldData.asNodeRef());
         return field;
     }
     
@@ -924,6 +935,7 @@ public class ApplicationBean extends FoundationBean {
 
         populateUserField(fieldValue, fieldData);
 
+        fieldValue.parseRef(fieldData.asNodeRef());
         return fieldValue;
     }
     
@@ -932,6 +944,7 @@ public class ApplicationBean extends FoundationBean {
 
         populateUserField(field, fieldData);        
         
+        field.parseRef(fieldData.asNodeRef());
         return field;
     }
     
@@ -957,6 +970,7 @@ public class ApplicationBean extends FoundationBean {
 
         populateAggregateField(fieldValue, fieldData);
 
+        fieldValue.parseRef(fieldData.asNodeRef());
         return fieldValue;
     }
 
@@ -964,6 +978,7 @@ public class ApplicationBean extends FoundationBean {
         ApplicationField field = new ApplicationField();
         populateAggregateField(field, fieldData);
         
+        field.parseRef(fieldData.asNodeRef());
         return field;
     }
     

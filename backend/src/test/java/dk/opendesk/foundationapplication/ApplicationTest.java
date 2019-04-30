@@ -539,7 +539,7 @@ public class ApplicationTest extends AbstractTestClass{
 
         //does the fields on block 'testDetails' exist
         List<ApplicationFieldValue> fields = detailsBlock.getFields();
-        assertEquals(3, fields.size());
+        assertEquals(4, fields.size());
 
         ApplicationFieldValue amountField = null;
         ApplicationFieldValue regNumField = null;

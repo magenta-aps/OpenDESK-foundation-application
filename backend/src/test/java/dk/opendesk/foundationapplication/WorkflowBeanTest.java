@@ -108,7 +108,7 @@ public class WorkflowBeanTest extends BaseWebScriptTest {
         
         //Exactly 6 dataitems has been created in total
         List<ChildAssociationRef> childrenRefs = serviceRegistry.getNodeService().getChildAssocs(dataNode);
-        assertEquals(54, childrenRefs.size());
+        assertEquals(55, childrenRefs.size());
         
         
         //Workflow has the expected states

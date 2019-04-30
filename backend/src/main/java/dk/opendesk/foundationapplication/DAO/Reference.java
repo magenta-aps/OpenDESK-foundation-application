@@ -133,7 +133,7 @@ public class Reference extends DAOType{
     
     @Override
     public ToStringBuilder toStringBuilder(){
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("StoreID", this.getStoreID()).append("NodeID", this.getNodeID()); 
+        return super.toStringBuilder().append("StoreID", this.getStoreID()).append("NodeID", this.getNodeID()); 
     }
  
 }

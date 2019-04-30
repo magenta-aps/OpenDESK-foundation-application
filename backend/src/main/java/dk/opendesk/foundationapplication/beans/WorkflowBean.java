@@ -267,6 +267,9 @@ public class WorkflowBean extends FoundationBean {
         ensureType(APPLICATION_TYPE_NAME, applicationRef);
         return AuthenticationUtil.runAsSystem(() -> {
             NodeRef stateRef = applicationBean.getApplicationState(applicationRef);
+            if(stateRef == null){ //If state is null, category is null
+                return null;
+            }
             return StateCategory.getFromName(getProperty(stateRef, STATE_PARAM_CATEGORY, String.class));
         });    
     }
