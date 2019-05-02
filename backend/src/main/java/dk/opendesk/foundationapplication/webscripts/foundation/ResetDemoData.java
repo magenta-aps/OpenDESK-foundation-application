@@ -19,6 +19,7 @@ import dk.opendesk.foundationapplication.ListBuilder;
 import dk.opendesk.foundationapplication.Utilities;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.StateCategory;
+import dk.opendesk.foundationapplication.validator.aggregate.Aggregator;
 import dk.opendesk.foundationapplication.webscripts.JacksonBackedWebscript;
 import java.time.Duration;
 import java.time.Instant;
@@ -299,8 +300,10 @@ public class ResetDemoData extends JacksonBackedWebscript {
             String aggregateDescribes,
             String aggregateHint,
             String aggregateLayout,
-            Class<E> aggregateType,
-            String aggregateWrapper
+            Class<T> aggregateType,
+            String aggregateWrapper,
+            Class<? extends Aggregator<E, T>> aggregatorClass,
+            String... triggerStates
     ) throws ClassNotFoundException{
         MultiFieldDataValue valueField = buildValue(id, label, layout, component, type, function, allowedValues, hint, wrapper, validation, permission, value, controlledBy);
         valueField.setAggregateComponent(aggregateComponent);
@@ -309,7 +312,8 @@ public class ResetDemoData extends JacksonBackedWebscript {
         valueField.setAggregateLayout(aggregateLayout);
         valueField.setAggregateType(aggregateType.getCanonicalName());
         valueField.setAggregateWrapper(aggregateWrapper);
-        
+        valueField.setAggregator(aggregatorClass.getCanonicalName());
+        valueField.setAggregateStateCategories(new ArrayList<>(Arrays.asList(triggerStates)));
         return valueField;
     }
     
@@ -331,10 +335,12 @@ public static <E, T> MultiFieldDataValue<E, T> buildValue(
             String aggregateDescribes,
             String aggregateHint,
             String aggregateLayout,
-            Class<E> aggregateType,
-            String aggregateWrapper
+            Class<T> aggregateType,
+            String aggregateWrapper,
+            Class<? extends Aggregator<E, T>> aggregatorClass,
+            String... triggerStates
     ) throws ClassNotFoundException{
-        return buildValue(id, label, layout, component, type, function, allowedValues, hint, wrapper, validation, permission, ListBuilder.listFrom(value), controlledBy, aggregateComponent, aggregateDescribes, aggregateHint, aggregateLayout, aggregateType, aggregateWrapper);
+        return buildValue(id, label, layout, component, type, function, allowedValues, hint, wrapper, validation, permission, ListBuilder.listFrom(value), controlledBy, aggregateComponent, aggregateDescribes, aggregateHint, aggregateLayout, aggregateType, aggregateWrapper, aggregatorClass, triggerStates);
 
     }
     

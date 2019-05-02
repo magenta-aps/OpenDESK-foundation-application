@@ -5,6 +5,7 @@
  */
 package dk.opendesk.foundationapplication.validator.aggregate;
 
+import java.util.Collection;
 import java.util.List;
 import org.alfresco.service.ServiceRegistry;
 
@@ -25,12 +26,20 @@ public class IntegerRating implements Aggregator<Integer, Integer>{
     }
 
     @Override
-    public Integer convert(List<Integer> inputs, ServiceRegistry serviceRegistry) {
+    public Integer convert(Collection<Collection<Integer>> inputs, ServiceRegistry serviceRegistry) {
         Integer aggregate = 0;
-        for(Integer input : inputs){
-            aggregate = aggregate + input;
+        Integer count = 0;
+        for(Collection<Integer> input : inputs){
+            for(Integer integer : input){
+                aggregate = aggregate + integer;
+                count ++;
+            }
+            
         }
-        return aggregate/inputs.size();
+        if(count == 0){
+            return 0;
+        }
+        return aggregate/count;
     }
     
     

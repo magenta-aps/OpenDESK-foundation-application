@@ -616,4 +616,42 @@ public class ApplicationTest extends AbstractTestClass{
         assertNotNull(applicationReference.getIsSeen());
     }
     
+    public void testGetAggregateUserField() throws Exception{
+        Application app1 = getApplicationBean().getApplication(TestUtils.application1);
+        
+        ApplicationFieldValue aggregateField = null;
+        outer:
+        for(ApplicationBlock block : app1.getBlocks()){
+            for(ApplicationFieldValue field : block.getFields()){
+                if(field.getId().equals("17")){
+                    aggregateField = field;
+                    break outer;
+                }
+            }
+        }
+        assertNotNull(aggregateField);
+        assertNull(aggregateField.getSingleValue());
+        
+        Application change = Utilities.buildChange(app1).changeField("17").setValue(22).done().build();
+        getApplicationBean().updateApplication(change);
+        
+        //Test data after set
+        app1 = getApplicationBean().getApplication(TestUtils.application1);
+        
+        aggregateField = null;
+        outer:
+        for(ApplicationBlock block : app1.getBlocks()){
+            for(ApplicationFieldValue field : block.getFields()){
+                if(field.getId().equals("17")){
+                    aggregateField = field;
+                    break outer;
+                }
+            }
+        }
+        assertNotNull(aggregateField);
+        assertEquals(22, aggregateField.getSingleValue());
+       
+        
+    }
+    
 }

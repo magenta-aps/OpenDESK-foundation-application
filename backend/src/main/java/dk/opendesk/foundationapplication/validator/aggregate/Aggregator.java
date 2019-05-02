@@ -5,7 +5,7 @@
  */
 package dk.opendesk.foundationapplication.validator.aggregate;
 
-import java.util.List;
+import java.util.Collection;
 import org.alfresco.service.ServiceRegistry;
 
 /**
@@ -16,6 +16,6 @@ public interface Aggregator<E, T> {
     
     public Class<E> getInputType();
     public Class<T> getOutputType();
-    public T convert(List<E> inputs, ServiceRegistry serviceRegistry);
+    public T convert(Collection<Collection<E>> inputs, ServiceRegistry serviceRegistry);
     
 }

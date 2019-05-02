@@ -32,7 +32,7 @@ public class MultiFieldData <E, T> extends Reference{
     private Optional<String> wrapper;
     private Optional<String> validation;
     private Optional<ArrayList<String>> controlledBy;
-    private Optional<List<String>> aggregateStateCategories;
+    private Optional<ArrayList<String>> aggregateStateCategories;
     private Optional<Class<T>> aggregateType;
     private Optional<String> aggregateComponent;
     private Optional<String> aggregateLayout;
@@ -179,7 +179,7 @@ public class MultiFieldData <E, T> extends Reference{
         this.controlledBy = optional(controlledBy);
     }
 
-    public List<String> getAggregateStateCategories() {
+    public ArrayList<String> getAggregateStateCategories() {
         return get(aggregateStateCategories);
     }
 
@@ -187,7 +187,7 @@ public class MultiFieldData <E, T> extends Reference{
         return wasSet(aggregateStateCategories);
     }
 
-    public void setAggregateStateCategories(List<String> aggregateStateCategories) {
+    public void setAggregateStateCategories(ArrayList<String> aggregateStateCategories) {
         this.aggregateStateCategories = optional(aggregateStateCategories);
     }
 

@@ -6,7 +6,11 @@
 package dk.opendesk.foundationapplication;
 
 import dk.opendesk.foundationapplication.DAO.Application;
+import dk.opendesk.foundationapplication.DAO.ApplicationBlock;
+import dk.opendesk.foundationapplication.DAO.ApplicationFieldValue;
 import java.util.Set;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -104,6 +108,73 @@ public class AuthNZTest extends AbstractTestClass {
         
         application = getApplicationBean().getApplication(TestUtils.application1);
         assertEquals(TestUtils.budgetRef2, application.getBudget().asNodeRef());
+    }
+    
+    public void testGetAggregateUserFields() throws Exception {
+        Application app1 = getApplicationBean().getApplication(TestUtils.application1);
+
+        String olduser = AuthenticationUtil.getFullyAuthenticatedUser();
+        try{
+        AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_BRANCH_WRITE);
+        Application change1 = Utilities.buildChange(app1).changeField("17").setValue(10).done().build();
+            Application returnedApp = get(Application.class, "/application/"+TestUtils.application1.getId(), TestUtils.USER_BRANCH_WRITE);
+            ApplicationFieldValue returnedAggregateField = getField(returnedApp, "17");
+
+            assertNotNull(returnedAggregateField);
+            assertNull(returnedAggregateField.getSingleValue());
+            
+            post(change1, null, "/application/"+TestUtils.application1.getId(), 200, TestUtils.USER_BRANCH_WRITE);
+            
+            returnedApp = get(Application.class, "/application/"+TestUtils.application1.getId(), TestUtils.USER_BRANCH_WRITE);
+            
+            returnedAggregateField = getField(returnedApp, "17");
+            assertNotNull(returnedAggregateField);
+            assertEquals(10, returnedAggregateField.getSingleValue());
+        
+            AuthenticationUtil.setFullyAuthenticatedUser(TestUtils.USER_BRANCH_WRITE_ALL_READ);
+        Application change2 = Utilities.buildChange(app1).changeField("17").setValue(20).done().build();
+        //AuthenticationUtil.runAs(() -> {
+            Application returnedApp1 = get(Application.class, "/application/"+TestUtils.application1.getId(), TestUtils.USER_BRANCH_WRITE_ALL_READ);
+            
+            returnedAggregateField = getField(returnedApp1, "17");
+
+            assertNotNull(returnedAggregateField);
+            assertNull(returnedAggregateField.getSingleValue());
+            
+            post(change2, null, "/application/"+TestUtils.application1.getId(), 200, TestUtils.USER_BRANCH_WRITE_ALL_READ);
+            
+            returnedApp1 = get(Application.class, "/application/"+TestUtils.application1.getId(), TestUtils.USER_BRANCH_WRITE_ALL_READ);
+            
+            returnedAggregateField = getField(returnedApp1, "17");
+
+            assertNotNull(returnedAggregateField);
+            assertEquals(20, returnedAggregateField.getSingleValue());
+        //}, TestUtils.USER_BRANCH_WRITE_ALL_READ);
+        }finally{
+            AuthenticationUtil.setFullyAuthenticatedUser(olduser);
+        }
+    }
+    
+    public void testGetAggregateData() throws Exception{
+        testGetAggregateUserFields();
+        Application app1 = getApplicationBean().getApplication(TestUtils.application1);
+        Application change = Utilities.buildChange(app1).setState(TestUtils.w1StateAccessRef).build();
+        post(change, "/application/"+TestUtils.application1.getId());
+        Application returnedApp1 = get(Application.class, "/application/"+TestUtils.application1.getId());
+        ApplicationFieldValue returnedAggregateField = getField(returnedApp1, "17");
+        assertNotNull(returnedAggregateField);
+        assertEquals(15, returnedAggregateField.getSingleValue());
+    }
+    
+    public ApplicationFieldValue getField(Application app, String id){
+        for (ApplicationBlock block : app.getBlocks()) {
+                for (ApplicationFieldValue field : block.getFields()) {
+                    if (field.getId().equals(id)) {
+                        return field;
+                    }
+                }
+            }
+        return null;
     }
 
 }

@@ -191,6 +191,7 @@ public final class Utilities {
     public static final String STATICMULTIFIELD_PARAM_HINT = "applicationStaticMultiFieldHint";
     public static final String STATICMULTIFIELD_PARAM_WRAPPER = "applicationStaticMultiFieldWrapper";
     public static final String STATICMULTIFIELD_PARAM_DESCRIBES = "applicationStaticMultiFieldDescribes";
+    public static final String STATICMULTIFIELD_PARAM_AGGREGATOR = "applicationStaticMultiFieldAggregator";
     public static final String STATICMULTIFIELD_PARAM_STATE_CATEGORIES = "applicationStaticMultiFieldStateCategories";
     
     public static final String MULTIFIELD_ASPECT_NAME = "applicationMultiField";

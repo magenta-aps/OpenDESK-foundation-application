@@ -21,6 +21,7 @@ import dk.opendesk.foundationapplication.beans.WorkflowBean;
 import dk.opendesk.foundationapplication.enums.Functional;
 import dk.opendesk.foundationapplication.enums.PermissionGroup;
 import dk.opendesk.foundationapplication.enums.StateCategory;
+import dk.opendesk.foundationapplication.validator.aggregate.IntegerRating;
 import dk.opendesk.foundationapplication.webscripts.foundation.ResetDemoData;
 import java.time.Duration;
 import java.time.Instant;
@@ -348,8 +349,8 @@ public final class TestUtils {
         fields.add(ResetDemoData.buildValue("14", "Applied Amount", "display:block;", "Long", Long.class, Functional.amount(),  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,APPLICATION1_AMOUNT,null));
         fields.add(ResetDemoData.buildValue("15", "Registration Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"4321",null));
         fields.add(ResetDemoData.buildValue("16", "Account Number", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"00035254",null));
-        fields.add(ResetDemoData.buildValue("17", "Aggregate", "display:block;", "Long", String.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null,"00035254",null,
-                "aggregateComponent", "aggregateDescribes", "aggregateHint", "aggregateLayout", String.class, "aggregateWrapper"));
+        fields.add(ResetDemoData.buildValue("17", "Aggregate", "display:block;", "Long", Integer.class, null,  null,lorem(RANDOM.nextInt(15)),null,"'v-validate': 'number|max:15'",null, 6,null,
+                "aggregateComponent", "aggregateDescribes", "aggregateHint", "aggregateLayout", Integer.class, "aggregateWrapper", IntegerRating.class, StateCategory.ACCEPTED.getCategoryName()));
         app1Details.setFields(fields);
         app1.setBlocks(Arrays.asList(new ApplicationBlockSpecification[]{app1blockRecipient, app1blockOverview, app1Details}));
         application1 = applicationBean.addNewApplication(app1).asNodeRef();

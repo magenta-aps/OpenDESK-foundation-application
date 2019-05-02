@@ -90,6 +90,10 @@ public class AbstractTestClass extends BaseWebScriptTest {
     }
     
     protected <R> R get(Class<R> returnType, String path) throws IOException{
+        return get(returnType, path, TestUtils.ADMIN_USER);
+    }
+    
+    protected <R> R get(Class<R> returnType, String path, String userName) throws IOException{
         ObjectMapper mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         TestWebScriptServer.GetRequest request = new TestWebScriptServer.GetRequest(getPath(path));
@@ -162,12 +166,17 @@ public class AbstractTestClass extends BaseWebScriptTest {
     }
 
     protected <S, R> R post(S toSend, Class<R> recieve, String path, int statusCode) throws IOException {
+       return post(toSend, recieve, path, statusCode, TestUtils.ADMIN_USER);
+
+    }
+    
+    protected <S, R> R post(S toSend, Class<R> recieve, String path, int statusCode, String userName) throws IOException {
         ObjectMapper mapper = Utilities.getMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String data = getContent(toSend, mapper);
 
         TestWebScriptServer.Request request = new TestWebScriptServer.PostRequest(getPath(path), data, "application/json");
-        TestWebScriptServer.Response response = sendRequest(request, statusCode, TestUtils.ADMIN_USER);
+        TestWebScriptServer.Response response = sendRequest(request, statusCode, userName);
         if(recieve != null){
             return mapper.readValue(response.getContentAsString(), recieve);
         }
