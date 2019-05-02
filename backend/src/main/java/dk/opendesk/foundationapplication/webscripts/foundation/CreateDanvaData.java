@@ -209,7 +209,7 @@ public class CreateDanvaData extends ResetDemoData {
 
         List<ApplicationFieldValue> fileFields = Arrays.asList(headerField1,field9,field10,field11,field13,field14,field15,field16,field17,headerField2,field18,field19);
         for (ApplicationFieldValue fileField : fileFields) {
-            //fileField.setType(String.class.getCanonicalName());
+            fileField.setType(String.class.getCanonicalName());
             fileField.setLayout("block");
             fileField.setWrapper("block");
         }
